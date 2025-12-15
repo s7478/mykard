@@ -2,7 +2,7 @@ name: Simple Deploy to AWS
 
 on:
   push:
-    branches: [demo1, main, production]
+    branches: [main]
 
 jobs:
   deploy:
@@ -16,8 +16,17 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i deploy_key ubuntu@${{ secrets.EC2_IP }} << 'EOF'
             cd ~/CredLink
             git pull origin main
+            
+            # Install dependencies
+            npm install
+            
+            # Generate Prisma client
             npx prisma generate
+            
+            # Build the application
             npm run build
-            pm2 restart all
+            
+            # Restart PM2 processes with updated environment
+            pm2 restart all --update-env
           EOF
           rm deploy_key
