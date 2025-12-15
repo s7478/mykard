@@ -34,6 +34,8 @@ export default function UsersPage() {
   });
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [deletingUser, setDeletingUser] = useState<string | null>(null);
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [editForm, setEditForm] = useState<Partial<User>>({
     email: "",
     fullName: "",
@@ -174,6 +176,28 @@ export default function UsersPage() {
     return true;
   });
 
+  const toggleSelectUser = (id: string) => {
+    setSelectedUserIds((prev) =>
+      prev.includes(id) ? prev.filter((userId) => userId !== id) : [...prev, id]
+    );
+  };
+
+  const allVisibleSelected =
+    filteredUsers.length > 0 &&
+    filteredUsers.every((user) => selectedUserIds.includes(user.id));
+
+  const toggleSelectAllVisible = () => {
+    setSelectedUserIds((prev) => {
+      if (allVisibleSelected) {
+        const visibleIds = new Set(filteredUsers.map((u) => u.id));
+        return prev.filter((id) => !visibleIds.has(id));
+      }
+      const newIds = new Set(prev);
+      filteredUsers.forEach((u) => newIds.add(u.id));
+      return Array.from(newIds);
+    });
+  };
+
   // ✅ Actions (Edit / Delete / More)
   const handleEdit = (user: User) => {
     setEditingUser(user);
@@ -191,6 +215,40 @@ export default function UsersPage() {
   };
   
   const handleDelete = (id: string) => setDeletingUser(id);
+
+  const handleDeleteSelected = () => {
+    if (selectedUserIds.length === 0) return;
+    setShowBulkDeleteConfirm(true);
+  };
+
+  const confirmBulkDelete = async () => {
+    const idsToDelete = [...selectedUserIds];
+
+    try {
+      for (const id of idsToDelete) {
+        try {
+          const res = await fetch(`/api/admin/manage/users/delete`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: id }),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            console.error("Bulk delete failed for user", id, data);
+          }
+        } catch (e) {
+          console.error("Bulk delete error for user", id, e);
+        }
+      }
+
+      setUsers((prev) => prev.filter((user) => !idsToDelete.includes(user.id)));
+      setSelectedUserIds([]);
+    } catch (error) {
+      console.error("Bulk delete failed:", error);
+    } finally {
+      setShowBulkDeleteConfirm(false);
+    }
+  };
 
   const confirmDelete = async () => {
     if (!deletingUser) return;
@@ -332,9 +390,31 @@ export default function UsersPage() {
         <>
           {/* ===== Desktop Table ===== */}
           <div className={styles.tableContainer}>
+            <div
+              style={{
+                marginBottom: "1rem",
+                display: "flex",
+                justifyContent: "flex-end",
+              }}
+            >
+              <button
+                className={styles.deleteBtn}
+                disabled={selectedUserIds.length === 0}
+                onClick={handleDeleteSelected}
+              >
+                Delete Selected
+              </button>
+            </div>
             <table className={styles.table}>
               <thead>
                 <tr>
+                  <th>
+                    <input
+                      type="checkbox"
+                      checked={allVisibleSelected}
+                      onChange={toggleSelectAllVisible}
+                    />
+                  </th>
                   <th>Full Name</th>
                   <th>Email</th>
                   <th>Phone</th>
@@ -348,6 +428,13 @@ export default function UsersPage() {
               <tbody>
                 {filteredUsers.map((user) => (
                   <tr key={user.id}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={selectedUserIds.includes(user.id)}
+                        onChange={() => toggleSelectUser(user.id)}
+                      />
+                    </td>
                     <td>{user.fullName}</td>
                     <td>{user.email}</td>
                     <td>{user.phone || "N/A"}</td>
@@ -419,6 +506,11 @@ export default function UsersPage() {
                     Joined: {new Date(user.createdAt).toLocaleDateString()}
                   </p>
                   <div className={styles.mobileActions}>
+                    <input
+                      type="checkbox"
+                      checked={selectedUserIds.includes(user.id)}
+                      onChange={() => toggleSelectUser(user.id)}
+                    />
                     <Edit
                       className={styles.editIcon}
                       onClick={() => handleEdit(user)}
@@ -579,6 +671,30 @@ export default function UsersPage() {
               <button 
                 className={styles.deleteBtn}
                 onClick={confirmDelete}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Delete Confirmation Modal */}
+      {showBulkDeleteConfirm && (
+        <div className={styles.modalBackdrop}>
+          <div className={styles.modal}>
+            <h2>Confirm Delete</h2>
+            <p>Are you sure you want to delete the user?</p>
+            <div className={styles.modalActions}>
+              <button
+                className={styles.cancelBtn}
+                onClick={() => setShowBulkDeleteConfirm(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className={styles.deleteBtn}
+                onClick={confirmBulkDelete}
               >
                 Delete
               </button>
