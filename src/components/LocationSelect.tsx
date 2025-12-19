@@ -114,7 +114,7 @@ const LocationSelect: React.FC<LocationSelectProps> = ({
           onMouseDown={(e) => e.preventDefault()}
         >
           {/* Search UI inside dropdown */}
-          <div
+          {/* <div
             style={{
               position: "sticky",
               top: 0,
@@ -130,7 +130,7 @@ const LocationSelect: React.FC<LocationSelectProps> = ({
             <span style={{ fontSize: "14px", color: "#64748b" }}>
               Showing results for “{value || "city"}”
             </span>
-          </div>
+          </div> */}
 
           {/* City List */}
           {cityOptions
