@@ -267,28 +267,23 @@ const Dashboard = () => {
           })
         ) : (
           <>
-            <div className="w-full flex justify-center py-4 break-inside-avoid">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-100 border border-yellow-300 rounded-lg text-yellow-800 text-sm shadow-sm">
-                <span>⚠️</span>
-                <span>Showing demo card - No cards found in database</span>
-              </div>
-            </div>
             <div className="w-full flex justify-center break-inside-avoid">
-              <motion.div
-                key={cards[0].id}
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ type: "spring", stiffness: 100, damping: 20 }}
-                whileHover={{
-                  scale: 1.02,
-                  y: -4,
-                }}
-                className="transition-all duration-300 cursor-pointer"
-                style={{ marginBottom: '1.5rem' }}
-              >
-                {renderCardPreview(cards[0])}
-              </motion.div>
-            </div>
+  <motion.div
+    key={cards[0].id}
+    initial={{ opacity: 0, y: 50 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ type: "spring", stiffness: 100, damping: 20 }}
+    whileHover={{
+      scale: 1.02,
+      y: -4,
+    }}
+    className="transition-all duration-300 cursor-pointer"
+    style={{ marginBottom: '1.5rem' }}
+  >
+    {renderCardPreview(cards[0])}
+  </motion.div>
+</div>
+
           </>
         )}
       </div>

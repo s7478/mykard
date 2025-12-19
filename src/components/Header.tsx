@@ -65,7 +65,7 @@ export default function Header() {
 
   return (
     <>
-      <style jsx global>{`
+      {/* <style jsx global>{`
         .profile-dropdown-desktop {
           z-index: 999999 !important;
           position: absolute !important;
@@ -74,7 +74,7 @@ export default function Header() {
           z-index: 999999 !important;
           position: fixed !important;
         }
-      `}</style>
+      `}</style> */}
       <header 
         className="bg-white/95 backdrop-blur-xl border-b border-blue-100/50 shadow-sm mobile-fixed-header" 
         style={{ 
@@ -241,7 +241,7 @@ export default function Header() {
                             zIndex: "999999 !important",
                             transform: "translateX(-16px)",
                           }}
-                          className="profile-dropdown-desktop"
+                          className="absolute right-0 mt-2 w-[220px] max-w-[calc(100vw-32px)] bg-white/95 backdrop-blur-md border border-gray-200/50 rounded-xl shadow-xl shadow-black/20 py-2 z-[999999]"
                         >
                           <Link
                             href="/dashboard"
@@ -317,7 +317,7 @@ export default function Header() {
                             padding: "12px",
                           }}
                           onClick={() => setIsDropdownOpen(false)}
-                          className="profile-dropdown-mobile"
+                          className="fixed inset-0 z-[999999] bg-slate-950/45 backdrop-blur-sm flex justify-center items-start p-3"
                         >
                           <motion.div
                             initial={{ x: 24, y: -8, opacity: 0, scale: 0.98 }}
