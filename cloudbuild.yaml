@@ -1,0 +1,16 @@
+steps:
+  - name: 'node:20'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        npm install
+        npm run build
+    env:
+      - NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyBCt_QhVfDJiuG6GXbI9_lqBHa3hDsmDV4
+      - NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=credlink-01.firebaseapp.com
+      - NEXT_PUBLIC_FIREBASE_PROJECT_ID=credlink-01
+      - NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=credlink-01.firebasestorage.app
+      - NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=226902678503
+      - NEXT_PUBLIC_FIREBASE_APP_ID=1:226902678503:web:fd3d13d4482ea4cd19fb42
+      - NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-RV6R387M1G
