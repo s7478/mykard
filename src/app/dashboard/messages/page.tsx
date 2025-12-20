@@ -575,7 +575,7 @@ function MessagesPageContent() {
     },
     searchContainer: {
       position: "relative" as const,
-      maxWidth: "400px",
+      maxWidth: "100%",
     },
     searchInput: {
       width: "100%",
