@@ -12,6 +12,7 @@ const poppins= Poppins({
   display: "swap",
 });
 
+
 export const metadata: Metadata = {
   title: "MyKard",
   description: "Create a credible professional profile that showcases your expertise and connects you with opportunities.",

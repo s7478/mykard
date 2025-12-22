@@ -68,6 +68,7 @@ const LocationSelect: React.FC<LocationSelectProps> = ({
         <input
           placeholder={placeholder}
           value={value}
+          required
           onChange={(e) => {
             onChange(e.target.value);
             setShowList(true);
