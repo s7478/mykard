@@ -1,35 +1,68 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
 import DigitalCardPreviewComponent from '@/components/cards/DigitalCardPreview';
 import FlatCardPreviewComponent from '@/components/cards/FlatCardPreview';
 import ModernCardPreviewComponent from '@/components/cards/ModernCardPreview';
 import SleekCardPreviewComponent from '@/components/cards/SleekCardPreview';
 import LocationSelect from "@/components/LocationSelect"; 
 
+// Import Shared CSS
+import styles from './create.module.css'; 
 
-// ====================================================================
-// START: EditPage Component
-// ====================================================================
-
-// Define interface for the new fields
 interface ExtraField {
   id: number;
   name: string;
   link: string;
 }
 
-const EditPage = () => {
+
+
+const FONT_OPTIONS = [
+  // --- Sans Serif (Clean & Modern) ---
+  { label: 'Standard (Arial)', value: 'Arial, Helvetica, sans-serif' },
+  { label: 'Modern (Verdana)', value: 'Verdana, Geneva, sans-serif' },
+  { label: 'Clean (Open Sans/Segoe)', value: '"Segoe UI", "Open Sans", Helvetica, sans-serif' },
+  { label: 'Minimal (Helvetica)', value: 'Helvetica, "Helvetica Neue", Arial, sans-serif' },
+  { label: 'Humanist (Gill Sans)', value: '"Gill Sans", "Gill Sans MT", Calibri, sans-serif' },
+  { label: 'Rounded (Tahoma)', value: 'Tahoma, Geneva, sans-serif' },
+  { label: 'Stylish (Trebuchet)', value: '"Trebuchet MS", "Lucida Sans Unicode", sans-serif' },
+
+  // --- Serif (Traditional & Elegant) ---
+  { label: 'Elegant (Georgia)', value: 'Georgia, serif' },
+  { label: 'Classic (Times New Roman)', value: '"Times New Roman", Times, serif' },
+  { label: 'Formal (Palatino)', value: '"Palatino Linotype", "Book Antiqua", Palatino, serif' },
+  { label: 'Old Style (Garamond)', value: 'Garamond, Baskerville, "Baskerville Old Face", serif' },
+
+  // --- Display & Unique ---
+  { label: 'Bold (Impact)', value: 'Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif' },
+  { label: 'Monospace (Courier)', value: '"Courier New", Courier, monospace' },
+  { label: 'Terminal (Lucida)', value: '"Lucida Console", Monaco, monospace' },
+  { label: 'Comic (Comic Sans)', value: '"Comic Sans MS", "Chalkboard SE", sans-serif' }, // Optional
+  { label: 'Fantasy (Copperplate)', value: 'Copperplate, Papyrus, fantasy' },
+];
+
+
+
+
+const CreatePage = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('Display');
-  const [selectedColor1, setSelectedColor1] = useState('');
-  const [selectedColor2, setSelectedColor2] = useState(''); 
+  const [selectedColor1, setSelectedColor1] = useState('#145dfd');
+  const [selectedColor2, setSelectedColor2] = useState('#00c0fd'); 
+  const [textColor, setTextColor] = useState('#ffffff');
   const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
+
+  // Phone State Logic
   const [phone, setPhone] = useState('');
+  const [isEditingPhone, setIsEditingPhone] = useState(false); // Controls read-only state
+  const [includePhone, setIncludePhone] = useState(true); // Privacy Toggle
+
   const [emailLink, setEmailLink] = useState('');
   const [phoneLink, setPhoneLink] = useState('');
-  const [selectedDesign, setSelectedDesign] = useState('');
+  const [selectedDesign, setSelectedDesign] = useState('Classic');
   const [prefix, setPrefix] = useState('');
   const [middleName, setMiddleName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -46,86 +79,37 @@ const EditPage = () => {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [originalUserProfileImage, setOriginalUserProfileImage] = useState<string | null>(null);
   const [resumeFile, setResumeFile] = useState<File | null>(null);
-  const [selectedFont, setSelectedFont] = useState('');
+  const [selectedFont, setSelectedFont] = useState('Arial, sans-serif');
   const [cardName, setCardName] = useState('');
-  const [cardType, setCardType] = useState('');
+  const [cardType, setCardType] = useState('Personal');
   const [bannerImage, setBannerImage] = useState<string | null>(null);
+  const [bannerImageFile, setBannerImageFile] = useState<File | null>(null);
   const [cardLocation, setCardLocation] = useState('');
   
-  // Renamed cardDescription to about
   const [about, setAbout] = useState('');
-
-  // --- NEW STATE for DigitalCardPreview ---
   const [skills, setSkills] = useState('');
   const [portfolio, setPortfolio] = useState('');
   const [experience, setExperience] = useState('');
   const [linkedin, setLinkedin] = useState('');
   const [website, setWebsite] = useState('');
-  // --- ADDED NEW STATE ---
   const [services, setServices] = useState('');
   const [reviews, setReviews] = useState('');
-  // --- END NEW STATE ---
   
   const [isCustomTitle, setIsCustomTitle] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLargeScreen, setIsLargeScreen] = useState(true);
 
-  // Card Type functionality
   const [customTypes, setCustomTypes] = useState<string[]>([]);
   const [showCustomTypeInput, setShowCustomTypeInput] = useState(false);
   const [customTypeInput, setCustomTypeInput] = useState('');
   
-  // Loading state for user data
   const [isLoadingUser, setIsLoadingUser] = useState(true);
 
-  // Fetch current user data on component mount
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch('/api/user/me', {
-          credentials: 'include'
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          const user = data.user;
-          
-          // Set user data with fallbacks
-          setFirstName(user.fullName?.split(' ')[0] || '');
-          setEmail(user.email || '');
-          setPhone(user.phone || '');
-          setProfileImage(user.profileImage || null);
-          setOriginalUserProfileImage(user.profileImage || null);
-          
-          // Set some defaults
-          setSelectedColor1('#145dfd');
-          setSelectedColor2('#00c0fd');
-          setSelectedDesign('Classic');
-          setSelectedFont('Arial, sans-serif');
-          setCardType('Personal');
-        }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        // Set defaults even if fetch fails
-        setSelectedColor1('#145dfd');
-        setSelectedColor2('#00c0fd');
-        setSelectedDesign('Classic');
-        setSelectedFont('Arial, sans-serif');
-        setCardType('Personal');
-      } finally {
-        setIsLoadingUser(false);
-      }
-    };
-
-    fetchUserData();
-  }, []);
-
-  // --- NEW STATE for "Add Field" Modal ---
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newFieldName, setNewFieldName] = useState('');
   const [newFieldLink, setNewFieldLink] = useState('');
   const [extraFields, setExtraFields] = useState<ExtraField[]>([]);
-  // --- END NEW STATE ---
+  const [isCustomFieldName, setIsCustomFieldName] = useState(false);
 
   const [professionalTitles, setProfessionalTitles] = useState<string[]>([]);
   const [filteredTitles, setFilteredTitles] = useState<string[]>([]);
@@ -135,11 +119,62 @@ const EditPage = () => {
   const [popupMessage, setPopupMessage] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
-  const [bannerImageFile, setBannerImageFile] = useState<File | null>(null);
   const [existingCardId, setExistingCardId] = useState<string | null>(null);
 
+  const socialPlatforms = [
+    'WhatsApp', 'GitHub', 'Twitter', 'Instagram', 'Facebook', 
+    'YouTube', 'Discord', 'Telegram', 'X', 'Other'
+  ];
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch('/api/user/me', { credentials: 'include' });
+        if (response.ok) {
+          const data = await response.json();
+          const user = data.user;
+          setFirstName(user.fullName?.split(' ')[0] || '');
+          setEmail(user.email || '');
+          setPhone(user.phone || '');
+          setProfileImage(user.profileImage || null);
+          setOriginalUserProfileImage(user.profileImage || null);
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      } finally {
+        setIsLoadingUser(false);
+      }
+    };
+    fetchUserData();
+  }, []);
+
+  useEffect(() => {
+    const loadProfessions = async () => {
+      try {
+        const response = await fetch('/assets/all_professions.csv');
+        const csvText = await response.text();
+        const professions = csvText.split('\n').map(l => l.trim()).filter(l => l.length > 0).sort();
+        setProfessionalTitles([...professions, 'CUSTOM']);
+        setFilteredTitles([...professions, 'CUSTOM']);
+      } catch (error) {
+        const fallbackTitles = ['Software Engineer', 'Product Manager', 'Founder', 'CUSTOM'];
+        setProfessionalTitles(fallbackTitles);
+        setFilteredTitles(fallbackTitles);
+      }
+    };
+    loadProfessions();
+  }, []);
+
+  useEffect(() => {
+    if (titleSearchTerm.trim() === '') {
+      setFilteredTitles(professionalTitles);
+    } else {
+      const filtered = professionalTitles.filter(opt => opt.toLowerCase().includes(titleSearchTerm.toLowerCase()));
+      setFilteredTitles(filtered);
+    }
+  }, [titleSearchTerm, professionalTitles]);
+
   const hexToRgb = (hex: string) => {
-    // Ensure hex is valid
     if (!hex || hex.length < 4) hex = '#145DFD';
     const bigint = parseInt(hex.slice(1), 16);
     const r = (bigint >> 16) & 255;
@@ -158,7 +193,7 @@ const EditPage = () => {
   const [bValue1, setBValue1] = useState(initialRgb1.b);
   const [hexValue1, setHexValue1] = useState(selectedColor1);
 
-  const initialRgb2 = hexToRgb(selectedColor2); // New state for second color
+  const initialRgb2 = hexToRgb(selectedColor2);
   const [rValue2, setRValue2] = useState(initialRgb2.r);
   const [gValue2, setGValue2] = useState(initialRgb2.g);
   const [bValue2, setBValue2] = useState(initialRgb2.b);
@@ -166,286 +201,99 @@ const EditPage = () => {
 
   React.useEffect(() => {
     const newRgb1 = hexToRgb(selectedColor1);
-    if (newRgb1) {
-      setRValue1(newRgb1.r);
-      setGValue1(newRgb1.g);
-      setBValue1(newRgb1.b);
-      setHexValue1(selectedColor1);
-    }
+    if (newRgb1) { setRValue1(newRgb1.r); setGValue1(newRgb1.g); setBValue1(newRgb1.b); setHexValue1(selectedColor1); }
   }, [selectedColor1]);
 
-  React.useEffect(() => { // New useEffect for second color
+  React.useEffect(() => {
     const newRgb2 = hexToRgb(selectedColor2);
-    if (newRgb2) {
-      setRValue2(newRgb2.r);
-      setGValue2(newRgb2.g);
-      setBValue2(newRgb2.b);
-      setHexValue2(selectedColor2);
-    }
+    if (newRgb2) { setRValue2(newRgb2.r); setGValue2(newRgb2.g); setBValue2(newRgb2.b); setHexValue2(selectedColor2); }
   }, [selectedColor2]);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element;
-      if (!target.closest('.dropdown-container')) {
-        setIsDropdownOpen(false);
+
+  // Handle Phone Validation and Editing Toggle
+  const handlePhoneAction = () => {
+    if (isEditingPhone) {
+      // User is trying to SAVE the local edit
+      const phoneRegex = /^(?:(?:\+|0{0,2})91(\s*|[\-])?|[0]?)?([6789]\d{2}([ -]?)\d{3}([ -]?)\d{4})$/
+      
+      // If field is not empty, check regex
+      if (phone && !phoneRegex.test(phone)) {
+        setPopupMessage('Invalid Phone Number. Please enter a valid Indian number.');
+        setIsPopupOpen(true);
+        return; // Stop here, do not disable edit mode
       }
-    };
-
-    if (isDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isDropdownOpen]);
-
-  const handleDropdownToggle = () => {
-    if (!isDropdownOpen) {
-      setTitleSearchTerm('');
-    }
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
-  const handleTitleSelect = (selectedTitle: string) => {
-    if (selectedTitle === 'CUSTOM') {
-      setIsCustomTitle(true);
-      setTitle('');
+      
+      // If valid or empty
+      setIsEditingPhone(false);
+      if (phone) toast.success('Phone number format valid');
     } else {
-      setIsCustomTitle(false);
-      setTitle(selectedTitle);
-    }
-    setIsDropdownOpen(false);
-  };
-
-  useEffect(() => {
-    const loadProfessions = async () => {
-      try {
-        const response = await fetch('/assets/all_professions.csv');
-        const csvText = await response.text();
-        const professions = csvText
-          .split('\n')
-          .map(line => line.trim())
-          .filter(line => line.length > 0)
-          .sort();
-        setProfessionalTitles([...professions, 'CUSTOM']);
-        setFilteredTitles([...professions, 'CUSTOM']);
-      } catch (error) {
-        console.error('Error loading professions:', error);
-        const fallbackTitles = [
-          'Software Engineer', 'Product Manager', 'UX Designer', 'UI Designer',
-          'Full Stack Developer', 'Frontend Developer', 'Backend Developer',
-          'Mobile Developer', 'Data Scientist', 'Data Analyst', 'Marketing Manager',
-          'Digital Marketer', 'Content Creator', 'Social Media Manager',
-          'Business Analyst', 'Project Manager', 'Consultant', 'Entrepreneur',
-          'Founder', 'CEO', 'CTO', 'CFO', 'COO', 'Sales Manager',
-          'Account Manager', 'HR Manager', 'Recruiter', 'Teacher', 'Professor',
-          'Doctor', 'Lawyer', 'Architect', 'Graphic Designer', 'Photographer',
-          'Videographer', 'Writer', 'Editor', 'Journalist', 'Researcher',
-          'Engineer', 'Manager', 'Director', 'Coordinator', 'Specialist', 'CUSTOM',
-        ];
-        setProfessionalTitles(fallbackTitles);
-        setFilteredTitles(fallbackTitles);
-      }
-    };
-    loadProfessions();
-  }, []);
-
-  useEffect(() => {
-    if (titleSearchTerm.trim() === '') {
-      setFilteredTitles(professionalTitles);
-    } else {
-      const filtered = professionalTitles.filter(option =>
-        option.toLowerCase().includes(titleSearchTerm.toLowerCase())
-      );
-      setFilteredTitles(filtered);
-    }
-  }, [titleSearchTerm, professionalTitles]);
-
-  const handleRChange1 = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const r = Number(e.target.value);
-    if (!isNaN(r) && r >= 0 && r <= 255) {
-      setRValue1(r);
-      const newHex = rgbToHex(r, gValue1, bValue1);
-      setHexValue1(newHex);
-      setSelectedColor1(newHex);
+      // User wants to EDIT
+      setIsEditingPhone(true);
     }
   };
 
-  const handleGChange1 = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const g = Number(e.target.value);
-    if (!isNaN(g) && g >= 0 && g <= 255) {
-      setGValue1(g);
-      const newHex = rgbToHex(rValue1, g, bValue1);
-      setHexValue1(newHex);
-      setSelectedColor1(newHex);
-    }
-  };
+  const handleDropdownToggle = () => { if (!isDropdownOpen) setTitleSearchTerm(''); setIsDropdownOpen(!isDropdownOpen); };
+  const handleTitleSelect = (selected: string) => { if (selected === 'CUSTOM') { setIsCustomTitle(true); setTitle(''); } else { setIsCustomTitle(false); setTitle(selected); } setIsDropdownOpen(false); };
 
-  const handleBChange1 = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const b = Number(e.target.value);
-    if (!isNaN(b) && b >= 0 && b <= 255) {
-      setBValue1(b);
-      const newHex = rgbToHex(rValue1, gValue1, b);
-      setHexValue1(newHex);
-      setSelectedColor1(newHex);
-    }
-  };
-
-  const handleHexChange1 = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let hex = e.target.value.toUpperCase();
-    if (!hex.startsWith('#')) {
-        hex = '#' + hex;
-    }
-    
-    if (/^#([0-9A-F]{3}){1,2}$/i.test(hex)) {
-        setHexValue1(hex);
-        const newRgb = hexToRgb(hex);
-        if(newRgb) {
-            setRValue1(newRgb.r);
-            setGValue1(newRgb.g);
-            setBValue1(newRgb.b);
-            setSelectedColor1(hex);
-        }
-    } else {
-         setHexValue1(hex); // Allow user to type
-    }
-  };
-
-  const handleColorInputChange1 = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const hex = e.target.value.toUpperCase();
-    setHexValue1(hex);
-    const newRgb = hexToRgb(hex);
-    setRValue1(newRgb.r);
-    setGValue1(newRgb.g);
-    setBValue1(newRgb.b);
-    setSelectedColor1(hex);
-  };
-
-  // New handlers for second color
-  const handleRChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const r = Number(e.target.value);
-    if (!isNaN(r) && r >= 0 && r <= 255) {
-      setRValue2(r);
-      const newHex = rgbToHex(r, gValue2, bValue2);
-      setHexValue2(newHex);
-      setSelectedColor2(newHex);
-    }
-  };
-
-  const handleGChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const g = Number(e.target.value);
-    if (!isNaN(g) && g >= 0 && g <= 255) {
-      setGValue2(g);
-      const newHex = rgbToHex(rValue2, g, bValue2);
-      setHexValue2(newHex);
-      setSelectedColor2(newHex);
-    }
-  };
-
-  const handleBChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const b = Number(e.target.value);
-    if (!isNaN(b) && b >= 0 && b <= 255) {
-      setBValue2(b);
-      const newHex = rgbToHex(rValue2, gValue2, b);
-      setHexValue2(newHex);
-      setSelectedColor2(newHex);
-    }
-  };
-
-  const handleHexChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let hex = e.target.value.toUpperCase();
-    if (!hex.startsWith('#')) {
-        hex = '#' + hex;
-    }
-    
-    if (/^#([0-9A-F]{3}){1,2}$/i.test(hex)) {
-        setHexValue2(hex);
-        const newRgb = hexToRgb(hex);
-        if(newRgb) {
-            setRValue2(newRgb.r);
-            setGValue2(newRgb.g);
-            setBValue2(newRgb.b);
-            setSelectedColor2(hex);
-        }
-    } else {
-         setHexValue2(hex); // Allow user to type
-    }
-  };
-
-  const handleColorInputChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const hex = e.target.value.toUpperCase();
-    setHexValue2(hex);
-    const newRgb = hexToRgb(hex);
-    setRValue2(newRgb.r);
-    setGValue2(newRgb.g);
-    setBValue2(newRgb.b);
-    setSelectedColor2(hex);
-  };
-
-  // --- NEW HANDLER FUNCTIONS for "Add Field" ---
   const handleAddField = () => {
     if (newFieldName.trim()) {
-      const newField: ExtraField = {
-        id: Date.now(),
-        name: newFieldName,
-        link: newFieldLink,
-      };
+      const newField: ExtraField = { id: Date.now(), name: newFieldName, link: newFieldLink };
       setExtraFields([...extraFields, newField]);
       setNewFieldName('');
       setNewFieldLink('');
       setIsModalOpen(false);
+      setIsCustomFieldName(false);
     }
   };
 
-  const handleDeleteField = (id: number) => {
-    setExtraFields(extraFields.filter(field => field.id !== id));
-  };
+  const handleDeleteField = (id: number) => { setExtraFields(extraFields.filter(f => f.id !== id)); };
+  const handleExtraFieldChange = (id: number, value: string) => { setExtraFields(extraFields.map(f => f.id === id ? { ...f, link: value } : f)); };
 
-  const handleExtraFieldChange = (id: number, value: string) => {
-    setExtraFields(extraFields.map(field =>
-      field.id === id ? { ...field, link: value } : field
-    ));
-  };
+  const handleAddCustomType = () => { if (customTypeInput.trim()) { setCustomTypes([...customTypes, customTypeInput]); setCardType(customTypeInput); setShowCustomTypeInput(false); } };
+  const getAllCardTypes = () => ['Personal', 'Professional', 'Business', 'Company', 'Creator', 'Influencer', ...customTypes];
 
-  // Card Type helper functions
-  const builtInTypes = ['Personal', 'Professional', 'Business', 'Company', 'Creator', 'Influencer'];
+  // Color Change Handlers
+  const handleRChange1 = (e: React.ChangeEvent<HTMLInputElement>) => { const r = Number(e.target.value); setRValue1(r); const h = rgbToHex(r, gValue1, bValue1); setHexValue1(h); setSelectedColor1(h); };
+  const handleGChange1 = (e: React.ChangeEvent<HTMLInputElement>) => { const g = Number(e.target.value); setGValue1(g); const h = rgbToHex(rValue1, g, bValue1); setHexValue1(h); setSelectedColor1(h); };
+  const handleBChange1 = (e: React.ChangeEvent<HTMLInputElement>) => { const b = Number(e.target.value); setBValue1(b); const h = rgbToHex(rValue1, gValue1, b); setHexValue1(h); setSelectedColor1(h); };
+  const handleHexChange1 = (e: React.ChangeEvent<HTMLInputElement>) => { setHexValue1(e.target.value); setSelectedColor1(e.target.value); };
+  const handleColorInputChange1 = (e: React.ChangeEvent<HTMLInputElement>) => { setSelectedColor1(e.target.value); setHexValue1(e.target.value); };
   
-  const handleAddCustomType = () => {
-    if (customTypeInput.trim() && !builtInTypes.includes(customTypeInput.trim()) && !customTypes.includes(customTypeInput.trim())) {
-      setCustomTypes([...customTypes, customTypeInput.trim()]);
-      setCardType(customTypeInput.trim());
-      setCustomTypeInput('');
-      setShowCustomTypeInput(false);
-    }
-  };
+  const handleRChange2 = (e: React.ChangeEvent<HTMLInputElement>) => { const r = Number(e.target.value); setRValue2(r); const h = rgbToHex(r, gValue2, bValue2); setHexValue2(h); setSelectedColor2(h); };
+  const handleGChange2 = (e: React.ChangeEvent<HTMLInputElement>) => { const g = Number(e.target.value); setGValue2(g); const h = rgbToHex(rValue2, g, bValue2); setHexValue2(h); setSelectedColor2(h); };
+  const handleBChange2 = (e: React.ChangeEvent<HTMLInputElement>) => { const b = Number(e.target.value); setBValue2(b); const h = rgbToHex(rValue2, gValue2, b); setHexValue2(h); setSelectedColor2(h); };
+  const handleHexChange2 = (e: React.ChangeEvent<HTMLInputElement>) => { setHexValue2(e.target.value); setSelectedColor2(e.target.value); };
+  const handleColorInputChange2 = (e: React.ChangeEvent<HTMLInputElement>) => { setSelectedColor2(e.target.value); setHexValue2(e.target.value); };
 
-  const getAllCardTypes = () => {
-    return [...builtInTypes, ...customTypes];
-  };
-
-  // --- END NEW HANDLER FUNCTIONS ---
-
-  // Save card function
   const handleSaveCard = async () => {
     try {
       setIsSaving(true);
-
-      // Validate required fields - cardName is required
-      if (!cardName || cardName.trim() === '') {
-        setIsPopupOpen(true);
-        setPopupMessage('Please enter a card name.');
-        setIsSaving(false);
-        return;
+      if (!cardName || cardName.trim() === '') { 
+        setPopupMessage('Please enter a card name.'); 
+        setIsPopupOpen(true); 
+        setIsSaving(false); 
+        return; 
       }
 
-      // Create FormData
+
+      if (includePhone && !phone.trim()) {
+         setPopupMessage('You enabled "Show on Card" but the phone number is empty. Please enter a number or disable the toggle.');
+         setIsPopupOpen(true);
+         setIsSaving(false);
+         return;
+      }
+
+      const phoneRegex = /^(?:(?:\+|0{0,2})91(\s*[\-]\s*)?|[0]?)?[789]\d{9}$/;
+      if (includePhone && phone && !phoneRegex.test(phone)) {
+         setPopupMessage('Invalid Phone Number. Please enter a valid Indian number.');
+         setIsPopupOpen(true);
+         setIsSaving(false);
+         return;
+      }
+
       const formData = new FormData();
-      
-      // Add card name as the main identifier
       formData.append('cardName', cardName);
-      if (firstName) formData.append('firstName', firstName);
+      formData.append('firstName', firstName);
       if (middleName) formData.append('middleName', middleName);
       if (lastName) formData.append('lastName', lastName);
       if (prefix) formData.append('prefix', prefix);
@@ -460,19 +308,17 @@ const EditPage = () => {
       if (headline) formData.append('headline', headline);
       if (accreditations) formData.append('accreditations', accreditations);
       if (email) formData.append('email', email);
-      if (phone) formData.append('phone', phone);
+      if (includePhone && phone) formData.append('phone', phone);
       if (emailLink) formData.append('emailLink', emailLink);
       if (phoneLink) formData.append('phoneLink', phoneLink);
       if (cardLocation) formData.append('location', cardLocation);
       if (linkedin) formData.append('linkedinUrl', linkedin);
       if (website) formData.append('websiteUrl', website);
       if (cardType) formData.append('cardType', cardType);
-      if (selectedDesign) {
-        console.log('🎨 Sending selectedDesign:', selectedDesign);
-        formData.append('selectedDesign', selectedDesign);
-      }
+      if (selectedDesign) formData.append('selectedDesign', selectedDesign);
       if (selectedColor1) formData.append('selectedColor', selectedColor1);
       if (selectedColor2) formData.append('selectedColor2', selectedColor2);
+      if (textColor) formData.append('textColor', textColor);
       if (selectedFont) formData.append('selectedFont', selectedFont);
       if (about) formData.append('bio', about);
       if (skills) formData.append('skills', skills);
@@ -481,36 +327,22 @@ const EditPage = () => {
       if (services) formData.append('services', services);
       if (reviews) formData.append('review', reviews);
       
+      if (extraFields.length > 0) formData.append('customFields', JSON.stringify(extraFields));
+      else formData.append('customFields', JSON.stringify([]));
+
       formData.append('status', 'draft');
+      if (profileImageFile) formData.append('profileImage', profileImageFile);
+      if (bannerImageFile) formData.append('bannerImage', bannerImageFile);
+      if (resumeFile) formData.append('document', resumeFile);
 
-      // Add image files if they exist, otherwise fall back to existing user profile image
-      if (profileImageFile) {
-        formData.append('profileImage', profileImageFile);
-      } else if (originalUserProfileImage) {
-        formData.append('profileImageUrl', originalUserProfileImage);
-      }
-
-      if (bannerImageFile) {
-        formData.append('bannerImage', bannerImageFile);
-      }
-
-      // Make API call
-      const response = await fetch('/api/card/create', {
-        method: 'POST',
-        body: formData,
-      });
-
+      const response = await fetch('/api/card/create', { method: 'POST', body: formData });
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create card');
-      }
-
-      // Success!
+      if (!response.ok) throw new Error(data.error || 'Failed to create card');
+      
       setExistingCardId(data.card.id);
       setIsPopupOpen(true);
       setPopupMessage('Card created successfully!');
-
     } catch (error: any) {
       console.error('Error saving card:', error);
       setIsPopupOpen(true);
@@ -520,44 +352,24 @@ const EditPage = () => {
     }
   };
 
-  // Function to render the appropriate template based on selectedDesign
-  const renderTemplatePreview = () => {
-    const commonProps = {
-      firstName,
-      middleName,
-      lastName,
-      cardName,
-      title,
-      company,
-      location: cardLocation,
-      about,
-      skills,
-      portfolio,
-      experience,
-      services,
-      review: reviews,
-      photo: profileImage || '',
-      cover: bannerImage || '',
-      email,
-      phone,
-      linkedin,
-      website,
-      themeColor1: selectedColor1,
-      themeColor2: selectedColor2,
-      fontFamily: selectedFont,
-      cardType,
-    };
+  const handleDocumentClick = (url: string) => { if (url) window.open(url, '_blank'); };
 
+  const renderTemplatePreview = () => {
+
+    const previewPhone = includePhone ? phone : '';
+
+    const props = {
+      firstName, middleName, lastName, cardName, title, company, location: cardLocation,
+      about, skills, portfolio, experience, services, review: reviews, photo: profileImage || '', cover: bannerImage || '',
+      email, phone: previewPhone, linkedin, website, themeColor1: selectedColor1, themeColor2: selectedColor2, textColor: textColor,
+      fontFamily: selectedFont, cardType, customFields: extraFields,
+      onDocumentClick: handleDocumentClick
+    };
     switch (selectedDesign) {
-      case 'Flat':
-        return <FlatCardPreviewComponent {...commonProps} />;
-      case 'Modern':
-        return <ModernCardPreviewComponent {...commonProps} />;
-      case 'Sleek':
-        return <SleekCardPreviewComponent {...commonProps} />;
-      case 'Classic':
-      default:
-        return <DigitalCardPreviewComponent {...commonProps} />;
+      case 'Flat': return <FlatCardPreviewComponent {...props} />;
+      case 'Modern': return <ModernCardPreviewComponent {...props} />;
+      case 'Sleek': return <SleekCardPreviewComponent {...props} />;
+      default: return <DigitalCardPreviewComponent {...props} />;
     }
   };
 
@@ -567,183 +379,15 @@ const EditPage = () => {
         return (
           <>
             <div>
-              <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '20px', color: '#333' }}>Design</h3>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '30px' }}>
-                {[ 'Classic', 'Flat', 'Modern', 'Sleek'].map((design, index) => (
-                  <div
-                    key={design}
-                    onClick={() => setSelectedDesign(design)}
-                    style={{
-                      border: design === selectedDesign ? `2px solid ${selectedColor1}` : '1px solid #ddd',
-                      borderRadius: '10px',
-                      padding: '10px',
-                      width: 'calc(50% - 5px)',
-                      minWidth: '80px',
-                      textAlign: 'center',
-                      cursor: 'pointer',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      backgroundColor: 'white'
-                    }}
-                  >
-                    
-                    <div style={{
-                      width: '100%',
-                      maxWidth: '80px',
-                      height: '50px',
-                      borderRadius: '5px',
-                      marginBottom: '10px',
-                      margin: '0 auto 10px auto',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      background: design === 'Classic' ? `linear-gradient(135deg, ${selectedColor1} 0%, ${selectedColor2} 100%)` : 
-                                 design === 'Flat' ? 'white' :
-                                 design === 'Modern' ? `linear-gradient(145deg, ${selectedColor1}15, ${selectedColor2}15)` :
-                                 design === 'Sleek' ? `linear-gradient(135deg, ${selectedColor1}, ${selectedColor2})` :
-                                 design === 'Blend' ? 'white' : '#dcdcdc',
-                      border: design === 'Flat' ? `2px solid ${selectedColor1}` : 
-                             design === 'Sleek' ? 'none' : '1px solid #eee'
-                    }}>
-                      {design === 'Classic' && (
-                        <div style={{
-                          width: '100%',
-                          height: '100%',
-                          position: 'relative',
-                        }}>
-                          <div style={{
-                            width: '16px',
-                            height: '16px',
-                            borderRadius: '50%',
-                            backgroundColor: 'rgba(255,255,255,0.9)',
-                            position: 'absolute',
-                            bottom: '8px',
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            border: '1px solid rgba(255,255,255,0.8)',
-                          }}></div>
-                        </div>
-                      )}
-                      {design === 'Flat' && (
-                        <div style={{
-                          width: '100%',
-                          height: '100%',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '4px'
-                        }}>
-                          <div style={{
-                            width: '12px',
-                            height: '12px',
-                            borderRadius: '2px',
-                            backgroundColor: selectedColor1,
-                          }}></div>
-                          <div style={{
-                            width: '20px',
-                            height: '2px',
-                            backgroundColor: '#ddd',
-                            borderRadius: '1px'
-                          }}></div>
-                          <div style={{
-                            width: '16px',
-                            height: '1px',
-                            backgroundColor: '#eee',
-                          }}></div>
-                        </div>
-                      )}
-                      {design === 'Modern' && (
-                        <div style={{
-                          width: '100%',
-                          height: '100%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          padding: '8px'
-                        }}>
-                          <div style={{
-                            width: '10px',
-                            height: '10px',
-                            borderRadius: '50%',
-                            background: `linear-gradient(135deg, ${selectedColor1}, ${selectedColor2})`,
-                          }}></div>
-                          <div style={{
-                            flex: 1,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '2px'
-                          }}>
-                            <div style={{
-                              width: '100%',
-                              height: '2px',
-                              backgroundColor: '#333',
-                              borderRadius: '1px'
-                            }}></div>
-                            <div style={{
-                              width: '80%',
-                              height: '1px',
-                              backgroundColor: '#999',
-                            }}></div>
-                          </div>
-                        </div>
-                      )}
-                      {design === 'Sleek' && (
-                        <div style={{
-                          width: '100%',
-                          height: '100%',
-                          display: 'flex',
-                          flexDirection: 'column'
-                        }}>
-                          <div style={{
-                            height: '60%',
-                            background: `linear-gradient(135deg, ${selectedColor1}, ${selectedColor2})`,
-                            display: 'flex',
-                            alignItems: 'flex-end',
-                            padding: '4px'
-                          }}>
-                            <div style={{
-                              width: '8px',
-                              height: '8px',
-                              backgroundColor: 'rgba(255,255,255,0.3)',
-                              borderRadius: '1px',
-                              marginRight: '2px'
-                            }}></div>
-                          </div>
-                          <div style={{
-                            height: '40%',
-                            backgroundColor: 'white',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '1px'
-                          }}>
-                            <div style={{ width: '8px', height: '4px', backgroundColor: selectedColor1, fontSize: '4px' }}></div>
-                            <div style={{ width: '8px', height: '4px', backgroundColor: selectedColor1, fontSize: '4px' }}></div>
-                          </div>
-                        </div>
-                      )}
-                      {design === 'Blend' && (
-                        <div style={{
-                          width: '100%',
-                          height: '100%',
-                          position: 'relative',
-                          background: `linear-gradient(135deg, ${selectedColor1}20, ${selectedColor2}20)`,
-                          borderRadius: '8px'
-                        }}>
-                          <div style={{
-                            width: '14px',
-                            height: '14px',
-                            borderRadius: '50%',
-                            background: `linear-gradient(135deg, ${selectedColor1}, ${selectedColor2})`,
-                            position: 'absolute',
-                            top: '50%',
-                            left: '50%',
-                            transform: 'translate(-50%, -50%)',
-                            border: '1px solid white',
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-                          }}></div>
-                        </div>
-                      )}
+              <h3 className={styles.sectionTitle}>Design</h3>
+              <div className={styles.designGrid}>
+                {['Classic', 'Flat', 'Modern', 'Sleek'].map((design) => (
+                  <div key={design} onClick={() => setSelectedDesign(design)} className={styles.designOption} style={{ border: design === selectedDesign ? `2px solid ${selectedColor1}` : '1px solid #ddd' }}>
+                    <div className={styles.designVisual} style={{
+                        background: design === 'Classic' ? `linear-gradient(135deg, ${selectedColor1} 0%, ${selectedColor2} 100%)` : design === 'Flat' ? 'white' : design === 'Modern' ? `linear-gradient(145deg, ${selectedColor1}15, ${selectedColor2}15)` : design === 'Sleek' ? `linear-gradient(135deg, ${selectedColor1}, ${selectedColor2})` : '#dcdcdc',
+                        border: design === 'Flat' ? `2px solid ${selectedColor1}` : '1px solid #eee'
+                      }}>
+                       <div style={{width:'100%', height:'100%', position:'relative'}}></div>
                     </div>
                     <span style={{ fontSize: '12px', color: '#555' }}>{design}</span>
                   </div>
@@ -751,1440 +395,498 @@ const EditPage = () => {
               </div>
             </div>
             
-            <div style={{ marginBottom: '30px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '15px', color: '#333' }}>Cover Image</h3>
-              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '15px' }}>
-                <input
-                  type="file"
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  id="banner-image-upload"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      const file = e.target.files[0];
-                      setBannerImage(URL.createObjectURL(file));
-                      setBannerImageFile(file);
-                    }
-                  }}
-                />
-                <button
-                  onClick={() => document.getElementById('banner-image-upload')?.click()}
-                  style={{
-                    backgroundColor: 'transparent',
-                    border: '1px solid #ddd',
-                    borderRadius: '8px',
-                    padding: '10px 15px',
-                    fontSize: '14px',
-                    color: '#555',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    outline: 'none',
-                    width: '100%',
-                    justifyContent: 'center'
-                  }}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-                  Add Cover Image
-                </button>
+            <div className={styles.inputGroup}>
+              <h3 className={styles.subTitle}>Cover Image</h3>
+              <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                <input type="file" accept="image/*" style={{ display: 'none' }} id="banner-upload" onChange={(e) => { if(e.target.files?.[0]) setBannerImage(URL.createObjectURL(e.target.files[0])) }} />
+                <button onClick={() => document.getElementById('banner-upload')?.click()} className={styles.btnIcon}>Add Cover Image</button>
               </div>
             </div>
+
+            <div className={styles.inputGroup}>
+              <h3 className={styles.subTitle}>Profile Photo</h3>
+              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '15px' }}>
+                 <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#eee', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+                    {profileImage ? <img src={profileImage} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span>📷</span>}
+                 </div>
+                 <input type="file" accept="image/*" style={{ display: 'none' }} id="profile-media-upload" onChange={(e) => { if (e.target.files?.[0]) { setProfileImage(URL.createObjectURL(e.target.files[0])); setProfileImageFile(e.target.files[0]); } }} />
+                 <button onClick={() => document.getElementById('profile-media-upload')?.click()} className={styles.btnIcon}>Add Photo</button>
+              </div>
+            </div>
+
+            <div className={styles.inputGroup}>
+               <h3 className={styles.subTitle}>Color</h3>
+               <div className={styles.inputGroup}>
+                  <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'10px'}}>
+                     <input type="color" value={hexValue1} onChange={handleColorInputChange1} style={{width:'50px', height:'30px', border:'none', padding:'0'}} />
+                     <span>Color 1</span>
+                  </div>
+                  <div className={styles.rgbInputsWrapper}>
+                     <div className={styles.rgbInputGroup}><label className={styles.label}>R:</label><input type="number" value={rValue1} onChange={handleRChange1} className={styles.inputField} /></div>
+                     <div className={styles.rgbInputGroup}><label className={styles.label}>G:</label><input type="number" value={gValue1} onChange={handleGChange1} className={styles.inputField} /></div>
+                     <div className={styles.rgbInputGroup}><label className={styles.label}>B:</label><input type="number" value={bValue1} onChange={handleBChange1} className={styles.inputField} /></div>
+                  </div>
+               </div>
+               <div className={styles.inputGroup}>
+                  <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'10px'}}>
+                     <input type="color" value={hexValue2} onChange={handleColorInputChange2} style={{width:'50px', height:'30px', border:'none', padding:'0'}} />
+                     <span>Color 2</span>
+                  </div>
+                  <div className={styles.rgbInputsWrapper}>
+                     <div className={styles.rgbInputGroup}><label className={styles.label}>R:</label><input type="number" value={rValue2} onChange={handleRChange2} className={styles.inputField} /></div>
+                     <div className={styles.rgbInputGroup}><label className={styles.label}>G:</label><input type="number" value={gValue2} onChange={handleGChange2} className={styles.inputField} /></div>
+                     <div className={styles.rgbInputGroup}><label className={styles.label}>B:</label><input type="number" value={bValue2} onChange={handleBChange2} className={styles.inputField} /></div>
+                  </div>
+               </div>
+            </div>
+
+
             
-            <div style={{ marginBottom: '30px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '15px', color: '#333' }}>
-                Profile Photo
-              </h3>
-              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '15px' }}>
-                <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#eee', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
-                    {profileImage ? (
-                       <img src={profileImage} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                    )}
-                </div>
-                <input
-                  type="file"
-                  accept="image/*,video/*"
-                  style={{ display: 'none' }}
-                  id="profile-media-upload"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      const file = e.target.files[0];
-                      setProfileImage(URL.createObjectURL(file));
-                      setProfileImageFile(file);
-                    }
-                  }}
-                />
-                <button
-                  onClick={() => document.getElementById('profile-media-upload')?.click()}
-                  style={{
-                    backgroundColor: 'transparent',
-                    border: '1px solid #ddd',
-                    borderRadius: '8px',
-                    padding: '10px 15px',
-                    fontSize: '14px',
-                    color: '#555',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    outline: 'none',
-                    flex: '1',
-                    minWidth: '150px',
-                    justifyContent: 'center'
-                  }}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-                  Add Photo or Video
-                </button>
-              </div>
-            </div>
-
-            <div style={{ marginBottom: '40px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '15px', color: '#333' }}>
-                Color
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                {/* Color 1 */}
-                <div style={{ marginBottom: '15px'}}>
-                  <h4 style={{fontSize: '16px', marginBottom: '10px', color: '#333'}}>Color 1</h4>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                    <input
-                      type="color"
-                      value={hexValue1}
-                      onChange={handleColorInputChange1}
-                      style={{ width: '50px', height: '30px', border: 'none', padding: '0' }}
-                    />
-                    <span style={{ fontSize: '14px', color: '#555' }}>Select Color 1</span>
+            <div className={styles.inputGroup}>
+                  <label className={styles.label}>Text Color</label>
+                  <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
+                     <input 
+                       type="color" 
+                       value={textColor} 
+                       onChange={(e) => setTextColor(e.target.value)} 
+                       style={{width:'40px', height:'40px', border:'none', padding:'0', cursor:'pointer', borderRadius:'4px'}} 
+                     />
+                     <input 
+                       type="text" 
+                       value={textColor} 
+                       onChange={(e) => setTextColor(e.target.value)} 
+                       className={styles.inputField} 
+                       style={{maxWidth:'100px'}} 
+                     />
                   </div>
+               </div>
+            
 
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '10px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flex: '1', minWidth: '60px' }}>
-                      <label style={{ fontSize: '14px', color: '#555' }}>R:</label>
-                      <input
-                        type="number"
-                        value={rValue1}
-                        onChange={handleRChange1}
-                        min="0"
-                        max="255"
-                        style={{
-                          width: '100%',
-                          padding: '6px',
-                          fontSize: '14px',
-                          border: '1px solid #ddd',
-                          borderRadius: '6px',
-                          boxSizing: 'border-box',
-                          outline: 'none',
-                        }}
-                      />
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flex: '1', minWidth: '60px' }}>
-                      <label style={{ fontSize: '14px', color: '#555' }}>G:</label>
-                      <input
-                        type="number"
-                        value={gValue1}
-                        onChange={handleGChange1}
-                        min="0"
-                        max="255"
-                        style={{
-                          width: '100%',
-                          padding: '6px',
-                          fontSize: '14px',
-                          border: '1px solid #ddd',
-                          borderRadius: '6px',
-                          boxSizing: 'border-box',
-                          outline: 'none',
-                        }}
-                      />
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flex: '1', minWidth: '60px' }}>
-                      <label style={{ fontSize: '14px', color: '#555' }}>B:</label>
-                      <input
-                        type="number"
-                        value={bValue1}
-                        onChange={handleBChange1}
-                        min="0"
-                        max="255"
-                        style={{
-                          width: '100%',
-                          padding: '6px',
-                          fontSize: '14px',
-                          border: '1px solid #ddd',
-                          borderRadius: '6px',
-                          boxSizing: 'border-box',
-                          outline: 'none',
-                        }}
-                      />
-                    </div>
-                  </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <label style={{ fontSize: '14px', color: '#555' }}>Hex:</label>
-                    <input
-                      type="text"
-                      value={hexValue1}
-                      onChange={handleHexChange1}
-                      maxLength={7}
-                      style={{
-                        flex: '1',
-                        padding: '8px',
-                        fontSize: '14px',
-                        border: '1px solid #ddd',
-                        borderRadius: '8px',
-                        boxSizing: 'border-box',
-                        outline: 'none',
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Color 2 */}
-                <div style={{ marginBottom: '15px'}}>
-                  <h4 style={{fontSize: '16px', marginBottom: '10px', color: '#333'}}>Color 2</h4>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                    <input
-                      type="color"
-                      value={hexValue2}
-                      onChange={handleColorInputChange2}
-                      style={{ width: '50px', height: '30px', border: 'none', padding: '0' }}
-                    />
-                    <span style={{ fontSize: '14px', color: '#555' }}>Select Color 2</span>
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '10px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flex: '1', minWidth: '60px' }}>
-                      <label style={{ fontSize: '14px', color: '#555' }}>R:</label>
-                      <input
-                        type="number"
-                        value={rValue2}
-                        onChange={handleRChange2}
-                        min="0"
-                        max="255"
-                        style={{
-                          width: '100%',
-                          padding: '6px',
-                          fontSize: '14px',
-                          border: '1px solid #ddd',
-                          borderRadius: '6px',
-                          boxSizing: 'border-box',
-                          outline: 'none',
-                        }}
-                      />
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flex: '1', minWidth: '60px' }}>
-                      <label style={{ fontSize: '14px', color: '#555' }}>G:</label>
-                      <input
-                        type="number"
-                        value={gValue2}
-                        onChange={handleGChange2}
-                        min="0"
-                        max="255"
-                        style={{
-                          width: '100%',
-                          padding: '6px',
-                          fontSize: '14px',
-                          border: '1px solid #ddd',
-                          borderRadius: '6px',
-                          boxSizing: 'border-box',
-                          outline: 'none',
-                        }}
-                      />
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flex: '1', minWidth: '60px' }}>
-                      <label style={{ fontSize: '14px', color: '#555' }}>B:</label>
-                      <input
-                        type="number"
-                        value={bValue2}
-                        onChange={handleBChange2}
-                        min="0"
-                        max="255"
-                        style={{
-                          width: '100%',
-                          padding: '6px',
-                          fontSize: '14px',
-                          border: '1px solid #ddd',
-                          borderRadius: '6px',
-                          boxSizing: 'border-box',
-                          outline: 'none',
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <label style={{ fontSize: '14px', color: '#555' }}>Hex:</label>
-                    <input
-                      type="text"
-                      value={hexValue2}
-                      onChange={handleHexChange2}
-                      maxLength={7}
-                      style={{
-                        flex: '1',
-                        padding: '8px',
-                        fontSize: '14px',
-                        border: '1px solid #ddd',
-                        borderRadius: '8px',
-                        boxSizing: 'border-box',
-                        outline: 'none',
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div style={{ marginBottom: '30px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '15px', color: '#333' }}>Font</h3>
-              <div style={{ position: 'relative', width: '100%' }}>
-                <select
-                  value={selectedFont}
-                  onChange={(e) => setSelectedFont(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px 15px',
-                    fontSize: '14px',
-                    borderRadius: '8px',
-                    border: '1px solid #ddd',
-                    backgroundColor: 'white',
-                    appearance: 'none',
-                    cursor: 'pointer',
-                    outline: 'none'
-                  }}
-                >
-                  {['Arial, sans-serif', 'Verdana, sans-serif', 'Tahoma, sans-serif', 'Georgia, serif', 'Times New Roman, serif', 'Courier New, monospace', 'Lucida Console, monospace', 'Garamond, serif', 'Palatino, serif', 'Impact, sans-serif'].map(font => (
-                    <option key={font} value={font}>{font.split(',')[0]}</option>
-                  ))}
-                </select>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  style={{
-                    position: 'absolute',
-                    right: '10px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    pointerEvents: 'none',
-                    color: selectedColor1
-                  }}
-                >
-                  <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-              </div>
+            <div className={styles.inputGroup}>
+               <h3 className={styles.subTitle}>Typography</h3>
+               <label className={styles.label}>Font Style</label>
+               <select 
+                 value={selectedFont} 
+                 onChange={(e) => setSelectedFont(e.target.value)} 
+                 className={styles.selectField}
+               >
+                 {FONT_OPTIONS.map((font) => (
+                   <option key={font.value} value={font.value}>
+                     {font.label}
+                   </option>
+                 ))}
+               </select>
             </div>
           </>
         );
+
       case 'Information':
         return (
           <div>
-            <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '20px', color: '#333' }}>Personal</h3>
-            <div>
-              {/* Full Name Field */}
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px' }}>Full Name</label>
-                <input
-                  type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    fontSize: '14px',
-                    border: '1px solid #ddd',
-                    borderRadius: '8px',
-                    boxSizing: 'border-box',
-                    backgroundColor: '#f8f8f8',
-                    color: '#555',
-                    outline: 'none',
-                  }}
-                />
-              </div>
-
-              {/* Title Field with Custom Dropdown (same behavior as edit card page) */}
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px' }}>Title</label>
-                <div className="dropdown-container" style={{ position: 'relative' }}>
-                  {!isCustomTitle ? (
-                    <>
-                      <div style={{ position: 'relative' }}>
-                        <input
-                          type="text"
-                          value={title}
-                          onChange={(e) => {
-                            setTitle(e.target.value);
-                            setTitleSearchTerm(e.target.value);
-                          }}
-                          onFocus={handleDropdownToggle}
-                          placeholder="Search or select title..."
-                          style={{
-                            width: '100%',
-                            padding: '10px 30px 10px 10px',
-                            fontSize: '14px',
-                            border: '1px solid #ddd',
-                            borderRadius: '8px',
-                            boxSizing: 'border-box',
-                            backgroundColor: 'white',
-                            color: '#555',
-                            outline: 'none',
-                            cursor: 'pointer',
-                          }}
-                        />
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="18"
-                          height="18"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          style={{
-                            position: 'absolute',
-                            right: '10px',
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            pointerEvents: 'none',
-                            color: '#6B7280',
-                          }}
-                        >
-                          <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
-                      </div>
-                      {isDropdownOpen && (
-                        <div
-                          style={{
-                            position: 'absolute',
-                            top: '100%',
-                            left: '0',
-                            right: '0',
-                            backgroundColor: '#ffffff',
-                            border: '2px solid #D1D5DB',
-                            borderTop: 'none',
-                            borderRadius: '0 0 8px 8px',
-                            maxHeight: isLargeScreen ? '200px' : '150px',
-                            overflowY: 'auto',
-                            zIndex: 1000,
-                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                          }}
-                        >
-                          {filteredTitles.map((titleOption, index) => (
-                            <div
-                              key={index}
-                              onClick={() => handleTitleSelect(titleOption)}
-                              style={{
-                                padding: isLargeScreen ? '12px 16px' : '14px 16px',
-                                cursor: 'pointer',
-                                fontSize: isLargeScreen ? '16px' : '14px',
-                                color: '#1F2937',
-                                borderBottom:
-                                  index < filteredTitles.length - 1 ? '1px solid #E5E7EB' : 'none',
-                                backgroundColor: titleOption === 'CUSTOM' ? '#F9FAFB' : '#ffffff',
-                                fontWeight: titleOption === 'CUSTOM' ? '600' : 'normal',
-                                ...(isLargeScreen
-                                  ? {}
-                                  : {
-                                      minHeight: '44px',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                    }),
-                              }}
-                              onMouseOver={(e) => {
-                                e.currentTarget.style.backgroundColor =
-                                  titleOption === 'CUSTOM' ? '#F3F4F6' : '#F9FAFB';
-                              }}
-                              onMouseOut={(e) => {
-                                e.currentTarget.style.backgroundColor =
-                                  titleOption === 'CUSTOM' ? '#F9FAFB' : '#ffffff';
-                              }}
-                            >
-                              {titleOption}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <div>
-                      <input
-                        type="text"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder="Enter custom title..."
-                        style={{
-                          width: '100%',
-                          padding: '10px',
-                          fontSize: '14px',
-                          border: '1px solid #ddd',
-                          borderRadius: '8px',
-                          boxSizing: 'border-box',
-                          backgroundColor: 'white',
-                          color: '#555',
-                          outline: 'none',
-                        }}
-                      />
-                      <button
-                        onClick={() => {
-                          setIsCustomTitle(false);
-                          setIsDropdownOpen(true);
-                        }}
-                        style={{
-                          marginTop: '5px',
-                          padding: '5px 10px',
-                          fontSize: '12px',
-                          backgroundColor: '#6B7280',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Back to list
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Company Field */}
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px' }}>Company</label>
-                <input
-                  type="text"
-                  value={company}
-                  onChange={(e) => setCompany(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    fontSize: '14px',
-                    border: '1px solid #ddd',
-                    borderRadius: '8px',
-                    boxSizing: 'border-box',
-                    backgroundColor: 'white',
-                    color: '#555',
-                    outline: 'none',
-                  }}
-                />
-              </div>
-
-              {/* Location Dropdown with Search */}
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px' }}>
-                  Location
-                </label>
-                <LocationSelect
-                  value={cardLocation}
-                  onChange={(val: string) => setCardLocation(val)}
-                  placeholder="Search city…"
-                />
-              </div>
-
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px' }}>About / Description</label>
-                <textarea
-                  value={about}
-                  onChange={(e) => setAbout(e.target.value)}
-                  rows={4}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    fontSize: '14px',
-                    border: '1px solid #ddd',
-                    borderRadius: '8px',
-                    boxSizing: 'border-box',
-                    outline: 'none',
-                    resize: 'vertical',
-                  }}
-                />
-              </div>
-
-              {/* --- FIELDS MOVED TO "Fields" TAB --- */}
+            <h3 className={styles.sectionTitle}>Personal</h3>
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Full Name</label>
+              <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} className={`${styles.inputField} ${styles.inputGray}`} />
             </div>
+            
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Title</label>
+              <div className="dropdown-container" style={{ position: 'relative' }}>
+                {!isCustomTitle ? (
+                  <>
+                    <input type="text" value={title} onChange={(e) => { setTitle(e.target.value); setTitleSearchTerm(e.target.value); }} onFocus={handleDropdownToggle} placeholder="Search or select..." className={styles.inputField} />
+                    {isDropdownOpen && (
+                      <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'white', border: '1px solid #ddd', zIndex: 1000, maxHeight: '200px', overflowY: 'auto' }}>
+                         {filteredTitles.map((t, i) => (
+                           <div key={i} onClick={() => handleTitleSelect(t)} style={{padding:'10px', cursor:'pointer', borderBottom:'1px solid #eee'}}>{t}</div>
+                         ))}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div style={{display:'flex', gap:'5px', flexDirection:'column'}}>
+                     <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Custom Title" className={styles.inputField} />
+                     <button onClick={() => {setIsCustomTitle(false); setIsDropdownOpen(true);}} style={{fontSize:'12px', background:'none', border:'none', color:'#666', cursor:'pointer', textAlign:'left'}}>Back to list</button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className={styles.inputGroup}><label className={styles.label}>Company</label><input type="text" value={company} onChange={(e) => setCompany(e.target.value)} className={styles.inputField} /></div>
+            <div className={styles.inputGroup}><label className={styles.label}>Location</label><LocationSelect value={cardLocation} onChange={setCardLocation} /></div>
+            <div className={styles.inputGroup}><label className={styles.label}>Description</label><textarea value={about} onChange={(e) => setAbout(e.target.value)} rows={4} className={styles.textareaField} /></div>
           </div>
         );
+
       case 'Fields':
         return (
           <div>
-            <div style={{ marginBottom: '30px', border: '1px solid #eee', borderRadius: '8px', padding: '15px', backgroundColor: '#f9f9f9' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '15px' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: 'bold', margin: '0', color: '#333' }}>Core Fields <span style={{ fontSize: '14px', color: '#888', fontWeight: 'normal' }}>(?)</span></h3>
-              </div>
-
-              {/* Email */}
-              <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '15px', marginBottom: '15px', backgroundColor: 'white' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  {/* <span style={{ cursor: 'grab', color: '#aaa' }}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                  </span> */}
-                  <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#333', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    Email
-                  </span>
-                  {/* blank space */}
-                </div>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    fontSize: '14px',
-                    border: '1px solid #ddd',
-                    borderRadius: '8px',
-                    boxSizing: 'border-box',
-                    backgroundColor: '#f8f8f8',
-                    color: '#555',
-                    outline: 'none',
-                    marginBottom: '10px'
-                  }}
-                />
-                {/* <input
-                  type="text"
-                  placeholder="Link Box"
-                  value={emailLink}
-                  onChange={(e) => setEmailLink(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    fontSize: '14px',
-                    border: '1px solid #ddd',
-                    borderRadius: '8px',
-                    boxSizing: 'border-box',
-                    outline: 'none',
-                  }}
-                /> */}
-              </div>
-
-              {/* Phone */}
-              <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '15px', backgroundColor: 'white', marginBottom: '15px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  {/* <span style={{ cursor: 'grab', color: '#aaa' }}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                  </span> */}
-                  <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#333', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    Phone
-                  </span>
-                  {/* blank space */}
-                </div>
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', flexWrap: 'wrap' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #ddd', borderRadius: '8px', padding: '10px', backgroundColor: '#f8f8f8', flex: '1', minWidth: '150px' }}>
-                    <span style={{ marginRight: '8px' }}>🇮🇳</span>
-                    <input
-                      type="text"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      style={{
-                        border: 'none',
-                        outline: 'none',
-                        backgroundColor: 'transparent',
-                        fontSize: '14px',
-                        color: '#555',
-                        flex: '1',
-                        width: '100%'
-                      }}
-                    />
+             <div style={{ marginBottom: '30px', border: '1px solid #eee', borderRadius: '8px', padding: '15px', backgroundColor: '#f9f9f9' }}>
+               <h3 className={styles.subTitle}>Core Fields</h3>
+               
+               {/* Email */}
+               <div className={styles.inputGroup} style={{background:'white', padding:'15px', borderRadius:'8px', border:'1px solid #ddd'}}>
+                  <span className={styles.label}>Email</span>
+                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={`${styles.inputField} ${styles.inputGray}`} />
+               </div>
+               
+               {/* Phone */}
+<div className={styles.inputGroup} style={{background:'white', padding:'20px', borderRadius:'12px', border:'1px solid #e5e7eb', boxShadow:'0 2px 4px rgba(0,0,0,0.02)'}}>
+                  <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'12px'}}>
+                     <span className={styles.label} style={{marginBottom:0}}>Phone Number</span>
+                     
+                     {/* Privacy Toggle */}
+                     <label style={{
+                        display:'flex', 
+                        alignItems:'center', 
+                        gap:'8px', 
+                        fontSize:'13px', 
+                        cursor:'pointer', 
+                        color:'#4b5563', 
+                        fontWeight: 500,
+                        userSelect: 'none'
+                     }}>
+                        <div style={{position:'relative', width:'36px', height:'20px'}}>
+                           <input 
+                             type="checkbox" 
+                             checked={includePhone} 
+                             onChange={(e) => {
+                                const isChecked = e.target.checked;
+                                setIncludePhone(isChecked);
+                                if (!isChecked) setIsEditingPhone(false);
+                                else if (!phone) setIsEditingPhone(true);
+                             }} 
+                             style={{opacity:0, width:0, height:0}}
+                           />
+                           <span style={{
+                              position:'absolute', cursor:'pointer', top:0, left:0, right:0, bottom:0, 
+                              backgroundColor: includePhone ? selectedColor1 : '#ccc', 
+                              transition:'.4s', borderRadius:'34px'
+                           }}></span>
+                           <span style={{
+                              position:'absolute', content:'', height:'16px', width:'16px', 
+                              left: includePhone ? '18px' : '2px', bottom:'2px', 
+                              backgroundColor:'white', transition:'.4s', borderRadius:'50%'
+                           }}></span>
+                        </div>
+                        {includePhone ? 'Visible' : 'Hidden'}
+                     </label>
                   </div>
-                  <input
-                    type="text"
-                    placeholder="# Extension"
-                    value={phoneLink}
-                    onChange={(e) => setPhoneLink(e.target.value)}
-                    style={{
-                      width: '100px',
-                      minWidth: '80px',
-                      padding: '10px',
-                      fontSize: '14px',
-                      border: '1px solid #ddd',
-                      borderRadius: '8px',
-                      boxSizing: 'border-box',
-                      outline: 'none'
-                    }}
-                  />
-                </div>
-                {/* <input
-                  type="text"
-                  placeholder="Link Box"
-                  value={phoneLink}
-                  onChange={(e) => setPhoneLink(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    fontSize: '14px',
-                    border: '1px solid #ddd',
-                    borderRadius: '8px',
-                    boxSizing: 'border-box',
-                    outline: 'none',
-                  }}
-                /> */}
-              </div>
 
-              {/* ====================================================== */}
-              {/* START: Added Fields (Services, Skills, etc.)          */}
-              {/* ====================================================== */}
+                  {includePhone && (
+                    <div style={{display:'flex', gap:'12px', alignItems: 'stretch'}}>
+                       
+                       {/* Input Container: Grows to fill space */}
+                       <div style={{
+                          display:'flex', 
+                          alignItems:'center', 
+                          background: isEditingPhone ? '#ffffff' : '#f3f4f6', 
+                          border: isEditingPhone ? `2px solid ${selectedColor1}` : '1px solid #e5e7eb', 
+                          borderRadius:'10px', 
+                          padding:'0 16px', 
+                          flex: 1, // <--- This makes it take maximum width
+                          height: '50px', // <--- Taller Height
+                          transition: 'all 0.2s ease',
+                          boxShadow: isEditingPhone ? `0 0 0 4px ${selectedColor1}15` : 'none'
+                       }}>
+                          <span style={{marginRight:'12px', fontSize:'20px'}}>🇮🇳</span>
+                          <input 
+                            type="text" 
+                            value={phone} 
+                            onChange={(e)=>setPhone(e.target.value)} 
+                            disabled={!isEditingPhone}
+                            style={{
+                              border:'none', 
+                              background:'transparent', 
+                              outline:'none', 
+                              width:'100%', 
+                              fontSize: '16px', // Larger font
+                              color: isEditingPhone ? '#111827' : '#6b7280',
+                              fontWeight: 500,
+                              cursor: isEditingPhone ? 'text' : 'not-allowed'
+                            }} 
+                            placeholder="9876543210"
+                          />
+                       </div>
+                       
+                       {/* Action Button: Compact width */}
+                       <button 
+                         onClick={handlePhoneAction}
+                         style={{
+                           padding:'0 24px', 
+                           height: '50px', // Matches input height
+                           fontSize:'14px',
+                           fontWeight: 600,
+                           backgroundColor: isEditingPhone ? '#10b981' : 'white', // Green when saving
+                           color: isEditingPhone ? 'white' : selectedColor1,
+                           border: isEditingPhone ? 'none' : `2px solid ${selectedColor1}30`,
+                           borderRadius:'10px',
+                           cursor:'pointer',
+                           minWidth: '80px', // Fixed minimum width
+                           whiteSpace: 'nowrap',
+                           transition: 'all 0.2s',
+                           boxShadow: isEditingPhone ? '0 4px 6px -1px rgba(16, 185, 129, 0.3)' : 'none'
+                         }}
+                       >
+                         {isEditingPhone ? 'Save' : 'Edit'}
+                       </button>
+                    </div>
+                  )}
+               </div>
+               
+               {/* LinkedIn */}
+               <div className={styles.inputGroup} style={{background:'white', padding:'15px', borderRadius:'8px', border:'1px solid #ddd'}}>
+                  <span className={styles.label}>LinkedIn</span>
+                  <input type="text" value={linkedin} onChange={(e) => setLinkedin(e.target.value)} className={styles.inputField} />
+               </div>
 
-              {/* Services */}
-              <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '15px', backgroundColor: 'white', marginBottom: '15px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  {/* <span style={{ cursor: 'grab', color: '#aaa' }}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                  </span> */}
-                  <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#333', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    Services
-                  </span>
-                  <button 
-                    onClick={() => { setIsPopupOpen(true); setPopupMessage('By adding a comma, you can add another thing in the field'); }}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888' }}
-                  >
-                    <span style={{ fontWeight: 700, fontSize: 14, color: 'inherit' }}>i</span>
-                  </button>
-                </div>
-                <textarea
-                  value={services}
-                  onChange={(e) => setServices(e.target.value)}
-                  placeholder="e.g. SEO Audits, Content Campaigns"
-                  rows={3}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    fontSize: '14px',
-                    border: '1px solid #ddd',
-                    borderRadius: '8px',
-                    boxSizing: 'border-box',
-                    outline: 'none',
-                    resize: 'vertical'
-                  }}
-                />
-              </div>
+               {/* Website */}
+               <div className={styles.inputGroup} style={{background:'white', padding:'15px', borderRadius:'8px', border:'1px solid #ddd'}}>
+                  <span className={styles.label}>Website</span>
+                  <input type="text" value={website} onChange={(e) => setWebsite(e.target.value)} className={styles.inputField} />
+               </div>
 
-              {/* Portfolio */}
-              <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '15px', backgroundColor: 'white', marginBottom: '15px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  {/* <span style={{ cursor: 'grab', color: '#aaa' }}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                  </span> */}
-                  <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#333', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    Portfolio
-                  </span>
-                  {/* blank */}
-                </div>
-                <input
-                  type="url"
-                  value={portfolio}
-                  onChange={(e) => setPortfolio(e.target.value)}
-                  placeholder="https://your-portfolio.com"
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    fontSize: '14px',
-                    border: '1px solid #ddd',
-                    borderRadius: '8px',
-                    boxSizing: 'border-box',
-                    outline: 'none'
-                  }}
-                />
-              </div>
+               {/* Services */}
+               <div className={styles.inputGroup} style={{background:'white', padding:'15px', borderRadius:'8px', border:'1px solid #ddd'}}>
+                 <span className={styles.label}>Services</span>
+                 <textarea value={services} onChange={(e)=>setServices(e.target.value)} className={styles.textareaField} rows={3} placeholder="e.g. SEO Audits, Content Campaigns" />
+               </div>
 
-              {/* Skills */}
-              <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '15px', backgroundColor: 'white', marginBottom: '15px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  {/* <span style={{ cursor: 'grab', color: '#aaa' }}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                  </span> */}
-                  <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#333', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    Skills
-                  </span>
-                  <button 
-                    onClick={() => { setIsPopupOpen(true); setPopupMessage('By adding a comma, you can add another thing in the field'); }}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888' }}
-                  >
-                    <span style={{ fontWeight: 700, fontSize: 14, color: 'inherit' }}>i</span>
-                  </button>
-                </div>
-                <textarea
-                  value={skills}
-                  onChange={(e) => setSkills(e.target.value)}
-                  placeholder="e.g. SEO, Content Creation, Analytics"
-                  rows={3}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    fontSize: '14px',
-                    border: '1px solid #ddd',
-                    borderRadius: '8px',
-                    boxSizing: 'border-box',
-                    outline: 'none',
-                    resize: 'vertical'
-                  }}
-                />
-              </div>
+               {/* Portfolio */}
+               <div className={styles.inputGroup} style={{background:'white', padding:'15px', borderRadius:'8px', border:'1px solid #ddd'}}>
+                 <span className={styles.label}>Portfolio</span>
+                 <input type="url" value={portfolio} onChange={(e)=>setPortfolio(e.target.value)} className={styles.inputField} placeholder="https://your-portfolio.com" />
+               </div>
 
-              {/* Experience */}
-              <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '15px', backgroundColor: 'white', marginBottom: '15px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  {/* <span style={{ cursor: 'grab', color: '#aaa' }}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                  </span> */}
-                  <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#333', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    Experience
-                  </span>
-                  <button 
-                    onClick={() => { setIsPopupOpen(true); setPopupMessage('By adding a comma, you can add another thing in the field'); }}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888' }}
-                  >
-                    <span style={{ fontWeight: 700, fontSize: 14, color: 'inherit' }}>i</span>
-                  </button>
-                </div>
-                <textarea
-                  value={experience}
-                  onChange={(e) => setExperience(e.target.value)}
-                  placeholder="e.g. Lead Marketer @ MyKard (2023-Present)"
-                  rows={3}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    fontSize: '14px',
-                    border: '1px solid #ddd',
-                    borderRadius: '8px',
-                    boxSizing: 'border-box',
-                    outline: 'none',
-                    resize: 'vertical'
-                  }}
-                />
-              </div>
+               {/* Skills */}
+               <div className={styles.inputGroup} style={{background:'white', padding:'15px', borderRadius:'8px', border:'1px solid #ddd'}}>
+                 <span className={styles.label}>Skills</span>
+                 <textarea value={skills} onChange={(e)=>setSkills(e.target.value)} className={styles.textareaField} rows={3} placeholder="e.g. React, Node.js" />
+               </div>
 
-              {/* Review */}
-              <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '15px', backgroundColor: 'white', marginBottom: '15px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  {/* <span style={{ cursor: 'grab', color: '#aaa' }}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                  </span> */}
-                  <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#333', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    Review
-                  </span>
-                  <button 
-                    onClick={() => { setIsPopupOpen(true); setPopupMessage('By adding a comma, you can add another thing in the field'); }}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888' }}
-                  >
-                    <span style={{ fontWeight: 700, fontSize: 14, color: 'inherit' }}>i</span>
-                  </button>
-                </div>
-                <textarea
-                  value={reviews}
-                  onChange={(e) => setReviews(e.target.value)}
-                  placeholder="e.g. Great work!, Happy Client"
-                  rows={3}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    fontSize: '14px',
-                    border: '1px solid #ddd',
-                    borderRadius: '8px',
-                    boxSizing: 'border-box',
-                    outline: 'none',
-                    resize: 'vertical'
-                  }}
-                />
-              </div>
+               {/* Experience */}
+               <div className={styles.inputGroup} style={{background:'white', padding:'15px', borderRadius:'8px', border:'1px solid #ddd'}}>
+                 <span className={styles.label}>Experience</span>
+                 <textarea value={experience} onChange={(e)=>setExperience(e.target.value)} className={styles.textareaField} rows={3} placeholder="e.g. Senior Dev @ Google (2020-Present)" />
+               </div>
 
-              {/* LinkedIn */}
-              <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '15px', backgroundColor: 'white', marginBottom: '15px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  {/* <span style={{ cursor: 'grab', color: '#aaa' }}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                  </span> */}
-                  <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#333', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    LinkedIn
-                  </span>
-                  {/* blank space */}
-                </div>
-                <input
-                  type="text"
-                  value={linkedin}
-                  onChange={(e) => setLinkedin(e.target.value)}
-                  placeholder="e.g. https://linkedin.com/in/..."
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    fontSize: '14px',
-                    border: '1px solid #ddd',
-                    borderRadius: '8px',
-                    boxSizing: 'border-box',
-                    outline: 'none',
-                  }}
-                />
-              </div>
+               {/* Reviews */}
+               <div className={styles.inputGroup} style={{background:'white', padding:'15px', borderRadius:'8px', border:'1px solid #ddd'}}>
+                 <span className={styles.label}>Reviews</span>
+                 <textarea value={reviews} onChange={(e)=>setReviews(e.target.value)} className={styles.textareaField} rows={3} placeholder="Client testimonials..." />
+               </div>
 
-              {/* Website */}
-              <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '15px', backgroundColor: 'white', marginBottom: '15px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  {/* <span style={{ cursor: 'grab', color: '#aaa' }}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                  </span> */}
-                  <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#333', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    Website
-                  </span>
-                  {/* blank space */}
-                </div>
-                <input
-                  type="text"
-                  value={website}
-                  onChange={(e) => setWebsite(e.target.value)}
-                  placeholder="e.g. https://my-portfolio.com"
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    fontSize: '14px',
-                    border: '1px solid #ddd',
-                    borderRadius: '8px',
-                    boxSizing: 'border-box',
-                    outline: 'none',
-                  }}
-                />
-              </div>
+               {/* Document Upload */}
+               <div className={styles.fieldCard}>
+                 <div className={styles.fieldHeader}>
+                    <span className={styles.label}>Document (Resume/Portfolio)</span>
+                 </div>
+                 
+                 <input 
+                   type="file" 
+                   accept=".pdf,.doc,.docx" 
+                   style={{display:'none'}} 
+                   id="doc-upload" 
+                   onChange={(e) => { if(e.target.files?.[0]) setResumeFile(e.target.files[0]) }} 
+                 />
+                 
+                 {/* Upload Button */}
+                 <button 
+                   onClick={() => document.getElementById('doc-upload')?.click()} 
+                   className={styles.documentUploadBtn}
+                   style={{ 
+                     color: selectedColor1, 
+                     borderColor: selectedColor1 
+                   }}
+                 >
+                   <svg 
+                     xmlns="http://www.w3.org/2000/svg" 
+                     width="20" 
+                     height="20" 
+                     viewBox="0 0 24 24" 
+                     fill="none" 
+                     stroke="currentColor" 
+                     strokeWidth="2" 
+                     strokeLinecap="round" 
+                     strokeLinejoin="round"
+                     style={{ flexShrink: 0 }}
+                   >
+                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                     <polyline points="17 8 12 3 7 8"></polyline>
+                     <line x1="12" y1="3" x2="12" y2="15"></line>
+                   </svg>
+                   <span>
+                     {resumeFile ? `Change (${resumeFile.name})` : 'Upload Document'}
+                   </span>
+                 </button>
 
-              {/* ====================================================== */}
-              {/* END: Added Fields                                    */}
-              {/* ====================================================== */}
+                 {/* Remove Button (Only shows if file exists) */}
+                 {resumeFile && (
+                   <button 
+                     onClick={() => setResumeFile(null)} 
+                     className={styles.documentUploadBtn}
+                     style={{
+                       marginTop:'10px', 
+                       color:'#dc2626', 
+                       borderColor:'#dc2626', 
+                       backgroundColor: '#fff5f5'
+                     }}
+                   >
+                     <svg 
+                       xmlns="http://www.w3.org/2000/svg" 
+                       width="18" 
+                       height="18" 
+                       viewBox="0 0 24 24" 
+                       fill="none" 
+                       stroke="currentColor" 
+                       strokeWidth="2" 
+                       strokeLinecap="round" 
+                       strokeLinejoin="round"
+                       style={{ flexShrink: 0 }}
+                     >
+                       <polyline points="3 6 5 6 21 6"></polyline>
+                       <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                     </svg>
+                     <span>Remove Document</span>
+                   </button>
+                 )}
+               </div>
 
+             </div>
 
-              {/* --- NEWLY ADDED: Render Extra Fields --- */}
-              {/* <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '15px', marginTop: '30px' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: 'bold', margin: '0', color: '#333' }}>Additional Fields <span style={{ fontSize: '14px', color: '#888', fontWeight: 'normal' }}>(?)</span></h3>
-              </div>
-              {extraFields.map((field) => (
-                <div key={field.id} style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '15px', backgroundColor: 'white', marginBottom: '15px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                    <span style={{ cursor: 'grab', color: '#aaa' }}>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                    </span>
-                    <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#333', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={selectedColor1} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.72"></path></svg>
-                      {field.name}
-                    </span>
-                    <span onClick={() => handleDeleteField(field.id)} style={{ cursor: 'pointer', color: '#888' }}>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                    </span>
+             <div style={{ marginTop: '30px' }}>
+                <h3 className={styles.subTitle}>Additional Fields</h3>
+                {extraFields.map((field) => (
+                  <div key={field.id} className={styles.inputGroup} style={{ background: 'white', padding: '15px', borderRadius: '8px', border: '1px solid #ddd' }}>
+                    <div style={{display:'flex', justifyContent:'space-between', marginBottom:'5px'}}>
+                      <span className={styles.label} style={{color: selectedColor1}}>{field.name}</span>
+                      <span onClick={() => handleDeleteField(field.id)} style={{cursor:'pointer', color:'#888'}}>Delete</span>
+                    </div>
+                    <input type="text" value={field.link} onChange={(e) => handleExtraFieldChange(field.id, e.target.value)} className={styles.inputField} placeholder="Link" />
                   </div>
-                  <input
-                    type="text"
-                    placeholder="Link Box"
-                    value={field.link}
-                    onChange={(e) => handleExtraFieldChange(field.id, e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      fontSize: '14px',
-                      border: '1px solid #ddd',
-                      borderRadius: '8px',
-                      boxSizing: 'border-box',
-                      outline: 'none',
-                    }}
-                  />
-                </div>
-              ))} */}
-              {/* --- END Render Extra Fields --- */}
-
-
-              {/* --- NEWLY ADDED: Add Field Button --- */}
-              {/* <button
-                onClick={() => setIsModalOpen(true)}
-                style={{
-                  backgroundColor: 'transparent',
-                  border: `1px dashed ${selectedColor1}`,
-                  color: selectedColor1,
-                  borderRadius: '8px',
-                  padding: '10px 15px',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  outline: 'none',
-                  width: '100%',
-                  justifyContent: 'center',
-                  marginTop: '10px'
-                }}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                Add Field
-              </button> */}
-              {/* --- END Add Field Button --- */}
-
-            </div>
+                ))}
+                
+                <button onClick={() => setIsModalOpen(true)} className={styles.btnOutline} style={{borderColor: selectedColor1, color: selectedColor1}}>+ Add Field</button>
+             </div>
           </div>
         );
+
       case 'Card':
         return (
           <div>
-            <div style={{
-              backgroundColor: '#e0f7fa',
-              border: '1px solid #b2ebf2',
-              borderRadius: '8px',
-              padding: '10px 15px',
-              marginBottom: '30px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              color: '#00796b',
-              fontSize: '13px'
-            }}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-              This field does not appear on the card.
-            </div>
-
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px', fontWeight: 600 }}>
-                Card Name <span style={{ color: '#e53e3e', fontSize: '14px' }}>*</span>
-                <span style={{ color: '#999', fontSize: '11px', fontWeight: 400 }}> (main name displayed on card)</span>
-              </label>
-              <input
-                type="text"
-                value={cardName}
-                onChange={(e) => setCardName(e.target.value)}
-                placeholder="e.g., John Smith, ABC Company, Professional"
-                required
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  fontSize: '14px',
-                  border: '1px solid #145dfd',
-                  borderRadius: '8px',
-                  boxSizing: 'border-box',
-                  outline: 'none',
-                }}
-              />
-            </div>
-                <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px' }}>Card Type</label>
-              <select
-                value={cardType}
-                onChange={(e) => setCardType(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  fontSize: '14px',
-                  border: '1px solid #ddd',
-                  borderRadius: '8px',
-                  boxSizing: 'border-box',
-                  outline: 'none'
-                }}
-              >
-                <option value="">Select card type...</option>
-                {getAllCardTypes().map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
-              
-              {/* Custom Type Input */}
-              {!showCustomTypeInput ? (
-                <button
-                  type="button"
-                  onClick={() => setShowCustomTypeInput(true)}
-                  style={{
-                    marginTop: '8px',
-                    padding: '6px 12px',
-                    fontSize: '12px',
-                    color: selectedColor1 || '#2563eb',
-                    background: 'transparent',
-                    border: `1px solid ${selectedColor1 || '#2563eb'}`,
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    outline: 'none'
-                  }}
-                >
-                  + Add custom type
-                </button>
-              ) : (
-                <div style={{ marginTop: '8px', display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <input
-                    type="text"
-                    value={customTypeInput}
-                    onChange={(e) => setCustomTypeInput(e.target.value)}
-                    placeholder="Enter custom type..."
-                    style={{
-                      flex: 1,
-                      padding: '6px 8px',
-                      fontSize: '12px',
-                      border: '1px solid #ddd',
-                      borderRadius: '4px',
-                      outline: 'none'
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={handleAddCustomType}
-                    style={{
-                      padding: '6px 12px',
-                      fontSize: '12px',
-                      color: 'white',
-                      background: selectedColor1 || '#2563eb',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      outline: 'none'
-                    }}
-                  >
-                    Save
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowCustomTypeInput(false);
-                      setCustomTypeInput('');
-                    }}
-                    style={{
-                      padding: '6px 12px',
-                      fontSize: '12px',
-                      color: '#666',
-                      background: 'transparent',
-                      border: '1px solid #ddd',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      outline: 'none'
-                    }}
-                  >
-                    Cancel
-                  </button>
+             <div className={styles.inputGroup}>
+                <label className={styles.label}>Card Name *</label>
+                <input type="text" value={cardName} onChange={(e) => setCardName(e.target.value)} className={styles.inputField} style={{borderColor: '#145dfd'}} />
+             </div>
+             <div className={styles.inputGroup}>
+                <label className={styles.label}>Card Type</label>
+                <select value={cardType} onChange={(e) => setCardType(e.target.value)} className={styles.selectField}>
+                   <option value="">Select...</option>
+                   {getAllCardTypes().map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+             </div>
+             {/* Custom Type logic */}
+             {!showCustomTypeInput ? (
+                <button onClick={() => setShowCustomTypeInput(true)} style={{fontSize:'12px', color:selectedColor1, background:'transparent', border:'none', cursor:'pointer'}}>+ Add Custom Type</button>
+             ) : (
+                <div style={{display:'flex', gap:'10px', marginTop:'10px'}}>
+                   <input type="text" value={customTypeInput} onChange={(e)=>setCustomTypeInput(e.target.value)} className={styles.inputField} placeholder="Enter Type" />
+                   <button onClick={handleAddCustomType} className={`${styles.baseButton} ${styles.btnPrimary}`} style={{backgroundColor:selectedColor1}}>Save</button>
+                   <button onClick={()=>{setShowCustomTypeInput(false); setCustomTypeInput('')}} className={`${styles.baseButton} ${styles.btnSecondary}`}>Cancel</button>
                 </div>
-              )}
-            </div>
-
-            
-            {/* <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px' }}>Card Type</label>
-              <select
-                value={cardType}
-                onChange={(e) => setCardType(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  fontSize: '14px',
-                  border: '1px solid #ddd',
-                  borderRadius: '8px',
-                  boxSizing: 'border-box',
-                  outline: 'none',
-                  backgroundColor: 'white',
-                  appearance: 'none',
-                }}
-              >
-                <option value="Personal">Personal</option>
-                <option value="Professional">Professional</option>
-                <option value="Business">Business</option>
-              </select>
-            </div> */}
+             )}
           </div>
         );
-      default:
-        return null;
+      default: return null;
     }
   };
 
-  // Show loading while fetching user data
-  if (isLoadingUser) {
-    return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '100vh',
-        fontSize: '16px',
-        color: '#666'
-      }}>
-        Loading user information...
-      </div>
-    );
-  }
+  if (isLoadingUser) return <div className={styles.pageWrapper} style={{justifyContent:'center', alignItems:'center'}}>Loading...</div>;
 
   return (
-    <div className="create-wrap" style={{ 
-      display: 'flex', 
-      flexDirection: 'column',
-      minHeight: '100vh', 
-      backgroundColor: '#f0f2f5', 
-      padding: '10px', 
-      boxSizing: 'border-box',
-      gap: '15px',
-      paddingBottom: '110px'
-    }}>
-      <style>{`
-        @media (min-width: 768px) {
-          .container {
-            flex-direction: row !important;
-            align-items: flex-start !important;
-          }
-          .card-preview {
-            position: sticky !important;
-            top: 20px !important;
-            width: 400px !important; /* Fixed width for preview */
-            max-width: 400px !important;
-            flex-shrink: 0 !important;
-          }
-          .edit-panel {
-            flex: 1 !important;
-            min-width: 0 !important;
-          }
-        }
-      `}</style>
-
-      <style>{`
-        .create-wrap { padding: 10px; }
-        @media (max-width: 720px) {
-          .create-wrap { padding: 6px 8px 120px !important; }
-        }
-      `}</style>
-
-      <div className="container" style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '15px',
-        maxWidth: '1200px',
-        margin: '0 auto',
-        width: '100%'
-      }}>
-
-        {/* ==================================================================== */}
-        {/* START: Card Preview Section (NOW REPLACED)                       */}
-        {/* ==================================================================== */}
-        <div className="card-preview" style={{
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'flex-start',
-        }}>
-            {renderTemplatePreview()}
-        </div>
-        {/* ==================================================================== */}
-        {/* END: Card Preview Section                                          */}
-        {/* ==================================================================== */
-
-
-        <div className="edit-panel" style={{
-          width: '100%',
-          backgroundColor: 'white',
-          borderRadius: '15px',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-          padding: '20px',
-          fontFamily: 'Arial, sans-serif'
-        }}>
-          <div style={{ display: 'flex', borderBottom: '1px solid #eee', marginBottom: '20px', overflowX: 'auto' }}>
-            {['Display', 'Information', 'Fields', 'Card'].map(tab => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                style={{
-                  padding: '10px 15px',
-                  fontSize: 'clamp(13px, 3.5vw, 16px)',
-                  fontWeight: 'bold',
-                  border: 'none',
-                  backgroundColor: 'transparent',
-                  cursor: 'pointer',
-                  borderBottom: activeTab === tab ? `2px solid ${selectedColor1}` : 'none',
-                  color: activeTab === tab ? selectedColor1 : '#777',
-                  outline: 'none',
-                  marginRight: '10px',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                {tab}
-              </button>
-            ))}
+    <div className={styles.pageWrapper}>
+       <div className={styles.container}>
+          <div className={styles.cardPreviewWrapper}>
+             {renderTemplatePreview()}
           </div>
 
-          {renderContent()}
+          <div className={styles.editPanel}>
+             <div className={styles.tabContainer}>
+                {['Display', 'Information', 'Fields', 'Card'].map(tab => (
+                  <button key={tab} onClick={() => setActiveTab(tab)} className={styles.tabButton} style={{ borderBottom: activeTab === tab ? `2px solid ${selectedColor1}` : 'none', color: activeTab === tab ? selectedColor1 : '#777' }}>{tab}</button>
+                ))}
+             </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px', flexWrap: 'wrap' }}>
-            <button 
-              type="button"
-              onClick={() => router.push('/dashboard')}
-              style={{
-              backgroundColor: 'transparent',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              padding: '10px 20px',
-              fontSize: 'clamp(13px, 3.5vw, 16px)',
-              fontWeight: 'bold',
-              color: '#555',
-              cursor: 'pointer',
-              outline: 'none',
-              flex: '1',
-              minWidth: '100px'
-            }}>
-              Cancel
-            </button>
-            <button 
-              onClick={handleSaveCard}
-              disabled={isSaving}
-              style={{
-              backgroundColor: isSaving ? '#999' : selectedColor1,
-              border: 'none',
-              borderRadius: '8px',
-              padding: '10px 20px',
-              fontSize: 'clamp(13px, 3.5vw, 16px)',
-              fontWeight: 'bold',
-              color: 'white',
-              cursor: isSaving ? 'not-allowed' : 'pointer',
-              outline: 'none',
-              flex: '1',
-              minWidth: '100px'
-            }}>
-              {isSaving ? 'Saving...' : 'Save'}
-            </button>
+             {renderContent()}
+
+             <div className={styles.buttonGroup}>
+                <button onClick={() => router.push('/dashboard')} className={`${styles.baseButton} ${styles.btnSecondary}`}>Cancel</button>
+                <button onClick={handleSaveCard} disabled={isSaving} className={`${styles.baseButton} ${styles.btnPrimary}`} style={{backgroundColor: isSaving ? '#999' : selectedColor1}}>
+                  {isSaving ? 'Saving...' : 'Save'}
+                </button>
+             </div>
           </div>
-        </div>
-}</div>
+       </div>
 
-      {/* --- NEWLY ADDED: "Add Field" Modal --- */}
-      {isModalOpen && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          padding: '15px'
-        }}>
-          <div 
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '12px',
-              padding: '20px',
-              width: '100%',
-              maxWidth: '400px',
-              boxShadow: '0 5px 15px rgba(0, 0, 0, 0.1)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '15px'
-            }}
-          >
-            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: '#333' }}>Add New Field</h3>
-            
-            <div>
-              <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px' }}>Field Name</label>
-              <input
-                type="text"
-                value={newFieldName}
-                onChange={(e) => setNewFieldName(e.target.value)}
-                placeholder="e.g. Website, Twitter"
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  fontSize: '14px',
-                  border: '1px solid #ddd',
-                  borderRadius: '8px',
-                  boxSizing: 'border-box',
-                  outline: 'none'
-                }}
-              />
+       {isModalOpen && (
+         <div className={styles.modalOverlay} onClick={() => setIsModalOpen(false)}>
+            <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+               <h3 className={styles.subTitle}>Add New Field</h3>
+               
+               <div className={styles.inputGroup}>
+                 <label className={styles.label}>Field Name</label>
+                 {!isCustomFieldName ? (
+                   <select
+                     value={socialPlatforms.includes(newFieldName) ? newFieldName : ''}
+                     onChange={(e) => {
+                       const val = e.target.value;
+                       if (val === 'Other') { setIsCustomFieldName(true); setNewFieldName(''); } 
+                       else { setNewFieldName(val); }
+                     }}
+                     className={styles.selectField}
+                   >
+                     <option value="" disabled>Select Platform...</option>
+                     {socialPlatforms.map(p => <option key={p} value={p}>{p}</option>)}
+                   </select>
+                 ) : (
+                   <div style={{display:'flex', gap:'8px'}}>
+                     <input type="text" value={newFieldName} onChange={(e) => setNewFieldName(e.target.value)} placeholder="Enter name" className={styles.inputField} autoFocus />
+                     <button onClick={() => setIsCustomFieldName(false)} className={styles.btnSecondary} style={{padding:'0 15px', fontSize:'12px'}}>Back</button>
+                   </div>
+                 )}
+               </div>
+
+               <div className={styles.inputGroup}>
+                  <label className={styles.label}>Link</label>
+                  <input type="text" value={newFieldLink} onChange={(e) => setNewFieldLink(e.target.value)} className={styles.inputField} placeholder="https://..." />
+               </div>
+
+               <div className={styles.buttonGroup}>
+                  <button onClick={() => setIsModalOpen(false)} className={`${styles.baseButton} ${styles.btnSecondary}`}>Cancel</button>
+                  <button onClick={handleAddField} className={`${styles.baseButton} ${styles.btnPrimary}`} style={{backgroundColor: selectedColor1}}>Add</button>
+               </div>
             </div>
+         </div>
+       )}
 
-            <div>
-              <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px' }}>Link Box</label>
-              <input
-                type="text"
-                value={newFieldLink}
-                onChange={(e) => setNewFieldLink(e.target.value)}
-                placeholder="e.g. https://..."
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  fontSize: '14px',
-                  border: '1px solid #ddd',
-                  borderRadius: '8px',
-                  boxSizing: 'border-box',
-                  outline: 'none'
-                }}
-              />
+       {isPopupOpen && (
+         <div className={styles.modalOverlay}>
+            <div className={styles.modalContent} style={{textAlign:'center', maxWidth:'300px'}}>
+               <p style={{marginBottom:'15px'}}>{popupMessage}</p>
+               <button onClick={() => {
+                   setIsPopupOpen(false);
+                   // Only redirect if it was a success message
+                   if (popupMessage.toLowerCase().includes('successfully')) {
+                     router.push('/dashboard');
+                   }
+                 }}
+               className={`${styles.baseButton} ${styles.btnPrimary}`} style={{backgroundColor: selectedColor1}}>Got it!</button>
             </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                style={{
-                  backgroundColor: 'transparent',
-                  border: '1px solid #ddd',
-                  borderRadius: '8px',
-                  padding: '8px 15px',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  color: '#555',
-                  cursor: 'pointer',
-                  outline: 'none'
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAddField}
-                style={{
-                  backgroundColor: selectedColor1,
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '8px 15px',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  color: 'white',
-                  cursor: 'pointer',
-                  outline: 'none'
-                }}
-              >
-                Add Field
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {/* --- END Modal --- */}
-
-      {isPopupOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            backgroundColor: 'white',
-            padding: '20px',
-            borderRadius: '10px',
-            boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)',
-            zIndex: 1001,
-            textAlign: 'center',
-            maxWidth: '300px',
-          }}
-          onClick={() => setIsPopupOpen(false)}
-        >
-          <p style={{ margin: '0 0 15px', fontSize: '15px', color: '#333' }}>{popupMessage}</p>
-          <button
-            onClick={() => setIsPopupOpen(false)}
-            style={{
-              backgroundColor: selectedColor1,
-              color: 'white',
-              border: 'none',
-              padding: '8px 15px',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: 'bold',
-            }}
-          >
-            Got it!
-          </button>
-        </div>
-      )}
+         </div>
+       )}
     </div>
   );
 };
 
-export default EditPage;
+export default CreatePage;

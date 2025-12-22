@@ -44,6 +44,7 @@ export async function GET(req: NextRequest) {
         selectedDesign: true,
         selectedColor: true,
         selectedColor2: true,
+        textColor: true,
         selectedFont: true,
         displayTypes: true,
         profileImage: true,
@@ -61,6 +62,11 @@ export async function GET(req: NextRequest) {
         views: true,
         createdAt: true,
         updatedAt: true,
+
+
+        customFields: true,
+
+
         user: {
           select: {
             id: true,

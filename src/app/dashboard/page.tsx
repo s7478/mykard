@@ -48,8 +48,12 @@ interface Card {
   selectedDesign?: string;
   selectedColor?: string;
   selectedColor2?: string;
+  textColor?: string;
   selectedFont?: string;
   cardType?: string;
+
+  customFields?: string;
+  
 }
 
 // ----------------- Main Dashboard -----------------
@@ -65,6 +69,20 @@ const Dashboard = () => {
   // Split fullName with capitalization
   const capitalizedFullName = capitalizeFirstLetter(card.fullName || '');
   const nameParts = capitalizedFullName.split(' ');
+
+
+  let parsedCustomFields = [];
+  try {
+    if (card.customFields) {
+      parsedCustomFields = typeof card.customFields === 'string' 
+        ? JSON.parse(card.customFields) 
+        : card.customFields;
+    }
+  } catch (err) {
+    console.error("Failed to parse custom fields for card:", card.id, err);
+  }
+
+
   
   // Use EXACT same prop mapping as edit page
   const commonProps = {
@@ -89,9 +107,13 @@ const Dashboard = () => {
     website: card.websiteUrl || card.website || '',
     themeColor1: card.selectedColor || '#3b82f6',
     themeColor2: card.selectedColor2 || '#2563eb',
+    textColor: card.textColor || '#ffffff',
     fontFamily: card.selectedFont || 'system-ui, sans-serif',
     cardType: card.cardType || '',
     documentUrl: card.documentUrl || '',
+
+    customFields: parsedCustomFields,
+
     onDocumentClick: (url: string) => setSelectedDocumentUrl(url),
   };
 
@@ -267,28 +289,23 @@ const Dashboard = () => {
           })
         ) : (
           <>
-            <div className="w-full flex justify-center py-4 break-inside-avoid">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-100 border border-yellow-300 rounded-lg text-yellow-800 text-sm shadow-sm">
-                <span>⚠️</span>
-                <span>Showing demo card - No cards found in database</span>
-              </div>
-            </div>
             <div className="w-full flex justify-center break-inside-avoid">
-              <motion.div
-                key={cards[0].id}
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ type: "spring", stiffness: 100, damping: 20 }}
-                whileHover={{
-                  scale: 1.02,
-                  y: -4,
-                }}
-                className="transition-all duration-300 cursor-pointer"
-                style={{ marginBottom: '1.5rem' }}
-              >
-                {renderCardPreview(cards[0])}
-              </motion.div>
-            </div>
+  <motion.div
+    key={cards[0].id}
+    initial={{ opacity: 0, y: 50 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ type: "spring", stiffness: 100, damping: 20 }}
+    whileHover={{
+      scale: 1.02,
+      y: -4,
+    }}
+    className="transition-all duration-300 cursor-pointer"
+    style={{ marginBottom: '1.5rem' }}
+  >
+    {renderCardPreview(cards[0])}
+  </motion.div>
+</div>
+
           </>
         )}
       </div>

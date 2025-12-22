@@ -8,6 +8,10 @@ import { useRouter } from "next/navigation";
 import "./account-settings.css";
 import LocationSelect from "@/components/LocationSelect";
 
+
+
+
+
 /**
  * Account Settings Page
  * - All styles moved to account-settings.css
@@ -53,6 +57,8 @@ export default function AccountSettingsPage(): React.JSX.Element {
   const [titleSearchTerm, setTitleSearchTerm] = useState('');
   const [isLargeScreen, setIsLargeScreen] = useState<boolean>(true);
 
+  
+
   // Fetch basic user data on mount (name/email)
   useEffect(() => {
     const fetchUserData = async () => {
@@ -92,7 +98,7 @@ export default function AccountSettingsPage(): React.JSX.Element {
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(true);
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   //const [isPhoneVerified, setIsPhoneVerified] = useState<boolean>(false);
- // const [showOtpModal, setShowOtpModal] = useState<boolean>(false);
+  // const [showOtpModal, setShowOtpModal] = useState<boolean>(false);
   const [isEditingPhone, setIsEditingPhone] = useState<boolean>(false);
   const [tempPhoneNumber, setTempPhoneNumber] = useState<string>("");
   const [hasPassword, setHasPassword] = useState<boolean>(true);
@@ -577,7 +583,7 @@ const handleManualSave = async () => {
       return;
     }
 
-    triggerSavePopup();   // <--- smooth success popup
+    setSavePopup(true);
     checkAuth();
   } catch (err) {
     toast.error("Error saving data");
@@ -631,10 +637,10 @@ return (
             </div>
             {/* Save Button */}
               <div className="profile-save-wrapper">
-  <button className="profile-save-btn" onClick={handleManualSave}>
-    Save
-  </button>
-</div>
+                <button className="profile-save-btn" onClick={handleManualSave}>
+                  Save
+                </button>
+              </div>
 
           </div>
         </section>
@@ -719,17 +725,16 @@ return (
                       <div
                         style={{
                           position: 'absolute',
-                          top: '100%',
+                          top: 'calc(100% + 10px)',
                           left: '0',
                           right: '0',
                           backgroundColor: '#ffffff',
                           border: '2px solid #D1D5DB',
-                          borderTop: 'none',
-                          borderRadius: '0 0 8px 8px',
+                          borderRadius: '8px',
                           maxHeight: isLargeScreen ? '200px' : '150px',
                           overflowY: 'auto',
                           zIndex: 1000,
-                          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
                         }}
                       >
                         {filteredTitles.map((titleOption, index) => (
@@ -826,19 +831,19 @@ return (
             </div>
           </div>
           
-{/* Location row */}
-<div className={`form-row ${isMobile ? 'mobile' : ''}`}>
-  <label className={`form-label ${isMobile ? 'mobile' : ''}`}>Location</label>
-  <div className={`form-control ${isMobile ? 'mobile' : ''}`}>
-    <LocationSelect
-      value={userLocation}
-      onChange={(loc: string) => {
-        setUserLocation(loc);
-        updateLocationInDatabase(loc); // save instantly
-      }}
-    />
-  </div>
-</div>
+          {/* Location row */}
+          <div className={`form-row ${isMobile ? 'mobile' : ''}`}>
+            <label className={`form-label ${isMobile ? 'mobile' : ''}`}>Location</label>
+            <div className={`form-control ${isMobile ? 'mobile' : ''}`}>
+              <LocationSelect
+                value={userLocation}
+                onChange={(loc: string) => {
+                  setUserLocation(loc);
+                  updateLocationInDatabase(loc); // save instantly
+                }}
+              />
+            </div>
+          </div>
 
 
           {/* Phone Number row */}
@@ -887,9 +892,9 @@ return (
                           </>
                         )} */}
                         {/* OTP verification temporarily disabled */}
-<button onClick={handleEditPhone} className="phone-edit-btn">
-  Edit
-</button>
+                        <button onClick={handleEditPhone} className="phone-edit-btn">
+                          Edit
+                        </button>
 
                       </div>
                     ) : (
@@ -1143,35 +1148,92 @@ return (
       )}
 
       {/* OTP Verification Modal */}
-     {/*  {showOtpModal && (
-        <OTPModal
-          phoneNumber={phoneNumber}
-          onClose={() => setShowOtpModal(false)}
-          onVerify={handleVerifyOTP}
-        />
-      )}
-*/}
+      {/*  {showOtpModal && (
+          <OTPModal
+            phoneNumber={phoneNumber}
+            onClose={() => setShowOtpModal(false)}
+            onVerify={handleVerifyOTP}
+          />
+        )}
+      */}
+      {/* {savePopup && (
+      <div
+        style={{
+          position: "fixed",
+          bottom: "40px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          background: "white",
+          padding: "14px 22px",
+          borderRadius: "12px",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+          fontSize: "15px",
+          fontWeight: "600",
+          color: "#2563eb",
+          zIndex: 1000,
+          animation: "smoothFade 0.35s ease",
+        }}
+      >
+        ✓ Profile Saved Successfully
+      </div>
+      )} */}
+
+      {/* Custom Success Modal */}
       {savePopup && (
- <div
-  style={{
-    position: "fixed",
-    bottom: "40px",
-    left: "50%",
-    transform: "translateX(-50%)",
-    background: "white",
-    padding: "14px 22px",
-    borderRadius: "12px",
-    boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
-    fontSize: "15px",
-    fontWeight: "600",
-    color: "#2563eb",
-    zIndex: 1000,
-    animation: "smoothFade 0.35s ease",
-  }}
->
-  ✓ Profile Saved Successfully
-</div>
-)}
+        <div 
+          className="modal-backdrop" 
+          onClick={() => setSavePopup(false)} // Click outside to close
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10000
+          }}
+        >
+          <div 
+            className="modal-content" 
+            style={{ 
+              maxWidth: '350px', 
+              width: '90%',
+              padding: '30px', 
+              background: 'white', 
+              borderRadius: '16px', 
+              textAlign: 'center',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.2)' 
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ marginBottom: '15px', display: 'flex', justifyContent: 'center' }}>
+              <FaCheckCircle style={{ fontSize: "48px", color: "#10B981" }} />
+            </div>
+            <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '10px', color: '#111827' }}>
+              Saved Successfully
+            </h3>
+            <p style={{ color: '#6b7280', marginBottom: '24px', fontSize: '15px' }}>
+              Your profile changes have been updated.
+            </p>
+            <button 
+              onClick={() => setSavePopup(false)}
+              style={{
+                width: '100%',
+                padding: '12px',
+                background: '#2563eb', // Matches your brand blue
+                color: 'white',
+                border: 'none',
+                borderRadius: '10px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                fontSize: '15px'
+              }}
+            >
+              Great!
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );

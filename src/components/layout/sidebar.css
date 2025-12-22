@@ -3,71 +3,119 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 18rem;
   height: 100vh;
+  /* Default width for transition start */
+  width: 18rem; 
   background: linear-gradient(to bottom right, #1e3a8a, #2563eb, #1d4ed8);
   color: white;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   box-shadow: 4px 0 16px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease-in-out;
+  /* Smooth animation for width changes */
+  transition: width 0.3s ease-in-out, transform 0.3s ease-in-out;
   z-index: 40;
+}
+
+/* Width states */
+.sidebar.desktop-expanded {
+  width: 18rem;
+}
+
+.sidebar.desktop-collapsed {
+  width: 5rem;
 }
 
 /* ----------- SIDEBAR HEADER ----------- */
 .sidebarHeader {
   display: flex;
   align-items: center;
+  justify-content: space-between; /* Space between logo and toggle */
   height: 5rem;
-  padding: 1rem 1.5rem;
+  padding: 0 1rem;
   background: linear-gradient(to right, #1e40af, #2563eb);
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-  gap: 1rem;
+  position: relative;
+  transition: padding 0.3s ease;
+}
+
+/* Adjust header layout when collapsed */
+.sidebar.desktop-collapsed .sidebarHeader {
+  justify-content: center;
+  padding: 0;
 }
 
 .logoArea {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  justify-content: flex-start;
   text-decoration: none;
+  flex: 1;
+  overflow: hidden; /* Prevent logo overflow during transition */
 }
 
-.logoIcon {
-  width: 2.6rem;
-  height: 2.6rem;
+/* Logo Sizing */
+.expandedLogo {
+  width: auto;
+  height: 6rem;
+  max-width: 10rem;
+  object-fit: contain;
+  display: block;
+}
+
+.collapsedLogo {
+  width: 2.2rem;
+  height: 2.2rem;
+  padding-left: 5px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Collapse Toggle Button */
+.collapseToggleBtn {
   background: rgba(255, 255, 255, 0.15);
-  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
   display: flex;
-  justify-content: center;
   align-items: center;
-  transition: background 0.3s ease;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 50;
 }
 
-.logoIcon:hover {
-  background: rgba(255, 255, 255, 0.25);
+.collapseToggleBtn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
 }
 
-.logoIcon svg {
-  color: white;
-  width: 1.4rem;
-  height: 1.4rem;
-}
-
-.logoText {
-  color: white;
-  font-size: 1.35rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+/* Specific styling for the toggle button when sidebar is collapsed */
+.sidebar.desktop-collapsed .collapseToggleBtn {
+  position: absolute;
+  right: -12px; /* Hangs off the edge */
+  top: 50%;
+  transform: translateY(-50%);
+  background: #2563eb; /* Solid color to pop against page content */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  border-color: rgba(255,255,255,0.4);
 }
 
 /* ----------- NAVIGATION ----------- */
 .navMenu {
   flex: 1;
-  overflow-y: auto;
-  padding: 1.2rem 1rem 1rem;
+  padding: 1.2rem 0.8rem 1rem;
+  overflow-y: auto; 
+  overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+/* When collapsed, allow visible overflow so tooltips don't get clipped */
+.sidebar.desktop-collapsed .navMenu {
+  overflow: visible; 
+  padding: 1.2rem 0.5rem;
 }
 
 .navMenu::-webkit-scrollbar {
@@ -81,29 +129,52 @@
 .navItem {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  padding: 0.9rem 1rem;
+  padding: 0.9rem 0;
   border-radius: 0.75rem;
   text-decoration: none;
   color: rgba(255, 255, 255, 0.85);
   font-weight: 500;
   margin-bottom: 0.6rem;
   transition: all 0.3s ease;
-  position: relative; /* for badge positioning */
+  position: relative;
+  height: 3.2rem; /* Fixed height for consistency */
+}
+
+/* Wrapper inside navItem to handle alignment */
+.navItemContent {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  padding: 0 1rem;
+  transition: padding 0.3s ease;
+}
+
+/* Center icons when collapsed */
+.sidebar.desktop-collapsed .navItemContent {
+  justify-content: center;
+  padding: 0;
+  gap: 0;
 }
 
 .navItem:hover {
   background: rgba(255, 255, 255, 0.1);
   color: white;
-  transform: translateX(4px);
 }
 
 .navIcon {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   transition: transform 0.25s ease;
 }
+
+.navIcon svg {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
 .navItem:hover .navIcon {
   transform: scale(1.1);
 }
@@ -111,6 +182,65 @@
 .navIconLead svg {
   width: 1.8rem;
   height: 1.8rem;
+}
+
+/* Text Label */
+.navLabel {
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity 0.2s ease, width 0.2s ease;
+}
+
+.sidebar.desktop-collapsed .navLabel {
+  display: none;
+  opacity: 0;
+  width: 0;
+}
+
+/* ----------- TOOLTIP (HOVER) ----------- */
+.navTooltip {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.85); /* Light black box */
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  white-space: nowrap; 
+  width: auto; 
+  min-width: max-content;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 0.2s ease;
+  z-index: 100;
+  margin-left: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+}
+
+/* Arrow for tooltip */
+.navTooltip::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 100%;
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent rgba(0, 0, 0, 0.85) transparent transparent;
+}
+
+/* Show tooltip only when sidebar is collapsed and item is hovered */
+.sidebar.desktop-collapsed .navItem:hover .navTooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Hide tooltip when sidebar is expanded */
+.sidebar.desktop-expanded .navTooltip {
+  display: none;
 }
 
 /* ----------- ACTIVE LINK ----------- */
@@ -125,7 +255,7 @@
 .navBadge {
   position: absolute;
   top: 6px;
-  left: 8px;
+  right: 10px; /* Default position expanded */
   min-width: 18px;
   height: 18px;
   padding: 0 4px;
@@ -138,8 +268,19 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #ffffff22; /* subtle ring on gradient */
+  border: 2px solid #ffffff22;
   box-shadow: 0 0 0 2px rgba(255,255,255,0.15);
+}
+
+/* Adjust badge position when collapsed (dot style overlay) */
+.sidebar.desktop-collapsed .navBadge {
+  top: 2px;
+  right: 2px;
+  min-width: 14px;
+  height: 14px;
+  font-size: 9px;
+  padding: 0;
+  border: 1px solid white;
 }
 
 /* ----------- FOOTER LINKS ----------- */
@@ -177,9 +318,9 @@
 /* ----------- MOBILE STYLES ----------- */
 .mobileToggle {
   position: fixed;
-  top: 0.75rem; /* Perfect alignment */
+  top: 0.75rem; 
   left: 1rem;
-  transform: translateY(2px); /* small adjustment to match profile icon */
+  transform: translateY(2px);
   z-index: 50;
   background: linear-gradient(to right, #1e40af, #2563eb);
   color: white;
@@ -191,18 +332,9 @@
   transition: all 0.3s ease;
 }
 
-
-.mobileToggleClosed {
-  left: 1rem;
-}
-
-.mobileToggleOpen {
-  right: 120px;
-}
-
-.mobileToggle:hover {
-  transform: scale(1.05);
-}
+.mobileToggleClosed { left: 1rem; }
+.mobileToggleOpen { right: 120px; }
+.mobileToggle:hover { transform: scale(1.05); }
 
 .mobileOverlay {
   position: fixed;
@@ -212,12 +344,8 @@
   z-index: 40;
 }
 
-.sidebar.open {
-  transform: translateX(0);
-}
-.sidebar.closed {
-  transform: translateX(-100%);
-}
+.sidebar.open { transform: translateX(0); }
+.sidebar.closed { transform: translateX(-100%); }
 
 /* ----------- MOBILE BOTTOM NAV (INSTAGRAM-STYLE) ----------- */
 .bottomNav {
@@ -228,7 +356,7 @@
   height: 56px;
   width: 100%;
   max-width: 380px;
-  background: #2563eb; /* blue bar */
+  background: #2563eb; 
   display: flex;
   align-items: center;
   justify-content: space-around;
@@ -246,13 +374,11 @@
   justify-content: center;
   gap: 2px;
   text-decoration: none;
-  color: #e5e7eb; /* light gray/near white for icons */
+  color: #e5e7eb; 
   font-size: 11px;
 }
 
-.bottomNavItemActive {
-  color: #ffffff; /* default text/icon color, overridden on active icon chip */
-}
+.bottomNavItemActive { color: #ffffff; }
 
 .bottomNavIcon {
   position: relative;
@@ -268,7 +394,7 @@
 .bottomNavIcon svg {
   width: 22px;
   height: 22px;
-  color: currentColor; /* inherit white/gray from item */
+  color: currentColor; 
 }
 
 /* PNG connection icon for mobile bottom nav */
@@ -279,36 +405,20 @@
   object-fit: contain;
 }
 
-/* SVG connection icon wrapper: slightly larger and bold */
+/* SVG connection icon wrapper */
 .bottomNavIcon .connectionSvg svg {
   width: 40px;
   height: 40px;
 }
 
-/* Slightly larger container for connections icon only */
 .bottomNavIconConnections {
   width: 44px;
   height: 44px;
 }
 
-/* Inactive state: keep connections icon pure white */
-.bottomNavItem:not(.bottomNavItemActive) .connectionSvg {
-  color: #ffffff;
-}
-
-/* Inactive: white icon on blue bar */
-.bottomNavIcon .connectionIcon {
-  filter: invert(1);
-}
-
-/* Active: black icon on white chip */
-.bottomNavIcon .connectionIconActive {
-  filter: invert(0);
-}
-
-.bottomNavLabel {
-  line-height: 1;
-}
+.bottomNavItem:not(.bottomNavItemActive) .connectionSvg { color: #ffffff; }
+.bottomNavIcon .connectionIcon { filter: invert(1); }
+.bottomNavIcon .connectionIconActive { filter: invert(0); }
 
 .bottomNavBadge {
   position: absolute;
@@ -317,7 +427,7 @@
   min-width: 16px;
   height: 16px;
   padding: 0 4px;
-  background: #ef4444; /* red-500 */
+  background: #ef4444; 
   color: #ffffff;
   border-radius: 9999px;
   font-size: 10px;
@@ -328,32 +438,51 @@
   justify-content: center;
 }
 
-/* Active/hover icon: only color/background changes, size/position remain stable */
 .bottomNavItemActive .bottomNavIcon,
 .bottomNavItem:hover .bottomNavIcon {
-  background-color: #ffffff; /* white chip for active/hover icon */
-  color: #0b1f4d;          /* dark blue icon color */
+  background-color: #ffffff; 
+  color: #0b1f4d;          
 }
 
-/* Ensure only one bottom nav item appears active at a time */
 .bottomNavItem:not(.bottomNavItemActive) .bottomNavIcon {
   background-color: transparent !important;
   color: #e5e7eb !important;
 }
 
-/* Hide sidebar on mobile (use only bottom nav) */
+/* ----------- MOBILE RESPONSIVENESS (MEDIA QUERIES) ----------- */
+
 @media (max-width: 1023px) {
+  /* On mobile, sidebar acts as drawer. 
+     IMPORTANT: Override any desktop-collapsed styling to ensure full drawer width */
   .sidebar {
     display: none;
+    width: 18rem !important; /* Force full width on mobile */
   }
   
-  /* Ensure page starts at top on reload for mobile */
+  .sidebar.open {
+    display: flex;
+    transform: translateX(0);
+  }
+  
+  .sidebar.closed {
+    display: flex;
+    transform: translateX(-100%);
+  }
+
+  /* Force expanded elements on mobile even if React state says collapsed */
+  .navLabel { display: inline-block !important; opacity: 1 !important; width: auto !important; }
+  .collapsedLogo { display: none !important; }
+  .expandedLogo { display: block !important; }
+  .collapseToggleBtn { display: none !important; }
+  .navTooltip { display: none !important; }
+  .navItemContent { padding: 0 1rem !important; justify-content: flex-start !important; }
+  .sidebarHeader { justify-content: space-between !important; padding: 0 1rem !important; }
+  
   html, body {
     scroll-behavior: smooth;
     scroll-padding-top: 0;
   }
   
-  /* Force scroll reset on page load for mobile */
   @page {
     size: auto;
     margin: 0;
@@ -366,7 +495,7 @@
     display: none;
   }
 
-  /* On desktop, sidebar is always visible; ignore closed transform */
+  /* On desktop, sidebar is always visible */
   .sidebar {
     transform: translateX(0);
   }

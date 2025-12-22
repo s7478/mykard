@@ -27,6 +27,7 @@ export default function SearchPage() {
       <SearchPageContent />
     </Suspense>
   );
+
 }
 
 const getInitials = (name: string) =>
@@ -170,6 +171,8 @@ function SearchPageContent() {
   const [connectingUserId, setConnectingUserId] = useState<string | null>(null);
   const [sentRequests, setSentRequests] = useState<Set<string>>(new Set());
   const [acceptedConnections, setAcceptedConnections] = useState<Set<string>>(new Set());
+  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
+
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -303,13 +306,25 @@ function SearchPageContent() {
     }).slice(0, 50);
   }, [query, profiles]);
 
+
+
+  const suggestedProfiles = useMemo(() => {
+  if (!profiles || profiles.length === 0) return [];
+
+  return profiles
+    .filter(
+      (p) =>
+        p.designation?.toLowerCase().includes("developer") ||
+        p.category?.toLowerCase().includes("software")
+    )
+    .slice(0, 6);
+}, [profiles]);
+
+
   return (
     <div style={{ position: "relative", overflowX: "hidden", minHeight: "100vh" }}>
       <div aria-hidden style={{
-        position: "absolute",
-        inset: 0,
-        zIndex: 0,
-        pointerEvents: "none",
+        position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none",
         background: "radial-gradient(1200px 600px at 10% 10%, rgba(99,102,241,0.04), transparent 10%), radial-gradient(800px 400px at 90% 90%, rgba(34,211,238,0.03), transparent 10%)"
       }}></div>
 
@@ -487,6 +502,30 @@ function SearchPageContent() {
           .grid { grid-template-columns: repeat(2, 1fr); }
         }
 
+       /* ---------- Text Truncation Utilities ---------- */
+       
+        .truncate-1 {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .truncate-2 {
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 2;
+          line-clamp: 2;
+          overflow: hidden;
+        }
+
+        .card-info {
+          display: flex;
+          gap: 12px;
+          align-items: center;
+          flex: 1;
+          min-width: 0;   /* MOST IMPORTANT LINE */
+        }
+
         /* utility spinner keyframes */
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
       `}</style>
@@ -652,6 +691,9 @@ function SearchPageContent() {
           primaryText="Close"
         />
       </div>
+    </div>
+  </div>
+)}    
     </div>
   );
 }
