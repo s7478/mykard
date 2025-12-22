@@ -435,7 +435,7 @@ const EditPage = () => {
       // Validate required fields - cardName is required
       if (!cardName || cardName.trim() === '') {
         setIsPopupOpen(true);
-        setPopupMessage('Please enter a card name.');
+        setPopupMessage('Please enter all the required details.');
         setIsSaving(false);
         return;
       }
@@ -750,7 +750,7 @@ const EditPage = () => {
                 ))}
               </div>
             </div>
-            
+            {/* banner image */}
             <div style={{ marginBottom: '30px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '15px', color: '#333' }}>Cover Image</h3>
               <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '15px' }}>
@@ -790,7 +790,7 @@ const EditPage = () => {
                 </button>
               </div>
             </div>
-            
+            {/* profile pic */}
             <div style={{ marginBottom: '30px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '15px', color: '#333' }}>
                 Profile Photo
@@ -840,7 +840,7 @@ const EditPage = () => {
                 </button>
               </div>
             </div>
-
+            {/* color scheme */}
             <div style={{ marginBottom: '40px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '15px', color: '#333' }}>
                 Color
@@ -1033,7 +1033,7 @@ const EditPage = () => {
                 </div>
               </div>
             </div>
-
+            {/* font selection */}
             <div style={{ marginBottom: '30px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '15px', color: '#333' }}>Font</h3>
               <div style={{ position: 'relative', width: '100%' }}>
@@ -1086,13 +1086,17 @@ const EditPage = () => {
           <div>
             <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '20px', color: '#333' }}>Personal</h3>
             <div>
-              {/* Full Name Field */}
+              {/* Full Name Field - required */}
               <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px' }}>Full Name</label>
+                <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px', fontWeight: 'bold' }}>
+                  Full Name
+                  <span style={{ color: '#e53e3e', fontSize: '14px', fontWeight: '600' }}>*</span>
+                </label>
                 <input
                   type="text"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
+                  required
                   style={{
                     width: '100%',
                     padding: '10px',
@@ -1107,9 +1111,12 @@ const EditPage = () => {
                 />
               </div>
 
-              {/* Title Field with Custom Dropdown (same behavior as edit card page) */}
+              {/* Title Field with Custom Dropdown (same behavior as edit card page) - required */}
               <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px' }}>Title</label>
+                <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px', fontWeight: 'bold' }}>
+                  Title 
+                  <span style={{ color: '#e53e3e', fontSize: '14px', fontWeight: '600' }}>*</span>
+                </label>
                 <div className="dropdown-container" style={{ position: 'relative' }}>
                   {!isCustomTitle ? (
                     <>
@@ -1122,6 +1129,7 @@ const EditPage = () => {
                             setTitleSearchTerm(e.target.value);
                           }}
                           onFocus={handleDropdownToggle}
+                          required
                           placeholder="Search or select title..."
                           style={{
                             width: '100%',
@@ -1255,7 +1263,7 @@ const EditPage = () => {
 
               {/* Company Field */}
               <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px' }}>Company</label>
+                <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px', fontWeight: 'bold' }}>Company</label>
                 <input
                   type="text"
                   value={company}
@@ -1274,10 +1282,11 @@ const EditPage = () => {
                 />
               </div>
 
-              {/* Location Dropdown with Search */}
+              {/* Location Dropdown with Search   - required */}
               <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px' }}>
+                <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px', fontWeight: 'bold' }}>
                   Location
+                 <span style={{ color: '#e53e3e', fontSize: '14px', fontWeight: '600' }}>*</span>
                 </label>
                 <LocationSelect
                   value={cardLocation}
@@ -1286,8 +1295,9 @@ const EditPage = () => {
                 />
               </div>
 
+              {/* About / description */}
               <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px' }}>About / Description</label>
+                <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px', fontWeight: 'bold' }}>About / Description</label>
                 <textarea
                   value={about}
                   onChange={(e) => setAbout(e.target.value)}
@@ -1317,7 +1327,7 @@ const EditPage = () => {
                 <h3 style={{ fontSize: '18px', fontWeight: 'bold', margin: '0', color: '#333' }}>Core Fields <span style={{ fontSize: '14px', color: '#888', fontWeight: 'normal' }}>(?)</span></h3>
               </div>
 
-              {/* Email */}
+              {/* Email - required */}
               <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '15px', marginBottom: '15px', backgroundColor: 'white' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
                   {/* <span style={{ cursor: 'grab', color: '#aaa' }}>
@@ -1325,6 +1335,7 @@ const EditPage = () => {
                   </span> */}
                   <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#333', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     Email
+                    <span style={{ color: '#e53e3e', fontSize: '14px', fontWeight: '600' }}>*</span>
                   </span>
                   {/* blank space */}
                 </div>
@@ -1332,6 +1343,7 @@ const EditPage = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  required
                   style={{
                     width: '100%',
                     padding: '10px',
@@ -1431,7 +1443,7 @@ const EditPage = () => {
 
               {/* Services */}
               <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '15px', backgroundColor: 'white', marginBottom: '15px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                   {/* <span style={{ cursor: 'grab', color: '#aaa' }}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                   </span> */}
@@ -1442,7 +1454,7 @@ const EditPage = () => {
                     onClick={() => { setIsPopupOpen(true); setPopupMessage('By adding a comma, you can add another thing in the field'); }}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888' }}
                   >
-                    <span style={{ fontWeight: 700, fontSize: 14, color: 'inherit' }}>i</span>
+                    <span style={{ fontWeight: 700, fontSize: 14, color: 'inherit' }}>(i)</span>
                   </button>
                 </div>
                 <textarea
@@ -1491,20 +1503,21 @@ const EditPage = () => {
                 />
               </div>
 
-              {/* Skills */}
+              {/* Skills - required*/}
               <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '15px', backgroundColor: 'white', marginBottom: '15px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                   {/* <span style={{ cursor: 'grab', color: '#aaa' }}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                   </span> */}
                   <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#333', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     Skills
+                    <span style={{ color: '#e53e3e', fontSize: '14px' }}>*</span>
                   </span>
                   <button 
                     onClick={() => { setIsPopupOpen(true); setPopupMessage('By adding a comma, you can add another thing in the field'); }}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888' }}
                   >
-                    <span style={{ fontWeight: 700, fontSize: 14, color: 'inherit' }}>i</span>
+                    <span style={{ fontWeight: 700, fontSize: 14, color: 'inherit' }}>(i)</span>
                   </button>
                 </div>
                 <textarea
@@ -1512,6 +1525,7 @@ const EditPage = () => {
                   onChange={(e) => setSkills(e.target.value)}
                   placeholder="e.g. SEO, Content Creation, Analytics"
                   rows={3}
+                  required
                   style={{
                     width: '100%',
                     padding: '10px',
@@ -1525,20 +1539,21 @@ const EditPage = () => {
                 />
               </div>
 
-              {/* Experience */}
+              {/* Experience - required */}
               <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '15px', backgroundColor: 'white', marginBottom: '15px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                   {/* <span style={{ cursor: 'grab', color: '#aaa' }}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                   </span> */}
                   <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#333', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     Experience
+                    <span style={{ color: '#e53e3e', fontSize: '14px' }}>*</span>
                   </span>
                   <button 
                     onClick={() => { setIsPopupOpen(true); setPopupMessage('By adding a comma, you can add another thing in the field'); }}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888' }}
                   >
-                    <span style={{ fontWeight: 700, fontSize: 14, color: 'inherit' }}>i</span>
+                    <span style={{ fontWeight: 700, fontSize: 14, color: 'inherit' }}>(i)</span>
                   </button>
                 </div>
                 <textarea
@@ -1546,6 +1561,7 @@ const EditPage = () => {
                   onChange={(e) => setExperience(e.target.value)}
                   placeholder="e.g. Lead Marketer @ MyKard (2023-Present)"
                   rows={3}
+                  required
                   style={{
                     width: '100%',
                     padding: '10px',
@@ -1561,7 +1577,7 @@ const EditPage = () => {
 
               {/* Review */}
               <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '15px', backgroundColor: 'white', marginBottom: '15px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                   {/* <span style={{ cursor: 'grab', color: '#aaa' }}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                   </span> */}
@@ -1572,7 +1588,7 @@ const EditPage = () => {
                     onClick={() => { setIsPopupOpen(true); setPopupMessage('By adding a comma, you can add another thing in the field'); }}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888' }}
                   >
-                    <span style={{ fontWeight: 700, fontSize: 14, color: 'inherit' }}>i</span>
+                    <span style={{ fontWeight: 700, fontSize: 14, color: 'inherit' }}>(i)</span>
                   </button>
                 </div>
                 <textarea
@@ -1724,6 +1740,7 @@ const EditPage = () => {
       case 'Card':
         return (
           <div>
+            
             <div style={{
               backgroundColor: '#e0f7fa',
               border: '1px solid #b2ebf2',
@@ -1739,7 +1756,7 @@ const EditPage = () => {
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
               This field does not appear on the card.
             </div>
-
+            {/* card name - required */}
             <div style={{ marginBottom: '15px' }}>
               <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px', fontWeight: 600 }}>
                 Card Name <span style={{ color: '#e53e3e', fontSize: '14px' }}>*</span>
@@ -1762,8 +1779,11 @@ const EditPage = () => {
                 }}
               />
             </div>
-                <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px' }}>Card Type</label>
+            {/* card type - required */}
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px', fontWeight: 600 }}>Card Type 
+                <span style={{ color: '#e53e3e', fontSize: '14px' }}>*</span>
+              </label>
               <select
                 value={cardType}
                 onChange={(e) => setCardType(e.target.value)}
@@ -2161,11 +2181,11 @@ const EditPage = () => {
             boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)',
             zIndex: 1001,
             textAlign: 'center',
-            maxWidth: '300px',
+            maxWidth: '350px',
           }}
           onClick={() => setIsPopupOpen(false)}
         >
-          <p style={{ margin: '0 0 15px', fontSize: '15px', color: '#333' }}>{popupMessage}</p>
+          <p style={{ margin: '0 0 15px', fontSize: '15px', color: '#333', fontWeight: '500' }}>{popupMessage}</p>
           <button
             onClick={() => setIsPopupOpen(false)}
             style={{
