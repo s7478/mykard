@@ -48,8 +48,12 @@ interface Card {
   selectedDesign?: string;
   selectedColor?: string;
   selectedColor2?: string;
+  textColor?: string;
   selectedFont?: string;
   cardType?: string;
+
+  customFields?: string;
+  
 }
 
 // ----------------- Main Dashboard -----------------
@@ -65,6 +69,20 @@ const Dashboard = () => {
   // Split fullName with capitalization
   const capitalizedFullName = capitalizeFirstLetter(card.fullName || '');
   const nameParts = capitalizedFullName.split(' ');
+
+
+  let parsedCustomFields = [];
+  try {
+    if (card.customFields) {
+      parsedCustomFields = typeof card.customFields === 'string' 
+        ? JSON.parse(card.customFields) 
+        : card.customFields;
+    }
+  } catch (err) {
+    console.error("Failed to parse custom fields for card:", card.id, err);
+  }
+
+
   
   // Use EXACT same prop mapping as edit page
   const commonProps = {
@@ -89,9 +107,13 @@ const Dashboard = () => {
     website: card.websiteUrl || card.website || '',
     themeColor1: card.selectedColor || '#3b82f6',
     themeColor2: card.selectedColor2 || '#2563eb',
+    textColor: card.textColor || '#ffffff',
     fontFamily: card.selectedFont || 'system-ui, sans-serif',
     cardType: card.cardType || '',
     documentUrl: card.documentUrl || '',
+
+    customFields: parsedCustomFields,
+
     onDocumentClick: (url: string) => setSelectedDocumentUrl(url),
   };
 

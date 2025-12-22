@@ -72,6 +72,7 @@ interface Card {
   selectedDesign?: string;
   selectedColor?: string;
   selectedColor2?: string;
+  textColor?: string;
   selectedFont?: string;
   cardType?: string;
   views?: number;
@@ -84,12 +85,32 @@ interface Card {
     email: string;
     location?: string;
   };
+
+
+  customFields?: string;
+
+
 }
 
 // ----------------- Card Preview -----------------
 const CardPreview: React.FC<{ card: Card }> = ({ card }) => {
   const renderCardPreview = () => {
-   const commonProps = {
+
+
+    let parsedCustomFields = [];
+    try {
+      if (card.customFields) {
+        parsedCustomFields = typeof card.customFields === 'string' 
+          ? JSON.parse(card.customFields) 
+          : card.customFields;
+      }
+    } catch (err) {
+      console.error("Failed to parse custom fields:", err);
+    }
+
+
+
+  const commonProps = {
   firstName: card.fullName || card.name || '',
   middleName: '',
   lastName: '',
@@ -112,8 +133,12 @@ const CardPreview: React.FC<{ card: Card }> = ({ card }) => {
   documentUrl: (card as any).documentUrl || '',
   themeColor1: card.selectedColor || '#3b82f6',
   themeColor2: card.selectedColor2 || '#2563eb',
-   fontFamily: card.selectedFont || 'system-ui, sans-serif',
+  textColor: card.textColor || '#ffffff',
+  fontFamily: card.selectedFont || 'system-ui, sans-serif',
   cardType: card.cardType || '',
+
+  customFields: parsedCustomFields,
+
 };
 
     const design = card.selectedDesign || 'Classic';

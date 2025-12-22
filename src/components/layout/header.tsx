@@ -183,7 +183,7 @@ export function Header() {
         alt="Logo"
         width={120}
         height={32}
-        className="h-8 w-auto object-contain"
+        className="h-auto w-auto object-contain"
       />
     </Link>
   )}

@@ -103,34 +103,47 @@ const LocationSelect: React.FC<LocationSelectProps> = ({
             marginTop: "8px",
             width: "100%",
             maxHeight: "260px",
-            overflowY: "auto",
+            overflow: "hidden",
             background: "#ffffff",
             borderRadius: "12px",
             border: "1px solid #e2e8f0",
             boxShadow: "0 6px 20px rgba(0,0,0,0.12)",
             zIndex: 5000,
             paddingTop: "6px",
+            display: "flex",
+            flexDirection: "column"
           }}
           onMouseDown={(e) => e.preventDefault()}
         >
-          {/* Search UI inside dropdown */}
+          {/* 1. Static Header (Won't Scroll) */}
           <div
             style={{
-              position: "sticky",
-              top: 0,
-              background: "white",
-              padding: "10px 14px",
-              display: "flex",
-              alignItems: "center",
+              padding: "12px 16px 8px 16px",
               borderBottom: "1px solid #f1f5f9",
-              zIndex: 10,
+              background: "white",
+              flexShrink: 0, // Prevents header from shrinking
             }}
           >
-            <FiSearch size={18} style={{ color: "#64748b", marginRight: "8px" }} />
-            <span style={{ fontSize: "14px", color: "#64748b" }}>
-              Showing results for “{value || "city"}”
+            <span 
+              style={{ 
+                fontSize: '11px', 
+                fontWeight: '700', 
+                textTransform: 'uppercase', 
+                color: '#9CA3AF', 
+                letterSpacing: '0.5px' 
+              }}
+            >
+              Showing results for “{value || "all"}”
             </span>
           </div>
+
+          {/* 2. Scrollable List Container */}
+          <div
+            style={{
+              maxHeight: "260px", 
+              overflowY: "auto",  
+            }}
+          >
 
           {/* City List */}
           {cityOptions
@@ -160,6 +173,12 @@ const LocationSelect: React.FC<LocationSelectProps> = ({
                 {city}
               </div>
             ))}
+            {cityOptions.filter((c) => c.toLowerCase().includes(value.toLowerCase())).length === 0 && (
+                 <div style={{ padding: "16px", textAlign: "center", color: "#94a3b8", fontSize: "14px" }}>
+                    No cities found
+                 </div>
+              )}
+          </div>
         </div>
       )}
     </div>

@@ -48,6 +48,7 @@ export async function POST(req: NextRequest) {
       selectedDesign: formData.get('selectedDesign') as string || undefined,
       selectedColor: formData.get('selectedColor') as string || undefined,
       selectedColor2: formData.get('selectedColor2') as string || undefined,
+      textColor : formData.get('textColor') as string || undefined,
       selectedFont: formData.get('selectedFont') as string || undefined,
       bio: formData.get('bio') as string || undefined,
       description: formData.get('description') as string || undefined,
@@ -56,6 +57,9 @@ export async function POST(req: NextRequest) {
       experience: formData.get('experience') as string || undefined,
       services: formData.get('services') as string || undefined,
       review: formData.get('review') as string || undefined,
+
+      customFields: formData.get('customFields') as string || undefined,
+
       status: formData.get('status') as string || 'draft',
     };
 
@@ -196,6 +200,7 @@ export async function POST(req: NextRequest) {
 
         const convertResult = await convertResponse.json();
         cardData.documentUrl = convertResult.url;
+
       } catch (error: any) {
         console.error('Error converting document:', error);
         // Don't fail the entire card creation if document upload fails

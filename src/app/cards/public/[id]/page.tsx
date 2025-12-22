@@ -4,13 +4,14 @@ import styles from "./publiccard.module.css";
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "react-hot-toast";
-import { X, Users } from "lucide-react";
+import { toast, Toaster } from "react-hot-toast";
+import { X, Users, CheckCircle } from "lucide-react";
 import DigitalCardPreview from "@/components/cards/DigitalCardPreview";
 import FlatCardPreview from "@/components/cards/FlatCardPreview";
 import ModernCardPreview from "@/components/cards/ModernCardPreview";
 import SleekCardPreview from "@/components/cards/SleekCardPreview";
 import { capitalizeFirstLetter } from '@/lib/utils';
+
 
 // ----------------- Card Type Definition -----------------
 interface Card {
@@ -42,10 +43,15 @@ interface Card {
   website?: string;
   websiteUrl?: string;
 
+
+  customFields?: string;
+
+
   documentUrl?: string;
   selectedDesign?: string;
   selectedColor?: string;
   selectedColor2?: string;
+  textColor?: string;
   selectedFont?: string;
   cardType?: string;
   views?: number;
@@ -71,6 +77,21 @@ interface ConnectionFormData {
 const CardPreview: React.FC<{ card: Card; onDocumentClick: (url: string) => void }> = ({ card, onDocumentClick }) => {
   const capitalizedFullName = capitalizeFirstLetter(card.fullName || "");
   const nameParts = capitalizedFullName.split(" ");
+
+
+  let parsedCustomFields = [];
+  try {
+    if (card.customFields) {
+      //if it's a string, parse it. If it's already an object, use it.
+      parsedCustomFields = typeof card.customFields === 'string' 
+        ? JSON.parse(card.customFields) 
+        : card.customFields;
+    }
+  } catch (err) {
+    console.error("Failed to parse custom fields:", err);
+  }
+
+
   
   const commonProps = {
     firstName: nameParts[0] || "",
@@ -94,7 +115,13 @@ const CardPreview: React.FC<{ card: Card; onDocumentClick: (url: string) => void
     website: card.websiteUrl || card.website || "",
     themeColor1: card.selectedColor || "#3b82f6",
     themeColor2: card.selectedColor2 || "#2563eb",
+    textColor: card.textColor || "#ffffff",
     documentUrl: card.documentUrl || "",
+
+
+    customFields: parsedCustomFields,
+
+
     onDocumentClick,
   };
 
@@ -177,7 +204,13 @@ const ConnectionModal: React.FC<{
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      toast.error("Please enter a valid email address");
+      toast.error("Please enter a valid email address (e.g. user@example.com)");
+      return;
+    }
+
+    const phoneRegex = /^(?:(?:\+|0{0,2})91(\s*|[\-])?|[0]?)?([6789]\d{2}([ -]?)\d{3}([ -]?)\d{4})$/;
+    if (!phoneRegex.test(formData.phone)) {
+      toast.error("Please enter a valid 10-digit phone number");
       return;
     }
 
@@ -235,7 +268,7 @@ const ConnectionModal: React.FC<{
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className={styles.form}>
+          <form onSubmit={handleSubmit} className={styles.form} noValidate>
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>Full Name *</label>
               <input
@@ -308,6 +341,8 @@ const PublicCardPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
+
   // DOCUMENT VIEWER STATE
   const [selectedDocumentUrl, setSelectedDocumentUrl] = useState<
     string | null
@@ -366,6 +401,12 @@ const PublicCardPage = () => {
 
       toast.success("Thank you for connecting!");
       setIsModalOpen(false);
+
+
+      setIsSuccessPopupOpen(true); // Open Success Popup
+
+
+
     } catch (e: any) {
       toast.error(e.message);
     } finally {
@@ -400,47 +441,99 @@ const PublicCardPage = () => {
 
   return (
     <>
+
+      <Toaster 
+        position="top-center" 
+        containerStyle={{ zIndex: 99999 }} 
+      />
+
+
       <div className={styles.pageContainer}>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className={styles.contentWrapper}
-        >
-          {/* Card Preview */}
-          <CardPreview
-            card={card}
-            onDocumentClick={(url) => setSelectedDocumentUrl(url)}
-          />
 
-          {/* Connect Button */}
-          <motion.button
-            onClick={() => setIsModalOpen(true)}
-            className={styles.connectButton}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <Users size={20} />
-            Let's Connect
-          </motion.button>
-        </motion.div>
+        <div className={styles.contentWrapper}>
+          <div className={styles.leftColumn}>
+            <CardPreview
+              card={card}
+              onDocumentClick={(url) => setSelectedDocumentUrl(url)}
+            />
+          </div>
 
-        {/* Modal */}
+          <div className={styles.rightColumn}>
+            
+            {/* 1. Connect Button */}
+            <motion.button
+              onClick={() => setIsModalOpen(true)}
+              className={styles.connectButton}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <Users size={20} />
+              Let's Connect
+            </motion.button>
+
+            {/* 2. Create / Powered By Section */}
+            <div className={styles.createSection}>
+              <p className={styles.poweredText}>
+                Created by <strong>MyKard.in</strong>
+              </p>
+              <a href="https://www.mykard.in/auth/signup" className={styles.createButton}>
+                Create Your Own Card
+              </a>
+            </div>
+
+          </div>
+        </div>
+
         <ConnectionModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           isSubmitting={isSubmitting}
           onSubmit={handleFormSubmit}
         />
-        {/* ---- MyKard Create Section ---- */}
-<div className={styles.createSection}>
-  <p className={styles.poweredText}>Created by <strong>MyKard.in</strong></p>
 
-  <a href="https://www.mykard.in/auth/signup" className={styles.createButton}>
-    Create Your Digital Card
-  </a>
-      </div>
-            </div>
+
+
+        {/* <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className={styles.contentWrapper}
+        > */}
+          {/* Card Preview */}
+          {/* <CardPreview
+            card={card}
+            onDocumentClick={(url) => setSelectedDocumentUrl(url)}
+          /> */}
+
+          {/* Connect Button */}
+          {/* <motion.button
+            onClick={() => setIsModalOpen(true)}
+            className={styles.connectButton}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          > */}
+            {/* <Users size={20} />
+            Let's Connect
+          </motion.button>
+        </motion.div> */}
+
+        {/* Modal */}
+        {/* <ConnectionModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          isSubmitting={isSubmitting}
+          onSubmit={handleFormSubmit}
+        />
+        {/* ---- MyKard Create Section ---- */}
+        {/* <div className={styles.createSection}>
+          <p className={styles.poweredText}>Created by <strong>MyKard.in</strong></p>
+
+          <a href="https://www.mykard.in/auth/signup" className={styles.createButton}>
+            Create Your Digital Card
+          </a>
+      </div> */} 
+      
+    </div>
 
       {/* ---------------- DOCUMENT VIEWER ---------------- */}
       {selectedDocumentUrl && (
@@ -471,6 +564,67 @@ const PublicCardPage = () => {
             />
           </div>
         </motion.div>
+      )}
+
+      {isSuccessPopupOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 1001,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          onClick={() => setIsSuccessPopupOpen(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            style={{
+              backgroundColor: 'white',
+              padding: '30px',
+              borderRadius: '15px',
+              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)',
+              textAlign: 'center',
+              maxWidth: '320px',
+              width: '90%',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ marginBottom: '15px', display: 'flex', justifyContent: 'center' }}>
+              <CheckCircle size={48} color="#1e67f4" />
+            </div>
+            <h3 style={{ margin: '0 0 10px', fontSize: '20px', fontWeight: 'bold', color: '#333' }}>
+              Connection Successful!
+            </h3>
+            <p style={{ margin: '0 0 20px', fontSize: '15px', color: '#666', lineHeight: 1.5 }}>
+              Your details have been sent to the owner of this card.
+            </p>
+            <button
+              onClick={() => setIsSuccessPopupOpen(false)}
+              style={{
+                backgroundColor: '#1e67f4', 
+                color: 'white',
+                border: 'none',
+                padding: '10px 20px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                width: '100%',
+                outline: 'none'
+              }}
+            >
+              Great!
+            </button>
+          </motion.div>
+        </div>
       )}
     </>
   );
