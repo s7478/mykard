@@ -40,9 +40,11 @@
   font-weight: 800;
   color: #0f172a;
   margin-bottom: 8px;
-  background: linear-gradient(90deg, #2563eb, #60a5fa);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  background: linear-gradient(90deg, #2563eb, #60a5fa); 
+  background-clip: text;            /* standard */
+  -webkit-background-clip: text;    
+  color: transparent;               /* fallback */
+
 }
 
 .subtitle {
@@ -227,14 +229,24 @@
   justify-content: center;
 }
 
-.userName {
+/* .userName {
   font-size: 16px;
   font-weight: 700;
   color: #1e293b;
   margin: 0;
   text-align: left !important;
-}
+} */
 
+.name {
+  font-weight: 600;
+  font-size: 16px;
+  max-width: 100%;
+
+  /* THIS IS THE FIX */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 .userName a {
   text-decoration: none;
@@ -261,15 +273,14 @@
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  margin-top: 40px;
 }
 
 .connectBtn:hover {
-  background: linear-gradient(90deg, #1d4ed8, #2563eb);
+  background: linear-gradient(90deg, #1d4ed8, #0f3fa6);
 }
 
-.companyCity {
-  margin-bottom: 10px;
-  }
+.companyCity { margin-bottom: 10px; }
 
 .company {
   font-weight: 600;
@@ -323,10 +334,36 @@
   .searchBar {
     width: 100%;
   }
-}
 
-@media (max-width: 480px) {
-  .container {
-    padding: 40px 0.75rem;
+   /* Stack header items */
+  .cardHeader {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* Keep user info aligned nicely */
+  .userInfo {
+    width: 100%;
+    align-items: center;
+  }
+
+  /* Center the button */
+  .connectBtn {
+    width: 100%;
+    max-width: 220px;   
+    text-align: center;
+    align-self: center;
+    padding: 8px 14px;
+    margin-top: 1rem;
+    font-size: 14px;
+    border-radius: 12px;
+  }
+
+  .name { font-size: 15px; }
+
+  .designation,
+  .college {
+    font-size: 13px;
   }
 }

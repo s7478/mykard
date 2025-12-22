@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import '../styles/gradients.css';
 import { useAuth } from '@/lib/hooks/use-auth';
 import { ChevronDown, User, LogOut, Bell } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -461,8 +462,8 @@ export default function Header() {
                     setIsMenuOpen(false);
                   }}
                   className={`flex items-center gap-3 px-4 py-3 text-[18px] font-semibold rounded-xl w-full text-left border-none cursor-pointer transition-colors ${activeSection === 'home'
-                      ? 'text-blue-600 bg-blue-50/50'
-                      : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
+                    ? 'text-blue-600 bg-blue-50/50'
+                    : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
                     }`}
                 >
                   <span className={`w-1.5 h-1.5 rounded-full ${activeSection === 'home' ? 'bg-blue-600' : 'bg-transparent'
@@ -476,8 +477,8 @@ export default function Header() {
                     setIsMenuOpen(false);
                   }}
                   className={`flex items-center gap-3 px-4 py-3 text-[18px] font-medium rounded-xl w-full text-left border-none cursor-pointer transition-colors ${activeSection === 'find-digital-card'
-                      ? 'text-blue-600 bg-blue-50/50 font-semibold'
-                      : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
+                    ? 'text-blue-600 bg-blue-50/50 font-semibold'
+                    : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
                     }`}
                 >
                   <span className={`w-1.5 h-1.5 rounded-full ${activeSection === 'find-digital-card' ? 'bg-blue-600' : 'bg-transparent'
@@ -491,8 +492,8 @@ export default function Header() {
                     setIsMenuOpen(false);
                   }}
                   className={`flex items-center gap-3 px-4 py-3 text-[15px] font-medium rounded-xl w-full text-left border-none cursor-pointer transition-colors ${activeSection === 'what-is-digital-card'
-                      ? 'text-blue-600 bg-blue-50/50 font-semibold'
-                      : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
+                    ? 'text-blue-600 bg-blue-50/50 font-semibold'
+                    : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
                     }`}
                 >
                   <span className={`w-1.5 h-1.5 rounded-full ${activeSection === 'what-is-digital-card' ? 'bg-blue-600' : 'bg-transparent'
@@ -506,8 +507,8 @@ export default function Header() {
                     setIsMenuOpen(false);
                   }}
                   className={`flex items-center gap-3 px-4 py-3 text-[15px] font-medium rounded-xl w-full text-left border-none cursor-pointer transition-colors ${activeSection === 'build-credibility'
-                      ? 'text-blue-600 bg-blue-50/50 font-semibold'
-                      : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
+                    ? 'text-blue-600 bg-blue-50/50 font-semibold'
+                    : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
                     }`}
                 >
                   <span className={`w-1.5 h-1.5 rounded-full ${activeSection === 'build-credibility' ? 'bg-blue-600' : 'bg-transparent'
@@ -521,8 +522,8 @@ export default function Header() {
                     setIsMenuOpen(false);
                   }}
                   className={`flex items-center gap-3 px-4 py-3 text-[15px] font-medium rounded-xl w-full text-left border-none cursor-pointer transition-colors ${activeSection === 'how-it-works'
-                      ? 'text-blue-600 bg-blue-50/50 font-semibold'
-                      : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
+                    ? 'text-blue-600 bg-blue-50/50 font-semibold'
+                    : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
                     }`}
                   style={{ marginBottom: '24px' }}
                 >

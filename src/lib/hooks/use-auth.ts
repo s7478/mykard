@@ -96,6 +96,7 @@ export const useAuth = create<AuthState>((set) => ({
     try {
       await fetch('/api/auth/logout', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include', // Ensure cookies are sent
       })
       
@@ -103,13 +104,16 @@ export const useAuth = create<AuthState>((set) => ({
         user: null,
         isAuthenticated: false,
       })
+
+
+      window.location.href = '/auth/login'
+
+
     } catch (error) {
       console.error('Logout failed:', error)
       // Still clear local state even if API call fails
-      set({
-        user: null,
-        isAuthenticated: false,
-      })
+      set({ user: null, isAuthenticated: false })
+      window.location.href = '/auth/login'
     }
   },
 

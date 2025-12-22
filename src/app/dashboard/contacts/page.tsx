@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { Search, Users, Mail, Phone, Calendar, ExternalLink, MoreHorizontal } from "lucide-react";
+import { Search, Users, Mail, Phone, Calendar, ExternalLink, MoreHorizontal, Download } from "lucide-react";
 import { toast } from "react-hot-toast";
 import styles from "./contacts.module.css";
 
@@ -136,6 +136,55 @@ export default function ContactsPage() {
     }
   };
 
+
+
+
+  const exportToCSV = () => {
+    if (contacts.length === 0) {
+      toast.error("No contacts to export");
+      return;
+    }
+
+    //headers
+    const headers = ["Name", "Email", "Phone", "Date Connected", "Time", "Source Card", "Source URL"];
+    
+    //mapping
+    const rows = contacts.map(contact => {
+      const dateObj = new Date(contact.createdAt);
+      const dateStr = dateObj.toLocaleDateString();
+      const timeStr = dateObj.toLocaleTimeString();
+      const cardName = contact.card.cardName || contact.card.fullName || "Unknown Card";
+      const sourceUrl = contact.sourceUrl || "Direct Scan";
+
+      //helper
+      const safe = (str: string) => `"${str.replace(/"/g, '""')}"`;
+
+      return [
+        safe(contact.name),
+        safe(contact.email),
+        safe(contact.phone),
+        safe(dateStr),
+        safe(timeStr),
+        safe(cardName),
+        safe(sourceUrl)
+      ].join(",");
+    });
+
+    //join headers and rows
+    const csvContent = [headers.join(","), ...rows].join("\n");
+
+    //download
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `mykard_leads_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+
   return (
     <div className={styles.container}>
       {/* Header */}
@@ -150,6 +199,12 @@ export default function ContactsPage() {
              People who reached out using your MyKard link.
             </p>
           </div>
+
+          {/* Mobile Export Button */}
+          <button onClick={exportToCSV} className={styles.mobileExportButton}>
+            <Download size={16} /> Export CSV
+          </button>
+
         </div>
       </div>
 
@@ -179,23 +234,31 @@ export default function ContactsPage() {
 
       {/* Desktop Inline Search Bar */}
       <div className={styles.desktopSearchBar}>
-        <div className={styles.desktopSearchContainer}>
-          <Search className={styles.desktopSearchIcon} />
-          <input
-            type="text"
-            placeholder={`Search ${contacts.length} contact${contacts.length !== 1 ? 's' : ''}`}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className={styles.desktopSearchInput}
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery("")}
-              className={styles.desktopClearButton}
-            >
-              ×
-            </button>
-          )}
+        <div className={styles.desktopSearchRow}>
+          <div className={styles.desktopSearchContainer}>
+            <Search className={styles.desktopSearchIcon} />
+            <input
+              type="text"
+              placeholder={`Search ${contacts.length} contact${contacts.length !== 1 ? 's' : ''}`}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={styles.desktopSearchInput}
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className={styles.desktopClearButton}
+              >
+                ×
+              </button>
+            )}
+          </div>
+
+          <button onClick={exportToCSV} className={styles.exportButton} title="Download Leads">
+              <Download size={18} />
+              <span>Export CSV</span>
+          </button>
+
         </div>
       </div>
 
@@ -311,7 +374,7 @@ export default function ContactsPage() {
                         Contacted via <span className={styles.cardName}>
                           {contact.card.cardName || contact.card.fullName}
                           {contact.card.cardName && contact.card.fullName !== contact.card.cardName && (
-                            <span className={styles.cardType}> ({contact.card.fullName})</span>
+                            <span className={styles.cardType}></span>
                           )}
                         </span>
                       </p>

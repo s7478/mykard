@@ -9,5 +9,13 @@ export async function POST(req: NextRequest) {
   })
   
   const data = await response.json()
-  return NextResponse.json(data, { status: response.status })
+
+  const nextResponse = NextResponse.json(data, { status: response.status })
+
+  const setCookieHeader = response.headers.get('set-cookie')
+  if (setCookieHeader) {
+    nextResponse.headers.set('set-cookie', setCookieHeader)
+  }
+  
+  return nextResponse
 }

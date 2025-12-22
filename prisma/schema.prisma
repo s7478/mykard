@@ -136,6 +136,13 @@ model Card {
   review         String?          @db.Text
   services       String?          @db.Text
   skills         String?          @db.Text
+
+  customFields   String?  @map("custom_fields") @db.Text
+
+
+  textColor String? @default("#ffffff")
+
+
   documentUrl    String?          @map("document_url") @db.VarChar(1000)
   shares         Int              @default(0)
   connections    CardConnection[]

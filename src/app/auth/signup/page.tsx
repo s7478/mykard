@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { toast } from "react-hot-toast"
 import { auth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword } from "@/lib/firebase"
@@ -228,12 +229,15 @@ export default function SignupPage() {
         {/* Logo */}
         <div className="auth-header">
           <Link href="/" className="flex justify-center w-full">
-  <img
-    src="/assets/headerlogo.png"
-    alt="MyKard Logo"
-    className="h-12 w-auto"
-  />
-</Link>
+          <Image
+            src="/assets/headerlogo.png"
+            alt="MyKard Logo"
+            width={180}
+            height={48}
+            priority 
+            className="h-auto w-auto object-contain"
+          />
+        </Link>
         </div>
 
         {/* STEP 1: Email Input */}
@@ -244,7 +248,7 @@ export default function SignupPage() {
               Make yours unforgettable!
             </p>
 
-            <h2 className="auth-title">Create an account</h2>
+            <h2 className={styles.title}>Create an account</h2>
 
             <form onSubmit={handleEmailSubmit} className="auth-form">
               <div className="auth-input-group">
@@ -267,13 +271,13 @@ export default function SignupPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className={`auth-submit-button w-full ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}
+                className={`${styles.submitBtn} ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}
               >
                 {loading ? 'Checking...' : 'Continue'}
               </button>
             </form>
 
-            <p className="text-center text-sm text-gray-600 mt-6">
+            <p className="text-center text-sm text-gray-600 mt-10">
               Already have an account?{' '}
               <Link href="/auth/login" className="text-primary-green hover:text-primary-green-dark font-medium">
                 Log in

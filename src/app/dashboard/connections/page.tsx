@@ -819,19 +819,15 @@ export default function DashboardContactPage() {
                   </div>
 
                   {/* Desktop layout: original search bar only */}
-                  <div className={styles.desktopOnly}>
-                    <div className={styles.relativeContainer}>
-                      <div className={styles.searchIconContainer}>
-                        <Search className={styles.searchIcon} />
-                      </div>
-                      <input
-                        type="text"
-                        placeholder="Search your professional network..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className={styles.searchInput}
-                      />
-                    </div>
+                  <div className={styles.searchWrapper}>
+                    <Search className={styles.searchIcon} />
+                    <input
+                      type="text" style={{textAlign:"left"}}
+                      placeholder="Search your professional network..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className={styles.searchInput}
+                    />
                   </div>
                 </div>
               </div>
@@ -927,22 +923,15 @@ export default function DashboardContactPage() {
                   <table className={styles.tableFullWidth}>
                     <thead className={styles.tableHead}>
                       <tr>
-                        <th className={styles.tableHeaderCell}>
-                          <div className={styles.flexCenterGap}>NAME</div>
-                        </th>
-                        <th className={styles.tableHeaderCell}>
-                          <div className={styles.flexCenterGap}>TITLE</div>
-                        </th>
-                        <th className={styles.tableHeaderCell}>
-                          <div className={styles.flexCenterGap}>COMPANY</div>
-                        </th>
-                        <th className={styles.tableHeaderDate}>
-                          <div className={styles.flexCenterGap}>DATE</div>
-                        </th>
-                        <th className={styles.tableHeaderAction}></th>
-                        <th className={styles.tableHeaderActionW8}></th>
+                        <th className={styles.tableHeader}>NAME</th>
+                        <th className={styles.tableHeader} style={{textAlign:'left'}}>TITLE</th>
+                        <th className={styles.tableHeader} style={{textAlign:'left'}}>COMPANY</th>
+                        <th className={styles.tableHeader}>DATE</th>
+                        <th className={styles.tableHeader}></th>
+                        <th className={styles.tableHeader}></th>
                       </tr>
                     </thead>
+
                     <tbody className={styles.tableBody}>
                       {sortedContacts.map((contact) => (
                         <tr key={contact.id} className={styles.tableRow}>
@@ -978,14 +967,7 @@ export default function DashboardContactPage() {
                                 </button>
                                 {(contact.location || contact.phone || contact.email) && (
                                   <div
-                                    style={{
-                                      marginTop: 4,
-                                      fontSize: 12,
-                                      color: "#6b7280",
-                                      whiteSpace: "nowrap",
-                                      overflow: "hidden",
-                                      textOverflow: "ellipsis",
-                                    }}
+                                    style={{ marginTop: 4, fontSize: 12, color: "#6b7280", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
                                   >
                                     {[contact.location, contact.phone, contact.email]
                                       .filter(Boolean)
@@ -996,11 +978,11 @@ export default function DashboardContactPage() {
                             </div>
                           </td>
 
-                          <td className={styles.tableDataCell}>
+                          <td>
                             <span className={styles.tableCellText} style={{ display: 'block', maxWidth: 180,whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }}>{(contact.title || '').trim()}</span>
                           </td>
-                          <td className={styles.tableDataCell}>
-                            <span className={styles.tableCellText} style={{ display: 'block', maxWidth: 220,whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }}>{(contact.company || '').trim()}</span>
+                          <td>
+                            <span  style={{ display: 'block', maxWidth: 200, whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }}>{(contact.company || '').trim()}</span>
                           </td>
                           <td className={styles.tableDataDate}>
                             <span>{contact.dateAdded}</span>
@@ -1050,6 +1032,7 @@ export default function DashboardContactPage() {
                     </tbody>
                   </table>
                 </div>
+
 
                 {/* Mobile Card View (used inside table view block for responsiveness) */}
                 <div className={styles.mobileCardsWrapper}>
