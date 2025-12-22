@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json({
-      exists: !!existingUser
+      exists: !!existingUser 
     })
 
   } catch (error: any) {

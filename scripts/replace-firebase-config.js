@@ -18,7 +18,7 @@ let content = fs.readFileSync(configPath, 'utf8');
 
 // Replace placeholders with actual values
 Object.entries(replacements).forEach(([placeholder, value]) => {
-  const regex = new RegExp(`'${placeholder}'`, 'g');
+  const regex = new RegExp(`${placeholder}`, 'g');
   content = content.replace(regex, `'${value}'`);
 });
 

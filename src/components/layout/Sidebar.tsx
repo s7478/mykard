@@ -16,6 +16,9 @@ import {
   ContactRound,
   Menu,
   X,
+
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import "./sidebar.css"; // 
 import { motion, AnimatePresence } from "framer-motion";
@@ -83,6 +86,10 @@ const Sidebar = () => {
   const router = useRouter();
   const { logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+
+  // Desktop Collapsed State (Default true as requested)
+  const [isCollapsed, setIsCollapsed] = useState(true)
+
   const [unreadCount, setUnreadCount] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
   const [pendingConnections, setPendingConnections] = useState(0);
@@ -475,6 +482,15 @@ const Sidebar = () => {
     { name: "Search", path: "/dashboard/search", icon: <Search /> },
   ];
 
+
+  // Logic to toggle desktop sidebar
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
+
+
+
   const bottomItems = [
     { name: "Settings", path: "/dashboard/settings", icon: <Settings2 /> },
     { name: "Help & Support", path: "/dashboard/support", icon: <HelpCircle /> },
@@ -509,21 +525,40 @@ const Sidebar = () => {
 
       {/* Sidebar (desktop / slide-in) */}
       <motion.aside
-        className={`sidebar ${isOpen ? "open" : "closed"}`}
+        className={`sidebar ${isOpen ? "open" : "closed"} ${isCollapsed ? "desktop-collapsed" : "desktop-expanded"}`}
       >
         {/* Header */}
         <div className="sidebarHeader">
-          <Link href="/" className="logoArea" style={{ paddingLeft: '2rem' }}>
-            <Image
-              src="/assets/mykard.png"
-              alt="Logo"
-              width={40}
-              height={40}
-              className="w-36 h-36 object-contain"
-              priority
-              unoptimized
-            />
+          <Link href="/" className="logoArea">
+            {isCollapsed ? (
+              // Icon Only Logo
+              <Image
+                src="/assets/my1.png"
+                alt="Logo"
+                width={32}
+                height={32}
+                className="collapsedLogo"
+                priority
+                unoptimized
+              />
+            ) : (
+              // Full Logo
+              <Image
+                src="/assets/mykard.png"
+                alt="Logo"
+                width={140}
+                height={40}
+                className="expandedLogo"
+                priority
+                unoptimized
+              />
+            )}
           </Link>
+
+          {/* Desktop Toggle Arrow */}
+          <button onClick={toggleCollapse} className="collapseToggleBtn">
+            {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          </button>
         </div>
 
         {/* Navigation */}
@@ -535,12 +570,19 @@ const Sidebar = () => {
                 href={item.path}
                 key={item.name}
                 className={`navItem ${isActive ? "activeNav" : ""}`}
-                onClick={() => {
-                  setIsOpen(false);
-                }}
+                onClick={() => setIsOpen(false)}
               >
-                <span className={`navIcon ${item.name === "Lead" ? "navIconLead" : ""}`}>{item.icon}</span>
-                <span>{item.name}</span>
+                <div className="navItemContent">
+                  <span className={`navIcon ${item.name === "Lead" ? "navIconLead" : ""}`}>{item.icon}</span>
+                  
+                  {/* Label Text - Hidden when collapsed via CSS */}
+                  <span className="navLabel">{item.name}</span>
+                </div>
+
+                {/* Tooltip - Only visible on hover when collapsed */}
+                <span className="navTooltip">{item.name}</span>
+
+                {/* Badges */}
                 {item.name === "Messages" && unreadCount > 0 && pathname !== "/dashboard/messages" && (
                   <span className="navBadge">{unreadCount}</span>
                 )}
@@ -554,65 +596,32 @@ const Sidebar = () => {
             );
           })}
         </nav>
-
       </motion.aside>
 
-      {/* Mobile Bottom Navigation */}
+      {/* Mobile Bottom Navigation - Keep exactly as is */}
       <nav className="bottomNav">
-        <Link
-          href="/dashboard"
-          className={`bottomNavItem ${pathname === "/dashboard" ? "bottomNavItemActive" : ""}`}
-        >
-          <span className="bottomNavIcon">
-            <LayoutDashboard />
-          </span>
+        <Link href="/dashboard" className={`bottomNavItem ${pathname === "/dashboard" ? "bottomNavItemActive" : ""}`}>
+          <span className="bottomNavIcon"><LayoutDashboard /></span>
         </Link>
-
-        <Link
-          href="/dashboard/messages"
-          className={`bottomNavItem ${pathname === "/dashboard/messages" ? "bottomNavItemActive" : ""}`}
-        >
+        <Link href="/dashboard/messages" className={`bottomNavItem ${pathname === "/dashboard/messages" ? "bottomNavItemActive" : ""}`}>
           <span className="bottomNavIcon">
             <MessageSquare />
-            {unreadCount > 0 && pathname !== "/dashboard/messages" && (
-              <span className="bottomNavBadge">{unreadCount}</span>
-            )}
+            {unreadCount > 0 && pathname !== "/dashboard/messages" && <span className="bottomNavBadge">{unreadCount}</span>}
           </span>
         </Link>
-
-        {/* Center search icon in the bottom nav */}
-        <Link
-          href="/dashboard/search"
-          className={`bottomNavItem ${pathname === "/dashboard/search" ? "bottomNavItemActive" : ""}`}
-        >
-          <span className="bottomNavIcon">
-            <Search />
-          </span>
+        <Link href="/dashboard/search" className={`bottomNavItem ${pathname === "/dashboard/search" ? "bottomNavItemActive" : ""}`}>
+          <span className="bottomNavIcon"><Search /></span>
         </Link>
-
-        <Link
-          href="/dashboard/connections"
-          className={`bottomNavItem ${pathname === "/dashboard/connections" ? "bottomNavItemActive" : ""}`}
-        >
+        <Link href="/dashboard/connections" className={`bottomNavItem ${pathname === "/dashboard/connections" ? "bottomNavItemActive" : ""}`}>
           <span className="bottomNavIcon">
             <ContactRound />
-            {pendingConnections > 0 && pathname !== "/dashboard/connections" && (
-              <span className="bottomNavBadge">{pendingConnections}</span>
-            )}
+            {pendingConnections > 0 && pathname !== "/dashboard/connections" && <span className="bottomNavBadge">{pendingConnections}</span>}
           </span>
         </Link>
-
-        <Link
-          href="/dashboard/contacts"
-          className={`bottomNavItem ${pathname === "/dashboard/contacts" ? "bottomNavItemActive" : ""}`}
-        >
+        <Link href="/dashboard/contacts" className={`bottomNavItem ${pathname === "/dashboard/contacts" ? "bottomNavItemActive" : ""}`}>
           <span className="bottomNavIcon bottomNavIconConnections">
-            <span className="connectionSvg">
-              <PersonNetworkIcon />
-            </span>
-            {contactsCount > 0 && pathname !== "/dashboard/contacts" && (
-              <span className="bottomNavBadge">{contactsCount}</span>
-            )}
+            <span className="connectionSvg"><PersonNetworkIcon /></span>
+            {contactsCount > 0 && pathname !== "/dashboard/contacts" && <span className="bottomNavBadge">{contactsCount}</span>}
           </span>
         </Link>
       </nav>

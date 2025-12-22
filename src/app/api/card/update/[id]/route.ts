@@ -47,22 +47,22 @@ export async function PATCH(
     
     // Personal Information - Extract name fields
    const firstName = formData.get('firstName') as string | null;
-if (firstName !== null) updateData.firstName = firstName ?? "";
+    if (firstName !== null) updateData.firstName = firstName ?? "";
 
-const middleName = formData.get('middleName') as string | null;
-updateData.middleName = middleName ?? "";
+    const middleName = formData.get('middleName') as string | null;
+    updateData.middleName = middleName ?? "";
 
 
-const lastName = formData.get('lastName') as string | null;
-updateData.lastName = lastName ?? "";
+    const lastName = formData.get('lastName') as string | null;
+    updateData.lastName = lastName ?? "";
 
     // Construct fullName from firstName/middleName/lastName
     if (firstName !== null || middleName !== null || lastName !== null) {
-    const names = [
-  firstName ?? "",
-  middleName ?? "",
-  lastName ?? ""
-];
+      const names = [
+      firstName ?? "",
+      middleName ?? "",
+      lastName ?? ""
+    ];
 
       updateData.fullName = names.filter(Boolean).join(' ').trim() || 'Unnamed';
     }
@@ -106,7 +106,11 @@ updateData.lastName = lastName ?? "";
     if (email !== null) updateData.email = email || undefined;
     
     const phone = formData.get('phone') as string;
-    if (phone !== null) updateData.phone = phone || undefined;
+    if (phone !== null) {
+      // If phone is empty string, save as NULL (to delete it). 
+      // Otherwise save the phone number.
+      updateData.phone = phone === '' ? null : phone;
+    }
     
     const emailLink = formData.get('emailLink') as string;
     if (emailLink !== null) updateData.emailLink = emailLink || undefined;
@@ -138,6 +142,9 @@ updateData.lastName = lastName ?? "";
     
     const selectedColor2 = formData.get('selectedColor2') as string;
     if (selectedColor2 !== null) updateData.selectedColor2 = selectedColor2 || undefined;
+
+    const textColor = formData.get('textColor') as string;
+    if (textColor !== null) updateData.textColor = textColor || undefined;
     
     const selectedFont = formData.get('selectedFont') as string;
     if (selectedFont !== null) updateData.selectedFont = selectedFont || undefined;
@@ -164,6 +171,12 @@ updateData.lastName = lastName ?? "";
     
     const review = formData.get('review') as string;
     if (review !== null) updateData.review = review || undefined;
+
+
+    const customFields = formData.get('customFields') as string;
+    if (customFields !== null) updateData.customFields = customFields || undefined;
+    
+
 
     // Status
     const status = formData.get('status') as string;

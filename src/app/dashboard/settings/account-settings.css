@@ -930,42 +930,66 @@
 /* Phone edit buttons */
 .phone-edit-actions {
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 12px;
+  justify-content: flex-end;
 }
 
 .phone-save-btn {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  color: #ffffff;
   border: none;
-  border-radius: 10px;
-  padding: 8px 16px;
+  border-radius: 999px; /* pill shape */
+  padding: 10px 22px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
 }
 
+.phone-save-btn::before {
+  content: "✓";
+  font-size: 14px;
+  font-weight: 800;
+}
+
+
 .phone-save-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.45);
+}
+
+.phone-save-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.35);
+
 }
 
 .phone-cancel-btn {
-  background: #64748b;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  padding: 8px 16px;
+  background: #f8fafc;
+  color: #475569;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 10px 18px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+
 }
 
 .phone-cancel-btn:hover {
-  background: #475569;
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.phone-cancel-btn:active {
+  background: #e5e7eb;
 }
 
 .phone-edit-btn {

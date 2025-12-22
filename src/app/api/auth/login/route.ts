@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { cookies } from 'next/headers'
 import { signToken } from '@/lib/jwt'
 
-const TOKEN_EXPIRY = '365d' // 365 days (1 year)
+const TOKEN_EXPIRY = '7d' // 365 days (1 year)
 
 export async function POST(request: NextRequest) {
   try {
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 365, // 365 days (1 year)
+      maxAge: 60 * 60 * 24 * 7, // 7 days in seconds
       path: '/'
     })
 

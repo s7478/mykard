@@ -39,16 +39,90 @@
 }
 
 @media (min-width: 768px) {
+  /* -------- Full-width container on mobile -------- */
   .container {
-    padding: 2rem 2rem;
+    max-width: 100%;
+    padding: 1rem 1rem 5.5rem; /* extra bottom space for mobile nav */
+  }
+
+   /* --------Reduce header height & spacing -------- */
+  .header {
+    margin-bottom: 1.25rem;
+  }
+
+  .title {
+    font-size: 22px; /* smaller for mobile */
+  }
+
+  .subtitle {
+    font-size: 0.8rem;
+  }
+
+  /* --------Show ONLY mobile search -------- */
+  .desktopSearchBar {
+    display: none;
+  }
+
+  .searchSection {
+    display: flex;
+    margin-bottom: 1.25rem;
+  }
+
+  .searchRow {
+    max-width: 100%;
+  }
+
+  /* --------Edge-to-edge search input -------- */
+  .searchInput {
+    font-size: 0.9rem;
+    padding: 0.75rem 0.9rem 0.75rem 2.4rem;
+  }
+
+  
+  /* -------- Improve empty state on mobile -------- */
+  .emptyState {
+    padding: 2.5rem 1.25rem;
+    border-radius: 14px;
+  }
+
+  .emptyIcon {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .emptyTitle {
+    font-size: 1.1rem;
+  }
+
+  .emptyMessage {
+    font-size: 0.85rem;
+  }
+
+  /* -------- Mobile export button alignment -------- */
+  .mobileExportButton {
+    margin-top: 0.75rem;
+    padding: 0.55rem 1.1rem;
+    font-size: 0.8rem;
+  }
+
+}
+
+/* -------- Desktop-only search visibility -------- */
+@media (min-width: 769px) {
+  .searchSection {
+    display: none;
+  }
+
+  .desktopSearchBar {
+    display: block;
   }
 }
 
-@media (min-width: 1024px) {
+/* @media (min-width: 1024px) {
   .container {
     padding: 2rem 3rem;
   }
-}
+} */
 
 /* --- Header Section (Premium, Compact, Centered) --- */
 /* Center all header elements perfectly, reduce empty space */
@@ -1032,6 +1106,8 @@
 
 
 
+
+
 /* --- Mobile Card Center Fix (DO NOT TOUCH ANYTHING ELSE) --- */
 @media (max-width: 768px) {
   .contactsList {
@@ -1057,26 +1133,29 @@
 }
 
 
-/* --- MOBILE FRIENDLY VISUAL IMPROVEMENTS (DO NOT REMOVE OLD CSS) --- */
+
+
+
+/* --- MOBILE FRIENDLY VISUAL IMPROVEMENTS (Disabled - Moved to media query)--- */
 
 /* Card: soft-blue background & more spacing */
-.contactCard {
+/* .contactCard {
   background: linear-gradient(to bottom right, #ffffff, #f8faff);
   border: 1px solid rgba(30, 103, 244, 0.15);
   padding: 1.35rem;
   border-radius: 20px;
-}
+} */
 
 /* Name = BIG and clearly visible */
-.contactName {
+/* .contactName {
   font-size: 1.15rem !important;
   font-weight: 800 !important;
   color: #0f172a !important;
   margin-bottom: 0.25rem;
-}
+} */
 
 /* "Contacted via …" bubble = more readable */
-.contactCardText {
+/* .contactCardText {
   background: #ffffff;
   padding: 0.95rem 1.1rem;
   border-radius: 14px;
@@ -1084,17 +1163,17 @@
   border: 1px solid #e7eaf3;
   color: #475569;
   box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-}
+} */
 
 /* Remove container styling from contacted via on mobile */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .contactCardText {
     background: none !important;
     border: none !important;
     padding: 0 !important;
     box-shadow: none !important;
   }
-}
+} */
 
 /* Email / Phone fields = soft grey box */
 .actionButton {
@@ -1102,19 +1181,77 @@
   border: 1px solid #e2e8f0;
   color: #334155;
   font-weight: 600;
+  margin: 2.5px;
 }
 
 .actionButton:hover {
   background: #1e67f4;
   border-color: #1e67f4;
   color: #fff;
+} 
+
+
+/* =========================================================
+   FINAL MOBILE VISUAL STYLES (ACTIVE)
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+  .contactCard {
+    background: linear-gradient(to bottom right, #ffffff, #fbfcff);
+    border: 1px solid rgba(30, 103, 244, 0.15);
+    padding: 1.25rem;
+    border-radius: 18px;
+    margin-top: 10px;
+    box-shadow: 
+      0 2px 8px rgba(30, 103, 244, 0.08),
+      0 0 0 1px rgba(30, 103, 244, 0.06);
+  }
+
+  .contactName {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-left: 2px;
+  }
+
+  .contactCardText {
+    font-size: 0.85rem;
+    color: #475569;
+    margin-top: 0.50rem;
+  }
+
+  .actionButton {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    font-weight: 600;
+  }
+
+  .actionButton:hover {
+    background: #1e67f4;
+    border-color: #1e67f4;
+    color: #ffffff;
+  }
+
+  .timeStamp {
+    background: rgba(30, 103, 244, 0.12);
+    color: #1e3a8a;
+    border-radius: 8px;
+    padding: 0.35rem 0.65rem;
+    gap: 0.25em;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
 }
+
 
 /* Spacing improvement for mobile */
 @media (max-width: 480px) {
   .contactCard {
     padding: 1.2rem;
     border-radius: 18px;
+    margin-bottom: 10px;
   }
 
   .contactName {
@@ -1124,23 +1261,36 @@
   .contactCardText {
     font-size: 0.85rem;
   }
+
+  .actionButton {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    font-weight: 600;
+  }
+
+  .actionButton:hover {
+    background: #1e67f4;
+    border-color: #1e67f4;
+    color: #ffffff;
+  }
 }
 
 /* --- FIX #1: Time stamp more readable & highlighted --- */
-.timeStamp {
+/* .timeStamp {
   background: rgba(30, 103, 244, 0.12) !important;
   color: #1e3a8a !important;   /* deep readable blue */
-  border-radius: 8px !important;
+/*  border-radius: 8px !important;
   padding: 0.35rem 0.75rem !important;
   font-weight: 600 !important;
   font-size: 0.78rem !important;
   box-shadow: 0 1px 3px rgba(30,103,244,0.15);
-}
+} */
 
 /* --- FIX #2: Space between Name → Contacted via text --- */
 .contactCardText {
-  margin-top: 0.2rem !important;  
-}
+  margin-top: 0.80rem !important;  
+} 
 
 /* --- FIX #3: Soft glow around each card (reduces eye strain) --- */
 .contactCard {
@@ -1158,9 +1308,180 @@
 }
 
 .searchInput {
-  border: 1px solid rgba(30, 103, 244, 0.18) !important;  /* subtle border */
-  background: #ffffff !important;
-  box-shadow: 0 1px 4px rgba(30, 103, 244, 0.06) !important;
+  border: 1px solid rgba(30, 103, 244, 0.18);
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(30, 103, 244, 0.06);
 }
+
+
+
+
+
+
+
+/* --- FIX #5: Mobile Export Button (easier access) --- */
+
+.mobileExportButton {
+  display: none; 
+  align-items: center;
+  margin-top: 1rem;
+  gap:0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #1e67f4; 
+  color: #ffffff;
+  border: 1px solid rgba(30, 103, 244, 0.2);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .mobileExportButton {
+    display: flex; 
+  }
+}
+
+@media (min-width: 769px) {
+  .desktopSearchContainer {
+    flex: 1; 
+  }
+}
+
+.desktopSearchRow {
+  display: flex;
+  gap: 1rem;       
+  width: 100%;
+  align-items: center;
+}
+
+
+.exportButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 1rem;
+  height: 45px;        
+  background-color: #1e67f4; 
+  color: #ffffff;
+  border-radius: 12px;
+} 
+
+
+
+/* =========================================================
+   FINAL CLEAN MOBILE VISUAL STYLES
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+  /* Card visual */
+  .contactCard {
+    background: linear-gradient(to bottom right, #ffffff, #fbfcff);
+    border: 1px solid rgba(30, 103, 244, 0.15);
+    padding: 1.25rem;
+    border-radius: 18px;
+    box-shadow: 
+      0 2px 8px rgba(30, 103, 244, 0.08),
+      0 0 0 1px rgba(30, 103, 244, 0.06);
+  }
+
+  /* Name */
+  .contactName {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 0.25rem;
+  }
+
+  /* Contacted via text */
+  .contactCardText {
+    font-size: 0.85rem;
+    color: #475569;
+    margin-top: 0.25rem;
+  }
+
+  /* Action buttons */
+  .actionButton {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    font-weight: 600;
+  }
+
+  .actionButton:hover {
+    background: #1e67f4;
+    border-color: #1e67f4;
+    color: #ffffff;
+  }
+
+  /* Timestamp highlight */
+  .timeStamp {
+    background: rgba(30, 103, 244, 0.12);
+    color: #1e3a8a;
+    border-radius: 8px;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+}
+
+
+
+
+
+
+
+
+
+/* --- FIX #5: Mobile Export Button (easier access) --- */
+
+.mobileExportButton {
+  display: none; 
+  align-items: center;
+  margin-top: 1rem;
+  gap:0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #1e67f4; 
+  color: #ffffff;
+  border: 1px solid rgba(30, 103, 244, 0.2);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .mobileExportButton {
+    display: flex; 
+  }
+}
+
+@media (min-width: 769px) {
+  .desktopSearchContainer {
+    flex: 1; 
+  }
+}
+
+.desktopSearchRow {
+  display: flex;
+  gap: 1rem;       
+  width: 100%;
+  align-items: center;
+}
+
+
+.exportButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 1rem;
+  height: 45px;        
+  background-color: #1e67f4; 
+  color: #ffffff;
+  border-radius: 12px;
+}
+
+
 
 

@@ -74,6 +74,7 @@ interface Card {
   selectedDesign?: string;
   selectedColor?: string;
   selectedColor2?: string;
+  textColor?: string;
   selectedFont?: string;
   cardType?: string;
   views?: number;
@@ -86,6 +87,11 @@ interface Card {
     email: string;
     location?: string;
   };
+
+
+  customFields?: string;
+
+
 }
 
 // ----------------- Card Preview -----------------

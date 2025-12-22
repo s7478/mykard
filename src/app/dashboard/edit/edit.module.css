@@ -1,0 +1,299 @@
+/* --- Main Layout --- */
+.pageWrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f0f2f5;
+  padding: 10px;
+  box-sizing: border-box;
+  gap: 15px;
+  padding-bottom: 110px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.cardPreviewWrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  transform: scale(0.90);
+  transform-origin: top center;
+}
+
+.editPanel {
+  width: 100%;
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+/* --- Tabs --- */
+.tabContainer {
+  display: flex;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+
+.tabButton {
+  padding: 10px 15px;
+  font-size: clamp(13px, 3.5vw, 16px);
+  font-weight: bold;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  outline: none;
+  margin-right: 10px;
+  white-space: nowrap;
+  color: #777;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+/* --- Typography & Headings --- */
+.sectionTitle {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.subTitle {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.label {
+  display: block;
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+/* --- Form Inputs --- */
+.inputGroup {
+  margin-bottom: 15px;
+}
+
+.inputField, .selectField, .textareaField {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-sizing: border-box;
+  background-color: white; /* Default white, overrides inline sometimes */
+  color: #555;
+  outline: none;
+}
+
+.inputField:focus, .selectField:focus, .textareaField:focus {
+  border-color: #145dfd;
+}
+
+.inputGray {
+  background-color: #f8f8f8;
+}
+
+/* --- Color Picker Layout --- */
+.colorSection {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.rgbInputsWrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.rgbInputGroup {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+  min-width: 60px;
+}
+
+/* --- Design Selector Grid --- */
+.designGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.designOption {
+  border-radius: 10px;
+  padding: 10px;
+  width: calc(50% - 5px);
+  min-width: 80px;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  background-color: white;
+}
+
+.designVisual {
+  width: 100%;
+  max-width: 80px;
+  height: 50px;
+  border-radius: 5px;
+  margin: 0 auto 10px auto;
+  position: relative;
+  overflow: hidden;
+}
+
+/* --- Buttons --- */
+.buttonGroup {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.baseButton {
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  outline: none;
+  flex: 1;
+  min-width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btnPrimary {
+  border: none;
+  color: white;
+  /* Bg color usually handled inline for dynamic selection */
+}
+
+.btnSecondary {
+  background-color: transparent;
+  border: 1px solid #ddd;
+  color: #555;
+}
+
+.btnOutline {
+  background-color: transparent;
+  border-style: dashed; 
+  border-width: 1px;
+  border-radius: 8px;
+  padding: 12px 15px; 
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+  gap: 8px;
+  width: 100%;
+  margin-top: 15px;
+  transition: background-color 0.2s;
+}
+
+.btnIcon {
+  background-color: transparent;
+  border: 1px solid #ddd;
+  padding: 10px 15px;
+  font-size: 14px;
+  color: #555;
+  width: 100%;
+}
+
+/* --- Modals --- */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 15px;
+}
+
+.modalContent {
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* --- Responsive Media Queries --- */
+@media (min-width: 768px) {
+  .container {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  
+  .cardPreviewWrapper {
+    position: sticky;
+    top: 20px;
+    width: 400px; /* Fixed width for preview */
+    max-width: 400px;
+    flex-shrink: 0;
+  }
+  
+  .editPanel {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .pageWrapper {
+    padding: 6px 8px 120px !important;
+  }
+}
+
+
+
+
+
+.documentUploadBtn {
+  display: flex;
+  align-items: center;      
+  justify-content: center;  
+  gap: 10px;              
+  width: 100%;
+  padding: 12px;           
+  border-radius: 8px;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: 1px solid #ddd;   
+}
+
+.documentUploadBtn:hover {
+  background-color: #f8f9fa;
+}

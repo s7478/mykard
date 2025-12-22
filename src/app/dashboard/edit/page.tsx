@@ -9,16 +9,33 @@ import ModernCardPreviewComponent from "@/components/cards/ModernCardPreview";
 import SleekCardPreviewComponent from "@/components/cards/SleekCardPreview";
 import LocationSelect from "@/components/LocationSelect";
 
-// ====================================================================
-// START: EditPage Component
-// ====================================================================
+// Import Shared CSS
+import styles from './edit.module.css'; 
 
-// Define interface for the new fields
 interface ExtraField {
   id: number;
   name: string;
   link: string;
 }
+
+const FONT_OPTIONS = [
+  { label: 'Standard (Arial)', value: 'Arial, Helvetica, sans-serif' },
+  { label: 'Modern (Verdana)', value: 'Verdana, Geneva, sans-serif' },
+  { label: 'Clean (Open Sans/Segoe)', value: '"Segoe UI", "Open Sans", Helvetica, sans-serif' },
+  { label: 'Minimal (Helvetica)', value: 'Helvetica, "Helvetica Neue", Arial, sans-serif' },
+  { label: 'Humanist (Gill Sans)', value: '"Gill Sans", "Gill Sans MT", Calibri, sans-serif' },
+  { label: 'Rounded (Tahoma)', value: 'Tahoma, Geneva, sans-serif' },
+  { label: 'Stylish (Trebuchet)', value: '"Trebuchet MS", "Lucida Sans Unicode", sans-serif' },
+  { label: 'Elegant (Georgia)', value: 'Georgia, serif' },
+  { label: 'Classic (Times New Roman)', value: '"Times New Roman", Times, serif' },
+  { label: 'Formal (Palatino)', value: '"Palatino Linotype", "Book Antiqua", Palatino, serif' },
+  { label: 'Old Style (Garamond)', value: 'Garamond, Baskerville, "Baskerville Old Face", serif' },
+  { label: 'Bold (Impact)', value: 'Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif' },
+  { label: 'Monospace (Courier)', value: '"Courier New", Courier, monospace' },
+  { label: 'Terminal (Lucida)', value: '"Lucida Console", Monaco, monospace' },
+  { label: 'Comic (Comic Sans)', value: '"Comic Sans MS", "Chalkboard SE", sans-serif' },
+  { label: 'Fantasy (Copperplate)', value: 'Copperplate, Papyrus, fantasy' },
+];
 
 const EditPage = () => {
   const searchParams = useSearchParams();
@@ -27,7 +44,6 @@ const EditPage = () => {
 
   const [activeTab, setActiveTab] = useState("Display");
 
-  // Force scroll to top on mount to fix refresh scroll offset and ensure header stays fixed
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -88,11 +104,21 @@ const EditPage = () => {
   const [newFieldName, setNewFieldName] = useState("");
   const [newFieldLink, setNewFieldLink] = useState("");
   const [extraFields, setExtraFields] = useState<ExtraField[]>([]);
+  const [isCustomFieldName, setIsCustomFieldName] = useState(false);
+
+  const socialPlatforms = [
+    'WhatsApp', 'GitHub', 'Twitter', 'Instagram', 'Facebook', 
+    'YouTube', 'Discord', 'Telegram', 'X', 'Other'
+  ];
+
+  const [professionalTitles, setProfessionalTitles] = useState<string[]>([]);
+  const [filteredTitles, setFilteredTitles] = useState<string[]>([]);
+  const [titleSearchTerm, setTitleSearchTerm] = useState('');
+
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [documentUrl, setDocumentUrl] = useState<string>("");
@@ -101,7 +127,6 @@ const EditPage = () => {
 
   const [isCustomTitle, setIsCustomTitle] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isLargeScreen, setIsLargeScreen] = useState(true);
 
   const hexToRgb = (hex: string) => {
     if (!hex || hex.length < 4) hex = "#145DFD";
@@ -133,22 +158,12 @@ const EditPage = () => {
 
   React.useEffect(() => {
     const newRgb1 = hexToRgb(selectedColor1);
-    if (newRgb1) {
-      setRValue1(newRgb1.r);
-      setGValue1(newRgb1.g);
-      setBValue1(newRgb1.b);
-      setHexValue1(selectedColor1);
-    }
+    if (newRgb1) { setRValue1(newRgb1.r); setGValue1(newRgb1.g); setBValue1(newRgb1.b); setHexValue1(selectedColor1); }
   }, [selectedColor1]);
 
   React.useEffect(() => {
     const newRgb2 = hexToRgb(selectedColor2);
-    if (newRgb2) {
-      setRValue2(newRgb2.r);
-      setGValue2(newRgb2.g);
-      setBValue2(newRgb2.b);
-      setHexValue2(selectedColor2);
-    }
+    if (newRgb2) { setRValue2(newRgb2.r); setGValue2(newRgb2.g); setBValue2(newRgb2.b); setHexValue2(selectedColor2); }
   }, [selectedColor2]);
 
   useEffect(() => {
@@ -171,7 +186,6 @@ const EditPage = () => {
   useEffect(() => {
     const fetchCardData = async () => {
       if (!cardId) return;
-
       try {
         setIsLoading(true);
         //  console.log('🔍 Fetching card for edit:', cardId);
@@ -243,7 +257,6 @@ const EditPage = () => {
         setIsLoading(false);
       }
     };
-
     fetchCardData();
   }, [cardId]);
 
@@ -457,7 +470,6 @@ const EditPage = () => {
     loadProfessions();
   }, []);
 
-  // Filter titles based on search term
   useEffect(() => {
     if (titleSearchTerm.trim() === "") {
       // Show all titles when search is empty
@@ -470,17 +482,17 @@ const EditPage = () => {
     }
   }, [titleSearchTerm, professionalTitles]);
 
+  const handleDropdownToggle = () => { if (!isDropdownOpen) setTitleSearchTerm(''); setIsDropdownOpen(!isDropdownOpen); };
+  const handleTitleSelect = (selected: string) => { if (selected === 'CUSTOM') { setIsCustomTitle(true); setTitle(''); } else { setIsCustomTitle(false); setTitle(selected); } setIsDropdownOpen(false); };
+
   const handleAddField = () => {
     if (newFieldName.trim()) {
-      const newField: ExtraField = {
-        id: Date.now(),
-        name: newFieldName,
-        link: newFieldLink,
-      };
+      const newField: ExtraField = { id: Date.now(), name: newFieldName, link: newFieldLink };
       setExtraFields([...extraFields, newField]);
       setNewFieldName("");
       setNewFieldLink("");
       setIsModalOpen(false);
+      setIsCustomFieldName(false);
     }
   };
 
@@ -526,6 +538,7 @@ const EditPage = () => {
   const handleSaveCard = async () => {
     try {
       setIsSaving(true);
+      if (!cardName.trim()) { toast.error('Please enter a card name'); setIsSaving(false); return; }
 
       const fullName =
         `${prefix} ${firstName} ${middleName} ${lastName} ${suffix}`.trim();
@@ -592,7 +605,6 @@ const EditPage = () => {
         formData.append("document", resumeFile);
       }
 
-      // Determine if we're updating or creating
       const isUpdating = existingCardId || cardId;
       const endpoint = isUpdating
         ? `/api/card/update/${existingCardId || cardId}`
@@ -640,7 +652,6 @@ const EditPage = () => {
     }
   };
 
-  // Delete card function
   const handleDeleteCard = async () => {
     if (!existingCardId && !cardId) {
       toast.error("No card to delete");
@@ -687,7 +698,6 @@ const EditPage = () => {
     window.open(url, "_blank");
   };
 
-  // Function to render the appropriate template based on selectedDesign
   const renderTemplatePreview = () => {
     const commonProps = {
       firstName,
@@ -716,7 +726,6 @@ const EditPage = () => {
       documentUrl,
       onDocumentClick: handleDocumentClick,
     };
-
     switch (selectedDesign) {
       case "Flat":
         return <FlatCardPreviewComponent {...commonProps} />;
@@ -1530,8 +1539,7 @@ const EditPage = () => {
                       }}
                     />
                   </div>
-                </div>
-              </div>
+               </div>
             </div>
 
             <div style={{ marginBottom: "30px" }}>
@@ -3024,12 +3032,10 @@ const EditPage = () => {
                     Cancel
                   </button>
                 </div>
-              )}
-            </div>
+             )}
           </div>
         );
-      default:
-        return null;
+      default: return null;
     }
   };
 
@@ -3251,7 +3257,6 @@ const EditPage = () => {
         }
       </div>
 
-      {/* Modal for adding a new field */}
       {isModalOpen && (
         <div
           style={{
@@ -3390,7 +3395,6 @@ const EditPage = () => {
           </div>
         </div>
       )}
-      {/* --- END Modal --- */}
 
       {isPopupOpen && (
         <div
@@ -3539,30 +3543,27 @@ const EditPage = () => {
                 {isDeleting ? "Deleting..." : "Delete"}
               </button>
             </div>
-          </div>
-        </div>
+         </div>
       )}
+      
+       {isDeleteConfirmOpen && (
+        <div className={styles.modalOverlay} onClick={() => setIsDeleteConfirmOpen(false)}>
+           <div className={styles.modalContent} style={{maxWidth:'350px', textAlign:'center'}} onClick={(e) => e.stopPropagation()}>
+              <h3 className={styles.subTitle} style={{color:'#dc3545'}}>Delete Card</h3>
+              <p>Are you sure? This cannot be undone.</p>
+              <div className={styles.buttonGroup} style={{justifyContent:'center'}}>
+                 <button onClick={() => setIsDeleteConfirmOpen(false)} className={`${styles.baseButton} ${styles.btnSecondary}`}>Cancel</button>
+                 <button onClick={handleDeleteCard} className={styles.baseButton} style={{backgroundColor:'#dc3545', color:'white', border:'none'}}>Delete</button>
+              </div>
+           </div>
+        </div>
+       )}
     </div>
   );
 };
 
-// Loading component for Suspense fallback
-const LoadingFallback = () => (
-  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-      <p className="text-gray-600">Loading editor...</p>
-    </div>
-  </div>
-);
+const LoadingFallback = () => <div className="min-h-screen bg-gray-50 flex items-center justify-center">Loading...</div>;
 
-// Wrapper component with Suspense boundary
-const EditPageWrapper = () => {
-  return (
-    <Suspense fallback={<LoadingFallback />}>
-      <EditPage />
-    </Suspense>
-  );
-};
+const EditPageWrapper = () => ( <Suspense fallback={<LoadingFallback />}> <EditPage /> </Suspense> );
 
 export default EditPageWrapper;

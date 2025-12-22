@@ -3,7 +3,7 @@
 
 /* --- Layout and Structure --- */
 .pageContainer {
-  background-color: var(--color-background);
+  background: radial-gradient(circle at 50% 0%, #f0f4ff 0%, #f5f7fa 100%);
   min-height: 100vh;
   padding: 1.5rem 1rem;
   display: flex;
@@ -17,9 +17,93 @@
   flex-direction: column;
   align-items: center;
   gap: 2rem;
-  max-width: 400px;
   width: 100%;
+  max-width: 400px; 
   margin: 0 auto;
+}
+
+@media (min-width: 1024px) {
+  .pageContainer {
+    padding: 0; 
+  }
+
+  .contentWrapper {
+    max-width: 1000px; 
+    flex-direction: row; 
+    justify-content: center;
+    align-items: center; 
+    gap: 5rem; 
+  }
+
+  
+  .leftColumn {
+    flex: 0 0 auto; 
+    animation: float 6s ease-in-out infinite; 
+  }
+
+  .rightColumn {
+    flex: 0 0 320px; 
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; 
+    gap: 1.5rem;
+    text-align: left;
+  }
+
+  .connectButton, .createButton, .createSection {
+    width: 100%; 
+  }
+  
+  .createSection {
+    align-items: flex-start;
+    text-align: left;
+  }
+  
+  .connectButton, .createButton {
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+}
+
+.createSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.poweredText {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.createButton {
+  padding: 0.8rem 1.4rem;
+  background-color: #ffffff;
+  color: #1e67f4;
+  border: 1px solid rgba(30, 103, 244, 0.2);
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  justify-content: center;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.createButton:hover {
+  background-color: #f8faff;
+  border-color: #1e67f4;
+  transform: translateY(-1px);
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
 }
 
 @media (min-width: 768px) {
@@ -41,23 +125,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
-  padding: 0.75rem 1.6rem;        /* smaller height */
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-  color: var(--color-white);
+  gap: 0.5rem;
+  padding: 1rem 1.6rem;
+  background: linear-gradient(135deg, #1e67f4 0%, #1652cc 100%);
+  color: #ffffff;
   border: none;
-  border-radius: 0.6rem;          /* sleeker roundness */
-  font-size: 1rem;                /* slightly smaller */
+  border-radius: 16px;
+  font-size: 1.05rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 180ms ease-in-out;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  min-width: 180px;               /* reduced width */
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(30, 103, 244, 0.25);
+  width: 100%;              /* reduced width */
 }
 
 .connectButton:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 20px rgba(30, 103, 244, 0.35);
 }
 
 .connectButton:active {
