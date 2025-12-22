@@ -100,11 +100,18 @@ const PartyPopup: React.FC<PartyPopupProps> = ({ onClose }) => {
 };
 
 const OnboardingPage: React.FC = () => {
+  const handlePrevious = () => {
+    if (step > 1) {
+      setStep(step - 1);
+    }
+  };
+
   const [step, setStep] = useState(0);
   const router = useRouter();
   const [showPartyPopup, setShowPartyPopup] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const[isEnabled,setIsEnabled]=useState(true);
+  const [isEnabled, setIsEnabled] = useState(true);
+
   const [formData, setFormData] = useState({
     photo: "",
     photoFile: null as File | null,
@@ -134,20 +141,20 @@ const OnboardingPage: React.FC = () => {
         const response = await fetch('/api/auth/me', {
           credentials: 'include'
         });
-        
+
         if (!response.ok) {
           // Not authenticated, redirect to login
           router.push('/auth/login');
           return;
         }
-        
+
         setIsCheckingAuth(false);
       } catch (error) {
         console.error('Auth check failed:', error);
         router.push('/auth/login');
       }
     };
-    
+
     checkAuth();
   }, [router]);
 
@@ -183,13 +190,13 @@ const OnboardingPage: React.FC = () => {
     return phoneRegex.test(phone);
   };
 
-  const handleContinue = async() => {
+  const handleContinue = async () => {
     // Step 1: Full Name (Required)
     if (step === 1 && !formData.name.trim()) {
       alert('Please enter your full name to continue.');
       return;
     }
-    
+
     // Step 2: Phone (Required)
     if (step === 2) {
       if (!formData.phone.trim()) {
@@ -201,7 +208,7 @@ const OnboardingPage: React.FC = () => {
         return;
       }
     }
-    
+
     // Step 3: Email (Required)
     if (step === 3) {
       if (!formData.email.trim()) {
@@ -221,9 +228,9 @@ const OnboardingPage: React.FC = () => {
       // Final step - Create card
       try {
         // Create FormData for card creation
-        
+
         const cardFormData = new FormData();
-        
+
         // Required fields from signup
         cardFormData.append('cardName', formData.name || 'My Card');
         cardFormData.append('fullName', formData.name || '');
@@ -249,14 +256,14 @@ const OnboardingPage: React.FC = () => {
         if (descriptionParts.length > 0) {
           cardFormData.append('description', descriptionParts.join('\n\n'));
         }
-        
+
         // Set default card properties
         cardFormData.append('cardType', 'Personal');
         cardFormData.append('selectedDesign', 'Classic');
         cardFormData.append('selectedColor', '#145dfd');
         cardFormData.append('selectedFont', 'Arial, sans-serif');
         cardFormData.append('status', 'draft');
-        
+
         // Handle profile image upload if provided
         if (formData.photoFile) {
           cardFormData.append('profileImage', formData.photoFile);
@@ -270,29 +277,29 @@ const OnboardingPage: React.FC = () => {
             console.error('Error processing profile image:', error);
           }
         }
-        
+
         // Create card using card creation API
-        if(!isEnabled){
+        if (!isEnabled) {
           return;
         }
         setIsEnabled(false);
-        
+
         const response = await fetch('/api/card/create', {
           method: 'POST',
           credentials: 'include',
           body: cardFormData,
         });
-        
+
         const data = await response.json();
         console.log('Card creation response:', data);
-        
+
         if (!response.ok) {
           setIsEnabled(true); // Re-enable button on error
           throw new Error(data.error || 'Failed to create card');
         }
-        
+
         setShowPartyPopup(true);
-      } catch(error: any) {
+      } catch (error: any) {
         console.error('Error creating card:', error);
         setIsEnabled(true); // Re-enable button on error
         alert(error.message || 'Failed to create card. Please try again.');
@@ -412,7 +419,7 @@ const OnboardingPage: React.FC = () => {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: isLargeScreen ? 'center' : 'flex-start',
     padding: '32px',
     background: '#ffffff',
     width: isLargeScreen ? 'auto' : '100%',
@@ -465,7 +472,7 @@ const OnboardingPage: React.FC = () => {
     ...(focusedInput === id ? { borderBottom: `2px solid ${colors.primary}` } : {}),
   });
 
-  
+
 
   // Show loading while checking authentication
   if (isCheckingAuth) {
@@ -717,11 +724,20 @@ const OnboardingPage: React.FC = () => {
               <input
                 placeholder="+1 234 567 8900"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                onFocus={() => setFocusedInput('phone')}
+                onChange={(e) => {
+                  // allow only digits
+                  const digitsOnly = e.target.value.replace(/\D/g, "");
+
+                  // restrict to 10 digits
+                  if (digitsOnly.length <= 11) {
+                    setFormData({ ...formData, phone: digitsOnly });
+                  }
+                }}
+                onFocus={() => setFocusedInput("phone")}
                 onBlur={() => setFocusedInput(null)}
-                style={inputStyle('phone')}
+                style={inputStyle("phone")}
                 type="tel"
+                inputMode="numeric"
                 autoFocus
               />
             )}
@@ -748,10 +764,15 @@ const OnboardingPage: React.FC = () => {
                         setFormData({ ...formData, title: e.target.value });
                         setTitleSearchTerm(e.target.value);
                       }}
-                      onFocus={() => {
-                        setFocusedInput('title');
+                      onFocus={(e) => {
+                        setFocusedInput("title");
                         handleDropdownToggle();
+                        e.currentTarget.scrollIntoView({
+                          behavior: "smooth",
+                          block: "center",
+                        });
                       }}
+
                       onBlur={() => setFocusedInput(null)}
                       placeholder="Search or select title..."
                       style={{
@@ -766,7 +787,7 @@ const OnboardingPage: React.FC = () => {
                         position: 'relative',
                       }}
                     />
-                    
+
                     {isDropdownOpen && (
                       <div
                         style={{
@@ -870,16 +891,23 @@ const OnboardingPage: React.FC = () => {
             )}
 
 
-        {step === 6 && (
-  <LocationSelect
-    value={formData.location}
-    onChange={(loc) => setFormData({ ...formData, location: loc })}
-  />
-)}
+            {step === 6 && (
+              <div style={{ marginBottom: "24px" }}>
+                <LocationSelect
+                  value={formData.location}
+                  onChange={(loc) => setFormData({ ...formData, location: loc })}
+                />
+              </div>
+            )}
 
 
             {step === 7 && (
-              <div style={{ textAlign: 'center' }}>
+              <div style={{
+                textAlign: 'center',
+                marginBottom: "32px",
+                display: "flex",
+                justifyContent: "center",
+              }}>
                 <input
                   id="photo-upload"
                   type="file"
@@ -976,26 +1004,49 @@ const OnboardingPage: React.FC = () => {
             )}
 
             {/* Action Buttons */}
-            <div style={{ display: 'flex', gap: '12px' }}>
-              {/* Show Skip button for optional steps (4-9) */}
+            <div style={{ display: "flex", gap: "12px" }}>
+
+              {/* PREVIOUS BUTTON */}
+              {step > 1 && (
+                <button
+                  onClick={handlePrevious}
+                  style={{
+                    flex: 1,
+                    padding: "14px 0",
+                    background: "#E5E7EB",
+                    color: "#374151",
+                    border: "none",
+                    borderRadius: "12px",
+                    fontSize: "18px",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                  }}
+                >
+                  Previous
+                </button>
+              )}
+
+              {/* SKIP BUTTON (only optional steps) */}
               {step >= 4 && step <= 9 && (
                 <button
                   onClick={() => setStep(step + 1)}
                   style={{
                     flex: 1,
-                    padding: '14px 0',
-                    background: '#E5E7EB',
-                    color: '#6B7280',
-                    border: 'none',
-                    borderRadius: '12px',
-                    fontSize: '18px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
+                    padding: "14px 0",
+                    background: "#E5E7EB",
+                    color: "#6B7280",
+                    border: "none",
+                    borderRadius: "12px",
+                    fontSize: "18px",
+                    fontWeight: "600",
+                    cursor: "pointer",
                   }}
                 >
                   Skip
                 </button>
               )}
+
+              {/* CONTINUE / CREATE BUTTON */}
               <button
                 onClick={handleContinue}
                 disabled={
@@ -1005,43 +1056,35 @@ const OnboardingPage: React.FC = () => {
                   (step === 10 && !isEnabled)
                 }
                 style={{
-                  flex: step >= 4 && step <= 9 ? 1 : 'auto',
-                  width: step >= 4 && step <= 9 ? 'auto' : '100%',
-                  padding: '14px 0',
-                  background: (
+                  flex: 1,
+                  padding: "14px 0",
+                  background:
                     (step === 1 && !formData.name.trim()) ||
-                    (step === 2 && !formData.phone.trim()) ||
-                    (step === 3 && !formData.email.trim()) ||
-                    (step === 10 && !isEnabled)
-                  )
-                    ? '#D1D5DB'
-                    : `linear-gradient(135deg, ${colors.primary}, ${colors.purple})`,
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '12px',
-                  fontSize: '18px',
-                  fontWeight: '600',
-                  cursor: (
+                      (step === 2 && !formData.phone.trim()) ||
+                      (step === 3 && !formData.email.trim()) ||
+                      (step === 10 && !isEnabled)
+                      ? "#D1D5DB"
+                      : `linear-gradient(135deg, ${colors.primary}, ${colors.purple})`,
+                  color: "white",
+                  border: "none",
+                  borderRadius: "12px",
+                  fontSize: "18px",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  opacity:
                     (step === 1 && !formData.name.trim()) ||
-                    (step === 2 && !formData.phone.trim()) ||
-                    (step === 3 && !formData.email.trim()) ||
-                    (step === 10 && !isEnabled)
-                  )
-                    ? 'not-allowed'
-                    : 'pointer',
-                  opacity: (
-                    (step === 1 && !formData.name.trim()) ||
-                    (step === 2 && !formData.phone.trim()) ||
-                    (step === 3 && !formData.email.trim()) ||
-                    (step === 10 && !isEnabled)
-                  )
-                    ? 0.6
-                    : 1,
+                      (step === 2 && !formData.phone.trim()) ||
+                      (step === 3 && !formData.email.trim()) ||
+                      (step === 10 && !isEnabled)
+                      ? 0.6
+                      : 1,
                 }}
               >
-                {step === 10 && !isEnabled ? 'Creating...' : (step < 10 ? 'Continue' : 'Create Card')}
+                {step === 10 && !isEnabled ? "Creating..." : step < 10 ? "Continue" : "Create Card"}
               </button>
+
             </div>
+
 
             {/* Progress Dots */}
             <div style={{ display: "flex", justifyContent: "center", gap: "8px", marginTop: "32px" }}>

@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+// import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
@@ -15,6 +16,44 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+
+    useEffect(() => {
+    console.log("🔥 FIREBASE ENV CHECK START");
+
+    console.log(
+      "NEXT_PUBLIC_FIREBASE_API_KEY:",
+      process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "❌ NOT SET"
+    );
+    console.log(
+      "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN:",
+      process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "❌ NOT SET"
+    );
+    console.log(
+      "NEXT_PUBLIC_FIREBASE_PROJECT_ID:",
+      process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "❌ NOT SET"
+    );
+    console.log(
+      "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET:",
+      process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "❌ NOT SET"
+    );
+    console.log(
+      "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID:",
+      process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "❌ NOT SET"
+    );
+    console.log(
+      "NEXT_PUBLIC_FIREBASE_APP_ID:",
+      process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "❌ NOT SET"
+    );
+    console.log(
+      "NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID:",
+      process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || "❌ NOT SET"
+    );
+
+    console.log("🔥 FIREBASE ENV CHECK END");
+  }, []);
+
+
+  
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value)
     setError('')

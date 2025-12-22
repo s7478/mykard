@@ -374,7 +374,7 @@ export default function ContactsPage() {
                         Contacted via <span className={styles.cardName}>
                           {contact.card.cardName || contact.card.fullName}
                           {contact.card.cardName && contact.card.fullName !== contact.card.cardName && (
-                            <span className={styles.cardType}> ({contact.card.fullName})</span>
+                            <span className={styles.cardType}></span>
                           )}
                         </span>
                       </p>
