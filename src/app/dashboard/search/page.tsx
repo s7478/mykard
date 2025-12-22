@@ -46,8 +46,125 @@ function SearchPageContent() {
     { id: "3", username: "rohan_sharma", name: "Rohan Sharma", designation: "UI/UX Designer", company: "FigmaWorks", city: "Mumbai", category: "Design", verified: true, views: 312, email: "rohan@example.com", phone: "+91 5555555555" }
   ];
 
+  //new category state
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+
+  const [activeCategory, setActiveCategory] = useState<
+    "All" | "Developer" | "Designer" | "Data" | "Management" | "Healthcare" | "Other"
+  >("All");
+
+  const CATEGORY_MAP: Record<string, string[]> = {
+    // Technology & IT
+    Developer: ["developer", "engineer", "frontend", "backend", "full stack", "fullstack", "software", "programmer", "dev", "web dev", "webdev"],
+    "AI/ML Engineer": ["ai engineer", "machine learning", "ml engineer", "ai developer", "deep learning"],
+    "Cloud/DevOps": ["cloud engineer", "devops", "cloud architect", "site reliability"],
+    "Cybersecurity": ["cybersecurity", "security engineer", "infosec", "penetration tester", "ethical hacker"],
+    "Game Development": ["game developer", "game design", "game programmer", "game artist"],
+    "Mobile Development": ["mobile developer", "ios", "android", "react native", "flutter"],
+
+    // Design & Creative
+    Designer: ["designer", "graphic designer", "visual designer", "brand designer"],
+    "UI/UX Design": ["ui/ux", "ui-ux", "ux/ui", "ux-ui", "user experience", "user interface", "interaction design"],
+    "Creative Arts": ["artist", "illustrator", "animator", "3d artist", "digital artist", "motion graphics"],
+    "Content Creation": ["content writer", "copywriter", "blogger", "content creator", "technical writer"],
+    "Audio/Video": ["sound engineer", "audio engineer", "videographer", "video editor", "producer"],
+
+    // Business & Management
+    Management: ["manager", "director", "vp", "head of", "team lead", "cto", "ceo", "founder"],
+    "Product Management": ["product manager", "product owner", "product lead"],
+    "Project Management": ["project manager", "program manager", "delivery manager"],
+    "Business Development": ["business development", "bizdev", "partnerships", "strategy"],
+    "Sales & Marketing": ["sales", "marketing", "digital marketing", "growth hacker", "demand generation"],
+    "HR & Recruiting": ["hr", "human resources", "recruiter", "talent acquisition", "hrbp"],
+
+    // Data & Analytics
+    Data: ["data"],  // Base category for all data-related roles
+    "Data Science": ["data scientist", "data analyst", "data engineer", "data visualization", "bi analyst", "data science", "data analytics", "big data"],
+    "AI/ML Research": ["ai researcher", "ml researcher", "research scientist", "applied scientist", "machine learning engineer", "deep learning"],
+    "Business Intelligence": ["bi developer", "business analyst", "data analytics", "reporting analyst", "bi analyst", "business intelligence", "data warehousing"],
+    "Data Engineering": ["data engineer", "etl developer", "data pipeline", "data integration", "data architecture"],
+    "Data Analysis": ["data analyst", "business analyst", "financial analyst", "market research analyst", "data specialist"],
+    "Statistics & Analytics": ["statistician", "data modeler", "quantitative analyst", "risk analyst", "statistical analyst", "research analyst"],
+    "Database Administration": ["dba", "database administrator", "database developer", "sql developer", "data architect"],
+
+    // Engineering
+    "Software Engineering": ["software engineer", "full stack", "backend", "frontend", "systems"],
+    "Hardware Engineering": ["hardware engineer", "embedded systems", "fpga", "asic"],
+    "Mechanical Engineering": ["mechanical engineer", "mechatronics", "robotics"],
+    "Civil Engineering": ["civil engineer", "structural engineer", "construction"],
+    "Electrical Engineering": ["electrical engineer", "electronics engineer", "power systems"],
+    "Chemical Engineering": ["chemical engineer", "process engineer", "biochemical"],
+
+    // Healthcare
+    Healthcare: ["healthcare"],
+    "Medical": ["doctor", "physician", "surgeon", "dentist", "veterinarian"],
+    "Nursing": ["nurse", "rn", "nurse practitioner", "nursing assistant"],
+    "Therapy": ["therapist", "psychologist", "counselor", "occupational therapist", "physiotherapist"],
+    "Healthcare Support": ["pharmacist", "pharmacy technician", "paramedic", "emt"],
+
+    // Finance & Legal
+    "Finance": ["financial analyst", "accountant", "auditor", "cfo", "financial advisor"],
+    "Banking": ["banker", "investment banker", "loan officer", "financial consultant"],
+    "Legal": ["lawyer", "attorney", "paralegal", "legal counsel", "compliance officer"],
+    "Insurance": ["actuary", "underwriter", "claims adjuster", "insurance agent"],
+
+    // Education & Research
+    "Education": ["teacher", "professor", "lecturer", "instructor", "tutor"],
+    "Research": ["researcher", "scientist", "postdoc", "research assistant", "lab technician"],
+    "Library Science": ["librarian", "archivist", "curator", "information specialist"],
+
+    // Other Professions
+    "Customer Service": ["customer support", "call center", "help desk", "service representative"],
+    "Hospitality": ["hotel manager", "chef", "baker", "restaurant manager", "barista"],
+    "Retail": ["retail manager", "store manager", "sales associate", "cashier"],
+    "Trades": ["electrician", "plumber", "carpenter", "welder", "mechanic"],
+    "Transportation": ["pilot", "truck driver", "delivery driver", "logistics manager"],
+    "Public Service": ["police officer", "firefighter", "paramedic", "social worker"],
+
+    // Specialized
+    "Architecture": ["architect", "interior designer", "landscape architect", "urban planner"],
+    "Agriculture": ["agricultural scientist", "farmer", "agronomist", "horticulturist"],
+    "Environmental": ["environmental scientist", "sustainability", "conservation", "forest ranger"],
+    "Media & Communication": ["journalist", "reporter", "editor", "pr executive", "social media manager"],
+    "Entertainment": ["musician", "composer", "actor", "producer", "director"],
+    "Aviation": ["pilot", "air traffic controller", "flight attendant", "aviation mechanic"]
+  };
+
+  function getMainCategory(p: Profile) {
+    // First check the category field if it exists
+    if (p.category) {
+      const categoryLower = p.category.toLowerCase();
+      for (const [group, keywords] of Object.entries(CATEGORY_MAP)) {
+        if (keywords.some(k => categoryLower.includes(k.toLowerCase()))) {
+          return group as keyof typeof CATEGORY_MAP;
+        }
+      }
+    }
+
+    // If no category or no match, check the designation
+    if (p.designation) {
+      const designationLower = p.designation.toLowerCase();
+      for (const [group, keywords] of Object.entries(CATEGORY_MAP)) {
+        if (keywords.some(k => designationLower.includes(k.toLowerCase()))) {
+          return group as keyof typeof CATEGORY_MAP;
+        }
+      }
+    }
+
+    // If still no match, check the company name for common patterns
+    if (p.company) {
+      const companyLower = p.company.toLowerCase();
+      for (const [group, keywords] of Object.entries(CATEGORY_MAP)) {
+        if (keywords.some(k => companyLower.includes(k.toLowerCase()))) {
+          return group as keyof typeof CATEGORY_MAP;
+        }
+      }
+    }
+
+    return "Other";
+  }
+
   const [showModal, setShowModal] = useState(false);
   const [connectionName, setConnectionName] = useState("");
   const [connectingUserId, setConnectingUserId] = useState<string | null>(null);
@@ -165,7 +282,19 @@ function SearchPageContent() {
       }
     }
     const keywords = keywordsPart.split(/\s+/).filter(Boolean);
+
+    // If no search query and no category filter, return empty array or all profiles based on your preference
+    if (keywords.length === 0 && !locationPart && activeCategory === "All") {
+      return []; // or return [...profiles] if you want to show all profiles by default
+    }
+
     return profiles.filter((p) => {
+      // Category filter
+      if (activeCategory !== "All") {
+        const mainCategory = getMainCategory(p);
+        if (mainCategory !== activeCategory) return false;
+      }
+
       const hay = `${p.name} ${p.designation ?? ""} ${p.company ?? ""} ${p.category ?? ""} ${p.city ?? ""}`.toLowerCase();
       const city = (p.city || "").toLowerCase();
       const keywordsMatch = keywords.length === 0 || keywords.every(k => hay.includes(k));
@@ -175,61 +304,182 @@ function SearchPageContent() {
   }, [query, profiles]);
 
   return (
-    <div style={{ position: "relative", overflow: "visible", minHeight: "100vh" }}>
+    <div style={{ position: "relative", overflowX: "hidden", minHeight: "100vh" }}>
       <div aria-hidden style={{
         position: "absolute",
         inset: 0,
         zIndex: 0,
         pointerEvents: "none",
         background: "radial-gradient(1200px 600px at 10% 10%, rgba(99,102,241,0.04), transparent 10%), radial-gradient(800px 400px at 90% 90%, rgba(34,211,238,0.03), transparent 10%)"
-      }} />
+      }}></div>
 
+      <style jsx global>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }`}
+      </style>
+      <style jsx global>{`
+        /* Ensure mobile viewport scaling */
+        @media (max-width: 640px) {
+          html {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+          }
+          
+          /* Improve touch targets */
+          button, [role="button"], input[type="submit"], input[type="button"] {
+            min-height: 44px;
+            min-width: 44px;
+          }
+        }
+      `}</style>
       <style>{`
         /* Core responsive & futuristic styles inline so you can paste this file directly */
-        .wrap { position: relative; z-index: 10; max-width: 1200px;padding: 28px; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial; }
-        .header { display:flex; flex-direction: column; align-items:center; gap:8px; text-align:center; margin-bottom: 12px; }
-        .title { font-size:28px; font-weight:700; color:#111827; line-height:1.05; margin-top:6px; text-align:center; }
-        .subtitle { color:#9ca3af; font-size:14px; line-height:1.4; max-width: 600px; margin: 0 auto; letter-spacing: 0.3px; }
+        .wrap { position: relative; z-index: 10; max-width: 1200px; padding: 28px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+        .header { display:flex; flex-direction: column; align-items:center; text-align:center; margin-bottom: 8px; }
+        .title { font-size: 1.5rem; font-weight: 600; color: #111827; line-height: 1.2; margin: 0 0 0.25rem; }
+        .subtitle { color: #64748b; font-size: 0.9rem; line-height: 1.4; max-width: 600px; margin: 0 auto; }
         .search-panel { margin-top:18px; background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); border-radius:14px; padding:14px; border:1px solid rgba(0,0,0,0.04); box-shadow: 0 10px 30px rgba(2,6,23,0.08); overflow: visible; }
 
         .left { flex:1; position:relative; }
-        .left input { width:100%; padding:12px 16px 12px 44px; border-radius:12px; border:1px solid #E2E8F0; background: #fff; color:#0F172A; font-size:14px; outline:none; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .left input { width:100%; padding:12px 16px 12px 44px; border-radius:8px; border:1px solid #E2E8F0; background: #f8fafc; color:#0F172A; font-size:14px; outline:none; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s ease; }
+        .left input:focus { outline: none; border-color: #E2E8F0; box-shadow: none; }
         .left input::placeholder { color: rgba(15,23,42,0.4); }
 
         .icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); opacity:0.85; }
 
-        .meta { margin-top:12px; color:#64748B; font-size:13px; }
+        .meta { margin-top: 12px; color: #64748b; font-size: 0.9rem; }
 
         /* cards grid */
-        .grid { margin-top:16px; display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; }
-        .card { border-radius:12px; padding:12px; background:#fff; border:1px solid rgba(0,0,0,0.04); box-shadow:0 8px 28px rgba(2,6,23,0.06); display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:92px; }
+        .grid { margin-top:20px; display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; }
+        .card { 
+          border-radius: 12px; 
+          padding: 1rem; 
+          background: #fff; 
+          border: 1px solid rgba(0,0,0,0.04); 
+          box-shadow: 0 4px 12px rgba(2,6,23,0.04); 
+          display: flex; 
+          align-items: center; 
+          justify-content: space-between; 
+          gap: 1rem; 
+          min-height: auto;
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .card:active {
+          transform: translateY(1px);
+          box-shadow: 0 2px 6px rgba(2,6,23,0.04);
+        }
         .avatar { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:22px; color:#fff; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); box-shadow: 0 6px 18px rgba(99,102,241,0.08); overflow:hidden; }
-        .name { font-weight:700; font-size:16px; color:#0F172A; margin:0; }
-        .designation { font-size:13px; color:#64748B; margin:2px 0; }
-        .company { font-size:13px; color:#94A3B8; margin:1px 0; }
-        .city { font-size:13px; color:#94A3B8; margin-top:4px; }
+        .name { font-weight: 600; font-size: 0.95rem; color: #1e293b; margin: 0; }
+        .designation { font-size: 0.9rem; color: #64748b; margin: 2px 0; }
+        .company { font-size: 0.9rem; color: #94a3b8; margin: 1px 0; }
+        .city { font-size: 0.9rem; color: #94a3b8; margin-top: 4px; }
 
-        .connect { padding:10px 14px; border-radius:12px; font-weight:600; font-size:13px; border:none; cursor:pointer; background: var(--gradient-primary); color:#071A52; box-shadow:0 8px 26px rgba(99,102,241,0.08); }
+        .connect { 
+          padding: 8px 16px; 
+          border-radius: 8px; 
+          font-weight: 500; 
+          font-size: 0.9rem; 
+          border: 1px solid #e2e8f0; 
+          background: #f8fafc; 
+          color: #334155; 
+          cursor: pointer; 
+          transition: all 0.2s ease;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .connect:hover { background: #f1f5f9; }
+        .connect:active { background: #e2e8f0; }
 
         /* responsive: small screens (mobile phones) */
+        /* Mobile-first responsive styles */
+        @media (max-width: 640px) {
+          .search-container {
+            padding: 10px;
+            margin: 0 -0.5rem 2px;
+            border-radius: 0;
+            border-left: none;
+            border-right: none;
+          }
+          
+          .left input {
+            padding: 12px 16px 12px 42px;
+            font-size: 16px;
+            -webkit-appearance: none;
+          }
+          
+          .icon {
+            left: 14px;
+          }
+        }
+        
+        @media (min-width: 641px) and (max-width: 1024px) {
+          .search-container {
+            padding: 14px;
+          }
+        }
+        
         @media (max-width: 720px) {
-          .wrap { padding: 2px 1rem; padding-bottom: 80px; }
-          .header { gap: 2px; margin-bottom: 8px; }
-          .title { font-size:24px; }
-          .subtitle { font-size: 0.8rem; }
-          .left input { padding: 12px 16px 12px 44px; font-size:14px; margin-top: 2px; }
-          .left input::placeholder { font-size:13px; }
-          .meta { text-align:center; }
-          .grid { grid-template-columns: 1fr; gap: 8px; }
-          .card { align-items:flex-start; gap:8px; min-height: 80px; padding: 8px; }
-          .avatar { width:48px; height:48px; font-size:18px; }
+          .wrap { padding: 0 0.5rem 20px; }
+          .header { margin-bottom: 0.25rem; }
+          .title { 
+            font-size: 1.2rem; 
+            margin-bottom: 0.25rem; 
+            line-height: 1.1;
+          }
+          .left { margin-top: 0.25rem; }
+          .left input { 
+            padding: 10px 14px 10px 40px; 
+            font-size: 0.95rem;
+            border-radius: 8px;
+          }
+          .left input::placeholder { font-size: 0.9rem; }
+          .meta { 
+            font-size: 0.85rem; 
+            margin: 0.5rem 0 0.5rem;
+            padding: 0;
+          }
+          .grid { 
+            margin-top: 0.75rem;
+            gap: 0.6rem;
+            padding-bottom: 0.5rem;
+          }
+          .card { 
+            padding: 0.7rem;
+            border-radius: 10px;
+            min-height: auto;
+            gap: 0.6rem;
+          }
+          .avatar { 
+            width: 42px; 
+            height: 42px; 
+            font-size: 0.9rem;
+            flex-shrink: 0;
+          }
+          .name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            line-height: 1.2;
+          }
+          .designation, .company, .city {
+            font-size: 0.75rem;
+            line-height: 1.2;
+            margin: 0;
+          }
+          .connect {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            min-width: 80px;
+            text-align: center;
+            margin-left: auto;
+          }
         }
 
         @media (max-width: 480px) {
-          .wrap { padding: 2px 0.75rem; padding-bottom: 80px; }
-          .subtitle { font-size: 0.75rem; }
-          .card { min-height: 75px; padding: 6px; gap: 6px; }
-          .avatar { width:44px; height:44px; font-size:16px; }
+          .wrap { padding: 0 0.5rem 20px; }
+          .title { font-size: 1.25rem; }
+          .subtitle { font-size: 0.78rem; margin-bottom: 0.4rem; }
+          .card { padding: 0.6rem; gap: 0.6rem; }
+          .avatar { width: 40px; height: 40px; font-size: 0.85rem; }
         }
 
         /* medium screens */
@@ -241,113 +491,167 @@ function SearchPageContent() {
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
       `}</style>
 
-      <div className="wrap">
-        <div className="header">
-          <div>
-            <div className="title">Search Professionals</div>
-            <div className="subtitle">Discover and connect with top professionals — quick, safe, and effortless.</div>
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-6">
+        {/* Header Section */}
+        <header className="text-center">
+          <p className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
+            Find Your Next <span className="text-[#225BE4]">Connection</span>
+          </p>
+          <p className="text-sm text-gray-500 px-2 sm:px-0">Discover and connect with top professionals — quick, safe, and effortless.</p>
+        </header>
+        {/* Search Container */}
+        <div className="search-container" style={{
+          backgroundColor: '#fff',
+          borderRadius: '8px',
+          border: '1px solid #e2e8f0',
+          padding: '12px',
+          margin: '0 0 2px 0',
+          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
+        }}>
+          {/* <div className="header">
+            <div>
+              <div className="title">Search Professionals</div>
+              <div className="subtitle">Discover and connect with top professionals — quick, safe, and effortless.</div>
+            </div>
+          </div> */}
+
+
+          <div className="left relative">
+            <div className="icon"><Search style={{ width: 16, height: 16, color: "#94A3B8" }} /></div>
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by name, skills, company, or city..."
+              aria-label="Search"
+            />
           </div>
-        </div>
+          <div
+            style={{
+              display: "flex",
+              gap: 6,
+              flexWrap: "wrap",
+              margin: '14px 0 0',
+              alignItems: 'center',
+              overflowX: 'auto',
+              paddingBottom: '6px',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+            }}
+            className="hide-scrollbar"
+          >
+            {["All", "Developer", "Designer", "Data", "Management", "Healthcare", "Other"].map(cat => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat as any)}
+                style={{
+                  padding: '4px 10px',
+                  borderRadius: 6,
+                  fontSize: '0.7rem',
+                  fontWeight: 500,
+                  whiteSpace: 'nowrap',
+                  border: `1px solid ${activeCategory === cat ? '#225BE4' : '#E5E7EB'}`,
+                  background: activeCategory === cat ? '#225BE4' : '#fff',
+                  color: activeCategory === cat ? '#fff' : '#4B5563',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
 
-        <div className="left" style={{ marginTop: 18 }}>
-          <div className="icon"><Search style={{ width: 16, height: 16, color: "#94A3B8" }} /></div>
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by name, skills, company, or city..."
-            aria-label="Search"
-          />
-        </div>
 
-        <div className="meta">
-          {hasQuery
-            ? `Showing ${filtered.length} result${filtered.length !== 1 ? "s" : ""}`
-            : "Search to see results"}
-        </div>
+          <div className="meta">
+            {hasQuery
+              ? `Showing ${filtered.length} result${filtered.length !== 1 ? "s" : ""}`
+              : "Search to see results"}
+          </div>
 
-        <div className="grid" style={{ marginTop: 12 }}>
-          {loading ? (
-            <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", padding: 28 }}>
-              <div style={{ width: 52, height: 52, borderRadius: "50%", border: "4px solid rgba(99,102,241,0.12)", borderTopColor: "rgba(99,102,241,0.95)", animation: "spin 1s linear infinite" }} />
-            </div>
-          ) : (
-            filtered.map((p, i) => (
-              <div key={`${p.username}-${i}`} className="card" role="article" aria-label={p.name}>
-                <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-                  <div className="avatar">
-                    {p.profileImage ? (
-                      <img
-                        src={p.profileImage}
-                        alt={p.name}
-                        style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }}
-                      />
-                    ) : (
-                      getInitials(p.name || "User")
-                    )}
-                  </div>
-
-                  <div style={{ minWidth: 0 }}>
-                    <div className="name">{p.name}</div>
-                    {p.designation && <div className="designation">{p.designation}</div>}
-                    {p.company && <div className="company">{p.company}</div>}
-                    <div className="city">{p.city}</div>
-                  </div>
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
-                  <button
-                    className="connect"
-                    onClick={(e) => { e.stopPropagation(); handleConnect(p.id, p.name); }}
-                    disabled={connectingUserId === p.id || sentRequests.has(p.id) || acceptedConnections.has(p.id)}
-                    style={
-                      acceptedConnections.has(p.id)
-                        ? { background: "#04c74cff", color: "#fff", cursor: "not-allowed", boxShadow: "none" }
-                        : sentRequests.has(p.id)
-                        ? { background: "#0f48e4ff", color: "#fff", cursor: "not-allowed", boxShadow: "none" }
-                        : { color: "#fff" }
-                    }
-                  >
-                    {acceptedConnections.has(p.id)
-                      ? "Connected"
-                      : connectingUserId === p.id
-                      ? "Connecting..."
-                      : sentRequests.has(p.id)
-                      ? "Sent"
-                      : "Connect"}
-                  </button>
-                </div>
+          <div className="grid" style={{ marginTop: 12 }}>
+            {loading ? (
+              <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", padding: 28 }}>
+                <div style={{ width: 52, height: 52, borderRadius: "50%", border: "4px solid rgba(99,102,241,0.12)", borderTopColor: "rgba(99,102,241,0.95)", animation: "spin 1s linear infinite" }} />
               </div>
-            ))
-          )}
+            ) : (
+              filtered.map((p, i) => (
+                <div key={`${p.username}-${i}`} className="card" role="article" aria-label={p.name}>
+                  <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                    <div className="avatar">
+                      {p.profileImage ? (
+                        <img
+                          src={p.profileImage}
+                          alt={p.name}
+                          style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }}
+                        />
+                      ) : (
+                        getInitials(p.name || "User")
+                      )}
+                    </div>
 
-          {!loading && hasQuery && filtered.length === 0 && (
-            <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: 22, color: "#64748B" }}>
-              No results found. Try different keywords.
-            </div>
-          )}
+                    <div style={{ minWidth: 0 }}>
+                      <div className="name">{p.name}</div>
+                      {p.designation && <div className="designation">{p.designation}</div>}
+                      {p.company && <div className="company">{p.company}</div>}
+                      <div className="city">{p.city}</div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
+                    <button
+                      className="connect"
+                      onClick={(e) => { e.stopPropagation(); handleConnect(p.id, p.name); }}
+                      disabled={connectingUserId === p.id || sentRequests.has(p.id) || acceptedConnections.has(p.id)}
+                      style={
+                        acceptedConnections.has(p.id)
+                          ? { background: "#04c74cff", color: "#fff", cursor: "not-allowed", boxShadow: "none" }
+                          : sentRequests.has(p.id)
+                            ? { background: "#0f48e4ff", color: "#fff", cursor: "not-allowed", boxShadow: "none" }
+                            : { background: "#225BE4", color: "#fff" }
+                      }
+                    >
+                      {acceptedConnections.has(p.id)
+                        ? "Connected"
+                        : connectingUserId === p.id
+                          ? "Connecting..."
+                          : sentRequests.has(p.id)
+                            ? "Sent"
+                            : "Connect"}
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+
+            {!loading && hasQuery && filtered.length === 0 && (
+              <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: 22, color: "#64748B" }}>
+                No results found. Try different keywords.
+              </div>
+            )}
+          </div>
+        </div> {/* End of Search Container */}
+
+        {/* Decorative svg filter */}
+        <div style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none" }}>
+          <svg width="0" height="0" style={{ position: "absolute" }}>
+            <defs>
+              <filter id="softGlow">
+                <feGaussianBlur stdDeviation="12" result="coloredBlur" />
+                <feMerge><feMergeNode in="coloredBlur" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+            </defs>
+          </svg>
         </div>
-      </div>
 
-      {/* Decorative svg filter (kept for effect) */}
-      <div style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none" }}>
-        <svg width="0" height="0" style={{ position: "absolute" }}>
-          <defs>
-            <filter id="softGlow">
-              <feGaussianBlur stdDeviation="12" result="coloredBlur" />
-              <feMerge><feMergeNode in="coloredBlur" /><feMergeNode in="SourceGraphic" /></feMerge>
-            </filter>
-          </defs>
-        </svg>
+        {/* /* Modal unchanged (logic intact) */}
+        <Modal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          title="Connection Request Sent"
+          message={<>Your connection request has been sent to <strong style={{ color: "#111827" }}>{connectionName}</strong>. They will be notified and can accept or reject your request.</>}
+          primaryText="Close"
+        />
       </div>
-
-      {/* Modal unchanged (logic intact) */}
-      <Modal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        title="Connection Request Sent"
-        message={<>Your connection request has been sent to <strong style={{ color: "#111827" }}>{connectionName}</strong>. They will be notified and can accept or reject your request.</>}
-        primaryText="Close"
-      />
     </div>
   );
 }

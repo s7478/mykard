@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import '../styles/gradients.css';
 import { useAuth } from '@/lib/hooks/use-auth';
 import { ChevronDown, User, LogOut, Bell } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -421,13 +422,15 @@ export default function Header() {
                   <a href="/auth/login" className="px-4 py-2 text-[14px] font-medium text-gray-700 hover:text-blue-600 transition-colors rounded-md hover:bg-blue-50/50" style={{ textDecoration: 'none' }}>
                     Login
                   </a>
-                  <a href="/auth/signup" className="relative px-8 py-2 text-[14px] font-semibold text-white bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-full transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:scale-105 overflow-hidden group border-none cursor-pointer"
+                  <a 
+                    href="/auth/signup" 
+                    className="flex-1 relative flex items-center justify-center text-center px-4 text-[15px] font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-full transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:scale-105 overflow-hidden group border-none cursor-pointer"
                     style={{ minWidth: '100px', minHeight: '36px', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                   >
                     <span className="relative z-10 flex items-center justify-center">
                       Create Card
                     </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-white/20 to-blue-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                    <div className="gradient-hover-effect"></div>
                   </a>
                 </>
               )}
@@ -551,50 +554,50 @@ export default function Header() {
                       console.log('Mobile Login clicked');
                       window.location.href = '/auth/login';
                     }}
-                    className="flex-1 flex items-center justify-center text-center px-4 text-[15px] font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg shadow-blue-500/30 overflow-hidden group border-none cursor-pointer"
+                    className="flex-1 flex items-center justify-center text-center px-4 text-[15px] font-semibold text-white bg-blue-600 rounded-xl shadow-lg shadow-blue-500/30 overflow-hidden group border-none cursor-pointer relative" /* eslint-disable-line */
                     style={{ height: '40px', minWidth: '100px' }}
                   >
                     <span className="relative z-10">Login</span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-white/20 to-blue-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                    <div className="gradient-hover-effect"></div>
                   </button>
                   <button 
                     onClick={() => {
                       console.log('Mobile Create Card clicked');
                       window.location.href = '/auth/signup';
                     }}
-                    className="flex-1 relative flex items-center justify-center text-center px-4 text-[15px] font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-full transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:scale-105 overflow-hidden group border-none cursor-pointer"
+                    className="flex-1 relative flex items-center justify-center text-center px-4 text-[15px] font-semibold text-white bg-blue-600 rounded-full transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:scale-105 overflow-hidden group border-none cursor-pointer" /* eslint-disable-line */
                     style={{ height: '40px', minWidth: '100px' }}
                   >
                     <span className="relative z-10 flex items-center justify-center">
                       Create Card
                     </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-white/20 to-blue-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                    <div className="gradient-hover-effect"></div>
                   </button>
                 </div>
               ) : (
                 <div className="flex gap-3 w-full pb-2">
                   <Link 
                     href="/dashboard" 
-                    className="flex-1 relative flex items-center justify-center px-4 text-[16px] font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg shadow-blue-500/30 overflow-hidden group"
+                    className="flex-1 relative flex items-center justify-center px-4 text-[16px] font-semibold text-white bg-blue-600 rounded-xl shadow-lg shadow-blue-500/30 overflow-hidden group" /* eslint-disable-line */
                     onClick={() => setIsMenuOpen(false)}
                     style={{ minWidth: '100px', height: '45px' }}
                   >
                     <span className="relative z-10">Dashboard</span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-white/20 to-blue-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                    <div className="gradient-hover-effect"></div>
                   </Link>
                   <button 
                     onClick={() => {
                       handleLogout();
                       setIsMenuOpen(false);
                     }}
-                    className="flex-1 relative block text-center px-4 py-5 text-[16px] font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg shadow-blue-500/30 overflow-hidden group"
+                    className="flex-1 relative block text-center px-4 py-5 text-[16px] font-semibold text-white bg-blue-600 rounded-xl shadow-lg shadow-blue-500/30 overflow-hidden group" /* eslint-disable-line */
                     style={{ minWidth: '100px', height: '45px' }}
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       <LogOut size={16} className="text-white" />
                       <span>Logout</span>
                     </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-white/20 to-blue-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                    <div className="gradient-hover-effect"></div>
                   </button>
                 </div>
               )}
