@@ -27,6 +27,7 @@ export default function SearchPage() {
       <SearchPageContent />
     </Suspense>
   );
+
 }
 
 const getInitials = (name: string) =>
@@ -53,6 +54,8 @@ function SearchPageContent() {
   const [connectingUserId, setConnectingUserId] = useState<string | null>(null);
   const [sentRequests, setSentRequests] = useState<Set<string>>(new Set());
   const [acceptedConnections, setAcceptedConnections] = useState<Set<string>>(new Set());
+  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
+
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -174,13 +177,25 @@ function SearchPageContent() {
     }).slice(0, 50);
   }, [query, profiles]);
 
+
+
+  const suggestedProfiles = useMemo(() => {
+  if (!profiles || profiles.length === 0) return [];
+
+  return profiles
+    .filter(
+      (p) =>
+        p.designation?.toLowerCase().includes("developer") ||
+        p.category?.toLowerCase().includes("software")
+    )
+    .slice(0, 6);
+}, [profiles]);
+
+
   return (
     <div style={{ position: "relative", overflow: "visible", minHeight: "100vh" }}>
       <div aria-hidden style={{
-        position: "absolute",
-        inset: 0,
-        zIndex: 0,
-        pointerEvents: "none",
+        position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none",
         background: "radial-gradient(1200px 600px at 10% 10%, rgba(99,102,241,0.04), transparent 10%), radial-gradient(800px 400px at 90% 90%, rgba(34,211,238,0.03), transparent 10%)"
       }} />
 
@@ -202,14 +217,19 @@ function SearchPageContent() {
 
         /* cards grid */
         .grid { margin-top:16px; display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; }
-        .card { border-radius:12px; padding:12px; background:#fff; border:1px solid rgba(0,0,0,0.04); box-shadow:0 8px 28px rgba(2,6,23,0.06); display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:92px; }
-        .avatar { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:22px; color:#fff; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); box-shadow: 0 6px 18px rgba(99,102,241,0.08); overflow:hidden; }
+        .card { border-radius:12px; padding:12px; background:#fff; border:1px solid rgba(0,0,0,0.04); box-shadow:0 8px 28px rgba(2,6,23,0.06); display:flex; align-items:center; justify-content:space-between; gap:12px; gap:12px; min-height:92px; overflow: hidden; width: 100%;}
+        .avatar { width:56px; height:56px; border-radius:50%; display:flex; 
+        align-items:center; justify-content:center; font-weight:700; 
+        font-size:22px; color:#fff; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); 
+        box-shadow: 0 6px 18px rgba(99,102,241,0.08); overflow:hidden; }
         .name { font-weight:700; font-size:16px; color:#0F172A; margin:0; }
         .designation { font-size:13px; color:#64748B; margin:2px 0; }
         .company { font-size:13px; color:#94A3B8; margin:1px 0; }
         .city { font-size:13px; color:#94A3B8; margin-top:4px; }
 
-        .connect { padding:10px 14px; border-radius:12px; font-weight:600; font-size:13px; border:none; cursor:pointer; background: var(--gradient-primary); color:#071A52; box-shadow:0 8px 26px rgba(99,102,241,0.08); }
+        .connect { padding:10px 14px; border-radius:12px; font-weight:600; font-size:13px; 
+        border:none; cursor:pointer; background: var(--gradient-primary); color:#071A52; 
+        box-shadow:0 8px 26px rgba(99,102,241,0.08);  white-space: nowrap; min-width: 70px; }
 
         /* responsive: small screens (mobile phones) */
         @media (max-width: 720px) {
@@ -221,8 +241,10 @@ function SearchPageContent() {
           .left input::placeholder { font-size:13px; }
           .meta { text-align:center; }
           .grid { grid-template-columns: 1fr; gap: 8px; }
-          .card { align-items:flex-start; gap:8px; min-height: 80px; padding: 8px; }
+          .card { display: flex, align-items:center; gap:8px; min-height: 80px; padding: 8px; overflow: hidden }
           .avatar { width:48px; height:48px; font-size:18px; }
+
+          .connect { min-width: 70px; font-size: 12px; padding: 6px 8px;}
         }
 
         @media (max-width: 480px) {
@@ -237,6 +259,30 @@ function SearchPageContent() {
           .grid { grid-template-columns: repeat(2, 1fr); }
         }
 
+       /* ---------- Text Truncation Utilities ---------- */
+       
+        .truncate-1 {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .truncate-2 {
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 2;
+          line-clamp: 2;
+          overflow: hidden;
+        }
+
+        .card-info {
+          display: flex;
+          gap: 12px;
+          align-items: center;
+          flex: 1;
+          min-width: 0;   /* MOST IMPORTANT LINE */
+        }
+
         /* utility spinner keyframes */
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
       `}</style>
@@ -249,6 +295,12 @@ function SearchPageContent() {
           </div>
         </div>
 
+        <div className="meta">
+          {hasQuery
+            ? `Showing ${filtered.length} result${filtered.length !== 1 ? "s" : ""}`
+            : "Search to see results"}
+        </div>
+
         <div className="left" style={{ marginTop: 18 }}>
           <div className="icon"><Search style={{ width: 16, height: 16, color: "#94A3B8" }} /></div>
           <input
@@ -259,21 +311,17 @@ function SearchPageContent() {
           />
         </div>
 
-        <div className="meta">
-          {hasQuery
-            ? `Showing ${filtered.length} result${filtered.length !== 1 ? "s" : ""}`
-            : "Search to see results"}
-        </div>
+        
 
-        <div className="grid" style={{ marginTop: 12 }}>
+        {/*<div className="grid" style={{ marginTop: 12 }}>
           {loading ? (
             <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", padding: 28 }}>
               <div style={{ width: 52, height: 52, borderRadius: "50%", border: "4px solid rgba(99,102,241,0.12)", borderTopColor: "rgba(99,102,241,0.95)", animation: "spin 1s linear infinite" }} />
             </div>
           ) : (
             filtered.map((p, i) => (
-              <div key={`${p.username}-${i}`} className="card" role="article" aria-label={p.name}>
-                <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+              <div key={`${p.username}-${i}`} className="card" role="button" aria-label={p.name} onClick={() => setSelectedProfile(p)}>
+                <div className="card-info">
                   <div className="avatar">
                     {p.profileImage ? (
                       <img
@@ -286,15 +334,15 @@ function SearchPageContent() {
                     )}
                   </div>
 
-                  <div style={{ minWidth: 0 }}>
-                    <div className="name">{p.name}</div>
-                    {p.designation && <div className="designation">{p.designation}</div>}
-                    {p.company && <div className="company">{p.company}</div>}
-                    <div className="city">{p.city}</div>
+                  <div style={{ minWidth: 0, flex: 1, width:"50%" }}>
+                    <div className="name truncate-1" title={p.name}>{p.name}</div>
+                    {p.designation && (<div className="designation truncate-2" title={p.designation}>{p.designation}</div>)}
+                    {p.company && (<div className="company truncate-1" title={p.company}>{p.company}</div>)}
+                    <div className="city" title={p.city}>{p.city}</div>
                   </div>
                 </div>
 
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", flexShrink: 0}}>
                   <button
                     className="connect"
                     onClick={(e) => { e.stopPropagation(); handleConnect(p.id, p.name); }}
@@ -325,29 +373,243 @@ function SearchPageContent() {
               No results found. Try different keywords.
             </div>
           )}
-        </div>
-      </div>
+        </div> */}
 
-      {/* Decorative svg filter (kept for effect) */}
-      <div style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none" }}>
-        <svg width="0" height="0" style={{ position: "absolute" }}>
-          <defs>
-            <filter id="softGlow">
-              <feGaussianBlur stdDeviation="12" result="coloredBlur" />
-              <feMerge><feMergeNode in="coloredBlur" /><feMergeNode in="SourceGraphic" /></feMerge>
-            </filter>
-          </defs>
-        </svg>
-      </div>
+      
+         <div className="grid" style={{ marginTop: 12 }}>
+          {loading ? (
+            /* 🔄 Loader */
+            <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", padding: 28 }} >
+              <div style={{ width: 52, height: 52, borderRadius: "50%", border: "4px solid rgba(99,102,241,0.12)", borderTopColor: "rgba(99,102,241,0.95)", animation: "spin 1s linear infinite"}}/>
+            </div>
+          ) : (
+        <>
+        
+        {/* 🔹 SUGGESTED PROFILES */}
+        {!hasQuery && suggestedProfiles.length > 0 && (
+          <div style={{gridColumn: "1 / -1", fontSize: 14, fontWeight: 600, color: "#475569", marginBottom: 6}}> Suggestions based on profession</div>)}
+
+        {!hasQuery && suggestedProfiles.map((p, i) => (
+          <div
+            key={`suggested-${p.username}-${i}`}
+            className="card"
+            role="button"
+            aria-label={p.name}
+            onClick={() => setSelectedProfile(p)}
+          >
+          <div className="card-info">
+            <div className="avatar">
+              {p.profileImage ? (
+                <img src={p.profileImage} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }}/>
+              ) : (getInitials(p.name || "User"))
+              }
+            </div>
+
+             <div style={{ minWidth: 0, flex: 1, width: "50%" }}>
+              <div className="name truncate-1" title={p.name}> {p.name} </div>
+                {p.designation && (<div className="designation truncate-2" title={p.designation}> {p.designation} </div>)}
+                {p.company && (<div className="company truncate-1" title={p.company}> {p.company} </div>)}
+                <div className="city" title={p.city}> {p.city} </div>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+              <button className="connect" onClick={(e) => { e.stopPropagation(); handleConnect(p.id, p.name); }}
+                disabled={ connectingUserId === p.id || sentRequests.has(p.id) || acceptedConnections.has(p.id) }
+                style={
+                  acceptedConnections.has(p.id)
+                    ? { background: "#04c74cff", color: "#fff", cursor: "not-allowed", boxShadow: "none" }
+                    : sentRequests.has(p.id)
+                    ? { background: "#0f48e4ff", color: "#fff", cursor: "not-allowed", boxShadow: "none" }
+                    : { color: "#fff" }
+                }
+              >
+                {acceptedConnections.has(p.id)
+                  ? "Connected"
+                  : connectingUserId === p.id
+                  ? "Connecting..."
+                  : sentRequests.has(p.id)
+                  ? "Sent"
+                  : "Connect"}
+              </button>
+            </div>
+          </div>
+        ))}
+
+
+
+      {/* 🔹 SEARCH RESULTS */}
+
+      {hasQuery &&
+        filtered.map((p, i) => (
+          <div key={`${p.username}-${i}`}
+            className="card" role="button" aria-label={p.name} onClick={() => setSelectedProfile(p)} >
+            <div className="card-info">
+              <div className="avatar">
+                {p.profileImage ? (
+                  <img src={p.profileImage} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
+                ) : ( getInitials(p.name || "User"))
+                }
+              </div>
+
+              <div style={{ minWidth: 0, flex: 1, width: "50%" }}>
+                <div className="name truncate-1" title={p.name}> {p.name} </div>
+                {p.designation && (<div className="designation truncate-2" title={p.designation}> {p.designation} </div> )}
+                {p.company && (<div className="company truncate-1" title={p.company}> {p.company} </div> )}
+                <div className="city" title={p.city}> {p.city} </div>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+              <button
+                className="connect"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleConnect(p.id, p.name);
+                }}
+                disabled={ connectingUserId === p.id || sentRequests.has(p.id) || acceptedConnections.has(p.id) }
+                style={
+                  acceptedConnections.has(p.id)
+                    ? { background: "#04c74cff", color: "#fff", cursor: "not-allowed", boxShadow: "none" }
+                    : sentRequests.has(p.id)
+                    ? { background: "#0f48e4ff", color: "#fff", cursor: "not-allowed", boxShadow: "none" }
+                    : { color: "#fff" }
+                }
+              >
+                {acceptedConnections.has(p.id)
+                  ? "Connected"
+                  : connectingUserId === p.id
+                  ? "Connecting..."
+                  : sentRequests.has(p.id)
+                  ? "Sent"
+                  : "Connect"}
+              </button>
+            </div>
+          </div>
+        )
+      )
+    }
+
+
+      {/* NO RESULTS MESSAGE */}
+      {hasQuery && filtered.length === 0 && (<div style={{ gridColumn: "1 / -1", textAlign: "center", padding: 22, color: "#64748B" }} > No results found. Try different keywords. </div>)}
+    </>
+  )}</div>
+      
+</div>
+
+        {/* Decorative svg filter (kept for effect) */}
+        <div style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none" }}>
+          <svg width="0" height="0" style={{ position: "absolute" }}>
+            <defs>
+              <filter id="softGlow">
+                <feGaussianBlur stdDeviation="12" result="coloredBlur" />
+                <feMerge><feMergeNode in="coloredBlur" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+            </defs>
+          </svg>
+        </div>
 
       {/* Modal unchanged (logic intact) */}
-      <Modal
+      {/* <Modal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         title="Connection Request Sent"
         message={<>Your connection request has been sent to <strong style={{ color: "#111827" }}>{connectionName}</strong>. They will be notified and can accept or reject your request.</>}
         primaryText="Close"
+      /> */}
+
+      {/* {selectedProfile && (
+        <Modal 
+        isOpen={true}
+        onClose={() => setSelectedProfile(null)}
+        title={selectedProfile.name}
+        message={
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            
+            <div><strong>Location:</strong> {selectedProfile.city}</div>
+
+            {selectedProfile.company && (
+              <div><strong>Company:</strong> {selectedProfile.company}</div>
+            )}
+
+            {selectedProfile.designation && (
+              <div><strong>Designation:</strong> {selectedProfile.designation}</div>
+            )}
+
+            {selectedProfile.category && (
+              <div><strong>Category:</strong> {selectedProfile.category}</div>
+            )}
+
+            {/* Placeholder — will connect dashboard section later */}
+            {/* <div style={{ marginTop: 8, color: "#64748B" }}>
+              Description & Services will appear here.
+        </div>
+
+      </div>
+    }
+    primaryText="Close"
+  /> 
+)}  */}
+
+
+        {/* {selectedProfile && (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center"
+  >
+    {/* Backdrop  
+    <div
+      className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+      onClick={() => setSelectedProfile(null)}
+    />
+
+    {/* Popup *
+    <div className="relative z-50 animate-scaleIn">
+      <Modal
+        isOpen={true}
+        onClose={() => setSelectedProfile(null)}
+      >
+        {/* popup content 
+      </Modal>
+    </div>
+  </div>
+)} */}
+      
+      
+      {selectedProfile && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            {/* 🔹 Backdrop (blur + dim background) */}
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setSelectedProfile(null)}/>
+
+            {/* 🔹 Popup */}
+            <div className="relative z-50 animate-popup">
+              <Modal
+              isOpen={true}
+              onClose={() => setSelectedProfile(null)}
+              title={selectedProfile.name}
+              message={<div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            
+              {/* Location */}
+              {selectedProfile.city && (<div> <strong>Location:</strong> {selectedProfile.city} </div>)}
+
+              {/* Company */}
+              {selectedProfile.company && (<div> <strong>Company:</strong> {selectedProfile.company}</div>)}
+
+              {/* Designation */}
+              {selectedProfile.designation && (<div> <strong>Designation:</strong> {selectedProfile.designation}</div>)}
+
+              {/* Category */}
+              {selectedProfile.category && (<div> <strong>Category:</strong> {selectedProfile.category} </div>)}
+
+              {/* Placeholder for future */}
+              <div style={{ marginTop: 8, color: "#64748B", fontSize: 13 }}> Description & Services will appear here </div>
+            </div>
+          }
+        primaryText="Close"
       />
+    </div>
+  </div>
+)}    
     </div>
   );
 }
