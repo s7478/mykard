@@ -17,7 +17,7 @@ import {
   FiPhone,
   FiLinkedin,
   FiGlobe,
-  
+
 } from "react-icons/fi";
 
 import DigitalCardPreview, { DigitalCardProps } from "@/components/cards/DigitalCardPreview";
@@ -34,7 +34,7 @@ import {
   BarChart3,
   Users,
   Eye,
-  
+
 } from "lucide-react";
 import Link from "next/link";
 import QRCode from "react-qr-code";
@@ -95,54 +95,35 @@ interface Card {
 // ----------------- Card Preview -----------------
 const CardPreview: React.FC<{ card: Card }> = ({ card }) => {
   const renderCardPreview = () => {
-
-
-    let parsedCustomFields = [];
-    try {
-      if (card.customFields) {
-        parsedCustomFields = typeof card.customFields === 'string' 
-          ? JSON.parse(card.customFields) 
-          : card.customFields;
-      }
-    } catch (err) {
-      console.error("Failed to parse custom fields:", err);
-    }
-
-
-
-  const commonProps = {
-  firstName: card.fullName || card.name || '',
-  middleName: '',
-  lastName: '',
-  cardName: card.cardName || '',
-  title: card.title || '',
-  company: card.company || '',
-  location: card.location || card.user?.location || '',
-  about: card.bio || card.about || card.description || '',
-  skills: card.skills || '',
-  portfolio: card.portfolio || '',
-  experience: card.experience || '',
-  services: card.services || '',
-  review: card.review || '',
-  photo: card.profileImage || card.photo || '',
-  cover: card.coverImage || card.bannerImage || card.cover || '',
-  email: card.email || '',
-  phone: card.phone || '',
-  linkedin: card.linkedinUrl || card.linkedin || '',
-  website: card.websiteUrl || card.website || '',
-  documentUrl: (card as any).documentUrl || '',
-  themeColor1: card.selectedColor || '#3b82f6',
-  themeColor2: card.selectedColor2 || '#2563eb',
-  textColor: card.textColor || '#ffffff',
-  fontFamily: card.selectedFont || 'system-ui, sans-serif',
-  cardType: card.cardType || '',
-
-  customFields: parsedCustomFields,
-
-};
+    const commonProps = {
+      firstName: card.fullName || card.name || '',
+      middleName: '',
+      lastName: '',
+      cardName: card.cardName || '',
+      title: card.title || '',
+      company: card.company || '',
+      location: card.location || card.user?.location || '',
+      about: card.bio || card.about || card.description || '',
+      skills: card.skills || '',
+      portfolio: card.portfolio || '',
+      experience: card.experience || '',
+      services: card.services || '',
+      review: card.review || '',
+      photo: card.profileImage || card.photo || '',
+      cover: card.coverImage || card.bannerImage || card.cover || '',
+      email: card.email || '',
+      phone: card.phone || '',
+      linkedin: card.linkedinUrl || card.linkedin || '',
+      website: card.websiteUrl || card.website || '',
+      documentUrl: (card as any).documentUrl || '',
+      themeColor1: card.selectedColor || '#3b82f6',
+      themeColor2: card.selectedColor2 || '#2563eb',
+      fontFamily: card.selectedFont || 'system-ui, sans-serif',
+      cardType: card.cardType || '',
+    };
 
     const design = card.selectedDesign || 'Classic';
-    
+
     switch (design) {
       case 'Flat':
         return <FlatCardPreview {...commonProps} />;
@@ -184,9 +165,9 @@ const CardDetailsPage = () => {
   const [contactsCount, setContactsCount] = useState(0);
 
   const qrRef = useRef<HTMLDivElement>(null);
-const handleToggleActive = async () => {
+  const handleToggleActive = async () => {
     if (isTogglingActive || !card) return;
-    
+
     setIsTogglingActive(true);
     try {
       const response = await fetch(`/api/card/${cardId}/toggle-active`, {
@@ -212,7 +193,7 @@ const handleToggleActive = async () => {
     }
   };
 
-const handleDelete = async () => {
+  const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this card? This action cannot be undone.")) {
       return;
     }
@@ -238,18 +219,18 @@ const handleDelete = async () => {
     const fetchCard = async () => {
       try {
         setIsLoading(true);
-      //  console.log('🔍 Fetching card with ID:', cardId);
-        
+        //  console.log('🔍 Fetching card with ID:', cardId);
+
         const response = await fetch(`/api/card/${cardId}`);
-        
+
         if (!response.ok) {
           throw new Error('Failed to fetch card');
         }
 
         const data = await response.json();
-        
+
         if (data.success && data.card) {
-        //  console.log('✅ Fetched card:', data.card);
+          //  console.log('✅ Fetched card:', data.card);
           setCard(data.card);
         } else {
           toast.error('Card not found');
@@ -309,30 +290,30 @@ const handleDelete = async () => {
     cardUrl: `${typeof window !== 'undefined' ? window.location.origin : ''}/cards/public/${cardId}`,
   };
 
- const copyToClipboard = async (text: string) => {
-  try {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(text);
-    } else {
-      // Mobile fallback
-      const input = document.createElement("input");
-      input.value = text;
-      document.body.appendChild(input);
-      input.select();
-      input.setSelectionRange(0, 99999);
-      document.execCommand("copy");
-      document.body.removeChild(input);
+  const copyToClipboard = async (text: string) => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        // Mobile fallback
+        const input = document.createElement("input");
+        input.value = text;
+        document.body.appendChild(input);
+        input.select();
+        input.setSelectionRange(0, 99999);
+        document.execCommand("copy");
+        document.body.removeChild(input);
+      }
+
+      setCopied(true);
+      toast.success("Link copied!");
+      setTimeout(() => setCopied(false), 1500);
+
+    } catch (err) {
+      console.error("Copy failed:", err);
+      toast.error("Unable to copy. Try manually.");
     }
-
-    setCopied(true);
-    toast.success("Link copied!");
-    setTimeout(() => setCopied(false), 1500);
-
-  } catch (err) {
-    console.error("Copy failed:", err);
-    toast.error("Unable to copy. Try manually.");
-  }
-};
+  };
 
 
   const downloadQR = () => {
@@ -340,7 +321,7 @@ const handleDelete = async () => {
     // First, try to find existing QR in QR wrapper
     let qrWrapper = document.querySelector(`.${styles.qrWrapper}`);
     let svg = qrWrapper?.querySelector("svg");
-    
+
     // If we're in Direct Link tab and no QR is visible, temporarily create one
     if (!svg && shareMethod === "link") {
       // Create a temporary hidden QR code
@@ -349,16 +330,16 @@ const handleDelete = async () => {
       tempDiv.style.left = '-9999px';
       tempDiv.style.top = '-9999px';
       document.body.appendChild(tempDiv);
-      
+
       // Import QRCode component dynamically and render
       import('react-qr-code').then((QRCodeModule) => {
         const QRCode = QRCodeModule.default;
         const React = require('react');
         const ReactDOM = require('react-dom/client');
-        
+
         const root = ReactDOM.createRoot(tempDiv);
         root.render(React.createElement(QRCode, { value: mockUserData.cardUrl, size: 180 }));
-        
+
         // Wait a moment for render, then proceed with download
         setTimeout(() => {
           const tempSvg = tempDiv.querySelector('svg');
@@ -371,22 +352,22 @@ const handleDelete = async () => {
       });
       return;
     }
-    
+
     if (!svg) return;
     processQRDownload(svg);
   };
-  
+
   const processQRDownload = (svg: Element, cleanup?: () => void) => {
     const svgData = new XMLSerializer().serializeToString(svg);
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     const img = new Image();
-    
+
     img.onload = () => {
       canvas.width = img.width;
       canvas.height = img.height;
       ctx?.drawImage(img, 0, 0);
-      
+
       // Convert to blob for better file handling
       canvas.toBlob((blob) => {
         if (blob) {
@@ -402,7 +383,7 @@ const handleDelete = async () => {
         if (cleanup) cleanup();
       }, "image/png");
     };
-    
+
     img.src = "data:image/svg+xml;base64," + btoa(svgData);
   };
 
@@ -423,13 +404,13 @@ const handleDelete = async () => {
 
   const shareProfile = async () => {
     const shareMessage = `Here is my MyKard digital profile. You can view my details and connect with me here.\n\nThis profile contains my contact information, social links, and business card.\n\nClick the link below to view the card:\n${mockUserData.cardUrl}`;
-    
-   // console.log('Navigator share available:', !!navigator.share);
-   // console.log('Current share method:', shareMethod);
-   // console.log('Is mobile device:', isMobile());
-    
+
+    // console.log('Navigator share available:', !!navigator.share);
+    // console.log('Current share method:', shareMethod);
+    // console.log('Is mobile device:', isMobile());
+
     const mobile = isMobile();
-    
+
     // DIRECT LINK TAB - Always send message + link only (no QR)
     if (shareMethod === "link") {
       if (navigator.share && mobile) {
@@ -454,7 +435,7 @@ const handleDelete = async () => {
       }
       return;
     }
-    
+
     // QR TAB - Different behavior for mobile vs desktop
     if (shareMethod === "qr") {
       if (navigator.share && mobile) {
@@ -467,23 +448,23 @@ const handleDelete = async () => {
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d");
             const img = new Image();
-            
+
             await new Promise((resolve) => {
               img.onload = () => {
                 canvas.width = img.width;
                 canvas.height = img.height;
                 ctx?.drawImage(img, 0, 0);
-                
+
                 canvas.toBlob(async (blob) => {
                   if (blob) {
                     const file = new File([blob], `MyKard_QR_${cardId}.png`, { type: 'image/png' });
-                    
+
                     // Step 1: Share QR image only
                     try {
                       await navigator.share({
                         files: [file]
                       });
-                      
+
                       // Step 2: After 300ms, share message + link
                       setTimeout(async () => {
                         try {
@@ -497,7 +478,7 @@ const handleDelete = async () => {
                           console.log('Could not share message after QR:', error);
                         }
                       }, 300);
-                      
+
                     } catch (error) {
                       console.log('Could not share QR image, fallback to message only:', error);
                       // Fallback: Share message + link only
@@ -547,7 +528,7 @@ const handleDelete = async () => {
       }
     }
   };
-  
+
 
   const lineData = {
     labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
@@ -570,7 +551,7 @@ const handleDelete = async () => {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
       setFile(selectedFile);
-      
+
       // Create preview URL
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -626,9 +607,8 @@ const handleDelete = async () => {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab as any)}
-                  className={`${styles.tabButton} ${
-                    activeTab === tab ? styles.tabButtonActive : ""
-                  }`}
+                  className={`${styles.tabButton} ${activeTab === tab ? styles.tabButtonActive : ""
+                    }`}
                 >
                   {tab}
                 </button>
@@ -659,18 +639,16 @@ const handleDelete = async () => {
                   <div className={styles.shareToggle}>
                     <button
                       onClick={() => setShareMethod("qr")}
-                      className={`${styles.shareToggleButton} ${
-                        shareMethod === "qr" ? styles.shareToggleButtonActive : ""
-                      }`}
+                      className={`${styles.shareToggleButton} ${shareMethod === "qr" ? styles.shareToggleButtonActive : ""
+                        }`}
                     >
                       <QrCode className="w-4 h-4" />
                       QR Code
                     </button>
                     <button
                       onClick={() => setShareMethod("link")}
-                      className={`${styles.shareToggleButton} ${
-                        shareMethod === "link" ? styles.shareToggleButtonActive : ""
-                      }`}
+                      className={`${styles.shareToggleButton} ${shareMethod === "link" ? styles.shareToggleButtonActive : ""
+                        }`}
                     >
                       <LinkIcon className="w-4 h-4" />
                       Direct Link
@@ -681,10 +659,17 @@ const handleDelete = async () => {
                 <div className="flex justify-center">
                   {shareMethod === "link" ? (
                     <div className={styles.directLinkBox}>
-                      <div className={styles.linkDisplay}>
+                      <div
+                        className={`${styles.linkDisplay} ${copied ? styles.linkDisplayCopied : ''}`}
+                        onClick={() => copyToClipboard(mockUserData.cardUrl)}
+                        title="Click to copy"
+                      >
                         <p className={styles.linkText}>
                           {mockUserData.cardUrl}
                         </p>
+                        <span className={styles.copyIndicator}>
+                          {copied ? 'Copied!' : 'Click to copy'}
+                        </span>
                       </div>
                     </div>
                   ) : (
@@ -700,17 +685,17 @@ const handleDelete = async () => {
 
                 {/* Warning message when card is paused */}
                 {!card?.cardActive && (
-                  <div style={{ 
-                    padding: '12px 16px', 
-                    backgroundColor: '#fef3c7', 
+                  <div style={{
+                    padding: '12px 16px',
+                    backgroundColor: '#fef3c7',
                     border: '1px solid #fbbf24',
-                    borderRadius: '8px', 
+                    borderRadius: '8px',
                     marginBottom: '16px',
                     textAlign: 'center'
                   }}>
-                    <p style={{ 
-                      color: '#92400e', 
-                      fontSize: '14px', 
+                    <p style={{
+                      color: '#92400e',
+                      fontSize: '14px',
                       fontWeight: '500',
                       margin: 0
                     }}>
@@ -720,8 +705,8 @@ const handleDelete = async () => {
                 )}
 
                 <div className={styles.actionButtons}>
-                  <motion.button 
-                    onClick={() => copyToClipboard(mockUserData.cardUrl)} 
+                  <motion.button
+                    onClick={() => copyToClipboard(mockUserData.cardUrl)}
                     className={styles.actionBtn}
                     whileTap={{ scale: card?.cardActive ? 0.95 : 1 }}
                     whileHover={{ scale: card?.cardActive ? 1.03 : 1 }}
@@ -734,8 +719,8 @@ const handleDelete = async () => {
                     {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                     {copied ? "Copied!" : "Copy Link"}
                   </motion.button>
-                  <motion.button 
-                    onClick={downloadQR} 
+                  <motion.button
+                    onClick={downloadQR}
                     className={styles.actionBtn}
                     whileTap={{ scale: card?.cardActive ? 0.95 : 1 }}
                     whileHover={{ scale: card?.cardActive ? 1.03 : 1 }}
@@ -747,8 +732,8 @@ const handleDelete = async () => {
                   >
                     <Download className="w-4 h-4" /> Download QR
                   </motion.button>
-                  <motion.button 
-                    onClick={shareProfile} 
+                  <motion.button
+                    onClick={shareProfile}
                     className={styles.actionBtn}
                     whileTap={{ scale: card?.cardActive ? 0.95 : 1 }}
                     whileHover={{ scale: card?.cardActive ? 1.03 : 1 }}
@@ -807,9 +792,9 @@ const handleDelete = async () => {
                   <h3 className={styles.settingsCardTitle}>
                     <div className={`${styles.dot}`} style={{ backgroundColor: 'var(--color-primary-light)' }}></div> Card Configuration
                   </h3> */}
-                  
-                  {/* Card Name */}
-                  {/* <div className={styles.settingsItem}>
+
+                {/* Card Name */}
+                {/* <div className={styles.settingsItem}>
                     <div className={styles.settingsInfo}>
                       <h4 className={styles.settingsLabel}>Card Name</h4>
                       <p className={styles.settingsDescription}>Change the name of this card.</p>
@@ -822,9 +807,9 @@ const handleDelete = async () => {
                       />
                     </div>
                   </div> */}
-                  
-                  {/* QR Code Logo */}
-                  {/* <div className={styles.settingsItem}>
+
+                {/* QR Code Logo */}
+                {/* <div className={styles.settingsItem}>
                     <div className={styles.settingsInfo}>
                       <h4 className={styles.settingsLabel}>QR Code Logo</h4>
                       <p className={styles.settingsDescription}>Change the logo inside the QR code.</p>
@@ -854,9 +839,9 @@ const handleDelete = async () => {
                       )}
                     </div>
                   </div> */}
-                  
-                  {/* Personalized Link */}
-                  {/* <div className={styles.settingsItem}>
+
+                {/* Personalized Link */}
+                {/* <div className={styles.settingsItem}>
                     <div className={styles.settingsInfo}>
                       <h4 className={styles.settingsLabel}>Personalized Link</h4>
                       <p className={styles.settingsDescription}>Create your own link to further your brand.</p>
@@ -877,7 +862,7 @@ const handleDelete = async () => {
                   <h3 className={styles.settingsCardTitle} style={{ marginBottom: '1rem' }}>
                     <div className={`${styles.dot}`} style={{ backgroundColor: 'var(--color-success)' }}></div> Privacy & Visibility
                   </h3>
-                  
+
                   {/* Pause Card */}
                   <div className={styles.settingsItem}>
                     <div className={styles.settingsInfo}>
@@ -904,12 +889,12 @@ const handleDelete = async () => {
 
                 {/* Advanced Settings */}
                 {/* <div className={styles.settingsCard}> */}
-                  {/* <h3 className={styles.settingsCardTitle}> */}
-                    {/* <div className={`${styles.dot}`} style={{ backgroundColor: 'var(--color-purple-600)' }}></div> Advanced Settings */}
-                  {/* </h3> */}
+                {/* <h3 className={styles.settingsCardTitle}> */}
+                {/* <div className={`${styles.dot}`} style={{ backgroundColor: 'var(--color-purple-600)' }}></div> Advanced Settings */}
+                {/* </h3> */}
 
-                  {/* Renew Link only */}
-                  {/* <div className={styles.settingsItem}>
+                {/* Renew Link only */}
+                {/* <div className={styles.settingsItem}>
                     <div className={styles.settingsInfo}>
                       <h4 className={styles.settingsLabel}>Renew Link</h4>
                       <p className={styles.settingsDescription}>Renew the link to your card.</p>
