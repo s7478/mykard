@@ -135,7 +135,7 @@ const LocationSelect: React.FC<LocationSelectProps> = ({
             >
               Showing results for “{value || "all"}”
             </span>
-          </div> */}
+          </div> 
 
           {/* 2. Scrollable List Container */}
           <div
