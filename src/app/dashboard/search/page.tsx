@@ -692,8 +692,4 @@ function SearchPageContent() {
         />
       </div>
     </div>
-  </div>
-)}    
-    </div>
-  );
-}
+)}

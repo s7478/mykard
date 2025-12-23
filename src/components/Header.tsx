@@ -66,7 +66,7 @@ export default function Header() {
 
   return (
     <>
-      {/* <style jsx global>{`
+      <style jsx global>{`
         .profile-dropdown-desktop {
           z-index: 999999 !important;
           position: absolute !important;
@@ -75,7 +75,7 @@ export default function Header() {
           z-index: 999999 !important;
           position: fixed !important;
         }
-      `}</style> */}
+      `}</style>
       <header
         className="bg-white/95 backdrop-blur-xl border-b border-blue-100/50 shadow-sm mobile-fixed-header"
         style={{
@@ -104,7 +104,6 @@ export default function Header() {
                 alt="Logo"
                 width={144}
                 height={144}
-                priority
                 className="w-40 h-10 object-cover transition-all duration-300 group-hover:scale-105"
                 onError={(e) => {
                   console.log('Image failed to load:', e);
@@ -243,7 +242,7 @@ export default function Header() {
                               zIndex: "999999 !important",
                               transform: "translateX(-16px)",
                             }}
-                            className="absolute right-0 mt-2 w-[220px] max-w-[calc(100vw-32px)] bg-white/95 backdrop-blur-md border border-gray-200/50 rounded-xl shadow-xl shadow-black/20 py-2 z-[999999]"
+                            className="profile-dropdown-desktop"
                           >
                             <Link
                               href="/dashboard"
@@ -319,7 +318,7 @@ export default function Header() {
                               padding: "12px",
                             }}
                             onClick={() => setIsDropdownOpen(false)}
-                            className="fixed inset-0 z-[999999] bg-slate-950/45 backdrop-blur-sm flex justify-center items-start p-3"
+                            className="profile-dropdown-mobile"
                           >
                             <motion.div
                               initial={{ x: 24, y: -8, opacity: 0, scale: 0.98 }}
@@ -414,28 +413,26 @@ export default function Header() {
                               </div>
                             </motion.div>
                           </motion.div>
-                        </motion.div>
-                      )
-                    )}
-                  </AnimatePresence>
-                </div>
-              ) : (
-                <>
-                  <a href="/auth/login" className="px-4 py-2 text-[14px] font-medium text-gray-700 hover:text-blue-600 transition-colors rounded-md hover:bg-blue-50/50" style={{ textDecoration: 'none' }}>
-                    Login
-                  </a>
-                  <a 
-                    href="/auth/signup" 
-                    className="flex-1 relative flex items-center justify-center text-center px-4 text-[15px] font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-full transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:scale-105 overflow-hidden group border-none cursor-pointer"
-                    style={{ minWidth: '100px', minHeight: '36px', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                  >
-                    <span className="relative z-10 flex items-center justify-center">
-                      Create Card
-                    </span>
-                    <div className="gradient-hover-effect"></div>
-                  </a>
-                </>
-              )}
+                        )
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ) : (
+                  <>
+                    <a href="/auth/login" className="px-4 py-2 text-[14px] font-medium text-gray-700 hover:text-blue-600 transition-colors rounded-md hover:bg-blue-50/50" style={{ textDecoration: 'none' }}>
+                      Login
+                    </a>
+                    <a href="/auth/signup" className="relative px-8 py-2 text-[14px] font-semibold text-white bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-full transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:scale-105 overflow-hidden group border-none cursor-pointer"
+                      style={{ minWidth: '100px', minHeight: '36px', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    >
+                      <span className="relative z-10 flex items-center justify-center">
+                        Create Card
+                      </span>
+                      <div className="absolute inset-0 bg-linear-to-r from-blue-400/0 via-white/20 to-blue-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                    </a>
+                  </>
+                )}
+              </div>
             </div>
 
             {/* Mobile Menu Button */}
@@ -465,8 +462,8 @@ export default function Header() {
                     setIsMenuOpen(false);
                   }}
                   className={`flex items-center gap-3 px-4 py-3 text-[18px] font-semibold rounded-xl w-full text-left border-none cursor-pointer transition-colors ${activeSection === 'home'
-                      ? 'text-blue-600 bg-blue-50/50'
-                      : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
+                    ? 'text-blue-600 bg-blue-50/50'
+                    : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
                     }`}
                 >
                   <span className={`w-1.5 h-1.5 rounded-full ${activeSection === 'home' ? 'bg-blue-600' : 'bg-transparent'
@@ -480,8 +477,8 @@ export default function Header() {
                     setIsMenuOpen(false);
                   }}
                   className={`flex items-center gap-3 px-4 py-3 text-[18px] font-medium rounded-xl w-full text-left border-none cursor-pointer transition-colors ${activeSection === 'find-digital-card'
-                      ? 'text-blue-600 bg-blue-50/50 font-semibold'
-                      : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
+                    ? 'text-blue-600 bg-blue-50/50 font-semibold'
+                    : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
                     }`}
                 >
                   <span className={`w-1.5 h-1.5 rounded-full ${activeSection === 'find-digital-card' ? 'bg-blue-600' : 'bg-transparent'
@@ -495,8 +492,8 @@ export default function Header() {
                     setIsMenuOpen(false);
                   }}
                   className={`flex items-center gap-3 px-4 py-3 text-[15px] font-medium rounded-xl w-full text-left border-none cursor-pointer transition-colors ${activeSection === 'what-is-digital-card'
-                      ? 'text-blue-600 bg-blue-50/50 font-semibold'
-                      : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
+                    ? 'text-blue-600 bg-blue-50/50 font-semibold'
+                    : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
                     }`}
                 >
                   <span className={`w-1.5 h-1.5 rounded-full ${activeSection === 'what-is-digital-card' ? 'bg-blue-600' : 'bg-transparent'
@@ -510,8 +507,8 @@ export default function Header() {
                     setIsMenuOpen(false);
                   }}
                   className={`flex items-center gap-3 px-4 py-3 text-[15px] font-medium rounded-xl w-full text-left border-none cursor-pointer transition-colors ${activeSection === 'build-credibility'
-                      ? 'text-blue-600 bg-blue-50/50 font-semibold'
-                      : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
+                    ? 'text-blue-600 bg-blue-50/50 font-semibold'
+                    : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
                     }`}
                 >
                   <span className={`w-1.5 h-1.5 rounded-full ${activeSection === 'build-credibility' ? 'bg-blue-600' : 'bg-transparent'
@@ -525,8 +522,8 @@ export default function Header() {
                     setIsMenuOpen(false);
                   }}
                   className={`flex items-center gap-3 px-4 py-3 text-[15px] font-medium rounded-xl w-full text-left border-none cursor-pointer transition-colors ${activeSection === 'how-it-works'
-                      ? 'text-blue-600 bg-blue-50/50 font-semibold'
-                      : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
+                    ? 'text-blue-600 bg-blue-50/50 font-semibold'
+                    : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
                     }`}
                   style={{ marginBottom: '24px' }}
                 >
@@ -538,60 +535,61 @@ export default function Header() {
               </div>
               <div className="pt-10 pb-8 px-2 mt-6 border-t border-blue-100/50">
 
-              {!isAuthenticated ? (
-                <div className="flex gap-3 w-full">
-                  <button 
-                    onClick={() => {
-                      console.log('Mobile Login clicked');
-                      window.location.href = '/auth/login';
-                    }}
-                    className="flex-1 flex items-center justify-center text-center px-4 text-[15px] font-semibold text-white bg-blue-600 rounded-xl shadow-lg shadow-blue-500/30 overflow-hidden group border-none cursor-pointer relative" /* eslint-disable-line */
-                    style={{ height: '40px', minWidth: '100px' }}
-                  >
-                    <span className="relative z-10">Login</span>
-                    <div className="gradient-hover-effect"></div>
-                  </button>
-                  <button 
-                    onClick={() => {
-                      console.log('Mobile Create Card clicked');
-                      window.location.href = '/auth/signup';
-                    }}
-                    className="flex-1 relative flex items-center justify-center text-center px-4 text-[15px] font-semibold text-white bg-blue-600 rounded-full transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:scale-105 overflow-hidden group border-none cursor-pointer" /* eslint-disable-line */
-                    style={{ height: '40px', minWidth: '100px' }}
-                  >
-                    <span className="relative z-10 flex items-center justify-center">
-                      Create Card
-                    </span>
-                    <div className="gradient-hover-effect"></div>
-                  </button>
-                </div>
-              ) : (
-                <div className="flex gap-3 w-full pb-2">
-                  <Link 
-                    href="/dashboard" 
-                    className="flex-1 relative flex items-center justify-center px-4 text-[16px] font-semibold text-white bg-blue-600 rounded-xl shadow-lg shadow-blue-500/30 overflow-hidden group" /* eslint-disable-line */
-                    onClick={() => setIsMenuOpen(false)}
-                    style={{ minWidth: '100px', height: '45px' }}
-                  >
-                    <span className="relative z-10">Dashboard</span>
-                    <div className="gradient-hover-effect"></div>
-                  </Link>
-                  <button 
-                    onClick={() => {
-                      handleLogout();
-                      setIsMenuOpen(false);
-                    }}
-                    className="flex-1 relative block text-center px-4 py-5 text-[16px] font-semibold text-white bg-blue-600 rounded-xl shadow-lg shadow-blue-500/30 overflow-hidden group" /* eslint-disable-line */
-                    style={{ minWidth: '100px', height: '45px' }}
-                  >
-                    <span className="relative z-10 flex items-center justify-center gap-2">
-                      <LogOut size={16} className="text-white" />
-                      <span>Logout</span>
-                    </span>
-                    <div className="gradient-hover-effect"></div>
-                  </button>
-                </div>
-              )}
+                {!isAuthenticated ? (
+                  <div className="flex gap-3 w-full">
+                    <button
+                      onClick={() => {
+                        console.log('Mobile Login clicked');
+                        window.location.href = '/auth/login';
+                      }}
+                      className="flex-1 flex items-center justify-center text-center px-4 text-[15px] font-semibold text-white bg-linear-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg shadow-blue-500/30 overflow-hidden group border-none cursor-pointer"
+                      style={{ height: '40px', minWidth: '100px' }}
+                    >
+                      <span className="relative z-10">Login</span>
+                      <div className="absolute inset-0 bg-linear-to-r from-blue-400/0 via-white/20 to-blue-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                    </button>
+                    <button
+                      onClick={() => {
+                        console.log('Mobile Create Card clicked');
+                        window.location.href = '/auth/signup';
+                      }}
+                      className="flex-1 relative flex items-center justify-center text-center px-4 text-[15px] font-semibold text-white bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-full transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:scale-105 overflow-hidden group border-none cursor-pointer"
+                      style={{ height: '40px', minWidth: '100px' }}
+                    >
+                      <span className="relative z-10 flex items-center justify-center">
+                        Create Card
+                      </span>
+                      <div className="absolute inset-0 bg-linear-to-r from-blue-400/0 via-white/20 to-blue-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-3 w-full pb-2">
+                    <Link
+                      href="/dashboard"
+                      className="flex-1 relative flex items-center justify-center px-4 text-[16px] font-semibold text-white bg-linear-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg shadow-blue-500/30 overflow-hidden group"
+                      onClick={() => setIsMenuOpen(false)}
+                      style={{ minWidth: '100px', height: '45px' }}
+                    >
+                      <span className="relative z-10">Dashboard</span>
+                      <div className="absolute inset-0 bg-linear-to-r from-blue-400/0 via-white/20 to-blue-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                    </Link>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsMenuOpen(false);
+                      }}
+                      className="flex-1 relative block text-center px-4 py-5 text-[16px] font-semibold text-white bg-linear-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg shadow-blue-500/30 overflow-hidden group"
+                      style={{ minWidth: '100px', height: '45px' }}
+                    >
+                      <span className="relative z-10 flex items-center justify-center gap-2">
+                        <LogOut size={16} className="text-white" />
+                        <span>Logout</span>
+                      </span>
+                      <div className="absolute inset-0 bg-linear-to-r from-blue-400/0 via-white/20 to-blue-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </nav>
