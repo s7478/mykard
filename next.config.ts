@@ -21,12 +21,40 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   output: 'standalone',
   
+  // Generate unique build ID for cache busting
+  generateBuildId: async () => {
+    // Use timestamp + random for unique builds
+    return `build-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+  },
+  
   async headers() {
     return [
       {
-        // Apply to all routes
+        // Cache static assets aggressively (JS, CSS, images) - they have hashed filenames
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        // Don't cache HTML pages - always fetch fresh
         source: '/:path*',
         headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'Expires',
+            value: '0',
+          },
           {
             key: 'Cross-Origin-Opener-Policy',
             value: 'same-origin-allow-popups',
