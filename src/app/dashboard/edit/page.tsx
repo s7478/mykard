@@ -6,10 +6,10 @@ import DigitalCardPreviewComponent from '@/components/cards/DigitalCardPreview';
 import FlatCardPreviewComponent from '@/components/cards/FlatCardPreview';
 import ModernCardPreviewComponent from '@/components/cards/ModernCardPreview';
 import SleekCardPreviewComponent from '@/components/cards/SleekCardPreview';
-import LocationSelect from "@/components/LocationSelect"; 
+import LocationSelect from "@/components/LocationSelect";
 
 // Import Shared CSS
-import styles from './edit.module.css'; 
+import styles from './edit.module.css';
 
 interface ExtraField {
   id: number;
@@ -40,7 +40,7 @@ const EditPage = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const cardId = searchParams.get('id');
-  
+
   const [activeTab, setActiveTab] = useState('Display');
 
   useEffect(() => {
@@ -48,11 +48,11 @@ const EditPage = () => {
   }, []);
 
   const [selectedColor1, setSelectedColor1] = useState('#145dfd');
-  const [selectedColor2, setSelectedColor2] = useState('#00c0fd'); 
+  const [selectedColor2, setSelectedColor2] = useState('#00c0fd');
   const [textColor, setTextColor] = useState('#ffffff');
   const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
-  
+
   // Phone State Logic
   const [phone, setPhone] = useState('');
   const [isEditingPhone, setIsEditingPhone] = useState(false); // Controls read-only state
@@ -82,7 +82,7 @@ const EditPage = () => {
   const [bannerImage, setBannerImage] = useState<string | null>(null);
   const [bannerImageFile, setBannerImageFile] = useState<File | null>(null);
   const [cardLocation, setCardLocation] = useState('California, USA');
-  
+
   const [about, setAbout] = useState('A modern digital visiting card for software designer showcasing professional details, social links, and portfolio');
   const [skills, setSkills] = useState('SEO, Content Creation, Analytics');
   const [portfolio, setPortfolio] = useState('Case Study 1, Project X');
@@ -95,7 +95,7 @@ const EditPage = () => {
   const [customTypes, setCustomTypes] = useState<string[]>([]);
   const [showCustomTypeInput, setShowCustomTypeInput] = useState(false);
   const [customTypeInput, setCustomTypeInput] = useState('');
-  
+
   const [isLoading, setIsLoading] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -105,7 +105,7 @@ const EditPage = () => {
   const [isCustomFieldName, setIsCustomFieldName] = useState(false);
 
   const socialPlatforms = [
-    'WhatsApp', 'GitHub', 'Twitter', 'Instagram', 'Facebook', 
+    'WhatsApp', 'GitHub', 'Twitter', 'Instagram', 'Facebook',
     'YouTube', 'Discord', 'Telegram', 'X', 'Other'
   ];
 
@@ -165,14 +165,14 @@ const EditPage = () => {
     if (isEditingPhone) {
       // User is trying to SAVE the local edit
       const phoneRegex = /^(?:(?:\+|0{0,2})91(\s*|[\-])?|[0]?)?([6789]\d{2}([ -]?)\d{3}([ -]?)\d{4})$/
-      
+
       // If field is not empty, check regex
       if (phone && !phoneRegex.test(phone)) {
         setPopupMessage('Invalid Phone Number. Please enter a valid Indian number.');
         setIsPopupOpen(true);
         return; // Stop here, do not disable edit mode
       }
-      
+
       // If valid or empty
       setIsEditingPhone(false);
       if (phone) toast.success('Phone number format valid');
@@ -201,7 +201,7 @@ const EditPage = () => {
           setMaidenName(card.maidenName || '');
           setPronouns(card.pronouns || '');
           setEmail(card.email || '');
-          
+
           // Phone Data Load
           setPhone(card.phone || '');
           setIncludePhone(!!card.phone); // If phone exists, toggle is ON
@@ -304,7 +304,7 @@ const EditPage = () => {
   const handleBChange1 = (e: React.ChangeEvent<HTMLInputElement>) => { const b = Number(e.target.value); setBValue1(b); const h = rgbToHex(rValue1, gValue1, b); setHexValue1(h); setSelectedColor1(h); };
   const handleHexChange1 = (e: React.ChangeEvent<HTMLInputElement>) => { setHexValue1(e.target.value); setSelectedColor1(e.target.value); };
   const handleColorInputChange1 = (e: React.ChangeEvent<HTMLInputElement>) => { setSelectedColor1(e.target.value); setHexValue1(e.target.value); };
-  
+
   const handleRChange2 = (e: React.ChangeEvent<HTMLInputElement>) => { const r = Number(e.target.value); setRValue2(r); const h = rgbToHex(r, gValue2, bValue2); setHexValue2(h); setSelectedColor2(h); };
   const handleGChange2 = (e: React.ChangeEvent<HTMLInputElement>) => { const g = Number(e.target.value); setGValue2(g); const h = rgbToHex(rValue2, g, bValue2); setHexValue2(h); setSelectedColor2(h); };
   const handleBChange2 = (e: React.ChangeEvent<HTMLInputElement>) => { const b = Number(e.target.value); setBValue2(b); const h = rgbToHex(rValue2, gValue2, b); setHexValue2(h); setSelectedColor2(h); };
@@ -319,19 +319,19 @@ const EditPage = () => {
 
 
       if (includePhone && !phone.trim()) {
-         setPopupMessage('You enabled "Show on Card" but the phone number is empty. Please enter a number or disable the toggle.');
-         setIsPopupOpen(true);
-         setIsSaving(false);
-         return;
+        setPopupMessage('You enabled "Show on Card" but the phone number is empty. Please enter a number or disable the toggle.');
+        setIsPopupOpen(true);
+        setIsSaving(false);
+        return;
       }
 
       // Final validation before sending to API
       const phoneRegex = /^(?:(?:\+|0{0,2})91(\s*[\-]\s*)?|[0]?)?[789]\d{9}$/;
       if (includePhone && phone && !phoneRegex.test(phone)) {
-         setPopupMessage('Invalid Phone Number. Please enter a valid Indian number.');
-         setIsPopupOpen(true);
-         setIsSaving(false);
-         return;
+        setPopupMessage('Invalid Phone Number. Please enter a valid Indian number.');
+        setIsPopupOpen(true);
+        setIsSaving(false);
+        return;
       }
 
       const formData = new FormData();
@@ -351,7 +351,7 @@ const EditPage = () => {
       if (headline) formData.append('headline', headline);
       if (accreditations) formData.append('accreditations', accreditations);
       if (email) formData.append('email', email);
-      
+
       // Logic: Only send phone if Toggle is TRUE
       if (includePhone && phone) {
         formData.append('phone', phone);
@@ -376,7 +376,7 @@ const EditPage = () => {
       if (experience) formData.append('experience', experience);
       if (services) formData.append('services', services);
       if (reviews) formData.append('review', reviews);
-      
+
       if (extraFields.length > 0) formData.append('customFields', JSON.stringify(extraFields));
       else formData.append('customFields', JSON.stringify([]));
 
@@ -393,13 +393,13 @@ const EditPage = () => {
       const data = await res.json();
 
       if (!res.ok) throw new Error(data.error);
-      
+
       setExistingCardId(data.card.id);
       setIsPopupOpen(true);
       setPopupMessage(isUpdating ? 'Card updated successfully!' : 'Card created successfully!');
     } catch (error: any) {
       console.error('Error saving card:', error);
-      
+
       setPopupMessage(error.message || 'Failed to save card. Please try again.');
       setIsPopupOpen(true);
     } finally {
@@ -459,86 +459,86 @@ const EditPage = () => {
                 {['Classic', 'Flat', 'Modern', 'Sleek'].map((design) => (
                   <div key={design} onClick={() => setSelectedDesign(design)} className={styles.designOption} style={{ border: design === selectedDesign ? `2px solid ${selectedColor1}` : '1px solid #ddd' }}>
                     <div className={styles.designVisual} style={{
-                        background: design === 'Classic' ? `linear-gradient(135deg, ${selectedColor1} 0%, ${selectedColor2} 100%)` : design === 'Flat' ? 'white' : design === 'Modern' ? `linear-gradient(145deg, ${selectedColor1}15, ${selectedColor2}15)` : design === 'Sleek' ? `linear-gradient(135deg, ${selectedColor1}, ${selectedColor2})` : '#dcdcdc',
-                        border: design === 'Flat' ? `2px solid ${selectedColor1}` : '1px solid #eee'
-                      }}>
-                       <div style={{width:'100%', height:'100%', position:'relative'}}></div>
+                      background: design === 'Classic' ? `linear-gradient(135deg, ${selectedColor1} 0%, ${selectedColor2} 100%)` : design === 'Flat' ? 'white' : design === 'Modern' ? `linear-gradient(145deg, ${selectedColor1}15, ${selectedColor2}15)` : design === 'Sleek' ? `linear-gradient(135deg, ${selectedColor1}, ${selectedColor2})` : '#dcdcdc',
+                      border: design === 'Flat' ? `2px solid ${selectedColor1}` : '1px solid #eee'
+                    }}>
+                      <div style={{ width: '100%', height: '100%', position: 'relative' }}></div>
                     </div>
                     <span style={{ fontSize: '12px', color: '#555' }}>{design}</span>
                   </div>
                 ))}
               </div>
             </div>
-            
+
             <div className={styles.inputGroup}>
               <h3 className={styles.subTitle}>Cover Image</h3>
               <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                <input type="file" accept="image/*" style={{ display: 'none' }} id="banner-upload" onChange={(e) => { if(e.target.files?.[0]) setBannerImage(URL.createObjectURL(e.target.files[0])) }} />
+                <input type="file" accept="image/*" style={{ display: 'none' }} id="banner-upload" onChange={(e) => { if (e.target.files?.[0]) setBannerImage(URL.createObjectURL(e.target.files[0])) }} />
                 <button onClick={() => document.getElementById('banner-upload')?.click()} className={styles.btnIcon}>Add Cover Image</button>
               </div>
             </div>
 
             <div className={styles.inputGroup}>
-               <h3 className={styles.subTitle}>Color</h3>
-               {/* Color 1 */}
-               <div className={styles.inputGroup}>
-                  <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'10px'}}>
-                     <input type="color" value={hexValue1} onChange={handleColorInputChange1} style={{width:'50px', height:'30px', border:'none', padding:'0'}} />
-                     <span>Color 1</span>
-                  </div>
-                  <div className={styles.rgbInputsWrapper}>
-                     <div className={styles.rgbInputGroup}><label className={styles.label}>R</label><input type="number" value={rValue1} onChange={handleRChange1} className={styles.inputField} /></div>
-                     <div className={styles.rgbInputGroup}><label className={styles.label}>G</label><input type="number" value={gValue1} onChange={handleGChange1} className={styles.inputField} /></div>
-                     <div className={styles.rgbInputGroup}><label className={styles.label}>B</label><input type="number" value={bValue1} onChange={handleBChange1} className={styles.inputField} /></div>
-                  </div>
-               </div>
-               {/* Color 2 */}
-               <div className={styles.inputGroup}>
-                  <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'10px'}}>
-                     <input type="color" value={hexValue2} onChange={handleColorInputChange2} style={{width:'50px', height:'30px', border:'none', padding:'0'}} />
-                     <span>Color 2</span>
-                  </div>
-                  <div className={styles.rgbInputsWrapper}>
-                     <div className={styles.rgbInputGroup}><label className={styles.label}>R:</label><input type="number" value={rValue2} onChange={handleRChange2} className={styles.inputField} /></div>
-                     <div className={styles.rgbInputGroup}><label className={styles.label}>G:</label><input type="number" value={gValue2} onChange={handleGChange2} className={styles.inputField} /></div>
-                     <div className={styles.rgbInputGroup}><label className={styles.label}>B:</label><input type="number" value={bValue2} onChange={handleBChange2} className={styles.inputField} /></div>
-                  </div>
-               </div>
+              <h3 className={styles.subTitle}>Color</h3>
+              {/* Color 1 */}
+              <div className={styles.inputGroup}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                  <input type="color" value={hexValue1} onChange={handleColorInputChange1} style={{ width: '50px', height: '30px', border: 'none', padding: '0' }} />
+                  <span>Color 1</span>
+                </div>
+                <div className={styles.rgbInputsWrapper}>
+                  <div className={styles.rgbInputGroup}><label className={styles.label}>R</label><input type="number" value={rValue1} onChange={handleRChange1} className={styles.inputField} /></div>
+                  <div className={styles.rgbInputGroup}><label className={styles.label}>G</label><input type="number" value={gValue1} onChange={handleGChange1} className={styles.inputField} /></div>
+                  <div className={styles.rgbInputGroup}><label className={styles.label}>B</label><input type="number" value={bValue1} onChange={handleBChange1} className={styles.inputField} /></div>
+                </div>
+              </div>
+              {/* Color 2 */}
+              <div className={styles.inputGroup}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                  <input type="color" value={hexValue2} onChange={handleColorInputChange2} style={{ width: '50px', height: '30px', border: 'none', padding: '0' }} />
+                  <span>Color 2</span>
+                </div>
+                <div className={styles.rgbInputsWrapper}>
+                  <div className={styles.rgbInputGroup}><label className={styles.label}>R:</label><input type="number" value={rValue2} onChange={handleRChange2} className={styles.inputField} /></div>
+                  <div className={styles.rgbInputGroup}><label className={styles.label}>G:</label><input type="number" value={gValue2} onChange={handleGChange2} className={styles.inputField} /></div>
+                  <div className={styles.rgbInputGroup}><label className={styles.label}>B:</label><input type="number" value={bValue2} onChange={handleBChange2} className={styles.inputField} /></div>
+                </div>
+              </div>
             </div>
 
             <div className={styles.inputGroup}>
-                  <label className={styles.label}>Text Color</label>
-                  <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
-                     <input 
-                       type="color" 
-                       value={textColor} 
-                       onChange={(e) => setTextColor(e.target.value)} 
-                       style={{width:'40px', height:'40px', border:'none', padding:'0', cursor:'pointer', borderRadius:'4px'}} 
-                     />
-                     <input 
-                       type="text" 
-                       value={textColor} 
-                       onChange={(e) => setTextColor(e.target.value)} 
-                       className={styles.inputField} 
-                       style={{maxWidth:'100px'}} 
-                     />
-                  </div>
-               </div>
+              <label className={styles.label}>Text Color</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <input
+                  type="color"
+                  value={textColor}
+                  onChange={(e) => setTextColor(e.target.value)}
+                  style={{ width: '40px', height: '40px', border: 'none', padding: '0', cursor: 'pointer', borderRadius: '4px' }}
+                />
+                <input
+                  type="text"
+                  value={textColor}
+                  onChange={(e) => setTextColor(e.target.value)}
+                  className={styles.inputField}
+                  style={{ maxWidth: '100px' }}
+                />
+              </div>
+            </div>
 
             <div className={styles.inputGroup}>
-               <h3 className={styles.subTitle}>Typography</h3>
-               <label className={styles.label}>Font Style</label>
-               <select 
-                 value={selectedFont} 
-                 onChange={(e) => setSelectedFont(e.target.value)} 
-                 className={styles.selectField}
-               >
-                 {FONT_OPTIONS.map((font) => (
-                   <option key={font.value} value={font.value}>
-                     {font.label}
-                   </option>
-                 ))}
-               </select>
+              <h3 className={styles.subTitle}>Typography</h3>
+              <label className={styles.label}>Font Style</label>
+              <select
+                value={selectedFont}
+                onChange={(e) => setSelectedFont(e.target.value)}
+                className={styles.selectField}
+              >
+                {FONT_OPTIONS.map((font) => (
+                  <option key={font.value} value={font.value}>
+                    {font.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </>
         );
@@ -551,7 +551,7 @@ const EditPage = () => {
               <label className={styles.label}>Full Name</label>
               <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} className={`${styles.inputField} ${styles.inputGray}`} />
             </div>
-            
+
             <div className={styles.inputGroup}>
               <label className={styles.label}>Title</label>
               <div className="dropdown-container" style={{ position: 'relative' }}>
@@ -560,16 +560,16 @@ const EditPage = () => {
                     <input type="text" value={title} onChange={(e) => { setTitle(e.target.value); setTitleSearchTerm(e.target.value); }} onFocus={handleDropdownToggle} placeholder="Search or select..." className={styles.inputField} />
                     {isDropdownOpen && (
                       <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'white', border: '1px solid #ddd', zIndex: 1000, maxHeight: '200px', overflowY: 'auto' }}>
-                         {filteredTitles.map((t, i) => (
-                           <div key={i} onClick={() => handleTitleSelect(t)} style={{padding:'10px', cursor:'pointer', borderBottom:'1px solid #eee'}}>{t}</div>
-                         ))}
+                        {filteredTitles.map((t, i) => (
+                          <div key={i} onClick={() => handleTitleSelect(t)} style={{ padding: '10px', cursor: 'pointer', borderBottom: '1px solid #eee' }}>{t}</div>
+                        ))}
                       </div>
                     )}
                   </>
                 ) : (
-                  <div style={{display:'flex', gap:'5px', flexDirection:'column'}}>
-                     <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Custom Title" className={styles.inputField} />
-                     <button onClick={() => {setIsCustomTitle(false); setIsDropdownOpen(true);}} style={{fontSize:'12px', background:'none', border:'none', color:'#666', cursor:'pointer', textAlign:'left'}}>Back to list</button>
+                  <div style={{ display: 'flex', gap: '5px', flexDirection: 'column' }}>
+                    <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Custom Title" className={styles.inputField} />
+                    <button onClick={() => { setIsCustomTitle(false); setIsDropdownOpen(true); }} style={{ fontSize: '12px', background: 'none', border: 'none', color: '#666', cursor: 'pointer', textAlign: 'left' }}>Back to list</button>
                   </div>
                 )}
               </div>
@@ -584,294 +584,294 @@ const EditPage = () => {
       case 'Fields':
         return (
           <div>
-             <div style={{ marginBottom: '30px', border: '1px solid #eee', borderRadius: '8px', padding: '15px', backgroundColor: '#f9f9f9' }}>
-               <h3 className={styles.subTitle}>Core Fields</h3>
-               <div className={styles.inputGroup} style={{background:'white', padding:'15px', borderRadius:'8px', border:'1px solid #ddd'}}>
-                  <span className={styles.label}>Email</span>
-                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={`${styles.inputField} ${styles.inputGray}`} />
-               </div>
-               
-               {/* ----------------- FIXED PHONE INPUT ----------------- */}
-               <div className={styles.inputGroup} style={{background:'white', padding:'20px', borderRadius:'12px', border:'1px solid #e5e7eb', boxShadow:'0 2px 4px rgba(0,0,0,0.02)'}}>
-                  <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'12px'}}>
-                     <span className={styles.label} style={{marginBottom:0}}>Phone Number</span>
-                     
-                     {/* Privacy Toggle */}
-                     <label style={{
-                        display:'flex', 
-                        alignItems:'center', 
-                        gap:'8px', 
-                        fontSize:'13px', 
-                        cursor:'pointer', 
-                        color:'#4b5563', 
-                        fontWeight: 500,
-                        userSelect: 'none'
-                     }}>
-                        <div style={{position:'relative', width:'36px', height:'20px'}}>
-                           <input 
-                             type="checkbox" 
-                             checked={includePhone} 
-                             onChange={(e) => {
-                                const isChecked = e.target.checked;
-                                setIncludePhone(isChecked);
-                                if (!isChecked) setIsEditingPhone(false);
-                                else if (!phone) setIsEditingPhone(true);
-                             }} 
-                             style={{opacity:0, width:0, height:0}}
-                           />
-                           <span style={{
-                              position:'absolute', cursor:'pointer', top:0, left:0, right:0, bottom:0, 
-                              backgroundColor: includePhone ? selectedColor1 : '#ccc', 
-                              transition:'.4s', borderRadius:'34px'
-                           }}></span>
-                           <span style={{
-                              position:'absolute', content:'', height:'16px', width:'16px', 
-                              left: includePhone ? '18px' : '2px', bottom:'2px', 
-                              backgroundColor:'white', transition:'.4s', borderRadius:'50%'
-                           }}></span>
-                        </div>
-                        {includePhone ? 'Visible' : 'Hidden'}
-                     </label>
-                  </div>
+            <div style={{ marginBottom: '30px', border: '1px solid #eee', borderRadius: '8px', padding: '15px', backgroundColor: '#f9f9f9' }}>
+              <h3 className={styles.subTitle}>Core Fields</h3>
+              <div className={styles.inputGroup} style={{ background: 'white', padding: '15px', borderRadius: '8px', border: '1px solid #ddd' }}>
+                <span className={styles.label}>Email</span>
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={`${styles.inputField} ${styles.inputGray}`} />
+              </div>
 
-                  {includePhone && (
-                    <div style={{display:'flex', gap:'12px', alignItems: 'stretch'}}>
-                       
-                       {/* Input Container: Grows to fill space */}
-                       <div style={{
-                          display:'flex', 
-                          alignItems:'center', 
-                          background: isEditingPhone ? '#ffffff' : '#f3f4f6', 
-                          border: isEditingPhone ? `2px solid ${selectedColor1}` : '1px solid #e5e7eb', 
-                          borderRadius:'10px', 
-                          padding:'0 16px', 
-                          flex: 1, // <--- This makes it take maximum width
-                          height: '50px', // <--- Taller Height
-                          transition: 'all 0.2s ease',
-                          boxShadow: isEditingPhone ? `0 0 0 4px ${selectedColor1}15` : 'none'
-                       }}>
-                          <span style={{marginRight:'12px', fontSize:'20px'}}>🇮🇳</span>
-                          <input 
-                            type="text" 
-                            value={phone} 
-                            onChange={(e)=>setPhone(e.target.value)} 
-                            disabled={!isEditingPhone}
-                            style={{
-                              border:'none', 
-                              background:'transparent', 
-                              outline:'none', 
-                              width:'100%', 
-                              fontSize: '16px', // Larger font
-                              color: isEditingPhone ? '#111827' : '#6b7280',
-                              fontWeight: 500,
-                              cursor: isEditingPhone ? 'text' : 'not-allowed'
-                            }} 
-                            placeholder="9876543210"
-                          />
-                       </div>
-                       
-                       {/* Action Button: Compact width */}
-                       <button 
-                         onClick={handlePhoneAction}
-                         style={{
-                           padding:'0 24px', 
-                           height: '50px', // Matches input height
-                           fontSize:'14px',
-                           fontWeight: 600,
-                           backgroundColor: isEditingPhone ? '#10b981' : 'white', // Green when saving
-                           color: isEditingPhone ? 'white' : selectedColor1,
-                           border: isEditingPhone ? 'none' : `2px solid ${selectedColor1}30`,
-                           borderRadius:'10px',
-                           cursor:'pointer',
-                           minWidth: '80px', // Fixed minimum width
-                           whiteSpace: 'nowrap',
-                           transition: 'all 0.2s',
-                           boxShadow: isEditingPhone ? '0 4px 6px -1px rgba(16, 185, 129, 0.3)' : 'none'
-                         }}
-                       >
-                         {isEditingPhone ? 'Save' : 'Edit'}
-                       </button>
+              {/* ----------------- FIXED PHONE INPUT ----------------- */}
+              <div className={styles.inputGroup} style={{ background: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <span className={styles.label} style={{ marginBottom: 0 }}>Phone Number</span>
+
+                  {/* Privacy Toggle */}
+                  <label style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    color: '#4b5563',
+                    fontWeight: 500,
+                    userSelect: 'none'
+                  }}>
+                    <div style={{ position: 'relative', width: '36px', height: '20px' }}>
+                      <input
+                        type="checkbox"
+                        checked={includePhone}
+                        onChange={(e) => {
+                          const isChecked = e.target.checked;
+                          setIncludePhone(isChecked);
+                          if (!isChecked) setIsEditingPhone(false);
+                          else if (!phone) setIsEditingPhone(true);
+                        }}
+                        style={{ opacity: 0, width: 0, height: 0 }}
+                      />
+                      <span style={{
+                        position: 'absolute', cursor: 'pointer', top: 0, left: 0, right: 0, bottom: 0,
+                        backgroundColor: includePhone ? selectedColor1 : '#ccc',
+                        transition: '.4s', borderRadius: '34px'
+                      }}></span>
+                      <span style={{
+                        position: 'absolute', content: '', height: '16px', width: '16px',
+                        left: includePhone ? '18px' : '2px', bottom: '2px',
+                        backgroundColor: 'white', transition: '.4s', borderRadius: '50%'
+                      }}></span>
                     </div>
-                  )}
-               </div>
-               {/* ---------------------------------------------------- */}
-               
-               <div className={styles.inputGroup} style={{background:'white', padding:'15px', borderRadius:'8px', border:'1px solid #ddd'}}>
-                  <span className={styles.label}>LinkedIn</span>
-                  <input type="text" value={linkedin} onChange={(e) => setLinkedin(e.target.value)} className={styles.inputField} />
-               </div>
+                    {includePhone ? 'Visible' : 'Hidden'}
+                  </label>
+                </div>
 
-               <div className={styles.inputGroup} style={{background:'white', padding:'15px', borderRadius:'8px', border:'1px solid #ddd'}}>
-                  <span className={styles.label}>Website</span>
-                  <input type="text" value={website} onChange={(e) => setWebsite(e.target.value)} className={styles.inputField} />
-               </div>
+                {includePhone && (
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'stretch' }}>
 
-               <div className={styles.inputGroup} style={{background:'white', padding:'15px', borderRadius:'8px', border:'1px solid #ddd'}}>
-                 <span className={styles.label}>Services</span>
-                 <textarea value={services} onChange={(e)=>setServices(e.target.value)} className={styles.textareaField} rows={3} placeholder="e.g. SEO Audits, Content Campaigns" />
-               </div>
-
-               <div className={styles.inputGroup} style={{background:'white', padding:'15px', borderRadius:'8px', border:'1px solid #ddd'}}>
-                 <span className={styles.label}>Portfolio</span>
-                 <input type="url" value={portfolio} onChange={(e)=>setPortfolio(e.target.value)} className={styles.inputField} placeholder="https://your-portfolio.com" />
-               </div>
-
-               <div className={styles.inputGroup} style={{background:'white', padding:'15px', borderRadius:'8px', border:'1px solid #ddd'}}>
-                 <span className={styles.label}>Skills</span>
-                 <textarea value={skills} onChange={(e)=>setSkills(e.target.value)} className={styles.textareaField} rows={3} placeholder="e.g. React, Node.js" />
-               </div>
-
-               <div className={styles.inputGroup} style={{background:'white', padding:'15px', borderRadius:'8px', border:'1px solid #ddd'}}>
-                 <span className={styles.label}>Experience</span>
-                 <textarea value={experience} onChange={(e)=>setExperience(e.target.value)} className={styles.textareaField} rows={3} placeholder="e.g. Senior Dev @ Google (2020-Present)" />
-               </div>
-
-               <div className={styles.inputGroup} style={{background:'white', padding:'15px', borderRadius:'8px', border:'1px solid #ddd'}}>
-                 <span className={styles.label}>Reviews</span>
-                 <textarea value={reviews} onChange={(e)=>setReviews(e.target.value)} className={styles.textareaField} rows={3} placeholder="Client testimonials..." />
-               </div>
-
-               <div className={styles.fieldCard}>
-                 <div className={styles.fieldHeader}>
-                    <span className={styles.label}>Document (Resume/Portfolio)</span>
-                 </div>
-                 
-                 <input 
-                   type="file" 
-                   accept=".pdf,.doc,.docx" 
-                   style={{display:'none'}} 
-                   id="doc-upload" 
-                   onChange={(e) => { if(e.target.files?.[0]) setResumeFile(e.target.files[0]) }} 
-                 />
-                 
-                 <button 
-                   onClick={() => document.getElementById('doc-upload')?.click()} 
-                   className={styles.documentUploadBtn}
-                   style={{ 
-                     color: selectedColor1, 
-                     borderColor: selectedColor1 
-                   }}
-                 >
-                   <svg 
-                     xmlns="http://www.w3.org/2000/svg" 
-                     width="20" 
-                     height="20" 
-                     viewBox="0 0 24 24" 
-                     fill="none" 
-                     stroke="currentColor" 
-                     strokeWidth="2" 
-                     strokeLinecap="round" 
-                     strokeLinejoin="round"
-                     style={{ flexShrink: 0 }}
-                   >
-                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                     <polyline points="17 8 12 3 7 8"></polyline>
-                     <line x1="12" y1="3" x2="12" y2="15"></line>
-                   </svg>
-                   <span>
-                     {resumeFile ? `Change (${resumeFile.name})` : 'Upload Document'}
-                   </span>
-                 </button>
-
-                 {resumeFile && (
-                   <button 
-                     onClick={() => setResumeFile(null)} 
-                     className={styles.documentUploadBtn}
-                     style={{
-                       marginTop:'10px', 
-                       color:'#dc2626', 
-                       borderColor:'#dc2626', 
-                       backgroundColor: '#fff5f5'
-                     }}
-                   >
-                     <svg 
-                       xmlns="http://www.w3.org/2000/svg" 
-                       width="18" 
-                       height="18" 
-                       viewBox="0 0 24 24" 
-                       fill="none" 
-                       stroke="currentColor" 
-                       strokeWidth="2" 
-                       strokeLinecap="round" 
-                       strokeLinejoin="round"
-                       style={{ flexShrink: 0 }}
-                     >
-                       <polyline points="3 6 5 6 21 6"></polyline>
-                       <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
-                     </svg>
-                     <span>Remove Document</span>
-                   </button>
-                 )}
-               </div>
-             </div>
-
-             <div style={{ marginTop: '30px' }}>
-                <h3 className={styles.subTitle}>Additional Fields</h3>
-                {extraFields.map((field) => (
-                  <div key={field.id} className={styles.inputGroup} style={{ background: 'white', padding: '15px', borderRadius: '8px', border: '1px solid #ddd' }}>
-                    <div style={{display:'flex', justifyContent:'space-between', marginBottom:'5px'}}>
-                      <span className={styles.label} style={{color: selectedColor1}}>{field.name}</span>
-                      <span onClick={() => handleDeleteField(field.id)} style={{cursor:'pointer', color:'#888'}}>Delete</span>
+                    {/* Input Container: Grows to fill space */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      background: isEditingPhone ? '#ffffff' : '#f3f4f6',
+                      border: isEditingPhone ? `2px solid ${selectedColor1}` : '1px solid #e5e7eb',
+                      borderRadius: '10px',
+                      padding: '0 16px',
+                      flex: 1, // <--- This makes it take maximum width
+                      height: '50px', // <--- Taller Height
+                      transition: 'all 0.2s ease',
+                      boxShadow: isEditingPhone ? `0 0 0 4px ${selectedColor1}15` : 'none'
+                    }}>
+                      <span style={{ marginRight: '12px', fontSize: '20px' }}>🇮🇳</span>
+                      <input
+                        type="text"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        disabled={!isEditingPhone}
+                        style={{
+                          border: 'none',
+                          background: 'transparent',
+                          outline: 'none',
+                          width: '100%',
+                          fontSize: '16px', // Larger font
+                          color: isEditingPhone ? '#111827' : '#6b7280',
+                          fontWeight: 500,
+                          cursor: isEditingPhone ? 'text' : 'not-allowed'
+                        }}
+                        placeholder="9876543210"
+                      />
                     </div>
-                    <input type="text" value={field.link} onChange={(e) => handleExtraFieldChange(field.id, e.target.value)} className={styles.inputField} placeholder="Link" />
+
+                    {/* Action Button: Compact width */}
+                    <button
+                      onClick={handlePhoneAction}
+                      style={{
+                        padding: '0 24px',
+                        height: '50px', // Matches input height
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        backgroundColor: isEditingPhone ? '#10b981' : 'white', // Green when saving
+                        color: isEditingPhone ? 'white' : selectedColor1,
+                        border: isEditingPhone ? 'none' : `2px solid ${selectedColor1}30`,
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        minWidth: '80px', // Fixed minimum width
+                        whiteSpace: 'nowrap',
+                        transition: 'all 0.2s',
+                        boxShadow: isEditingPhone ? '0 4px 6px -1px rgba(16, 185, 129, 0.3)' : 'none'
+                      }}
+                    >
+                      {isEditingPhone ? 'Save' : 'Edit'}
+                    </button>
                   </div>
-                ))}
-                
-                <button onClick={() => setIsModalOpen(true)} className={styles.btnOutline} style={{borderColor: selectedColor1, color: selectedColor1}}>+ Add Field</button>
-             </div>
+                )}
+              </div>
+              {/* ---------------------------------------------------- */}
+
+              <div className={styles.inputGroup} style={{ background: 'white', padding: '15px', borderRadius: '8px', border: '1px solid #ddd' }}>
+                <span className={styles.label}>LinkedIn</span>
+                <input type="text" value={linkedin} onChange={(e) => setLinkedin(e.target.value)} className={styles.inputField} />
+              </div>
+
+              <div className={styles.inputGroup} style={{ background: 'white', padding: '15px', borderRadius: '8px', border: '1px solid #ddd' }}>
+                <span className={styles.label}>Website</span>
+                <input type="text" value={website} onChange={(e) => setWebsite(e.target.value)} className={styles.inputField} />
+              </div>
+
+              <div className={styles.inputGroup} style={{ background: 'white', padding: '15px', borderRadius: '8px', border: '1px solid #ddd' }}>
+                <span className={styles.label}>Services</span>
+                <textarea value={services} onChange={(e) => setServices(e.target.value)} className={styles.textareaField} rows={3} placeholder="e.g. SEO Audits, Content Campaigns" />
+              </div>
+
+              <div className={styles.inputGroup} style={{ background: 'white', padding: '15px', borderRadius: '8px', border: '1px solid #ddd' }}>
+                <span className={styles.label}>Portfolio</span>
+                <input type="url" value={portfolio} onChange={(e) => setPortfolio(e.target.value)} className={styles.inputField} placeholder="https://your-portfolio.com" />
+              </div>
+
+              <div className={styles.inputGroup} style={{ background: 'white', padding: '15px', borderRadius: '8px', border: '1px solid #ddd' }}>
+                <span className={styles.label}>Skills</span>
+                <textarea value={skills} onChange={(e) => setSkills(e.target.value)} className={styles.textareaField} rows={3} placeholder="e.g. React, Node.js" />
+              </div>
+
+              <div className={styles.inputGroup} style={{ background: 'white', padding: '15px', borderRadius: '8px', border: '1px solid #ddd' }}>
+                <span className={styles.label}>Experience</span>
+                <textarea value={experience} onChange={(e) => setExperience(e.target.value)} className={styles.textareaField} rows={3} placeholder="e.g. Senior Dev @ Google (2020-Present)" />
+              </div>
+
+              <div className={styles.inputGroup} style={{ background: 'white', padding: '15px', borderRadius: '8px', border: '1px solid #ddd' }}>
+                <span className={styles.label}>Reviews</span>
+                <textarea value={reviews} onChange={(e) => setReviews(e.target.value)} className={styles.textareaField} rows={3} placeholder="Client testimonials..." />
+              </div>
+
+              <div className={styles.fieldCard}>
+                <div className={styles.fieldHeader}>
+                  <span className={styles.label}>Document (Resume/Portfolio)</span>
+                </div>
+
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  style={{ display: 'none' }}
+                  id="doc-upload"
+                  onChange={(e) => { if (e.target.files?.[0]) setResumeFile(e.target.files[0]) }}
+                />
+
+                <button
+                  onClick={() => document.getElementById('doc-upload')?.click()}
+                  className={styles.documentUploadBtn}
+                  style={{
+                    color: selectedColor1,
+                    borderColor: selectedColor1
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{ flexShrink: 0 }}
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                  </svg>
+                  <span>
+                    {resumeFile ? `Change (${resumeFile.name})` : 'Upload Document'}
+                  </span>
+                </button>
+
+                {resumeFile && (
+                  <button
+                    onClick={() => setResumeFile(null)}
+                    className={styles.documentUploadBtn}
+                    style={{
+                      marginTop: '10px',
+                      color: '#dc2626',
+                      borderColor: '#dc2626',
+                      backgroundColor: '#fff5f5'
+                    }}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      style={{ flexShrink: 0 }}
+                    >
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                    </svg>
+                    <span>Remove Document</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div style={{ marginTop: '30px' }}>
+              <h3 className={styles.subTitle}>Additional Fields</h3>
+              {extraFields.map((field) => (
+                <div key={field.id} className={styles.inputGroup} style={{ background: 'white', padding: '15px', borderRadius: '8px', border: '1px solid #ddd' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                    <span className={styles.label} style={{ color: selectedColor1 }}>{field.name}</span>
+                    <span onClick={() => handleDeleteField(field.id)} style={{ cursor: 'pointer', color: '#888' }}>Delete</span>
+                  </div>
+                  <input type="text" value={field.link} onChange={(e) => handleExtraFieldChange(field.id, e.target.value)} className={styles.inputField} placeholder="Link" />
+                </div>
+              ))}
+
+              <button onClick={() => setIsModalOpen(true)} className={styles.btnOutline} style={{ borderColor: selectedColor1, color: selectedColor1 }}>+ Add Field</button>
+            </div>
           </div>
         );
 
       case 'Card':
         return (
           <div>
-             <div className={styles.inputGroup}>
-                <label className={styles.label}>Card Name *</label>
-                <input type="text" value={cardName} onChange={(e) => setCardName(e.target.value)} className={styles.inputField} style={{borderColor: '#145dfd'}} />
-             </div>
-             <div className={styles.inputGroup}>
-                <label className={styles.label}>Card Type</label>
-                <select value={cardType} onChange={(e) => setCardType(e.target.value)} className={styles.selectField}>
-                   <option value="">Select...</option>
-                   {getAllCardTypes().map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
-             </div>
-             {!showCustomTypeInput ? (
-                <button onClick={() => setShowCustomTypeInput(true)} style={{fontSize:'12px', color:selectedColor1, background:'transparent', border:'none', cursor:'pointer'}}>+ Add Custom Type</button>
-             ) : (
-                <div style={{display:'flex', gap:'10px', marginTop:'10px'}}>
-                   <input type="text" value={customTypeInput} onChange={(e)=>setCustomTypeInput(e.target.value)} className={styles.inputField} placeholder="Enter Type" />
-                   <button onClick={handleAddCustomType} className={`${styles.baseButton} ${styles.btnPrimary}`} style={{backgroundColor:selectedColor1}}>Save</button>
-                   <button onClick={()=>{setShowCustomTypeInput(false); setCustomTypeInput('')}} className={`${styles.baseButton} ${styles.btnSecondary}`}>Cancel</button>
-                </div>
-             )}
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Card Name *</label>
+              <input type="text" value={cardName} onChange={(e) => setCardName(e.target.value)} className={styles.inputField} style={{ borderColor: '#145dfd' }} />
+            </div>
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Card Type</label>
+              <select value={cardType} onChange={(e) => setCardType(e.target.value)} className={styles.selectField}>
+                <option value="">Select...</option>
+                {getAllCardTypes().map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+            {!showCustomTypeInput ? (
+              <button onClick={() => setShowCustomTypeInput(true)} style={{ fontSize: '12px', color: selectedColor1, background: 'transparent', border: 'none', cursor: 'pointer' }}>+ Add Custom Type</button>
+            ) : (
+              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <input type="text" value={customTypeInput} onChange={(e) => setCustomTypeInput(e.target.value)} className={styles.inputField} placeholder="Enter Type" />
+                <button onClick={handleAddCustomType} className={`${styles.baseButton} ${styles.btnPrimary}`} style={{ backgroundColor: selectedColor1 }}>Save</button>
+                <button onClick={() => { setShowCustomTypeInput(false); setCustomTypeInput('') }} className={`${styles.baseButton} ${styles.btnSecondary}`}>Cancel</button>
+              </div>
+            )}
           </div>
         );
       default: return null;
     }
   };
 
-  if (isLoading) return <div className={styles.pageWrapper} style={{justifyContent:'center', alignItems:'center'}}>Loading...</div>;
+  if (isLoading) return <div className={styles.pageWrapper} style={{ justifyContent: 'center', alignItems: 'center' }}>Loading...</div>;
 
   return (
     <div className={styles.pageWrapper}>
       <div className={styles.container}>
         <div className={styles.cardPreviewWrapper}>{renderTemplatePreview()}</div>
-        
+
         <div className={styles.editPanel}>
           <div className={styles.tabContainer}>
             {['Display', 'Information', 'Fields', 'Card'].map(tab => (
               <button key={tab} onClick={() => setActiveTab(tab)} className={styles.tabButton} style={{ borderBottom: activeTab === tab ? `2px solid ${selectedColor1}` : 'none', color: activeTab === tab ? selectedColor1 : '#777' }}>{tab}</button>
             ))}
           </div>
-          
+
           {renderContent()}
 
           <div className={styles.buttonGroup}>
             <button onClick={() => router.push('/dashboard')} className={`${styles.baseButton} ${styles.btnSecondary}`}>Cancel</button>
-            
+
             {(existingCardId || cardId) && (
-               <button onClick={() => setIsDeleteConfirmOpen(true)} disabled={isDeleting} style={{backgroundColor:'#dc3545', color:'white', border:'none'}} className={styles.baseButton}>{isDeleting ? 'Deleting...' : 'Delete'}</button>
+              <button onClick={() => setIsDeleteConfirmOpen(true)} disabled={isDeleting} style={{ backgroundColor: '#dc3545', color: 'white', border: 'none' }} className={styles.baseButton}>{isDeleting ? 'Deleting...' : 'Delete'}</button>
             )}
 
             <button onClick={handleSaveCard} disabled={isSaving} className={`${styles.baseButton} ${styles.btnPrimary}`} style={{ backgroundColor: isSaving ? '#999' : selectedColor1 }}>{isSaving ? 'Saving...' : 'Save'}</button>
@@ -883,7 +883,7 @@ const EditPage = () => {
         <div className={styles.modalOverlay} onClick={() => setIsModalOpen(false)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <h3 className={styles.subTitle}>Add New Field</h3>
-            
+
             <div className={styles.inputGroup}>
               <label className={styles.label}>Field Name</label>
               {!isCustomFieldName ? (
@@ -891,7 +891,7 @@ const EditPage = () => {
                   value={socialPlatforms.includes(newFieldName) ? newFieldName : ''}
                   onChange={(e) => {
                     const val = e.target.value;
-                    if (val === 'Other') { setIsCustomFieldName(true); setNewFieldName(''); } 
+                    if (val === 'Other') { setIsCustomFieldName(true); setNewFieldName(''); }
                     else { setNewFieldName(val); }
                   }}
                   className={styles.selectField}
@@ -902,7 +902,7 @@ const EditPage = () => {
               ) : (
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <input type="text" value={newFieldName} onChange={(e) => setNewFieldName(e.target.value)} placeholder="Enter name" className={styles.inputField} autoFocus />
-                  <button onClick={() => setIsCustomFieldName(false)} className={styles.btnSecondary} style={{padding:'0 15px', fontSize:'12px'}}>Back</button>
+                  <button onClick={() => setIsCustomFieldName(false)} className={styles.btnSecondary} style={{ padding: '0 15px', fontSize: '12px' }}>Back</button>
                 </div>
               )}
             </div>
@@ -922,31 +922,31 @@ const EditPage = () => {
 
       {isPopupOpen && (
         <div className={styles.modalOverlay}>
-            <div className={styles.modalContent} style={{textAlign:'center', maxWidth:'300px'}}>
-               <p style={{marginBottom:'15px'}}>{popupMessage}</p>
-               <button onClick={() => setIsPopupOpen(false)} className={`${styles.baseButton} ${styles.btnPrimary}`} style={{backgroundColor: selectedColor1}}>Got it!</button>
-            </div>
-         </div>
-      )}
-      
-       {isDeleteConfirmOpen && (
-        <div className={styles.modalOverlay} onClick={() => setIsDeleteConfirmOpen(false)}>
-           <div className={styles.modalContent} style={{maxWidth:'350px', textAlign:'center'}} onClick={(e) => e.stopPropagation()}>
-              <h3 className={styles.subTitle} style={{color:'#dc3545'}}>Delete Card</h3>
-              <p>Are you sure? This cannot be undone.</p>
-              <div className={styles.buttonGroup} style={{justifyContent:'center'}}>
-                 <button onClick={() => setIsDeleteConfirmOpen(false)} className={`${styles.baseButton} ${styles.btnSecondary}`}>Cancel</button>
-                 <button onClick={handleDeleteCard} className={styles.baseButton} style={{backgroundColor:'#dc3545', color:'white', border:'none'}}>Delete</button>
-              </div>
-           </div>
+          <div className={styles.modalContent} style={{ textAlign: 'center', maxWidth: '300px' }}>
+            <p style={{ marginBottom: '15px' }}>{popupMessage}</p>
+            <button onClick={() => setIsPopupOpen(false)} className={`${styles.baseButton} ${styles.btnPrimary}`} style={{ backgroundColor: selectedColor1 }}>Got it!</button>
+          </div>
         </div>
-       )}
+      )}
+
+      {isDeleteConfirmOpen && (
+        <div className={styles.modalOverlay} onClick={() => setIsDeleteConfirmOpen(false)}>
+          <div className={styles.modalContent} style={{ maxWidth: '350px', textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
+            <h3 className={styles.subTitle} style={{ color: '#dc3545' }}>Delete Card</h3>
+            <p>Are you sure? This cannot be undone.</p>
+            <div className={styles.buttonGroup} style={{ justifyContent: 'center' }}>
+              <button onClick={() => setIsDeleteConfirmOpen(false)} className={`${styles.baseButton} ${styles.btnSecondary}`}>Cancel</button>
+              <button onClick={handleDeleteCard} className={styles.baseButton} style={{ backgroundColor: '#dc3545', color: 'white', border: 'none' }}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 const LoadingFallback = () => <div className="min-h-screen bg-gray-50 flex items-center justify-center">Loading...</div>;
 
-const EditPageWrapper = () => ( <Suspense fallback={<LoadingFallback />}> <EditPage /> </Suspense> );
+const EditPageWrapper = () => (<Suspense fallback={<LoadingFallback />}> <EditPage /> </Suspense>);
 
 export default EditPageWrapper;

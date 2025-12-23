@@ -68,6 +68,7 @@ const LocationSelect: React.FC<LocationSelectProps> = ({
         <input
           placeholder={placeholder}
           value={value}
+          required
           onChange={(e) => {
             onChange(e.target.value);
             setShowList(true);
@@ -135,7 +136,7 @@ const LocationSelect: React.FC<LocationSelectProps> = ({
             >
               Showing results for “{value || "all"}”
             </span>
-          </div> */}
+          </div> 
 
           {/* 2. Scrollable List Container */}
           <div

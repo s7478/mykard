@@ -190,23 +190,23 @@ function SearchPageContent() {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api/profile/getuser", { 
+        const response = await fetch("/api/profile/getuser", {
           credentials: "include",
           headers: {
             'Content-Type': 'application/json',
           }
         });
-        
+
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
           throw new Error(errorData.error || "Failed to fetch users");
         }
-        
+
         const data = await response.json();
-        
+
         // If the response is an array, use it directly, otherwise look for a 'users' property
         const users = Array.isArray(data) ? data : (data.users || []);
-        
+
         const mappedProfiles: Profile[] = users.map((user: any) => ({
           id: user.id,
           username: user.username || user.email?.split('@')[0] || `user-${Math.random().toString(36).substr(2, 5)}`,
@@ -234,7 +234,7 @@ function SearchPageContent() {
         console.error("Error fetching users:", error);
         // Fallback to dummy data in case of error
         setProfiles(dummyProfiles);
-        
+
         // Show error toast to the user
         toast.error(error instanceof Error ? error.message : 'Failed to load user profiles');
       } finally {
