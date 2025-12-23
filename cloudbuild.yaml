@@ -75,6 +75,7 @@ availableSecrets:
 
 options:
   machineType: 'E2_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
   
 images:
   - 'gcr.io/$PROJECT_ID/credlink:$COMMIT_SHA'
