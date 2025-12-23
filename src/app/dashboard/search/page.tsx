@@ -190,32 +190,56 @@ function SearchPageContent() {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api/profile/getuser", { credentials: "include" });
-        if (!response.ok) throw new Error("Failed to fetch users");
+        const response = await fetch("/api/profile/getuser", { 
+          credentials: "include",
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || "Failed to fetch users");
+        }
+        
         const data = await response.json();
-        const mappedProfiles: Profile[] = (data.users || []).map((user: any) => ({
+        
+        // If the response is an array, use it directly, otherwise look for a 'users' property
+        const users = Array.isArray(data) ? data : (data.users || []);
+        
+        const mappedProfiles: Profile[] = users.map((user: any) => ({
           id: user.id,
-          username: user.username || "user",
-          name: user.fullName || `${user.firstName || ""} ${user.lastName || ""}`.trim() || "Unknown User",
-          city: user.location || "Unknown",
-          company: user.company || undefined,
-          designation: user.title || undefined,
-          category: user.department || undefined,
-          profileImage: user.profileImage || undefined,
-          email: user.email || undefined,
-          phone: user.phone || undefined,
-          verified: user.status === "active",
-          reviews: 0,
-          views: user.views || 0,
+          username: user.username || user.email?.split('@')[0] || `user-${Math.random().toString(36).substr(2, 5)}`,
+          name: user.fullName || [user.firstName, user.lastName].filter(Boolean).join(' ').trim() || 'User',
+          city: user.location || user.city || 'Unknown',
+          company: user.company || user.organization || '',
+          designation: user.designation || user.title || user.role || '',
+          category: user.category || user.industry || '',
+          profileImage: user.profileImage || user.avatar || user.image || '',
+          email: user.email || '',
+          phone: user.phone || user.phoneNumber || '',
+          verified: user.verified || user.emailVerified || false,
+          reviews: user.reviews || user.ratingCount || 0,
+          views: user.views || user.impressions || 0,
         }));
 
-        if (mappedProfiles.length === 0) setProfiles(dummyProfiles);
-        else setProfiles(mappedProfiles);
+        // Only update profiles if we got actual data, otherwise keep the dummy data
+        if (mappedProfiles.length > 0) {
+          setProfiles(mappedProfiles);
+        } else {
+          console.warn('No user profiles found, using dummy data');
+          setProfiles(dummyProfiles);
+        }
       } catch (error) {
         console.error("Error fetching users:", error);
-        toast.error("Failed to load users");
+        // Fallback to dummy data in case of error
         setProfiles(dummyProfiles);
-      } finally { setLoading(false); }
+        
+        // Show error toast to the user
+        toast.error(error instanceof Error ? error.message : 'Failed to load user profiles');
+      } finally {
+        setLoading(false);
+      };
     };
     fetchUsers();
   }, []);
@@ -309,16 +333,16 @@ function SearchPageContent() {
 
 
   const suggestedProfiles = useMemo(() => {
-  if (!profiles || profiles.length === 0) return [];
+    if (!profiles || profiles.length === 0) return [];
 
-  return profiles
-    .filter(
-      (p) =>
-        p.designation?.toLowerCase().includes("developer") ||
-        p.category?.toLowerCase().includes("software")
-    )
-    .slice(0, 6);
-}, [profiles]);
+    return profiles
+      .filter(
+        (p) =>
+          p.designation?.toLowerCase().includes("developer") ||
+          p.category?.toLowerCase().includes("software")
+      )
+      .slice(0, 6);
+  }, [profiles]);
 
 
   return (
@@ -692,8 +716,5 @@ function SearchPageContent() {
         />
       </div>
     </div>
-  </div>
-)}    
-    </div>
-  );
+  )
 }

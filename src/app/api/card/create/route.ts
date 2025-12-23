@@ -10,56 +10,39 @@ export async function POST(req: NextRequest) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('user_token')?.value;
-   // console.log("Received token:", token);
+    // console.log("Received token:", token);
     if (!token) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
     const decoded = verify(token, JWT_SECRET) as { userId: string };
-    
+
     // Parse form data
     const formData = await req.formData();
-    
+
     // Extract name fields and construct fullName
     const firstName = formData.get('firstName') as string || '';
     const middleName = formData.get('middleName') as string || '';
     const lastName = formData.get('lastName') as string || '';
     const fullName = [firstName, middleName, lastName].filter(Boolean).join(' ').trim() || 'Unnamed';
 
-    // Extract card fields
+    // Extract card fields - only include fields that exist in the Prisma schema
     const cardData: any = {
       userId: decoded.userId,
-      cardName: formData.get('cardName') as string,
-      fullName: fullName,
-      cardActive: true,
-      firstName: firstName || undefined,
-      middleName: middleName || undefined,
-      lastName: lastName || undefined,
-      prefix: formData.get('prefix') as string || undefined,
-      suffix: formData.get('suffix') as string || undefined,
+      cardName: formData.get('cardName') as string || undefined,
+      fullName: fullName, // Add the required fullName field
       title: formData.get('title') as string || undefined,
-      company: formData.get('company') as string || undefined,
       email: formData.get('email') as string || undefined,
       phone: formData.get('phone') as string || undefined,
       location: formData.get('location') as string || undefined,
       linkedinUrl: formData.get('linkedinUrl') as string || undefined,
       websiteUrl: formData.get('websiteUrl') as string || undefined,
-      cardType: formData.get('cardType') as string || undefined,
-      selectedDesign: formData.get('selectedDesign') as string || undefined,
-      selectedColor: formData.get('selectedColor') as string || undefined,
-      selectedColor2: formData.get('selectedColor2') as string || undefined,
-      textColor : formData.get('textColor') as string || undefined,
-      selectedFont: formData.get('selectedFont') as string || undefined,
+      cardType: formData.get('cardType') as string || 'Personal',
+      selectedDesign: formData.get('selectedDesign') as string || 'Classic',
+      selectedColor: formData.get('selectedColor') as string || '#145dfd',
+      selectedFont: formData.get('selectedFont') as string || 'Arial, sans-serif',
       bio: formData.get('bio') as string || undefined,
       description: formData.get('description') as string || undefined,
-      skills: formData.get('skills') as string || undefined,
-      portfolio: formData.get('portfolio') as string || undefined,
-      experience: formData.get('experience') as string || undefined,
-      services: formData.get('services') as string || undefined,
-      review: formData.get('review') as string || undefined,
-
-      customFields: formData.get('customFields') as string || undefined,
-
       status: formData.get('status') as string || 'draft',
     };
 
@@ -69,7 +52,7 @@ export async function POST(req: NextRequest) {
     // Handle profile image upload (Firebase Storage)
     const profileImageFile = formData.get('profileImage') as File;
     const profileImageUrl = formData.get('profileImageUrl') as string;
-    
+
     if (profileImageFile && profileImageFile.size > 0) {
       const arrayBuffer = await profileImageFile.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
@@ -80,10 +63,10 @@ export async function POST(req: NextRequest) {
       const filePath = `cards/profile-images/${decoded.userId}/${timestamp}-${safeName}`;
 
       const bucket = adminStorageBucket();
-    if (!bucket) {
-      return NextResponse.json({ error: 'Firebase Storage not available during build' }, { status: 503 });
-    }
-    const fileRef = bucket.file(filePath);
+      if (!bucket) {
+        return NextResponse.json({ error: 'Firebase Storage not available during build' }, { status: 503 });
+      }
+      const fileRef = bucket.file(filePath);
 
       await fileRef.save(buffer, {
         resumable: false,
@@ -115,10 +98,10 @@ export async function POST(req: NextRequest) {
       const filePath = `cards/banner-images/${decoded.userId}/${timestamp}-${safeName}`;
 
       const bucket = adminStorageBucket();
-    if (!bucket) {
-      return NextResponse.json({ error: 'Firebase Storage not available during build' }, { status: 503 });
-    }
-    const fileRef = bucket.file(filePath);
+      if (!bucket) {
+        return NextResponse.json({ error: 'Firebase Storage not available during build' }, { status: 503 });
+      }
+      const fileRef = bucket.file(filePath);
 
       await fileRef.save(buffer, {
         resumable: false,
@@ -147,10 +130,10 @@ export async function POST(req: NextRequest) {
       const filePath = `cards/cover-images/${decoded.userId}/${timestamp}-${safeName}`;
 
       const bucket = adminStorageBucket();
-    if (!bucket) {
-      return NextResponse.json({ error: 'Firebase Storage not available during build' }, { status: 503 });
-    }
-    const fileRef = bucket.file(filePath);
+      if (!bucket) {
+        return NextResponse.json({ error: 'Firebase Storage not available during build' }, { status: 503 });
+      }
+      const fileRef = bucket.file(filePath);
 
       await fileRef.save(buffer, {
         resumable: false,
@@ -182,7 +165,7 @@ export async function POST(req: NextRequest) {
         // Use the document conversion API for DOC/DOCX conversion
         const convertFormData = new FormData();
         convertFormData.append('file', documentFile);
-        
+
         // Make internal API call to convert document
         const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
         const convertResponse = await fetch(`${baseUrl}/api/document/convert`, {
@@ -209,8 +192,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate required fields
-    if (!cardData.cardName) {
-      return NextResponse.json({ error: 'Card name is required' }, { status: 400 });
+    if (!cardData.title) {
+      return NextResponse.json({ error: 'Title is required' }, { status: 400 });
     }
 
     // Create card
@@ -251,16 +234,16 @@ export async function POST(req: NextRequest) {
       console.error('Failed to sync user profile from card data:', err);
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       message: 'Card created successfully',
-      card 
+      card
     }, { status: 201 });
 
   } catch (error: any) {
     console.error("Error creating card:", error);
-    return NextResponse.json({ 
-      error: error.message || "Failed to create card" 
+    return NextResponse.json({
+      error: error.message || "Failed to create card"
     }, { status: 500 });
   }
 }
