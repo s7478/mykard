@@ -839,9 +839,9 @@ function MessagesPageContent() {
       boxShadow: isMobile ? "none" : "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
       display: "flex",
       flexDirection: "column" as const,
+      position: "relative" as const,
       overflow: "hidden",
       border: isMobile ? "none" : `1px solid ${colors.border}`,
-      position: "relative" as const,
     },
     header: {
       padding: "10px 10px", // remove extra top space so search sits closer to header
@@ -877,7 +877,7 @@ function MessagesPageContent() {
     tabsList: {
       display: "flex",
       alignItems: "center",
-      textAlign: "center",
+      textAlign: "center" as const,
       gap: "8px",
       overflowX: "hidden" as const,
       paddingBottom: "4px",
@@ -890,7 +890,7 @@ function MessagesPageContent() {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      textAlign: "center",
+      textAlign: "center" as const,
       borderRadius: "9999px",
       fontSize: "12px",
       fontWeight: 600,
@@ -903,7 +903,7 @@ function MessagesPageContent() {
     }),
     sortSelect: {
       padding: "6px 10px",
-      textAlign: "center",
+      textAlign: "center" as const,
       // display: 'flex',
       // alignItems: 'center',
       // justifyContent: 'center',
@@ -938,7 +938,7 @@ function MessagesPageContent() {
       overflowY: "auto" as const,
       backgroundColor: "#FFFFFF",
       display: "flex",
-      flexDirection: "column",
+      flexDirection: "column" as const,
       gap: "5px",
       padding: "5px 10px",
     },
