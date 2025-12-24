@@ -504,17 +504,13 @@
   color: #9ca3af; 
 } */
 
-.searchBarInner .relativeContainer {
-  display: block;
-  width: 100%;
-}
+.searchBarInner .relativeContainer { display: block; width: 100%;}
 
 .searchInput {
   display: block;
   width: 100%;
   padding-top: 6px;
   padding-bottom: 6px;
-   /* pl-12 */
   padding-right: 16px;
   background-color: white;
   border: 2px solid #e5e7eb; /* border-2 border-gray-200 */
