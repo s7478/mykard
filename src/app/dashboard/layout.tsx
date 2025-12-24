@@ -15,6 +15,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated, checkAuth, isLoading } = useAuth();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isLgUp, setIsLgUp] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -63,13 +64,18 @@ export default function DashboardLayout({
   return (
     <div className="h-screen overflow-hidden" style={{ backgroundColor: '#f8fafc' }}>
       {/* Sidebar */}
-      <Sidebar />
+      <Sidebar 
+        isOpen={isSidebarOpen} 
+        setIsOpen={setIsSidebarOpen} 
+      />
 
       {/* Main Content */}
       <div
         className="h-full flex flex-col"
         style={{ 
-          marginLeft: isLgUp ? '18rem' : '0', // 18rem = 288px matches sidebar width
+          marginLeft: isLgUp 
+            ? (isSidebarOpen ? '18rem' : '5rem') 
+            : '0',
           background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
           transition: 'margin-left 0.3s ease-in-out'
         }}

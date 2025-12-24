@@ -369,7 +369,7 @@ export default function Homepage() {
 
             {/* Right Side - Front Image */}
             <div
-              className="relative flex justify-center items-center order-1 lg:order-2 min-h-[200px] lg:min-h-[500px]"
+              className="relative flex justify-center items-center order-1 lg:order-2 min-h-200px lg:min-h-500px"
               style={{ overflow: "visible" }}
             >
               <div
