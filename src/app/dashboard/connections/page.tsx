@@ -1123,8 +1123,8 @@ export default function DashboardContactPage() {
                             </div>
 
                             {/* Contact Info Display for Mobile */}
-                        {!isSmallScreen && showContactInfo[contact.id]?.type && (
-  <div className={styles.mobileContactInfoBox}>
+                            {!isSmallScreen && showContactInfo[contact.id]?.type && (
+                              <div className={styles.mobileContactInfoBox}>
 
 
                                 <div className={styles.mobileContactInfoText}>

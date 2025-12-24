@@ -40,7 +40,6 @@ const EditPage = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const cardId = searchParams.get('id');
-
   const [activeTab, setActiveTab] = useState('Display');
 
   useEffect(() => {
@@ -82,7 +81,6 @@ const EditPage = () => {
   const [bannerImage, setBannerImage] = useState<string | null>(null);
   const [bannerImageFile, setBannerImageFile] = useState<File | null>(null);
   const [cardLocation, setCardLocation] = useState('California, USA');
-
   const [about, setAbout] = useState('A modern digital visiting card for software designer showcasing professional details, social links, and portfolio');
   const [skills, setSkills] = useState('SEO, Content Creation, Analytics');
   const [portfolio, setPortfolio] = useState('Case Study 1, Project X');
@@ -95,7 +93,6 @@ const EditPage = () => {
   const [customTypes, setCustomTypes] = useState<string[]>([]);
   const [showCustomTypeInput, setShowCustomTypeInput] = useState(false);
   const [customTypeInput, setCustomTypeInput] = useState('');
-
   const [isLoading, setIsLoading] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -165,14 +162,12 @@ const EditPage = () => {
     if (isEditingPhone) {
       // User is trying to SAVE the local edit
       const phoneRegex = /^(?:(?:\+|0{0,2})91(\s*|[\-])?|[0]?)?([6789]\d{2}([ -]?)\d{3}([ -]?)\d{4})$/
-
       // If field is not empty, check regex
       if (phone && !phoneRegex.test(phone)) {
         setPopupMessage('Invalid Phone Number. Please enter a valid Indian number.');
         setIsPopupOpen(true);
         return; // Stop here, do not disable edit mode
       }
-
       // If valid or empty
       setIsEditingPhone(false);
       if (phone) toast.success('Phone number format valid');
@@ -304,7 +299,6 @@ const EditPage = () => {
   const handleBChange1 = (e: React.ChangeEvent<HTMLInputElement>) => { const b = Number(e.target.value); setBValue1(b); const h = rgbToHex(rValue1, gValue1, b); setHexValue1(h); setSelectedColor1(h); };
   const handleHexChange1 = (e: React.ChangeEvent<HTMLInputElement>) => { setHexValue1(e.target.value); setSelectedColor1(e.target.value); };
   const handleColorInputChange1 = (e: React.ChangeEvent<HTMLInputElement>) => { setSelectedColor1(e.target.value); setHexValue1(e.target.value); };
-
   const handleRChange2 = (e: React.ChangeEvent<HTMLInputElement>) => { const r = Number(e.target.value); setRValue2(r); const h = rgbToHex(r, gValue2, bValue2); setHexValue2(h); setSelectedColor2(h); };
   const handleGChange2 = (e: React.ChangeEvent<HTMLInputElement>) => { const g = Number(e.target.value); setGValue2(g); const h = rgbToHex(rValue2, g, bValue2); setHexValue2(h); setSelectedColor2(h); };
   const handleBChange2 = (e: React.ChangeEvent<HTMLInputElement>) => { const b = Number(e.target.value); setBValue2(b); const h = rgbToHex(rValue2, gValue2, b); setHexValue2(h); setSelectedColor2(h); };
@@ -345,13 +339,13 @@ const EditPage = () => {
       if (maidenName) formData.append('maidenName', maidenName);
       if (pronouns) formData.append('pronouns', pronouns);
       if (title) formData.append('title', title);
-      if (company) formData.append('company', company);
+      // Always send company field, even if empty, to handle clearing the field
+      formData.append('company', company || '');
       if (department) formData.append('department', department);
       if (affiliation) formData.append('affiliation', affiliation);
       if (headline) formData.append('headline', headline);
       if (accreditations) formData.append('accreditations', accreditations);
       if (email) formData.append('email', email);
-
       // Logic: Only send phone if Toggle is TRUE
       if (includePhone && phone) {
         formData.append('phone', phone);
@@ -393,13 +387,11 @@ const EditPage = () => {
       const data = await res.json();
 
       if (!res.ok) throw new Error(data.error);
-
       setExistingCardId(data.card.id);
       setIsPopupOpen(true);
       setPopupMessage(isUpdating ? 'Card updated successfully!' : 'Card created successfully!');
     } catch (error: any) {
       console.error('Error saving card:', error);
-
       setPopupMessage(error.message || 'Failed to save card. Please try again.');
       setIsPopupOpen(true);
     } finally {
@@ -551,7 +543,6 @@ const EditPage = () => {
               <label className={styles.label}>Full Name</label>
               <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} className={`${styles.inputField} ${styles.inputGray}`} />
             </div>
-
             <div className={styles.inputGroup}>
               <label className={styles.label}>Title</label>
               <div className="dropdown-container" style={{ position: 'relative' }}>
@@ -857,14 +848,12 @@ const EditPage = () => {
     <div className={styles.pageWrapper}>
       <div className={styles.container}>
         <div className={styles.cardPreviewWrapper}>{renderTemplatePreview()}</div>
-
         <div className={styles.editPanel}>
           <div className={styles.tabContainer}>
             {['Display', 'Information', 'Fields', 'Card'].map(tab => (
               <button key={tab} onClick={() => setActiveTab(tab)} className={styles.tabButton} style={{ borderBottom: activeTab === tab ? `2px solid ${selectedColor1}` : 'none', color: activeTab === tab ? selectedColor1 : '#777' }}>{tab}</button>
             ))}
           </div>
-
           {renderContent()}
 
           <div className={styles.buttonGroup}>
@@ -883,7 +872,6 @@ const EditPage = () => {
         <div className={styles.modalOverlay} onClick={() => setIsModalOpen(false)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <h3 className={styles.subTitle}>Add New Field</h3>
-
             <div className={styles.inputGroup}>
               <label className={styles.label}>Field Name</label>
               {!isCustomFieldName ? (
