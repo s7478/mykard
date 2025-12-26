@@ -47,7 +47,7 @@ export async function PATCH(
     
     // Personal Information - Extract name fields
    const firstName = formData.get('firstName') as string | null;
-    if (firstName !== null) updateData.firstName = firstName ?? "";
+    if (firstName !== null) updateData.firstName = firstName || undefined;
 
     const middleName = formData.get('middleName') as string | null;
     updateData.middleName = middleName ?? "";
@@ -113,19 +113,19 @@ export async function PATCH(
     }
     
     const emailLink = formData.get('emailLink') as string;
-    if (emailLink !== null) updateData.emailLink = emailLink || undefined;
+    updateData.emailLink = emailLink || undefined;
     
     const phoneLink = formData.get('phoneLink') as string;
-    if (phoneLink !== null) updateData.phoneLink = phoneLink || undefined;
+    updateData.phoneLink = phoneLink || undefined;
     
     const location = formData.get('location') as string;
-    if (location !== null) updateData.location = location || undefined;
+    updateData.location = location || '';
     
     const linkedinUrl = formData.get('linkedinUrl') as string;
-    if (linkedinUrl !== null) updateData.linkedinUrl = linkedinUrl || undefined;
+    updateData.linkedinUrl = linkedinUrl || '';
     
     const websiteUrl = formData.get('websiteUrl') as string;
-    if (websiteUrl !== null) updateData.websiteUrl = websiteUrl || undefined;
+    updateData.websiteUrl = websiteUrl || '';
 
     // Card Customization
     const cardName = formData.get('cardName') as string;
@@ -151,31 +151,29 @@ export async function PATCH(
 
     // Content
     const bio = formData.get('bio') as string;
-    if (bio !== null) updateData.bio = bio || undefined;
+    updateData.bio = bio || '';
     
     const description = formData.get('description') as string;
-    if (description !== null) updateData.description = description || undefined;
+    updateData.description = description || '';
 
     // Card Sections
     const skills = formData.get('skills') as string;
-    if (skills !== null) updateData.skills = skills || undefined;
-    
+    updateData.skills = skills || '';
+
     const portfolio = formData.get('portfolio') as string;
-    if (portfolio !== null) updateData.portfolio = portfolio || undefined;
-    
+    updateData.portfolio = portfolio || '';
+
     const experience = formData.get('experience') as string;
-    if (experience !== null) updateData.experience = experience || undefined;
+    updateData.experience = experience || '';
     
     const services = formData.get('services') as string;
-    if (services !== null) updateData.services = services || undefined;
-    
-    const review = formData.get('review') as string;
-    if (review !== null) updateData.review = review || undefined;
+    updateData.services = services || '';
 
+    const review = formData.get('review') as string;
+    updateData.review = review || '';
 
     const customFields = formData.get('customFields') as string;
-    if (customFields !== null) updateData.customFields = customFields || undefined;
-    
+    if (customFields !== null) updateData.customFields = customFields || '';
 
 
     // Status

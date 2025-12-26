@@ -388,9 +388,9 @@ function SearchPageContent() {
         }
         .avatar { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:22px; color:#fff; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); box-shadow: 0 6px 18px rgba(99,102,241,0.08); overflow:hidden; }
         .name { font-weight: 600; font-size: 0.95rem; color: #1e293b; margin: 0; }
-        .designation { font-size: 0.9rem; color: #64748b; margin: 2px 0; }
-        .company { font-size: 0.9rem; color: #94a3b8; margin: 1px 0; }
-        .city { font-size: 0.9rem; color: #94a3b8; margin-top: 4px; }
+        .designation { font-size: 0.9rem; color: #64748b; margin-top: 1px; }
+        .company { font-size: 0.9rem; color: #94a3b8; margin-top: 1px; }
+        .city { font-size: 0.9rem; color: #94a3b8; margin-top: 1px; }
 
         .connect { 
           padding: 8px 16px; 
@@ -455,6 +455,8 @@ function SearchPageContent() {
             margin-top: 0.75rem;
             gap: 0.6rem;
             padding-bottom: 0.5rem;
+            display: flex;
+            flex-direction: column;
           }
           .card { 
             padding: 0.7rem;
@@ -476,7 +478,7 @@ function SearchPageContent() {
           .designation, .company, .city {
             font-size: 0.75rem;
             line-height: 1.2;
-            margin: 0;
+            margin-top: 1px;
           }
           .connect {
             padding: 6px 12px;
@@ -496,7 +498,7 @@ function SearchPageContent() {
         }
 
         /* medium screens */
-        @media (max-width: 980px) and (min-width: 721px) {
+        @media (max-width: 1023px) and (min-width: 721px) {
           .grid { grid-template-columns: repeat(2, 1fr); }
         }
 
