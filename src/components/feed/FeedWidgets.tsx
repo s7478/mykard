@@ -1,115 +1,301 @@
 "use client";
-import React from "react";
+
+import React, { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { MoreHorizontal, Bookmark, UserPlus, QrCode, Heart, MessageCircle } from "lucide-react";
+import {
+  MoreHorizontal,
+  Bookmark,
+  QrCode,
+  Check,
+  MessageCircle,
+  Heart,
+  Share2,
+} from "lucide-react";
 
-export const PromoBanner = () => {
-  return (
-    <div className="relative overflow-hidden rounded-2xl bg-linear-to-r from-blue-600 to-indigo-600 p-8 text-white shadow-lg shadow-blue-200">
-      <div className="relative z-10 max-w-lg">
-        <h2 className="text-2xl font-bold leading-tight mb-3">
-          More Than a Card—<br/>It's How Connections Begin.
-        </h2>
-        <p className="text-blue-100 mb-6 text-sm font-medium opacity-90">
-          Turn every introduction into an opportunity. Stand out with a digital profile that works for you.
-        </p>
-        
-        <Link 
-          href="/dashboard/create"
-          className="inline-flex items-center justify-center px-6 py-3 bg-white text-blue-700 font-bold rounded-xl hover:bg-blue-50 active:scale-95 transition-all shadow-sm text-sm"
-        >
-          Create Your Free Card
-        </Link>
-      </div>
-      
-      {/* Abstract Shapes */}
-      <div className="absolute -right-16 -top-16 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute right-10 -bottom-20px w-32 h-32 bg-blue-400/20 rounded-full blur-2xl pointer-events-none"></div>
-    </div>
-  );
+// Helper for Text Truncation (The "..." logic)
+const truncateStyle: CSSProperties = {
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
 };
 
-export const PostCard = () => {
-  return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 transition-shadow hover:shadow-md">
-      {/* Header */}
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex gap-3">
-          <div className="relative w-12 h-12 rounded-full bg-slate-100 border border-slate-200 overflow-hidden">
-             <Image src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sanya" alt="User" fill className="object-cover" unoptimized />
-          </div>
-          <div>
-            <h3 className="font-bold text-slate-900 flex items-center gap-1.5 text-base">
-              Sanya Kapoor 
-              <span className="bg-blue-100 text-blue-600 p-0.5 rounded-full text-[10px]"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><path d="M20 6L9 17l-5-5"/></svg></span>
-            </h3>
-            <p className="text-slate-500 text-xs font-medium">UI/UX Designer • Startup Inc.</p>
-            <p className="text-slate-400 text-[10px] mt-0.5">2 hours ago</p>
-          </div>
-        </div>
-        <button className="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-50">
-          <MoreHorizontal size={20} />
-        </button>
-      </div>
+const styles: Record<string, CSSProperties> = {
+  pageWrapper: {
+    minHeight: "100vh",
+    backgroundColor: "#F3F4F6",
+    padding: "20px 16px", // Reduced padding for mobile
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  feedContainer: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
+    width: "100%",
+    maxWidth: "600px",
+    margin: "0 auto",
+  },
+  // Promo Banner
+  promoWrapper: {
+    position: "relative",
+    overflow: "hidden",
+    borderRadius: "24px",
+    background: "linear-gradient(135deg, #2563eb, #4338ca)",
+    padding: "30px",
+    color: "#ffffff",
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap", // Allows wrapping on mobile
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "20px",
+    boxShadow: "0 10px 15px -3px rgba(59, 130, 246, 0.2)",
+  },
+  promoContent: {
+    position: "relative",
+    zIndex: 10,
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+    flex: "1 1 300px", // Takes space but allows shrinking
+    textAlign: "left",
+  },
+  promoTitle: {
+    fontSize: "24px",
+    fontWeight: "900",
+    lineHeight: "1.2",
+    margin: 0,
+    textAlign: "left",
+  },
+  promoBtn: {
+    padding: "10px 24px",
+    backgroundColor: "#ffffff",
+    color: "#1d4ed8",
+    fontWeight: "700",
+    borderRadius: "9999px",
+    textTransform: "uppercase",
+    fontSize: "13px",
+    border: "none",
+    cursor: "pointer",
+    textDecoration: "none",
+    width: "fit-content",
+  },
+  // Post Card
+  postCard: {
+    backgroundColor: "#ffffff",
+    border: "1px solid #f1f5f9",
+    borderRadius: "20px",
+    padding: "20px",
+    width: "100%",
+    boxSizing: "border-box",
+  },
+  postHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "12px",
+    width: "100%",
+  },
+  avatarContainer: {
+    position: "relative",
+    width: "48px",
+    height: "48px",
+    borderRadius: "50%",
+    overflow: "hidden",
+    flexShrink: 0,
+  },
+  postMeta: {
+    display: "flex",
+    flexDirection: "column",
+    marginLeft: "12px",
+    flex: 1,
+    minWidth: 0, // Critical for truncation to work in flex
+    textAlign: "left",
+  },
+  postName: {
+    fontWeight: "700",
+    color: "#0f172a",
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    fontSize: "15px",
+    margin: 0,
+    ...truncateStyle, // Apply "..."
+  },
+  postBody: {
+    color: "#1e293b",
+    fontSize: "14px",
+    lineHeight: "1.5",
+    marginBottom: "16px",
+    textAlign: "left",
+    wordBreak: "break-word",
+  },
+  // Action Bar
+  actionRow: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingTop: "12px",
+    borderTop: "1px solid #f8fafc",
+    gap: "10px",
+    flexWrap: "wrap",
+  },
+  interactionGroup: {
+    display: "flex",
+    alignItems: "center",
+    gap: "16px",
+    color: "#64748b",
+  },
+  iconBtn: {
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+    background: "none",
+    border: "none",
+    cursor: "pointer",
+    fontSize: "13px",
+    fontWeight: "600",
+    color: "inherit",
+  },
+  connectBtn: {
+    backgroundColor: "#2563eb",
+    color: "#ffffff",
+    padding: "6px 16px",
+    borderRadius: "9999px",
+    fontSize: "12px",
+    fontWeight: "700",
+    border: "none",
+    cursor: "pointer",
+  },
+  // Widget
+  widgetWrapper: {
+    backgroundColor: "#ffffff",
+    borderRadius: "20px",
+    border: "1px solid #f1f5f9",
+    padding: "20px",
+    textAlign: "left",
+  },
+  designerList: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "16px",
+  },
+};
 
-      {/* Content */}
-      <div className="mb-4 pl-60px"> {/* Indent content to align with text */}
-        <p className="text-slate-700 leading-relaxed mb-3 text-sm">
-          Creative designer passionate about user-centric experiences. Connect for collaborations in Nagpur! 🚀
-        </p>
-        <div className="flex gap-2 flex-wrap">
-          {['#Design', '#Figma', '#UX'].map(tag => (
-            <span key={tag} className="text-blue-600 text-xs font-semibold hover:underline cursor-pointer">
-              {tag}
-            </span>
-          ))}
+// --- COMPONENTS ---
+
+export const PromoBanner = () => (
+  <div style={styles.promoWrapper}>
+    <div style={styles.promoContent}>
+      <h2 style={styles.promoTitle}>
+        More Than a Card— It&apos;s How Connections Begin.
+      </h2>
+      <p style={{ color: "#dbeafe", opacity: 0.9, fontSize: "13px", margin: 0 }}>
+        Stand out with a digital profile that works for you.
+      </p>
+      <Link href="/dashboard/create" style={styles.promoBtn}>
+        Create Free Card
+      </Link>
+    </div>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+      <QrCode size={80} style={{ opacity: 0.3, color: "white" }} />
+    </div>
+  </div>
+);
+
+export const PostCard = () => (
+  <div style={styles.postCard}>
+    <div style={styles.postHeader}>
+      <div style={{ display: "flex", alignItems: "center", minWidth: 0, flex: 1 }}>
+        <div style={styles.avatarContainer}>
+          <Image
+            src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sanya"
+            alt="User"
+            fill
+            style={{ objectFit: "cover" }}
+            unoptimized
+          />
+        </div>
+        <div style={styles.postMeta}>
+          <h3 style={styles.postName}>
+            Sanya Kapoor Very Long Name Example
+            <Check size={14} style={{ backgroundColor: "#2563eb", color: "white", borderRadius: "50%", padding: "2px", flexShrink: 0 }} />
+          </h3>
+          <p style={{ color: "#64748b", fontSize: "12px", margin: 0, ...truncateStyle }}>
+            UI/UX Designer • @sanya_ux_designer_official
+          </p>
         </div>
       </div>
+      <button style={{ background: "none", border: "none", padding: "4px", color: "#94a3b8" }}>
+        <MoreHorizontal size={20} />
+      </button>
+    </div>
 
-      {/* Action Buttons */}
-      <div className="flex items-center gap-3 pt-4 border-t border-slate-50">
-        <button className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50 hover:border-slate-300 transition-all text-sm group">
-          <QrCode size={16} className="text-slate-500 group-hover:text-slate-700" />
-          View Card
-        </button>
-        <button className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-blue-50 text-blue-700 font-semibold hover:bg-blue-100 transition-all text-sm">
-          <UserPlus size={16} />
-          Connect
-        </button>
-        <button className="p-2.5 rounded-xl border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors">
-          <Bookmark size={20} />
-        </button>
+    <div style={styles.postBody}>
+      <p style={{ margin: "0 0 12px 0" }}>
+        Creative designer passionate about user-centric experiences. Connect for Nagpur collaborations! 🚀
+      </p>
+      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "12px" }}>
+        {["#Design", "#Figma", "#UX"].map((tag) => (
+          <span key={tag} style={{ color: "#2563eb", fontSize: "13px", fontWeight: "700" }}>{tag}</span>
+        ))}
+      </div>
+      <div style={styles.actionRow}>
+        <div style={styles.interactionGroup}>
+          <button style={styles.iconBtn}><Heart size={18} /> 1.2k</button>
+          <button style={styles.iconBtn}><MessageCircle size={18} /> 24</button>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <button style={styles.connectBtn}>Connect</button>
+          <Bookmark size={18} color="#94a3b8" />
+        </div>
       </div>
     </div>
-  );
-};
+  </div>
+);
 
 export const TopDesignersWidget = () => {
   const designers = [
-    { name: "Rahul S.", img: "Rahul" },
+    { name: "Rahul Sharma Professional Designer", img: "Rahul" },
     { name: "Neha T.", img: "Neha" },
-    { name: "Priya T.", img: "Priya" },
-    { name: "Design", img: "Design" },
   ];
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-      <div className="flex justify-between items-center mb-5">
-        <h3 className="font-bold text-slate-900">Top Designers in Nagpur</h3>
-        <Link href="/search" className="text-xs text-blue-600 font-semibold hover:underline">View All</Link>
+    <div style={styles.widgetWrapper}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
+        <h3 style={{ margin: 0, fontSize: "16px", fontWeight: "700" }}>Trending</h3>
+        <Link href="/search" style={{ fontSize: "12px", color: "#2563eb", textDecoration: "none", fontWeight: "700" }}>
+          VIEW ALL
+        </Link>
       </div>
-      
-      <div className="grid grid-cols-4 gap-4">
+      <div style={styles.designerList}>
         {designers.map((d, i) => (
-          <div key={i} className="flex flex-col items-center group cursor-pointer">
-            <div className="w-full aspect-square rounded-xl bg-slate-50 border border-slate-100 overflow-hidden mb-2 relative group-hover:border-blue-200 transition-colors">
-               <Image src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${d.img}`} alt={d.name} fill className="object-cover" unoptimized />
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
+            <div style={{ position: "relative", width: "40px", height: "40px", borderRadius: "10px", overflow: "hidden", flexShrink: 0 }}>
+              <Image src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${d.img}`} alt={d.name} fill unoptimized />
             </div>
-            <span className="text-xs font-medium text-slate-600 group-hover:text-blue-600 text-center truncate w-full">{d.name}</span>
+            <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
+              <span style={{ fontSize: "14px", fontWeight: "700", ...truncateStyle }}>{d.name}</span>
+              <span style={{ fontSize: "11px", color: "#94a3b8" }}>NAGPUR, IN</span>
+            </div>
           </div>
         ))}
       </div>
     </div>
   );
 };
+
+export default function FeedPage() {
+  return (
+    <div style={styles.pageWrapper}>
+      <div style={styles.feedContainer}>
+        <PromoBanner />
+        <PostCard />
+        <PostCard />
+        <TopDesignersWidget />
+      </div>
+    </div>
+  );
+}
