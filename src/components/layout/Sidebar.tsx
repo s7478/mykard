@@ -27,13 +27,15 @@ interface SidebarProps {
 }
 
 // 2. Main Component Definition (Accepting Props)
-export default function Sidebar({ isOpen = true, setIsOpen }: SidebarProps) {
+export default function Sidebar({ isOpen = false, setIsOpen }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { logout } = useAuth();
 
   // 3. Derived state: If it's not Open, it is Collapsed.
   const isCollapsed = !isOpen;
+
+  // no automatic open on mount; parent controls initial state
 
   // 4. Toggle function using the Parent's state setter
   const toggleSidebar = () => {
@@ -318,6 +320,9 @@ export default function Sidebar({ isOpen = true, setIsOpen }: SidebarProps) {
 
       {/* Mobile Bottom Navigation */}
       <nav className="bottomNav">
+        <Link href="/dashboard/feed" className={`bottomNavItem ${pathname === "/dashboard/feed" ? "bottomNavItemActive" : ""}`}>
+          <span className="bottomNavIcon"><Newspaper/></span>
+        </Link>
         <Link href="/dashboard" className={`bottomNavItem ${pathname === "/dashboard" ? "bottomNavItemActive" : ""}`}>
           <span className="bottomNavIcon"><LayoutDashboard /></span>
         </Link>

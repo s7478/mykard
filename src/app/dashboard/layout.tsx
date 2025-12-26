@@ -15,7 +15,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated, checkAuth, isLoading } = useAuth();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLgUp, setIsLgUp] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -63,9 +63,9 @@ export default function DashboardLayout({
 
   return (
     <div className="h-screen overflow-hidden" style={{ backgroundColor: '#f8fafc' }}>
-      {/* Sidebar */}
+      {/* Sidebar - default closed on small screens, open on lg+ */}
       <Sidebar 
-        isOpen={isSidebarOpen} 
+        isOpen={isLgUp ? isSidebarOpen : false} 
         setIsOpen={setIsSidebarOpen} 
       />
 
