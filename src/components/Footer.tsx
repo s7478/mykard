@@ -1,462 +1,437 @@
+
+
+//kanchan-------------------------
+
 'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Linkedin, Twitter, Instagram, Mail, MapPin, Phone, Sparkles } from "lucide-react";
-import '../app/globals.css';
+import { Facebook, Instagram, Linkedin, X, Mail, MapPin } from "lucide-react";
 import { useState, useEffect } from 'react';
 
-// Smooth scroll helper for in-page navigation without changing URL
 const scrollToSection = (sectionId: string) => {
   if (typeof document === 'undefined') return;
   const element = document.getElementById(sectionId);
   if (element) {
-    element.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    });
+    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 };
 
 export default function Footer() {
-  const [currentYear, setCurrentYear] = useState(2025); // Default to a reasonable year
+  const [currentYear, setCurrentYear] = useState(2025);
 
   useEffect(() => {
     setCurrentYear(new Date().getFullYear());
   }, []);
 
-  // Handle navigation to a section on the homepage without changing URL (no #hash)
   const handleNavigateToSection = (sectionId: string) => {
     if (typeof window === 'undefined') return;
-    const onHome = window.location.pathname === '/';
-    if (onHome) {
+    if (window.location.pathname === '/') {
       scrollToSection(sectionId);
     } else {
-      try {
-        sessionStorage.setItem('scrollTarget', sectionId);
-      } catch {}
+      sessionStorage.setItem('scrollTarget', sectionId);
       window.location.href = '/';
     }
   };
 
   return (
     <footer style={{
-      marginTop: 'auto',
-      background: 'linear-gradient(180deg, rgba(0, 102, 255, 0.02) 0%, rgba(0, 102, 255, 0.08) 100%)',
-      borderTop: '1px solid rgba(0, 102, 255, 0.2)',
+      background: '#3B82F6', // Solid professional blue from image
+      color: '#000000',      // Black text as per design
       position: 'relative',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      padding: '4rem 2rem 2rem'
     }}>
-      {/* Decorative Background Pattern */}
+      {/* Background Watermark */}
       <div style={{
         position: 'absolute',
-        inset: 0,
-        opacity: 0.03,
-        backgroundImage: 'radial-gradient(circle at 2px 2px, #0066FF 1px, transparent 0)',
-        backgroundSize: '40px 40px',
-        pointerEvents: 'none'
-      }} />
+        bottom: '20%',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        fontSize: '15vw',
+        fontWeight: '900',
+        whiteSpace: 'nowrap',
+        pointerEvents: 'none',
+        zIndex: 0,
+        fontFamily: '"Plus Jakarta Sans", sans-serif',
+        lineHeight: '1',
+        marginBottom: '1rem',
+        userSelect: 'none',
+
+        /* --- LIGHT WHITE TO FAINTER WHITE GRADIENT --- */
+        // 180deg flows from Top to Bottom
+        // rgba(255, 255, 255, 0.2) is a soft light white
+        // rgba(255, 255, 255, 0.05) is a much lighter, barely-there white
+        background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 100%)',
+
+        // Clips the background to the text
+        WebkitBackgroundClip: 'text',
+        backgroundClip: 'text',
+
+        // Ensures the gradient shows through by making the fill transparent
+        WebkitTextFillColor: 'transparent',
+        color: 'transparent',
+      }}>
+        MyKard
+      </div>
+
       <div style={{
-        maxWidth: '1280px',
+        maxWidth: '1200px',
         margin: '0 auto',
-        padding: '3rem 1.5rem 1rem',
         position: 'relative',
         zIndex: 1
       }}>
-        {/* Top Section - Brand & CTA */}
-        
-        {/* Main Footer Grid */}
+        {/* Main Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '3rem',
-          marginBottom: '3rem',
-          textAlign: 'center'
+          gridTemplateColumns: '1.5fr 1fr 1fr 1fr',
+          gap: '2rem',
+          marginBottom: '4rem'
         }}>
-          {/* Quick Links Column */}
-          <div>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              marginBottom: '1.5rem'
-            }}>
-              <div style={{
-                width: '32px',
-                height: '2px',
-                background: 'linear-gradient(90deg, #0066FF 0%, transparent 100%)'
-              }} />
-              <h4 style={{
-                fontSize: '0.875rem',
-                fontWeight: '700',
-                color: '#2C3E50',
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
-                margin: 0
-              }}>
-                Quick Links
-              </h4>
-            </div>
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '1rem'
-            }}>
-              {[{ name: 'Home', path: '/' }, { name: 'Features', sectionId: 'build-credibility' }, { name: 'Search', sectionId: 'find-digital-card' }, { name: 'About Us', sectionId: 'what-is-digital-card' }]
-                .map((link, idx) => (
-                  link.path ? (
-                    <Link
-                      key={idx}
-                      href={link.path}
-                      style={{
-                        color: '#6B7280',
-                        fontSize: '0.95rem',
-                        fontWeight: '500',
-                        textDecoration: 'none',
-                        transition: 'all 0.2s ease',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.5rem'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.color = '#0066FF';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.color = '#6B7280';
-                      }}
-                    >
-                      {link.name}
-                    </Link>
-                  ) : (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => scrollToSection(link.sectionId!)}
-                      style={{
-                        color: '#6B7280',
-                        fontSize: '0.95rem',
-                        fontWeight: '500',
-                        textDecoration: 'none',
-                        transition: 'all 0.2s ease',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.5rem',
-                        background: 'transparent',
-                        border: 'none',
-                        padding: 0,
-                        cursor: 'pointer',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.color = '#0066FF';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.color = '#6B7280';
-                      }}
-                    >
-                      {link.name}
-                    </button>
-                  )
-                ))}
-            </div>
-          </div>
-          {/* Support Column */}
-          <div>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              marginBottom: '1.5rem'
-            }}>
-              <div style={{
-                width: '32px',
-                height: '2px',
-                background: 'linear-gradient(90deg, #0066FF 0%, transparent 100%)'
-              }} />
-              <h4 style={{
-                fontSize: '0.875rem',
-                fontWeight: '700',
-                color: '#2C3E50',
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
-                margin: 0
-              }}>
-                Support
-              </h4>
-            </div>
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '1rem'
-            }}>
-              {[
-                { name: 'FAQ', sectionId: 'faq' as const },
-                { name: 'Terms of Service', path: '/terms' },
-                { name: 'Privacy Policy', path: '/privacy' }
-              ].map((link, idx) => (
-                link.path ? (
-                  <Link
-                    key={idx}
-                    href={link.path}
-                    style={{
-                      color: '#6B7280',
-                      fontSize: '0.95rem',
-                      fontWeight: '500',
-                      textDecoration: 'none',
-                      transition: 'all 0.2s ease',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.5rem'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.color = '#0066FF';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.color = '#6B7280';
-                    }}
-                  >
-                    {link.name}
-                  </Link>
-                ) : (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleNavigateToSection((link as any).sectionId)}
-                    style={{
-                      color: '#6B7280',
-                      fontSize: '0.95rem',
-                      fontWeight: '500',
-                      textDecoration: 'none',
-                      transition: 'all 0.2s ease',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.5rem',
-                      background: 'transparent',
-                      border: 'none',
-                      padding: 0,
-                      cursor: 'pointer',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.color = '#0066FF';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.color = '#6B7280';
-                    }}
-                  >
-                    {link.name}
-                  </button>
-                )
-              ))}
-            </div>
-          </div>
-          {/* Contact Column */}
-          <div>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              marginBottom: '1.5rem'
-            }}>
-              <div style={{
-                width: '32px',
-                height: '2px',
-                background: 'linear-gradient(90deg, #0066FF 0%, transparent 100%)'
-              }} />
-              <h4 style={{
-                fontSize: '0.875rem',
-                fontWeight: '700',
-                color: '#2C3E50',
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
-                margin: 0
-              }}>
-                Contact
-              </h4>
-            </div>
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '1rem'
-            }}>
-              {[{"Icon": Mail, "text": "support@mykard.in", "href": "mailto:support@mykard.in"},  {"Icon": MapPin, "text": "India", "href": "#"}]
-                .map((item, idx) => (
-                  <a
-                    key={idx}
-                    href={item.href}
-                    style={{
-                      color: '#6B7280',
-                      fontSize: '0.95rem',
-                      fontWeight: '500',
-                      textDecoration: 'none',
-                      transition: 'color 0.2s ease',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.75rem'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.color = '#0066FF'}
-                    onMouseLeave={(e) => e.currentTarget.style.color = '#6B7280'}
-                  >
-                    <item.Icon size={18} style={{ flexShrink: 0 }} />
-                    {item.text}
-                  </a>
-                ))}
-            </div>
-          </div>
-          {/* Social & Newsletter Column */}
-          {/* <div> */}
-            {/* <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              marginBottom: '1.5rem'
-            }}> */}
-              {/* <div style={{
-                width: '32px',
-                height: '2px',
-                background: 'linear-gradient(90deg, #0066FF 0%, transparent 100%)'
-              }} /> */}
-              {/* <h4 style={{
-                fontSize: '0.875rem',
-                fontWeight: '700',
-                color: '#2C3E50',
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
-                margin: 0
-              }}>
-                Connect
-              </h4> */}
-            {/* </div> */}
-            
-            {/* Social Icons */}
-            {/* <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              gap: '0.75rem',
-              marginBottom: '1.5rem'
-            }}>
-              {[{"Icon": Linkedin, "label": "LinkedIn", "url": "https://linkedin.com"}, {"Icon": Twitter, "label": "Twitter", "url": "https://twitter.com"}, {"Icon": Instagram, "label": "Instagram", "url": "https://instagram.com"}]
-                .map(({
-                  Icon,
-                  label,
-                  url
-                }, idx) => (
-                  <a
-                    key={idx}
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      width: '44px',
-                      height: '44px',
-                      background: 'rgba(0, 102, 255, 0.1)',
-                      color: '#0066FF',
-                      borderRadius: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      transition: 'all 0.3s ease',
-                      textDecoration: 'none',
-                      border: '1px solid rgba(0, 102, 255, 0.2)'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'linear-gradient(135deg, #0066FF 0%, #00D2FF 100%)';
-                      e.currentTarget.style.color = 'white';
-                      e.currentTarget.style.transform = 'translateY(-3px) rotate(5deg)';
-                      e.currentTarget.style.boxShadow = '0 8px 20px rgba(0, 102, 255, 0.3)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'rgba(0, 102, 255, 0.1)';
-                      e.currentTarget.style.color = '#0066FF';
-                      e.currentTarget.style.transform = 'translateY(0) rotate(0deg)';
-                      e.currentTarget.style.boxShadow = 'none';
-                    }}
-                    aria-label={label}
-                  >
-                    <Icon size={20} />
-                  </a>
-                ))}
-            </div> */}
-            {/* Newsletter */}
-           
-            {/* <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              maxWidth: '100%'
-            }}>
-              
-              
-            </div>
-          </div> */}
-        </div>
-        {/* Bottom Bar */}
-        <div style={{
-          paddingTop: '2rem',
-          borderTop: '1px solid rgba(0, 102, 255, 0.2)',
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexWrap: 'wrap',
-          gap: '1rem',
-          textAlign: 'center'
-        }}>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '0'
-          }}>
+          {/* Brand Info */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <Image
+              src="/assets/mklogo.png"
+              alt="MyKard Logo"
+              width={140}
+              height={50}
+              className="object-contain"
+            />
             <p style={{
               fontSize: '1rem',
-              color: '#6B7280',
-              margin: 0,
-              fontWeight: '400',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem'
+              lineHeight: '1.6',
+              maxWidth: '350px',
+              fontWeight: '500',
+              color: '#000000'
             }}>
-              <Image
-                src="/assets/headerlogo.png"
-                alt="Logo"
-                width={112}
-                height={112}
-                className="w-28 h-16 object-contain"
+              "MyKard enables users to turn static contact details into dynamic professionals identites - making connections easier to share, save, and sustain."
+            </p>
+            {/* Social Icons Aligned with Brand */}
+            <div style={{ display: 'flex', gap: '1.5rem', marginTop: '1rem' }}>
+              <Instagram
+                size={28}
+                className="cursor-pointer transition-all duration-300"
+                style={{
+                  color: '#000',
+                  transition: 'all 0.3s ease',
+                  opacity: 0.8
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = '1';
+                  e.currentTarget.style.transform = 'translateY(-3px) scale(1.1)';
+                  e.currentTarget.style.color = '#fff';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = '0.8';
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                  e.currentTarget.style.color = '#000';
+                }}
               />
-              powered by BoostNow
-            </p>
-            <p style={{
-              fontSize: '0.95rem',
-              color: '#6B7280',
-              margin: 0
-            }}>
-              © {currentYear} BoostNow Solution LLP. All Rights Reserved.
-            </p>
+              <Linkedin
+                size={28}
+                className="cursor-pointer transition-all duration-300"
+                style={{
+                  color: '#000',
+                  transition: 'all 0.3s ease',
+                  opacity: 0.8
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = '1';
+                  e.currentTarget.style.transform = 'translateY(-3px) scale(1.1)';
+                  e.currentTarget.style.color = '#fff';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = '0.8';
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                  e.currentTarget.style.color = '#000';
+                }}
+              />
+              <X
+                size={28}
+                className="cursor-pointer transition-all duration-300"
+                style={{
+                  color: '#000',
+                  transition: 'all 0.3s ease',
+                  opacity: 0.8
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = '1';
+                  e.currentTarget.style.transform = 'translateY(-3px) scale(1.1)';
+                  e.currentTarget.style.color = '#fff';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = '0.8';
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                  e.currentTarget.style.color = '#000';
+                }}
+              />
+              <Facebook
+                size={28}
+                className="cursor-pointer transition-all duration-300"
+                style={{
+                  color: '#000',
+                  transition: 'all 0.3s ease',
+                  opacity: 0.8
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = '1';
+                  e.currentTarget.style.transform = 'translateY(-3px) scale(1.1)';
+                  e.currentTarget.style.color = '#fff';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = '0.8';
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                  e.currentTarget.style.color = '#000';
+                }}
+              />
+            </div>
           </div>
-          
-          
+
+          {/* Quick Links */}
+          <div>
+            <h4 style={{ fontWeight: '800', fontSize: '1.2rem', marginBottom: '1.5rem', color: '#000000' }}>Quick Links</h4>
+            <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem', fontWeight: '500' }}>
+              <li
+                onClick={() => handleNavigateToSection('home')}
+                style={{
+                  cursor: 'pointer',
+                  transition: 'color 0.2s ease',
+                  color: '#000000'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.color = '#FFFFFF'}
+                onMouseLeave={(e) => e.currentTarget.style.color = '#000000'}
+              >
+                Home
+              </li>
+              <li
+                onClick={() => handleNavigateToSection('about')}
+                style={{
+                  cursor: 'pointer',
+                  transition: 'color 0.2s ease',
+                  color: '#000000'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.color = '#FFFFFF'}
+                onMouseLeave={(e) => e.currentTarget.style.color = '#000000'}
+              >
+                About us
+              </li>
+              <li
+                onClick={() => handleNavigateToSection('features')}
+                style={{
+                  cursor: 'pointer',
+                  transition: 'color 0.2s ease',
+                  color: '#000000'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.color = '#FFFFFF'}
+                onMouseLeave={(e) => e.currentTarget.style.color = '#000000'}
+              >
+                Features
+              </li>
+              <li className="cursor-pointer">
+                <Link
+                  href="#find-digital-card"
+                  style={{
+                    color: '#000000',
+                    textDecoration: 'none',
+                    transition: 'all 0.3s ease',
+                    display: 'block',
+                    width: 'fit-content',
+                    padding: '0.5rem',
+                    borderRadius: '8px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#fff';
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                    e.currentTarget.style.transform = 'translateX(5px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#000000';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.transform = 'translateX(0)';
+                  }}
+                  onClick={(e) => {
+                    if (window.location.pathname === '/') {
+                      e.preventDefault();
+                      const searchSection = document.getElementById('find-digital-card');
+                      if (searchSection) {
+                        searchSection.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }
+                  }}
+                >
+                  Search
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Support */}
+          <div>
+            <h4 style={{ fontWeight: '800', fontSize: '1.2rem', marginBottom: '1.5rem', color: '#000000' }}>Support</h4>
+            <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem', fontWeight: '500' }}>
+              <li className="cursor-pointer">
+                <Link
+                  href="/#faq"
+                  style={{
+                    color: '#000000',
+                    textDecoration: 'none',
+                    transition: 'all 0.3s ease',
+                    display: 'block',
+                    width: 'fit-content',
+                    padding: '0.5rem',
+                    borderRadius: '8px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#fff';
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                    e.currentTarget.style.transform = 'translateX(5px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#000000';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.transform = 'translateX(0)';
+                  }}
+                  onClick={(e) => {
+                    if (window.location.pathname === '/') {
+                      e.preventDefault();
+                      const faqSection = document.getElementById('faq');
+                      if (faqSection) {
+                        faqSection.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }
+                  }}
+                >
+                  FAQ
+                </Link>
+              </li>
+              <li className="cursor-pointer">
+                <Link
+                  href="/terms"
+                  style={{
+                    color: '#000000',
+                    textDecoration: 'none',
+                    transition: 'all 0.3s ease',
+                    display: 'block',
+                    width: 'fit-content',
+                    padding: '0.5rem',
+                    borderRadius: '8px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#fff';
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                    e.currentTarget.style.transform = 'translateX(5px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#000000';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.transform = 'translateX(0)';
+                  }}
+                >
+                  Terms of Services
+                </Link>
+              </li>
+              <li className="cursor-pointer">
+                <Link
+                  href="/privacy"
+                  style={{
+                    color: '#000000',
+                    textDecoration: 'none',
+                    transition: 'all 0.3s ease',
+                    display: 'block',
+                    width: 'fit-content',
+                    padding: '0.5rem',
+                    borderRadius: '8px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#fff';
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                    e.currentTarget.style.transform = 'translateX(5px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'inherit';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.transform = 'translateX(0)';
+                  }}
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <h4 style={{ fontWeight: '800', fontSize: '1.2rem', marginBottom: '1.5rem', color: '#000000' }}>Contact Us</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', fontWeight: '500' }}>
+              <a
+                href="mailto:support@mykard.in"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  color: '#000000',
+                  textDecoration: 'none',
+                  transition: 'all 0.3s ease',
+                  padding: '0.5rem',
+                  borderRadius: '8px',
+                  width: 'fit-content'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#fff';
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                  e.currentTarget.style.transform = 'translateX(5px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'inherit';
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.transform = 'translateX(0)';
+                }}
+              >
+                <Mail size={20} /> support@mykard.in
+              </a>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  padding: '0.5rem',
+                  borderRadius: '8px',
+                  width: 'fit-content',
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#fff';
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                  e.currentTarget.style.transform = 'translateX(5px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'inherit';
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.transform = 'translateX(0)';
+                }}
+              >
+                <MapPin size={20} /> India
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Section */}
+        <div style={{
+          borderTop: '2px solid #000',
+          paddingTop: '2rem',
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.5rem'
+        }}>
+          <p style={{ fontWeight: '700', fontSize: '1.1rem', margin: 0 }}>Powered by BoostNow</p>
+          <p style={{ fontWeight: '600', opacity: 10, margin: 0 }}>
+            © {currentYear} BoostNow Solution LLP. All Rights Reserved.
+          </p>
         </div>
       </div>
-      <style>{`
-        @keyframes pulse {
-          0%, 100% {
-            opacity: 1;
-          }
-          50% {
-            opacity: 0.5;
-          }
-        }
-      `}</style>
     </footer>
   );
 }

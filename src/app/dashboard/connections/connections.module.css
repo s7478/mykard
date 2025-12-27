@@ -646,10 +646,7 @@
   color: #9ca3af; 
 } */
 
-.searchBarInner .relativeContainer {
-  display: block;
-  width: 100%;
-}
+.searchBarInner .relativeContainer { display: block; width: 100%;}
 
 .searchInput {
   width: 100%;

@@ -585,11 +585,11 @@ function MessagesPageContent() {
       prev.map((m) =>
         m.senderId === senderId
           ? {
-              ...m,
-              read: true,
-              incomingCount: 0,
-              status: m.status === "New" ? "Read" : m.status,
-            }
+            ...m,
+            read: true,
+            incomingCount: 0,
+            status: m.status === "New" ? "Read" : m.status,
+          }
           : m
       )
     );
@@ -754,18 +754,18 @@ function MessagesPageContent() {
           prev.map((m) =>
             m.senderId === replyId
               ? {
-                  ...m,
-                  status: "Replied",
-                  read: true,
-                  thread: [
-                    ...(m.thread || []),
-                    {
-                      text: replyText,
-                      date: new Date().toISOString(),
-                      direction: "out",
-                    },
-                  ],
-                }
+                ...m,
+                status: "Replied",
+                read: true,
+                thread: [
+                  ...(m.thread || []),
+                  {
+                    text: replyText,
+                    date: new Date().toISOString(),
+                    direction: "out",
+                  },
+                ],
+              }
               : m
           )
         );
@@ -1520,12 +1520,12 @@ function MessagesPageContent() {
                   activeMessage.thread && activeMessage.thread.length > 0
                     ? activeMessage.thread
                     : [
-                        {
-                          text: activeMessage.message,
-                          date: activeMessage.date,
-                          direction: "in" as const,
-                        },
-                      ];
+                      {
+                        text: activeMessage.message,
+                        date: activeMessage.date,
+                        direction: "in" as const,
+                      },
+                    ];
 
                 let lastDateKey: string | null = null;
 

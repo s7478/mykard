@@ -194,33 +194,56 @@ function SearchPageContent() {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api/profile/getuser", { credentials: "include" });
-        if (!response.ok) throw new Error("Failed to fetch users");
+        const response = await fetch("/api/profile/getuser", {
+          credentials: "include",
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || "Failed to fetch users");
+        }
+
         const data = await response.json();
-        const mappedProfiles: Profile[] = (data.users || []).map((user: any) => ({
+
+        // If the response is an array, use it directly, otherwise look for a 'users' property
+        const users = Array.isArray(data) ? data : (data.users || []);
+
+        const mappedProfiles: Profile[] = users.map((user: any) => ({
           id: user.id,
-          username: user.username,
-          name: user.fullName,
-          city: user.location,
-          company: user.company,
-          designation: user.title,
-          profileImage: user.profileImage,
-          about: user.about,          
-          services: user.services,    
-          skills: user.skills, 
-          category: user.category,
-          description:user.description,
-          verified: user.verified,
-          views:user.views   
+          username: user.username || user.email?.split('@')[0] || `user-${Math.random().toString(36).substr(2, 5)}`,
+          name: user.fullName || [user.firstName, user.lastName].filter(Boolean).join(' ').trim() || 'User',
+          city: user.location || user.city || 'Unknown',
+          company: user.company || user.organization || '',
+          designation: user.designation || user.title || user.role || '',
+          category: user.category || user.industry || '',
+          profileImage: user.profileImage || user.avatar || user.image || '',
+          email: user.email || '',
+          phone: user.phone || user.phoneNumber || '',
+          verified: user.verified || user.emailVerified || false,
+          reviews: user.reviews || user.ratingCount || 0,
+          views: user.views || user.impressions || 0,
         }));
 
-        if (mappedProfiles.length === 0) setProfiles(dummyProfiles);
-        else setProfiles(mappedProfiles);
+        // Only update profiles if we got actual data, otherwise keep the dummy data
+        if (mappedProfiles.length > 0) {
+          setProfiles(mappedProfiles);
+        } else {
+          console.warn('No user profiles found, using dummy data');
+          setProfiles(dummyProfiles);
+        }
       } catch (error) {
         console.error("Error fetching users:", error);
-        toast.error("Failed to load users");
+        // Fallback to dummy data in case of error
         setProfiles(dummyProfiles);
-      } finally { setLoading(false); }
+
+        // Show error toast to the user
+        toast.error(error instanceof Error ? error.message : 'Failed to load user profiles');
+      } finally {
+        setLoading(false);
+      };
     };
     fetchUsers();
   }, []);
@@ -314,12 +337,16 @@ function SearchPageContent() {
 
   const suggestedProfiles = useMemo(() => {
     if (!profiles || profiles.length === 0) return [];
+    if (!profiles || profiles.length === 0) return [];
 
-    return profiles.filter((p) =>
-      p.designation?.toLowerCase().includes("developer") ||
-      p.category?.toLowerCase().includes("software")
-    ).slice(0, 12); // limit suggestions
-}, [profiles]);
+    return profiles
+      .filter(
+        (p) =>
+          p.designation?.toLowerCase().includes("developer") ||
+          p.category?.toLowerCase().includes("software")
+      )
+      .slice(0, 6);
+  }, [profiles]);
 
 
 
@@ -592,8 +619,10 @@ function SearchPageContent() {
           </div>
 
           <div
-            style={{ display: "flex",gap: 6, flexWrap: "wrap", margin: '14px 0 0',alignItems: 'center',
-            overflowX: 'auto', paddingBottom: '6px', scrollbarWidth: 'none', msOverflowStyle: 'none',}} 
+            style={{
+              display: "flex", gap: 6, flexWrap: "wrap", margin: '14px 0 0', alignItems: 'center',
+              overflowX: 'auto', paddingBottom: '6px', scrollbarWidth: 'none', msOverflowStyle: 'none',
+            }}
             className="hide-scrollbar"
           >
             {["All", "Developer", "Designer", "Data", "Management", "Healthcare", "Other"].map(cat => (
@@ -633,44 +662,53 @@ function SearchPageContent() {
               </div>
             )}
 
-          {/* 🔹 Suggested Profiles */}
-          {!hasQuery &&
-            suggestedProfiles.map((p, i) => (
-              <div key={`suggested-${p.username}-${i}`} className="card" role="button"  tabIndex={0} onClick={() => setSelectedProfile(p)}>
-              <div className="card-info">
-                <div className="avatar">
-                  {p.profileImage ? (
-                    <img src={p.profileImage} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }}/>
-                  ) : ( getInitials(p.name || "User"))
-                  }
-                </div>
-                <div className="text-block">
-                  <div className="name truncate-1">{p.name}</div>
-                    {p.designation && ( <div className="designation truncate-2">{p.designation}</div>)}
-                    {p.company && (<div className="company truncate-1">{p.company}</div>)}
-                  <div className="city truncate-1">{p.city}</div>
-                </div>
-              </div>
+            {/* 🔹 Suggested Profiles */}
+            {!hasQuery &&
+              suggestedProfiles.map((p, i) => (
+                <div key={`suggested-${p.username}-${i}`} className="card" role="button" tabIndex={0} onClick={() => setSelectedProfile(p)}>
+                  <div className="card-info">
+                    <div className="avatar">
+                      {p.profileImage ? (
+                        <img src={p.profileImage} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
+                      ) : (getInitials(p.name || "User"))
+                      }
+                    </div>
+                    <div className="text-block">
+                      <div className="name truncate-1">{p.name}</div>
+                      {p.designation && (<div className="designation truncate-2">{p.designation}</div>)}
+                      {p.company && (<div className="company truncate-1">{p.company}</div>)}
+                      <div className="city truncate-1">{p.city}</div>
+                    </div>
+                  </div>
 
-              <div className="card-action">
-                <button className="connect" onClick={(e) => { e.stopPropagation(); handleConnect(p.id, p.name);}}
-                  disabled={ connectingUserId === p.id || sentRequests.has(p.id) || acceptedConnections.has(p.id) }
-                  style={
-                    acceptedConnections.has(p.id)
-                      ? { background: "#04c74cff", color: "#fff", cursor: "not-allowed" }
-                      : sentRequests.has(p.id)
-                      ? { background: "#0f48e4ff", color: "#fff", cursor: "not-allowed" }
-                      : { background: "#225BE4", color: "#fff" }
-                  }
-                >
-                  {acceptedConnections.has(p.id)
-                    ? "Connected"
-                    : connectingUserId === p.id
-                    ? "Connecting..."
-                    : sentRequests.has(p.id)
-                    ? "Sent"
-                    : "Connect"}
-                </button>
+                  <div className="card-action">
+                    <button className="connect" onClick={(e) => { e.stopPropagation(); handleConnect(p.id, p.name); }}
+                      disabled={connectingUserId === p.id || sentRequests.has(p.id) || acceptedConnections.has(p.id)}
+                      style={
+                        acceptedConnections.has(p.id)
+                          ? { background: "#04c74cff", color: "#fff", cursor: "not-allowed" }
+                          : sentRequests.has(p.id)
+                            ? { background: "#0f48e4ff", color: "#fff", cursor: "not-allowed" }
+                            : { background: "#225BE4", color: "#fff" }
+                      }
+                    >
+                      {acceptedConnections.has(p.id)
+                        ? "Connected"
+                        : connectingUserId === p.id
+                          ? "Connecting..."
+                          : sentRequests.has(p.id)
+                            ? "Sent"
+                            : "Connect"}
+                    </button>
+                  </div>
+                </div>
+              )
+              )
+            }
+
+            {loading ? (
+              <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", padding: 28 }}>
+                <div style={{ width: 52, height: 52, borderRadius: "50%", border: "4px solid rgba(99,102,241,0.12)", borderTopColor: "rgba(99,102,241,0.95)", animation: "spin 1s linear infinite" }} />
               </div>
             </div>
           )
@@ -763,8 +801,8 @@ function SearchPageContent() {
           </svg>
         </div>
 
-       
-      {/* {selectedProfile && (
+
+        {/* {selectedProfile && (
           <Modal
     isOpen={true}
     onClose={() => setSelectedProfile(null)}
@@ -814,27 +852,27 @@ function SearchPageContent() {
   /> 
 )} */}
 
-{selectedProfile && (
-  <div
-    className="fixed inset-0 z-50 flex items-center justify-center"
-  >
-    {/* 🔹 Backdrop */}
-    <div
-      className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-      onClick={() => setSelectedProfile(null)}
-    />
+        {selectedProfile && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center"
+          >
+            {/* 🔹 Backdrop */}
+            <div
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              onClick={() => setSelectedProfile(null)}
+            />
 
-    {/* 🔹 Popup */}
-    <div className="relative z-50">
-      <Modal
-        isOpen={true}
-        onClose={() => setSelectedProfile(null)}
-      >
-        {/* popup content */}
-      </Modal>
-    </div>
-  </div>
-)}
+            {/* 🔹 Popup */}
+            <div className="relative z-50">
+              <Modal
+                isOpen={true}
+                onClose={() => setSelectedProfile(null)}
+              >
+                {/* popup content */}
+              </Modal>
+            </div>
+          </div>
+        )}
 
 
 
@@ -852,43 +890,44 @@ function SearchPageContent() {
 
         {selectedProfile && (
           <Modal isOpen={!!selectedProfile} onClose={() => setSelectedProfile(null)}>
-            
+
             <div className="p-6 space-y-3">
               {/* Full Name */}
               <h2 className="text-xl font-semibold"> {selectedProfile.name} </h2>
-              
+
               {/* Location */}
               {selectedProfile.city && (
                 <p className="text-sm text-gray-600"> {selectedProfile.city} </p>
+              )}
+
+              {/* Company & Designation */}
+              {(selectedProfile.company || selectedProfile.designation) && (
+                <p className="text-sm">
+                  {selectedProfile.designation}
+                  {selectedProfile.company && ` ${selectedProfile.company}`}
+                </p>
+              )}
+
+              {/* Description */}
+              {selectedProfile.description && (
+                <div>
+                  <h4 className="font-medium mt-3">Description</h4>
+                  <p className="text-sm text-gray-700"> {selectedProfile.description} </p>
+                </div>
+              )}
+
+              {/* Services */}
+              {selectedProfile.services && (
+                <div>
+                  <h4 className="font-medium mt-3">Services</h4>
+                  <p className="text-sm text-gray-700"> {selectedProfile.services} </p>
+                </div>
+              )}
+            </div>
+          </Modal>
         )}
-
-        {/* Company & Designation */}
-        {(selectedProfile.company || selectedProfile.designation) && (
-          <p className="text-sm">
-            {selectedProfile.designation}  
-            {selectedProfile.company && ` ${selectedProfile.company}`}
-          </p>
-        )}
-
-      {/* Description */}
-      {selectedProfile.description && (
-        <div>
-          <h4 className="font-medium mt-3">Description</h4>
-          <p className="text-sm text-gray-700"> {selectedProfile.description} </p>
-        </div>
-      )}
-
-      {/* Services */}
-      {selectedProfile.services && (
-        <div>
-          <h4 className="font-medium mt-3">Services</h4>
-          <p className="text-sm text-gray-700"> {selectedProfile.services} </p>
-        </div>
-      )}
-      </div>
-  </Modal>
-)}
 
       </div>
     </div>
-)}
+  )
+}
