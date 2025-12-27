@@ -15,11 +15,11 @@ type Profile = {
   profileImage?: string;
   email?: string;
   phone?: string;
-  about?: string;
-  services?: string;
+  about?: string;      
+  services?: string;   
   skills?: string;
   category?: string;
-  description?: string;
+  description?:string;
   verified?: boolean;
   views?: number;
 };
@@ -349,6 +349,7 @@ function SearchPageContent() {
   }, [profiles]);
 
 
+
   return (
     <div style={{ position: "relative", overflowX: "hidden", minHeight: "100vh" }}>
       <div aria-hidden style={{
@@ -414,9 +415,9 @@ function SearchPageContent() {
         }
         .avatar { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:22px; color:#fff; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); box-shadow: 0 6px 18px rgba(99,102,241,0.08); overflow:hidden; }
         .name { font-weight: 600; font-size: 0.95rem; color: #1e293b; margin: 0; }
-        .designation { font-size: 0.9rem; color: #64748b; margin: 2px 0; }
-        .company { font-size: 0.9rem; color: #94a3b8; margin: 1px 0; }
-        .city { font-size: 0.9rem; color: #94a3b8; margin-top: 4px; }
+        .designation { font-size: 0.9rem; color: #64748b; margin-top: 1px; }
+        .company { font-size: 0.9rem; color: #94a3b8; margin-top: 1px; }
+        .city { font-size: 0.9rem; color: #94a3b8; margin-top: 1px; }
 
         .connect { 
           padding: 8px 16px; 
@@ -481,6 +482,8 @@ function SearchPageContent() {
             margin-top: 0.75rem;
             gap: 0.6rem;
             padding-bottom: 0.5rem;
+            display: flex;
+            flex-direction: column;
           }
           .card { 
             padding: 0.7rem;
@@ -502,7 +505,7 @@ function SearchPageContent() {
           .designation, .company, .city {
             font-size: 0.75rem;
             line-height: 1.2;
-            margin: 0;
+            margin-top: 1px;
           }
           .connect {
             padding: 6px 12px;
@@ -522,7 +525,7 @@ function SearchPageContent() {
         }
 
         /* medium screens */
-        @media (max-width: 980px) and (min-width: 721px) {
+        @media (max-width: 1023px) and (min-width: 721px) {
           .grid { grid-template-columns: repeat(2, 1fr); }
         }
 
@@ -707,7 +710,16 @@ function SearchPageContent() {
               <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", padding: 28 }}>
                 <div style={{ width: 52, height: 52, borderRadius: "50%", border: "4px solid rgba(99,102,241,0.12)", borderTopColor: "rgba(99,102,241,0.95)", animation: "spin 1s linear infinite" }} />
               </div>
-            ) : (
+            </div>
+          )
+        )
+      }
+      
+      {loading ? (
+        <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", padding: 28 }}>
+          <div style={{ width: 52, height: 52, borderRadius: "50%", border: "4px solid rgba(99,102,241,0.12)", borderTopColor: "rgba(99,102,241,0.95)", animation: "spin 1s linear infinite" }} />
+        </div>
+        ) : (
               filtered.map((p, i) => (
                 <div key={`${p.username}-${i}`} className="card" role="button" aria-label={p.name} onClick={() => setSelectedProfile(p)}>
                   <div className="card-info">
@@ -752,17 +764,17 @@ function SearchPageContent() {
                         acceptedConnections.has(p.id)
                           ? { background: "#04c74cff", color: "#fff", cursor: "not-allowed", boxShadow: "none" }
                           : sentRequests.has(p.id)
-                            ? { background: "#0f48e4ff", color: "#fff", cursor: "not-allowed", boxShadow: "none" }
-                            : { background: "#225BE4", color: "#fff" }
+                          ? { background: "#0f48e4ff", color: "#fff", cursor: "not-allowed", boxShadow: "none" }
+                          : { background: "#225BE4", color: "#fff" }
                       }
                     >
                       {acceptedConnections.has(p.id)
                         ? "Connected"
                         : connectingUserId === p.id
-                          ? "Connecting..."
-                          : sentRequests.has(p.id)
-                            ? "Sent"
-                            : "Connect"}
+                        ? "Connecting..."
+                        : sentRequests.has(p.id)
+                        ? "Sent"
+                        : "Connect"}
                     </button>
                   </div>
                 </div>

@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { ChevronDown, User, LogOut, Menu, Bell, HelpCircle } from "lucide-react";
+import { ChevronDown, User, LogOut, Menu, Bell, HelpCircle, Activity, FileText, Bookmark, ChevronRight } from "lucide-react";
 
 import { useAuth } from "@/lib/hooks/use-auth";
 import { toast } from "react-hot-toast";
@@ -19,6 +19,10 @@ export function Header() {
   const [notificationsCount, setNotificationsCount] = useState(0);
 
   const [activeCardName, setActiveCardName] = useState<string>("");
+
+
+  const [isActivityOpen, setIsActivityOpen] = useState(false);
+
 
   const getInitials = (value?: string | null) => {
     if (!value) return "U";
@@ -386,6 +390,60 @@ export function Header() {
                         <User style={{ width: "16px", height: "16px" }} />
                         <span>Account</span>
                       </Link>
+
+                      <div>
+                        <button
+                          onClick={() => setIsActivityOpen(!isActivityOpen)}
+                          style={{
+                            width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
+                            gap: "12px", padding: "12px 16px", margin: "4px 0", fontSize: "14px", color: "#374151",
+                            backgroundColor: "transparent", border: "none", cursor: "pointer", transition: "all 0.2s ease", borderRadius: "8px",
+                          }}
+                          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#eff6ff"; e.currentTarget.style.color = "#1d4ed8"; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = "#374151"; }}
+                        >
+                          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                            <Activity style={{ width: "16px", height: "16px" }} />
+                            <span>My Activity</span>
+                          </div>
+                          <ChevronRight 
+                            style={{ width: "14px", height: "14px", transition: "transform 0.2s", transform: isActivityOpen ? "rotate(90deg)" : "rotate(0deg)" }} 
+                          />
+                        </button>
+
+                        <AnimatePresence>
+                          {isActivityOpen && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              style={{ overflow: "hidden", marginLeft: "12px", borderLeft: "2px solid #f3f4f6" }}
+                            >
+                              <Link
+                                href="/dashboard/feed/me"
+                                onClick={() => setIsDropdownOpen(false)}
+                                style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 16px", fontSize: "13px", color: "#6b7280", textDecoration: "none", transition: "all 0.2s ease" }}
+                                onMouseEnter={(e) => { e.currentTarget.style.color = "#1d4ed8"; e.currentTarget.style.backgroundColor = "#f9fafb"; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.color = "#6b7280"; e.currentTarget.style.backgroundColor = "transparent"; }}
+                              >
+                                <FileText style={{ width: "14px", height: "14px" }} />
+                                <span>My Posts</span>
+                              </Link>
+                              
+                              <Link
+                                href="/dashboard/feed/saved"
+                                onClick={() => setIsDropdownOpen(false)}
+                                style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 16px", fontSize: "13px", color: "#6b7280", textDecoration: "none", transition: "all 0.2s ease" }}
+                                onMouseEnter={(e) => { e.currentTarget.style.color = "#1d4ed8"; e.currentTarget.style.backgroundColor = "#f9fafb"; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.color = "#6b7280"; e.currentTarget.style.backgroundColor = "transparent"; }}
+                              >
+                                <Bookmark style={{ width: "14px", height: "14px" }} />
+                                <span>Saved</span>
+                              </Link>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
 
                       <button
                         onClick={handleLogout}

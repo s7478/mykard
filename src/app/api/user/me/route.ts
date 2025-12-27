@@ -48,6 +48,7 @@ export async function GET() {
         phone: true,
         username: true,
         profileImage: true,
+        title: true,
       },
     })
 
@@ -66,6 +67,7 @@ export async function GET() {
         phone: user.phone || null,
         username: user.username || null,
         profileImage: user.profileImage || null,
+        title: user.title || null,
       },
     })
   } catch (error) {
