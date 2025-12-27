@@ -271,7 +271,7 @@ function SearchPageContent() {
     } finally { setConnectingUserId(null); }
   };
 
-  const hasQuery = query.trim().length > 0;
+  const hasQuery = query.trim().length > 0 || activeCategory !== "All";
   const filtered = useMemo(() => {
     const raw = query.trim().toLowerCase();
     if (!raw) return [];
@@ -309,7 +309,7 @@ function SearchPageContent() {
       const locationMatch = !locationPart || city.includes(locationPart);
       return keywordsMatch && locationMatch;
     }).slice(0, 50);
-  }, [query, profiles]);
+  }, [query, profiles , activeCategory]);
 
 
   const suggestedProfiles = useMemo(() => {
@@ -556,14 +556,25 @@ function SearchPageContent() {
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
       `}</style>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-6">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 pb-6">
         {/* Header Section */}
-        <header className="text-center">
-          <p className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
-            Find Your Next <span className="text-[#225BE4]">Connection</span>
-          </p>
-          <p className="text-sm text-gray-500 px-2 sm:px-0">Discover and connect with top professionals — quick, safe, and effortless.</p>
-        </header>
+        <header className="relative text-center pt-16 pb-3">
+  <div
+    className="absolute top-6 left-0 right-0 h-28 -z-10"
+    
+  />
+
+  <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 whitespace-nowrap">
+    Build Real{" "}
+    <span className="text-[#225BE4]">Connections</span>
+  </h1>
+
+  <p className="mt-1 text-sm text-gray-500 max-w-xs mx-auto">
+    Discover professionals and connect instantly
+  </p>
+</header>
+
+
 
         {/* Search Container */}
         <div className="search-container" style={{
@@ -571,7 +582,7 @@ function SearchPageContent() {
           borderRadius: '8px',
           border: '1px solid #e2e8f0',
           padding: '12px',
-          margin: '0 0 2px 0',
+          margin: '6px 0 2px 0',
           boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
         }}>
 
@@ -590,10 +601,11 @@ function SearchPageContent() {
               placeholder="Search by name, skills, company, or city..." aria-label="Search"
             />
           </div>
+          
 
           <div
-            style={{ display: "flex",gap: 6, flexWrap: "wrap", margin: '14px 0 0',alignItems: 'center',
-            overflowX: 'auto', paddingBottom: '6px', scrollbarWidth: 'none', msOverflowStyle: 'none',}} 
+            style={{ display: "flex",gap: 8, flexWrap: "nowrap", margin: "14px 0 0" ,alignItems: "center",
+            overflowX: "auto", whiteSpace: "nowrap", paddingBottom: "6px", scrollbarWidth: "none" , msOverflowStyle: "none",}} 
             className="hide-scrollbar"
           >
             {["All", "Developer", "Designer", "Data", "Management", "Healthcare", "Other"].map(cat => (
@@ -606,11 +618,11 @@ function SearchPageContent() {
                   fontSize: '0.7rem',
                   fontWeight: 500,
                   whiteSpace: 'nowrap',
+                  flexShrink: 0,
                   border: `1px solid ${activeCategory === cat ? '#225BE4' : '#E5E7EB'}`,
                   background: activeCategory === cat ? '#225BE4' : '#fff',
                   color: activeCategory === cat ? '#fff' : '#4B5563',
                   cursor: 'pointer',
-                  transition: 'all 0.15s ease',
                 }}
               >
                 {cat}
@@ -618,11 +630,11 @@ function SearchPageContent() {
             ))}
           </div>
 
-          <div className="meta">
-            {hasQuery
-              ? `Showing ${filtered.length} result${filtered.length !== 1 ? "s" : ""}`
-              : "Search to see results"}
-          </div>
+          {hasQuery && (
+  <div className="meta">
+    Showing {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+  </div>
+)}
 
           <div className="grid" style={{ marginTop: 12 }}>
 

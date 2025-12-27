@@ -1480,7 +1480,54 @@
   background-color: #1e67f4; 
   color: #ffffff;
   border-radius: 12px;
+} 
+/* ================================
+   MOBILE: Export beside Search
+   ================================ */
+
+.mobileExportInline {
+  display: none;
 }
+
+@media (max-width: 768px) {
+  .searchRow {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .searchContainer {
+    flex: 1;
+  }
+
+  .mobileExportInline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    min-width: 44px;
+    background-color: #1e67f4;
+    color: #ffffff;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+  }
+
+  .mobileExportInline:hover {
+    background-color: #1652cc;
+  }
+}
+  
+/* =====================================
+   HIDE TOP EXPORT BUTTON ON MOBILE ONLY
+   ===================================== */
+
+@media (max-width: 768px) {
+  .mobileExportButton {
+    display: none !important;
+  }
+}
+
 
 
 
