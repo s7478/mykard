@@ -7,17 +7,16 @@ import { toast } from "react-hot-toast";
 import {
   MoreHorizontal,
   Bookmark,
-  QrCode,
   Check,
   MessageCircle,
   Heart,
   Send,
-  UserPlus,
   Loader2,
   Video,
   Image as ImageIcon,
   Type,
-  
+  Share,
+  Copy, // Added Copy icon
 } from "lucide-react";
 
 // --- Utilities & Styles ---
@@ -38,7 +37,6 @@ const getInitials = (name: string) =>
     .slice(0, 2) || "U";
 
 const styles: Record<string, CSSProperties> = {
-
   createPostCard: {
     backgroundColor: "#ffffff",
     border: "1px solid #f1f5f9",
@@ -99,40 +97,6 @@ const styles: Record<string, CSSProperties> = {
     width: "100%",
     maxWidth: "500px",
   },
-  // --- Promo Banner Styles ---
-  promoWrapper: {
-    position: "relative",
-    borderRadius: "24px",
-    background: "linear-gradient(135deg, #2563eb, #4338ca)",
-    padding: "24px",
-    color: "#ffffff",
-    display: "flex",
-    flexDirection: "column",
-    gap: "20px",
-    boxShadow: "0 10px 15px -3px rgba(59, 130, 246, 0.2)",
-  },
-  promoHeader: {
-    textAlign: "left",
-  },
-  promoFooter: {
-    display: "flex",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-    width: "100%",
-  },
-  promoBtnSmall: {
-    padding: "8px 16px",
-    backgroundColor: "#ffffff",
-    color: "#1d4ed8",
-    fontWeight: "700",
-    borderRadius: "9999px",
-    textTransform: "uppercase",
-    fontSize: "11px",
-    letterSpacing: "0.5px",
-    textDecoration: "none",
-    border: "none",
-    cursor: "pointer",
-  },
   // --- Post Card Styles ---
   postCard: {
     backgroundColor: "#ffffff",
@@ -141,12 +105,60 @@ const styles: Record<string, CSSProperties> = {
     padding: "16px",
     width: "100%",
     textAlign: "left",
+    position: "relative", // Needed for popup context if not using fixed backdrop
   },
   postHeader: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: "12px",
+  },
+  headerActions: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    position: "relative",
+  },
+  menuDropdown: {
+    position: "absolute",
+    top: "100%",
+    right: 0,
+    marginTop: "8px",
+    backgroundColor: "#ffffff",
+    border: "1px solid #f1f5f9",
+    borderRadius: "12px",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+    padding: "8px",
+    zIndex: 50,
+    minWidth: "160px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
+  },
+  menuItem: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "10px 12px",
+    fontSize: "13px",
+    fontWeight: "500",
+    color: "#334155",
+    background: "transparent",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer",
+    textAlign: "left",
+    transition: "background 0.2s",
+  },
+  menuBackdrop: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100vw",
+    height: "100vh",
+    zIndex: 40,
+    background: "transparent",
+    cursor: "default",
   },
   postMeta: {
     display: "flex",
@@ -245,56 +257,76 @@ export const CreatePost = ({ currentUser }: { currentUser: any }) => {
   const myInitials = getInitials(currentUser?.fullName || "Me");
 
   return (
-  <div style={styles.createPostCard}>
-    <div style={styles.inputArea}>
-      <div style={{ position: "relative", width: "48px", height: "48px", borderRadius: "50%", overflow: "hidden", flexShrink: 0, backgroundColor:"#e2e8f0", display:'flex', alignItems:'center', justifyContent:'center' }}>
-        {myAvatar ? (
-          <Image src={myAvatar} alt="Me" fill unoptimized style={{ objectFit: "cover" }} />
-        ) : (
-          <span style={{ fontSize: "20px", fontWeight: "600", color: "#64748b" }}>{myInitials}</span>
-        )}
+    <div style={styles.createPostCard}>
+      <div style={styles.inputArea}>
+        <div style={{ position: "relative", width: "48px", height: "48px", borderRadius: "50%", overflow: "hidden", flexShrink: 0, backgroundColor:"#e2e8f0", display:'flex', alignItems:'center', justifyContent:'center' }}>
+          {myAvatar ? (
+            <Image src={myAvatar} alt="Me" fill unoptimized style={{ objectFit: "cover" }} />
+          ) : (
+            <span style={{ fontSize: "20px", fontWeight: "600", color: "#64748b" }}>{myInitials}</span>
+          )}
+        </div>
+        <div 
+          style={styles.fakeInput} 
+          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")}
+          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+        >
+          Start a post
+        </div>
       </div>
-      <div 
-        style={styles.fakeInput} 
-        onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")}
-        onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-      >
-        Start a post
+      
+      <div style={styles.actionGroup}>
+        <button style={styles.actionItem} onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")} onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
+          <Video size={20} color="#70b5f9" />
+          <span style={{ fontSize: "14px", fontWeight: "600", color: "#666" }}>Video</span>
+        </button>
+        
+        <button style={styles.actionItem} onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")} onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
+          <ImageIcon size={20} color="#7fc15e" />
+          <span style={{ fontSize: "14px", fontWeight: "600", color: "#666" }}>Photo</span>
+        </button>
+        
+        <button style={styles.actionItem} onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")} onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
+          <Type size={20} color="#e7a33e" />
+          <span style={{ fontSize: "14px", fontWeight: "600", color: "#666" }}>Write article</span>
+        </button>
       </div>
     </div>
-    
-    <div style={styles.actionGroup}>
-      <button style={styles.actionItem} onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")} onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
-        <Video size={20} color="#70b5f9" />
-        <span style={{ fontSize: "14px", fontWeight: "600", color: "#666" }}>Video</span>
-      </button>
-      
-      <button style={styles.actionItem} onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")} onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
-        <ImageIcon size={20} color="#7fc15e" />
-        <span style={{ fontSize: "14px", fontWeight: "600", color: "#666" }}>Photo</span>
-      </button>
-      
-      <button style={styles.actionItem} onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")} onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
-        <Type size={20} color="#e7a33e" />
-        <span style={{ fontSize: "14px", fontWeight: "600", color: "#666" }}>Write article</span>
-      </button>
-    </div>
-  </div>
-);};
+  );
+};
 
-// --- Post Card with Comment Input using Logged In Avatar ---
 export const PostCard = ({ currentUser }: { currentUser: any }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(1200);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [showMenu, setShowMenu] = useState(false); // State for popup menu
 
-  const handleConnect = () => setIsConnected(true);
+  const handleConnect = () => {
+    setIsConnected(true);
+    toast.success("Connection request sent!");
+  };
   
   const handleLike = () => {
     setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
     setIsLiked(!isLiked);
+  };
+
+  const handleBookmark = () => {
+    setIsBookmarked(!isBookmarked);
+    setShowMenu(false);
+    toast.success(isBookmarked ? "Removed from saved" : "Post saved!");
+  };
+
+  const handleShare = () => {
+    setShowMenu(false);
+    toast.success("Shared to your feed!");
+  };
+
+  const handleCopyLink = () => {
+    setShowMenu(false);
+    toast.success("Link copied to clipboard!");
   };
 
   const demoComments = [
@@ -302,13 +334,19 @@ export const PostCard = ({ currentUser }: { currentUser: any }) => {
     { id: 2, user: "Sarah J.", avatar: "Sarah", text: "Nagpur tech scene is growing fast." },
   ];
 
-  // Determine avatar to show in comment input
   const myAvatar = currentUser?.profileImage;
   const myInitials = getInitials(currentUser?.fullName || "Me");
 
   return (
     <div style={styles.postCard}>
+      {/* --- Popup Menu Backdrop --- */}
+      {showMenu && (
+        <div style={styles.menuBackdrop} onClick={() => setShowMenu(false)} />
+      )}
+
+      {/* --- Header --- */}
       <div style={styles.postHeader}>
+        {/* Left: Avatar + Info */}
         <div style={{ display: "flex", alignItems: "center", minWidth: 0, flex: 1 }}>
           <div style={{ position: "relative", width: "40px", height: "40px", borderRadius: "50%", overflow: "hidden", flexShrink: 0 }}>
             <Image src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sanya" alt="User" fill unoptimized style={{ objectFit: "cover" }} />
@@ -321,14 +359,60 @@ export const PostCard = ({ currentUser }: { currentUser: any }) => {
             <p style={{ color: "#64748b", fontSize: "11px", margin: 0, ...truncateStyle }}>UI/UX Designer • @sanya_ux</p>
           </div>
         </div>
-        <MoreHorizontal size={18} color="#94a3b8" />
+
+        {/* Right: Connect Btn + Menu */}
+        <div style={styles.headerActions}>
+          <button 
+            onClick={handleConnect}
+            disabled={isConnected}
+            style={{ 
+              backgroundColor: isConnected ? "#e2e8f0" : "#2563eb", 
+              color: isConnected ? "#64748b" : "white", 
+              padding: "6px 14px", 
+              borderRadius: "9999px", 
+              fontSize: "11px", 
+              fontWeight: "700", 
+              border: "none",
+              cursor: isConnected ? "default" : "pointer",
+              transition: "background 0.2s"
+            }}
+          >
+            {isConnected ? "Sent" : "Connect"}
+          </button>
+
+          <button 
+            onClick={() => setShowMenu(!showMenu)} 
+            style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", borderRadius: "50%", display: "flex" }}
+            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f1f5f9")}
+            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+          >
+            <MoreHorizontal size={20} color="#94a3b8" />
+          </button>
+
+          {/* Popup Menu */}
+          {showMenu && (
+            <div style={styles.menuDropdown}>
+              <button style={styles.menuItem} onClick={handleShare} onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f8fafc")} onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
+                <Share size={16} /> Share
+              </button>
+              <button style={styles.menuItem} onClick={handleCopyLink} onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f8fafc")} onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
+                <Copy size={16} /> Copy Link
+              </button>
+              <button style={styles.menuItem} onClick={handleBookmark} onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f8fafc")} onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
+                <Bookmark size={16} fill={isBookmarked ? "currentColor" : "none"} /> {isBookmarked ? "Unsave" : "Save"}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
+      {/* --- Content --- */}
       <div>
         <p style={{ fontSize: "13px", margin: "0 0 12px 0", lineHeight: "1.4", color: "#334155" }}>
           Creative designer passionate about user-centric experiences. Connect for collaborations in Nagpur! 🚀
         </p>
         
+        {/* --- Footer Action Row --- */}
         <div style={styles.actionRow}>
           <div style={{ display: "flex", gap: "16px", color: "#64748b" }}>
             <button 
@@ -345,33 +429,17 @@ export const PostCard = ({ currentUser }: { currentUser: any }) => {
             >
               <MessageCircle size={18} fill={showComments ? "#dbeafe" : "none"} /> 24
             </button>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <button 
-              onClick={handleConnect}
-              disabled={isConnected}
-              style={{ 
-                backgroundColor: isConnected ? "#e2e8f0" : "#2563eb", 
-                color: isConnected ? "#64748b" : "white", 
-                padding: "6px 16px", 
-                borderRadius: "9999px", 
-                fontSize: "11px", 
-                fontWeight: "700", 
-                border: "none",
-                cursor: isConnected ? "default" : "pointer",
-              }}
-            >
-              {isConnected ? "Sent" : "Connect"}
-            </button>
-
-            <button onClick={() => setIsBookmarked(!isBookmarked)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-              <Bookmark size={20} color={isBookmarked ? "#2563eb" : "#94a3b8"} fill={isBookmarked ? "#2563eb" : "none"} />
+            <button style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+              <Send size={18} color="#94a3b8" />
             </button>
           </div>
+          <button onClick={() => setIsBookmarked(!isBookmarked)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+            <Bookmark size={20} color={isBookmarked ? "#2563eb" : "#94a3b8"} fill={isBookmarked ? "#2563eb" : "none"} />
+          </button>
         </div>
       </div>
 
+      {/* --- Comment Section --- */}
       {showComments && (
         <div style={styles.commentSection}>
           {demoComments.map((comment) => (
@@ -386,7 +454,6 @@ export const PostCard = ({ currentUser }: { currentUser: any }) => {
             </div>
           ))}
           
-          {/* Input with LOGGED IN USER Avatar */}
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px" }}>
              <div style={{ position: "relative", width: "28px", height: "28px", borderRadius: "50%", overflow: "hidden", flexShrink: 0, backgroundColor:"#e2e8f0", display:'flex', alignItems:'center', justifyContent:'center' }}>
                 {myAvatar ? (
@@ -408,14 +475,6 @@ export const PostCard = ({ currentUser }: { currentUser: any }) => {
   );
 };
 
-
-
-
-
-
-
-
-// --- Suggested Users Widget (Dynamic) ---
 export const SuggestedUsersWidget = ({ currentUserId }: { currentUserId: string }) => {
   const [profiles, setProfiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -435,7 +494,7 @@ export const SuggestedUsersWidget = ({ currentUserId }: { currentUserId: string 
         const usersData = await usersRes.json();
         
         const existingIds = new Set<string>();
-        existingIds.add(currentUserId); // Don't show self
+        existingIds.add(currentUserId); 
 
         if (acceptedRes.ok) {
            const data = await acceptedRes.json();
@@ -458,7 +517,7 @@ export const SuggestedUsersWidget = ({ currentUserId }: { currentUserId: string 
             profileImage: u.profileImage,
             city: u.location || "Online"
           }))
-          .slice(0, 3); // Limit to 3
+          .slice(0, 3); 
 
         setProfiles(filtered);
       } catch (e) {
@@ -493,7 +552,7 @@ export const SuggestedUsersWidget = ({ currentUserId }: { currentUserId: string 
     }
   };
 
-  if (loading) return null; // Or a skeleton
+  if (loading) return null; 
   if (profiles.length === 0) return null;
 
   return (
@@ -536,11 +595,9 @@ export const SuggestedUsersWidget = ({ currentUserId }: { currentUserId: string 
   );
 };
 
-// --- Main Page Component ---
 export default function FeedPage() {
   const [currentUser, setCurrentUser] = useState<any>(null);
 
-  // Fetch logged in user for avatar display & connection filtering
   useEffect(() => {
     const fetchMe = async () => {
       try {
