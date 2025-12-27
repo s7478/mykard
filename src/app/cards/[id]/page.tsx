@@ -104,7 +104,7 @@ const CardPreview: React.FC<{ card: Card }> = ({ card }) => {
       cardName: card.cardName || "",
       title: card.title || "",
       company: card.company || "",
-      location: card.location || card.user?.location || "",
+      location: card.location || "",
       about: card.bio || card.about || card.description || "",
       skills: card.skills || "",
       portfolio: card.portfolio || "",
@@ -120,6 +120,7 @@ const CardPreview: React.FC<{ card: Card }> = ({ card }) => {
       documentUrl: (card as any).documentUrl || "",
       themeColor1: card.selectedColor || "#3b82f6",
       themeColor2: card.selectedColor2 || "#2563eb",
+      textColor: card.textColor || "#000000",
       fontFamily: card.selectedFont || "system-ui, sans-serif",
       cardType: card.cardType || "",
     };

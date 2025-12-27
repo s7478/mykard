@@ -99,22 +99,16 @@ export default function Header() {
           <div className="flex items-center justify-between h-12">
             {/* Logo - Left Side */}
             <Link href="/" className="flex items-center group">
-              <Image
-                src="/assets/headerlogo.png"
-                alt="Logo"
-                width={144}
-                height={144}
-                className="w-40 h-10 object-cover transition-all duration-300 group-hover:scale-105"
-                onError={(e) => {
-                  console.log('Image failed to load:', e);
-                  e.currentTarget.style.display = 'none';
-                  const svg = e.currentTarget.nextElementSibling as HTMLElement;
-                  if (svg) svg.style.display = 'block';
-                }}
-                onLoad={() => {
-                  console.log('Image loaded successfully');
-                }}
-              />
+              <Link href="/" className="flex items-center group">
+                <Image
+                  src="/assets/headerlogo.png"
+                  alt="Logo"
+                  width={144}
+                  height={144}
+                  className="w-40 h-10 object-cover transition-all duration-300 group-hover:scale-105"
+                />
+              </Link>
+
               <svg className="w-6 h-6 text-blue-600 absolute" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ display: 'none' }}>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
               </svg>
@@ -452,146 +446,148 @@ export default function Header() {
           </div>
 
           {/* Mobile Menu */}
-          {isMenuOpen && (
-            <div className="lg:hidden pt-12 border-t border-blue-100/50 animate-in fade-in slide-in-from-top-2 duration-300" style={{ paddingBottom: '2rem' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <button
-                  onClick={() => {
-                    setActiveSection('home');
-                    window.location.href = '/';
-                    setIsMenuOpen(false);
-                  }}
-                  className={`flex items-center gap-3 px-4 py-3 text-[18px] font-semibold rounded-xl w-full text-left border-none cursor-pointer transition-colors ${activeSection === 'home'
-                    ? 'text-blue-600 bg-blue-50/50'
-                    : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
-                    }`}
-                >
-                  <span className={`w-1.5 h-1.5 rounded-full ${activeSection === 'home' ? 'bg-blue-600' : 'bg-transparent'
-                    }`}></span>
-                  Home
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveSection('find-digital-card');
-                    scrollToSection('find-digital-card');
-                    setIsMenuOpen(false);
-                  }}
-                  className={`flex items-center gap-3 px-4 py-3 text-[18px] font-medium rounded-xl w-full text-left border-none cursor-pointer transition-colors ${activeSection === 'find-digital-card'
-                    ? 'text-blue-600 bg-blue-50/50 font-semibold'
-                    : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
-                    }`}
-                >
-                  <span className={`w-1.5 h-1.5 rounded-full ${activeSection === 'find-digital-card' ? 'bg-blue-600' : 'bg-transparent'
-                    }`}></span>
-                  Search
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveSection('what-is-digital-card');
-                    scrollToSection('what-is-digital-card');
-                    setIsMenuOpen(false);
-                  }}
-                  className={`flex items-center gap-3 px-4 py-3 text-[15px] font-medium rounded-xl w-full text-left border-none cursor-pointer transition-colors ${activeSection === 'what-is-digital-card'
-                    ? 'text-blue-600 bg-blue-50/50 font-semibold'
-                    : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
-                    }`}
-                >
-                  <span className={`w-1.5 h-1.5 rounded-full ${activeSection === 'what-is-digital-card' ? 'bg-blue-600' : 'bg-transparent'
-                    }`}></span>
-                  About
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveSection('build-credibility');
-                    scrollToSection('build-credibility');
-                    setIsMenuOpen(false);
-                  }}
-                  className={`flex items-center gap-3 px-4 py-3 text-[15px] font-medium rounded-xl w-full text-left border-none cursor-pointer transition-colors ${activeSection === 'build-credibility'
-                    ? 'text-blue-600 bg-blue-50/50 font-semibold'
-                    : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
-                    }`}
-                >
-                  <span className={`w-1.5 h-1.5 rounded-full ${activeSection === 'build-credibility' ? 'bg-blue-600' : 'bg-transparent'
-                    }`}></span>
-                  Features
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveSection('how-it-works');
-                    scrollToSection('how-it-works');
-                    setIsMenuOpen(false);
-                  }}
-                  className={`flex items-center gap-3 px-4 py-3 text-[15px] font-medium rounded-xl w-full text-left border-none cursor-pointer transition-colors ${activeSection === 'how-it-works'
-                    ? 'text-blue-600 bg-blue-50/50 font-semibold'
-                    : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
-                    }`}
-                  style={{ marginBottom: '24px' }}
-                >
-                  <span className={`w-1.5 h-1.5 rounded-full ${activeSection === 'how-it-works' ? 'bg-blue-600' : 'bg-transparent'
-                    }`}></span>
-                  How It Works
-                </button>
+          <AnimatePresence>
+            {isMenuOpen && (
+              <div className="lg:hidden pt-12 border-t border-blue-100/50 animate-in fade-in slide-in-from-top-2 duration-300" style={{ paddingBottom: '2rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <button
+                    onClick={() => {
+                      setActiveSection('home');
+                      window.location.href = '/';
+                      setIsMenuOpen(false);
+                    }}
+                    className={`flex items-center gap-3 px-4 py-3 text-[18px] font-semibold rounded-xl w-full text-left border-none cursor-pointer transition-colors ${activeSection === 'home'
+                      ? 'text-blue-600 bg-blue-50/50'
+                      : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
+                      }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${activeSection === 'home' ? 'bg-blue-600' : 'bg-transparent'
+                      }`}></span>
+                    Home
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveSection('find-digital-card');
+                      scrollToSection('find-digital-card');
+                      setIsMenuOpen(false);
+                    }}
+                    className={`flex items-center gap-3 px-4 py-3 text-[18px] font-medium rounded-xl w-full text-left border-none cursor-pointer transition-colors ${activeSection === 'find-digital-card'
+                      ? 'text-blue-600 bg-blue-50/50 font-semibold'
+                      : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
+                      }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${activeSection === 'find-digital-card' ? 'bg-blue-600' : 'bg-transparent'
+                      }`}></span>
+                    Search
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveSection('what-is-digital-card');
+                      scrollToSection('what-is-digital-card');
+                      setIsMenuOpen(false);
+                    }}
+                    className={`flex items-center gap-3 px-4 py-3 text-[15px] font-medium rounded-xl w-full text-left border-none cursor-pointer transition-colors ${activeSection === 'what-is-digital-card'
+                      ? 'text-blue-600 bg-blue-50/50 font-semibold'
+                      : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
+                      }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${activeSection === 'what-is-digital-card' ? 'bg-blue-600' : 'bg-transparent'
+                      }`}></span>
+                    About
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveSection('build-credibility');
+                      scrollToSection('build-credibility');
+                      setIsMenuOpen(false);
+                    }}
+                    className={`flex items-center gap-3 px-4 py-3 text-[15px] font-medium rounded-xl w-full text-left border-none cursor-pointer transition-colors ${activeSection === 'build-credibility'
+                      ? 'text-blue-600 bg-blue-50/50 font-semibold'
+                      : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
+                      }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${activeSection === 'build-credibility' ? 'bg-blue-600' : 'bg-transparent'
+                      }`}></span>
+                    Features
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveSection('how-it-works');
+                      scrollToSection('how-it-works');
+                      setIsMenuOpen(false);
+                    }}
+                    className={`flex items-center gap-3 px-4 py-3 text-[15px] font-medium rounded-xl w-full text-left border-none cursor-pointer transition-colors ${activeSection === 'how-it-works'
+                      ? 'text-blue-600 bg-blue-50/50 font-semibold'
+                      : 'text-gray-700 hover:bg-blue-50/50 hover:text-blue-600'
+                      }`}
+                    style={{ marginBottom: '24px' }}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${activeSection === 'how-it-works' ? 'bg-blue-600' : 'bg-transparent'
+                      }`}></span>
+                    How It Works
+                  </button>
 
-              </div>
-              <div className="pt-10 pb-8 px-2 mt-6 border-t border-blue-100/50">
+                </div>
+                <div className="pt-10 pb-8 px-2 mt-6 border-t border-blue-100/50">
 
-                {!isAuthenticated ? (
-                  <div className="flex gap-3 w-full">
-                    <button
-                      onClick={() => {
-                        console.log('Mobile Login clicked');
-                        window.location.href = '/auth/login';
-                      }}
-                      className="flex-1 flex items-center justify-center text-center px-4 text-[15px] font-semibold text-white bg-linear-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg shadow-blue-500/30 overflow-hidden group border-none cursor-pointer"
-                      style={{ height: '40px', minWidth: '100px' }}
-                    >
-                      <span className="relative z-10">Login</span>
-                      <div className="absolute inset-0 bg-linear-to-r from-blue-400/0 via-white/20 to-blue-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-                    </button>
-                    <button
-                      onClick={() => {
-                        console.log('Mobile Create Card clicked');
-                        window.location.href = '/auth/signup';
-                      }}
-                      className="flex-1 relative flex items-center justify-center text-center px-4 text-[15px] font-semibold text-white bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-full transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:scale-105 overflow-hidden group border-none cursor-pointer"
-                      style={{ height: '40px', minWidth: '100px' }}
-                    >
-                      <span className="relative z-10 flex items-center justify-center">
-                        Create Card
-                      </span>
-                      <div className="absolute inset-0 bg-linear-to-r from-blue-400/0 via-white/20 to-blue-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex gap-3 w-full pb-2">
-                    <Link
-                      href="/dashboard"
-                      className="flex-1 relative flex items-center justify-center px-4 text-[16px] font-semibold text-white bg-linear-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg shadow-blue-500/30 overflow-hidden group"
-                      onClick={() => setIsMenuOpen(false)}
-                      style={{ minWidth: '100px', height: '45px' }}
-                    >
-                      <span className="relative z-10">Dashboard</span>
-                      <div className="absolute inset-0 bg-linear-to-r from-blue-400/0 via-white/20 to-blue-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-                    </Link>
-                    <button
-                      onClick={() => {
-                        handleLogout();
-                        setIsMenuOpen(false);
-                      }}
-                      className="flex-1 relative block text-center px-4 py-5 text-[16px] font-semibold text-white bg-linear-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg shadow-blue-500/30 overflow-hidden group"
-                      style={{ minWidth: '100px', height: '45px' }}
-                    >
-                      <span className="relative z-10 flex items-center justify-center gap-2">
-                        <LogOut size={16} className="text-white" />
-                        <span>Logout</span>
-                      </span>
-                      <div className="absolute inset-0 bg-linear-to-r from-blue-400/0 via-white/20 to-blue-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-                    </button>
-                  </div>
-                )}
+                  {!isAuthenticated ? (
+                    <div className="flex gap-3 w-full">
+                      <button
+                        onClick={() => {
+                          console.log('Mobile Login clicked');
+                          window.location.href = '/auth/login';
+                        }}
+                        className="flex-1 flex items-center justify-center text-center px-4 text-[15px] font-semibold text-white bg-linear-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg shadow-blue-500/30 overflow-hidden group border-none cursor-pointer"
+                        style={{ height: '40px', minWidth: '100px' }}
+                      >
+                        <span className="relative z-10">Login</span>
+                        <div className="absolute inset-0 bg-linear-to-r from-blue-400/0 via-white/20 to-blue-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                      </button>
+                      <button
+                        onClick={() => {
+                          console.log('Mobile Create Card clicked');
+                          window.location.href = '/auth/signup';
+                        }}
+                        className="flex-1 relative flex items-center justify-center text-center px-4 text-[15px] font-semibold text-white bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-full transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:scale-105 overflow-hidden group border-none cursor-pointer"
+                        style={{ height: '40px', minWidth: '100px' }}
+                      >
+                        <span className="relative z-10 flex items-center justify-center">
+                          Create Card
+                        </span>
+                        <div className="absolute inset-0 bg-linear-to-r from-blue-400/0 via-white/20 to-blue-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-3 w-full pb-2">
+                      <Link
+                        href="/dashboard"
+                        className="flex-1 relative flex items-center justify-center px-4 text-[16px] font-semibold text-white bg-linear-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg shadow-blue-500/30 overflow-hidden group"
+                        onClick={() => setIsMenuOpen(false)}
+                        style={{ minWidth: '100px', height: '45px' }}
+                      >
+                        <span className="relative z-10">Dashboard</span>
+                        <div className="absolute inset-0 bg-linear-to-r from-blue-400/0 via-white/20 to-blue-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                      </Link>
+                      <button
+                        onClick={() => {
+                          handleLogout();
+                          setIsMenuOpen(false);
+                        }}
+                        className="flex-1 relative block text-center px-4 py-5 text-[16px] font-semibold text-white bg-linear-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg shadow-blue-500/30 overflow-hidden group"
+                        style={{ minWidth: '100px', height: '45px' }}
+                      >
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                          <LogOut size={16} className="text-white" />
+                          <span>Logout</span>
+                        </span>
+                        <div className="absolute inset-0 bg-linear-to-r from-blue-400/0 via-white/20 to-blue-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </AnimatePresence>
         </nav>
       </header>
 

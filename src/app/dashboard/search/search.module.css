@@ -47,10 +47,7 @@
 
 }
 
-.subtitle {
-  color: #475569;
-  font-size: 16px;
-}
+.subtitle { color: #475569; font-size: 16px;}
 
 /* ---------- Search Bar ---------- */
 .searchBar {
@@ -65,10 +62,7 @@
   box-shadow: 0 2px 10px rgba(37, 99, 235, 0.1);
 }
 
-.searchIcon {
-  margin-left: 16px;
-  color: #2563eb;
-}
+.searchIcon { margin-left: 16px; color: #2563eb; }
 
 .searchInput {
   flex: 1;
@@ -182,10 +176,10 @@
 /* ---------- Profile Card ---------- */
 .profileCard {
   background: linear-gradient(135deg, #dbeafe, #eff6ff);
-  border-radius: 16px;
-  padding: 1px;
+  border-radius: 16px; padding: 1px;
   box-shadow: 0 4px 10px rgba(37, 99, 235, 0.1);
-  transition: 0.3s ease;
+  transition: 0.3s ease; 
+  /* will-change: transform; */
 }
 
 .profileCard:hover {
@@ -227,6 +221,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  line-height: 1;
 }
 
 /* .userName {
@@ -264,7 +259,7 @@
   margin: 2px 0 0 0;
 }
 
-.connectBtn {
+/* .connectBtn {
   background: linear-gradient(90deg, #2563eb, #1d4ed8);
   color: white;
   border: none;
@@ -274,7 +269,20 @@
   font-weight: 600;
   cursor: pointer;
   margin-top: 40px;
+} */
+
+.connectBtn {
+  background: linear-gradient(90deg, #2563eb, #1d4ed8);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 12px; 
 }
+
 
 .connectBtn:hover {
   background: linear-gradient(90deg, #1d4ed8, #0f3fa6);
@@ -315,25 +323,17 @@
 
 /* ---------- Responsive ---------- */
 @media (max-width: 768px) {
-  .container {
-    padding: 40px 1rem;
-  }
+  .container { padding: 40px 1rem; }
 
-  .filterGrid {
-    grid-template-columns: 1fr;
-  }
+  .filterGrid { grid-template-columns: 1fr; }
 
-  .title {
-    font-size: 26px;
-  }
+  .title { font-size: 26px; }
 
   .cardGrid {
     grid-template-columns: 1fr;
   }
 
-  .searchBar {
-    width: 100%;
-  }
+  .searchBar { width: 100%; }
 
    /* Stack header items */
   .cardHeader {
@@ -349,7 +349,7 @@
   }
 
   /* Center the button */
-  .connectBtn {
+  /* .connectBtn {
     width: 100%;
     max-width: 220px;   
     text-align: center;
@@ -358,12 +358,82 @@
     margin-top: 1rem;
     font-size: 14px;
     border-radius: 12px;
-  }
+  } */
 
   .name { font-size: 15px; }
-
   .designation,
-  .college {
-    font-size: 13px;
+  .company,
+  .city { font-size: 13px; min-width: 0; max-width: 100%; }
+
+}
+
+.company { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+
+
+/* ================= MODAL OVERLAY ================= */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* ================= MODAL BOX ================= */
+.modalBox {
+  background: #ffffff;
+  width: 100%;
+  max-width: 520px;
+  padding: 24px;
+  border-radius: 8px; 
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  animation: popupScale 0.25s ease-out;
+}
+
+/* ================= ANIMATION ================= */
+@keyframes popupScale {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
   }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ================= MODAL HEADER ================= */
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.modalTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.modalClose {
+  background: #e2e8f0;
+  border: none;
+  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* ================= MODAL CONTENT ================= */
+.modalContent p {
+  margin: 6px 0;
+  font-size: 14px;
+  color: #334155;
 }

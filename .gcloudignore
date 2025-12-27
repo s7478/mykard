@@ -1,0 +1,74 @@
+# This file specifies files that are *not* uploaded to Google Cloud
+# using gcloud. It follows the same syntax as .gitignore, with the addition of
+# "#!include" directives (which insert the entries of the given .gitignore-style
+# file at that point).
+
+# Node modules
+node_modules/
+npm-debug.log
+
+# Next.js build output
+.next/
+out/
+
+# Local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Testing
+coverage/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+temp/
+
+# Documentation
+README.md
+DEPLOY.md
+README-DEPLOYMENT.md
+
+# Scripts (not needed in Cloud)
+scripts/
+*.sh
+
+# AWS infrastructure (using GCP)
+.aws/
+infrastructure/
+
+# Build artifacts
+dist/
+build/
+
+# Lock files (package-lock.json is needed, but not these)
+yarn.lock
+pnpm-lock.yaml
+
+# Prisma migrations (only schema.prisma is needed)
+migrations/
+
+# Other
+.dockerignore
+docker-compose.yml
+*.zip

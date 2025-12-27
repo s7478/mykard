@@ -20,12 +20,7 @@ if (typeof window === "undefined") {
 }
 
 const getFirebaseConfig = () => {
-  // Try to get config from window object (set by server)
-  if (typeof window !== 'undefined' && (window as any).__FIREBASE_CONFIG__) {
-    return (window as any).__FIREBASE_CONFIG__;
-  }
-
-  // Fallback to process.env (for development)
+  // Direct env vars - Next.js 16 makes NEXT_PUBLIC_ vars available at runtime
   const config = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
     authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -45,7 +40,6 @@ const getFirebaseConfig = () => {
       apiKeyPreview: config.apiKey ? `${config.apiKey.substring(0, 10)}...` : 'undefined',
       authDomain: config.authDomain || 'undefined',
       projectId: config.projectId || 'undefined',
-      windowConfig: !!(window as any).__FIREBASE_CONFIG__,
     });
   }
 

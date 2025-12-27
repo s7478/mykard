@@ -12,14 +12,18 @@ type Profile = {
   city: string;
   company?: string;
   designation?: string;
-  category?: string;
   profileImage?: string;
   email?: string;
   phone?: string;
+  about?: string;
+  services?: string;
+  skills?: string;
+  category?: string;
+  description?: string;
   verified?: boolean;
-  reviews?: number;
   views?: number;
 };
+
 
 export default function SearchPage() {
   return (
@@ -331,8 +335,8 @@ function SearchPageContent() {
   }, [query, profiles]);
 
 
-
   const suggestedProfiles = useMemo(() => {
+    if (!profiles || profiles.length === 0) return [];
     if (!profiles || profiles.length === 0) return [];
 
     return profiles
@@ -446,15 +450,11 @@ function SearchPageContent() {
             -webkit-appearance: none;
           }
           
-          .icon {
-            left: 14px;
-          }
+          .icon { left: 14px;}
         }
         
         @media (min-width: 641px) and (max-width: 1024px) {
-          .search-container {
-            padding: 14px;
-          }
+          .search-container { padding: 14px;}
         }
         
         @media (max-width: 720px) {
@@ -550,6 +550,32 @@ function SearchPageContent() {
           min-width: 0;   /* MOST IMPORTANT LINE */
         }
 
+
+
+        /* ---------- Card Layout Fix ---------- */
+
+.card {
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.card-info {
+  display: flex; align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0; /* MOST IMPORTANT */
+}
+
+.text-block {
+  min-width: 0;
+  flex: 1;
+}
+
+.card-action {
+  flex-shrink: 0; /* button never shrinks */
+  display: flex;
+  align-items: center;
+}
+
         /* utility spinner keyframes */
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
       `}</style>
@@ -562,6 +588,7 @@ function SearchPageContent() {
           </p>
           <p className="text-sm text-gray-500 px-2 sm:px-0">Discover and connect with top professionals — quick, safe, and effortless.</p>
         </header>
+
         {/* Search Container */}
         <div className="search-container" style={{
           backgroundColor: '#fff',
@@ -571,6 +598,7 @@ function SearchPageContent() {
           margin: '0 0 2px 0',
           boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
         }}>
+
           {/* <div className="header">
             <div>
               <div className="title">Search Professionals</div>
@@ -582,23 +610,15 @@ function SearchPageContent() {
           <div className="left relative">
             <div className="icon"><Search style={{ width: 16, height: 16, color: "#94A3B8" }} /></div>
             <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by name, skills, company, or city..."
-              aria-label="Search"
+              value={query} onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by name, skills, company, or city..." aria-label="Search"
             />
           </div>
+
           <div
             style={{
-              display: "flex",
-              gap: 6,
-              flexWrap: "wrap",
-              margin: '14px 0 0',
-              alignItems: 'center',
-              overflowX: 'auto',
-              paddingBottom: '6px',
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none',
+              display: "flex", gap: 6, flexWrap: "wrap", margin: '14px 0 0', alignItems: 'center',
+              overflowX: 'auto', paddingBottom: '6px', scrollbarWidth: 'none', msOverflowStyle: 'none',
             }}
             className="hide-scrollbar"
           >
@@ -624,7 +644,6 @@ function SearchPageContent() {
             ))}
           </div>
 
-
           <div className="meta">
             {hasQuery
               ? `Showing ${filtered.length} result${filtered.length !== 1 ? "s" : ""}`
@@ -632,14 +651,66 @@ function SearchPageContent() {
           </div>
 
           <div className="grid" style={{ marginTop: 12 }}>
+
+            {/* 🔹 Suggestions Heading */}
+            {!hasQuery && suggestedProfiles.length > 0 && (
+              <div style={{ gridColumn: "1 / -1", fontSize: 14, fontWeight: 600, color: "#475569", marginBottom: 6 }} >
+                Suggestions based on profession
+              </div>
+            )}
+
+            {/* 🔹 Suggested Profiles */}
+            {!hasQuery &&
+              suggestedProfiles.map((p, i) => (
+                <div key={`suggested-${p.username}-${i}`} className="card" role="button" tabIndex={0} onClick={() => setSelectedProfile(p)}>
+                  <div className="card-info">
+                    <div className="avatar">
+                      {p.profileImage ? (
+                        <img src={p.profileImage} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
+                      ) : (getInitials(p.name || "User"))
+                      }
+                    </div>
+                    <div className="text-block">
+                      <div className="name truncate-1">{p.name}</div>
+                      {p.designation && (<div className="designation truncate-2">{p.designation}</div>)}
+                      {p.company && (<div className="company truncate-1">{p.company}</div>)}
+                      <div className="city truncate-1">{p.city}</div>
+                    </div>
+                  </div>
+
+                  <div className="card-action">
+                    <button className="connect" onClick={(e) => { e.stopPropagation(); handleConnect(p.id, p.name); }}
+                      disabled={connectingUserId === p.id || sentRequests.has(p.id) || acceptedConnections.has(p.id)}
+                      style={
+                        acceptedConnections.has(p.id)
+                          ? { background: "#04c74cff", color: "#fff", cursor: "not-allowed" }
+                          : sentRequests.has(p.id)
+                            ? { background: "#0f48e4ff", color: "#fff", cursor: "not-allowed" }
+                            : { background: "#225BE4", color: "#fff" }
+                      }
+                    >
+                      {acceptedConnections.has(p.id)
+                        ? "Connected"
+                        : connectingUserId === p.id
+                          ? "Connecting..."
+                          : sentRequests.has(p.id)
+                            ? "Sent"
+                            : "Connect"}
+                    </button>
+                  </div>
+                </div>
+              )
+              )
+            }
+
             {loading ? (
               <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", padding: 28 }}>
                 <div style={{ width: 52, height: 52, borderRadius: "50%", border: "4px solid rgba(99,102,241,0.12)", borderTopColor: "rgba(99,102,241,0.95)", animation: "spin 1s linear infinite" }} />
               </div>
             ) : (
               filtered.map((p, i) => (
-                <div key={`${p.username}-${i}`} className="card" role="article" aria-label={p.name}>
-                  <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                <div key={`${p.username}-${i}`} className="card" role="button" aria-label={p.name} onClick={() => setSelectedProfile(p)}>
+                  <div className="card-info">
                     <div className="avatar">
                       {p.profileImage ? (
                         <img
@@ -652,15 +723,27 @@ function SearchPageContent() {
                       )}
                     </div>
 
-                    <div style={{ minWidth: 0 }}>
+                    {/* <div className="text-block">
                       <div className="name">{p.name}</div>
                       {p.designation && <div className="designation">{p.designation}</div>}
                       {p.company && <div className="company">{p.company}</div>}
                       <div className="city">{p.city}</div>
+                    </div> */}
+
+                    <div className="text-block">
+                      <div className="name truncate-1">{p.name}</div>
+                      {p.designation && (
+                        <div className="designation truncate-1">{p.designation}</div>
+                      )}
+                      {p.company && (
+                        <div className="company truncate-1">{p.company}</div>
+                      )}
+                      <div className="city truncate-1">{p.city}</div>
                     </div>
+
                   </div>
 
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
+                  <div className="card-action">
                     <button
                       className="connect"
                       onClick={(e) => { e.stopPropagation(); handleConnect(p.id, p.name); }}
@@ -706,14 +789,132 @@ function SearchPageContent() {
           </svg>
         </div>
 
+
+        {/* {selectedProfile && (
+          <Modal
+    isOpen={true}
+    onClose={() => setSelectedProfile(null)}
+    title={selectedProfile.name}
+    primaryText="Close"
+    message={
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+
+        <div><strong>Location:</strong> {selectedProfile.city}</div>
+
+        {selectedProfile.company && (
+          <div><strong>Company:</strong> {selectedProfile.company}</div>
+        )}
+
+        {selectedProfile.designation && (
+          <div><strong>Designation:</strong> {selectedProfile.designation}</div>
+        )}
+
+        {/* Description (from DigitalCardPreview → about) 
+        {selectedProfile.about && (
+          <div>
+            <strong>About</strong>
+            <p style={{ marginTop: 4, color: "#475569" }}>
+              {selectedProfile.about}
+            </p>
+          </div>
+        )} */}
+
+        {/* Services (from DigitalCardPreview → services)
+        {selectedProfile.services && (
+          <div>
+            <strong>Services</strong>
+            <ul style={{ marginTop: 6, paddingLeft: 18 }}>
+              {selectedProfile.services
+                .split(',')
+                .map(s => s.trim())
+                .filter(Boolean)
+                .map((s, i) => (
+                  <li key={i}>{s}</li>
+                ))}
+            </ul>
+          </div>
+        )}
+
+      </div>
+    }
+  /> 
+)} */}
+
+        {selectedProfile && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center"
+          >
+            {/* 🔹 Backdrop */}
+            <div
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              onClick={() => setSelectedProfile(null)}
+            />
+
+            {/* 🔹 Popup */}
+            <div className="relative z-50">
+              <Modal
+                isOpen={true}
+                onClose={() => setSelectedProfile(null)}
+              >
+                {/* popup content */}
+              </Modal>
+            </div>
+          </div>
+        )}
+
+
+
+
         {/* /* Modal unchanged (logic intact) */}
-        <Modal
+        {/* <Modal
           isOpen={showModal}
           onClose={() => setShowModal(false)}
           title="Connection Request Sent"
           message={<>Your connection request has been sent to <strong style={{ color: "#111827" }}>{connectionName}</strong>. They will be notified and can accept or reject your request.</>}
           primaryText="Close"
-        />
+        /> */}
+
+
+
+        {selectedProfile && (
+          <Modal isOpen={!!selectedProfile} onClose={() => setSelectedProfile(null)}>
+
+            <div className="p-6 space-y-3">
+              {/* Full Name */}
+              <h2 className="text-xl font-semibold"> {selectedProfile.name} </h2>
+
+              {/* Location */}
+              {selectedProfile.city && (
+                <p className="text-sm text-gray-600"> {selectedProfile.city} </p>
+              )}
+
+              {/* Company & Designation */}
+              {(selectedProfile.company || selectedProfile.designation) && (
+                <p className="text-sm">
+                  {selectedProfile.designation}
+                  {selectedProfile.company && ` ${selectedProfile.company}`}
+                </p>
+              )}
+
+              {/* Description */}
+              {selectedProfile.description && (
+                <div>
+                  <h4 className="font-medium mt-3">Description</h4>
+                  <p className="text-sm text-gray-700"> {selectedProfile.description} </p>
+                </div>
+              )}
+
+              {/* Services */}
+              {selectedProfile.services && (
+                <div>
+                  <h4 className="font-medium mt-3">Services</h4>
+                  <p className="text-sm text-gray-700"> {selectedProfile.services} </p>
+                </div>
+              )}
+            </div>
+          </Modal>
+        )}
+
       </div>
     </div>
   )
