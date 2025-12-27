@@ -208,29 +208,42 @@ export default function ContactsPage() {
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div className={styles.searchSection}>
-        <div className={styles.searchRow}>
-          <div className={styles.searchContainer}>
-            <Search className={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder={`Search ${contacts.length} contact${contacts.length !== 1 ? 's' : ''}`}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={styles.searchInput}
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className={styles.clearButton}
-              >
-                ×
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
+      {/* Search Bar (Mobile) */}
+<div className={styles.searchSection}>
+  <div className={styles.searchRow}>
+
+    {/* Search Input */}
+    <div className={styles.searchContainer}>
+      <Search className={styles.searchIcon} />
+      <input
+        type="text"
+        placeholder={`Search ${contacts.length} contact${contacts.length !== 1 ? 's' : ''}`}
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className={styles.searchInput}
+      />
+      {searchQuery && (
+        <button
+          onClick={() => setSearchQuery("")}
+          className={styles.clearButton}
+        >
+          ×
+        </button>
+      )}
+    </div>
+
+    {/* NEW: Mobile Export Button (beside search) */}
+    <button
+      onClick={exportToCSV}
+      className={styles.mobileExportInline}
+      title="Export CSV"
+    >
+      <Download size={16} />
+    </button>
+
+  </div>
+</div>
+
 
       {/* Desktop Inline Search Bar */}
       <div className={styles.desktopSearchBar}>
