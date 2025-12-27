@@ -1027,10 +1027,10 @@ export default function DashboardContactPage() {
                                   gap: '12px',
                                   padding: '14px 12px 10px 12px', /* added extra top padding */
                                   height: 'auto'
-                                  
+
                                 }}
                               >
-                                
+
                                 {/* Left: Avatar */}
                                 <div style={{ width: 45, height: 45, flexShrink: 0 }}>
                                   <div className={styles.avatarPlaceholder}>
