@@ -220,7 +220,7 @@ const EditPage = () => {
           setPortfolio(card.portfolio || '');
           setExperience(card.experience || '');
           setServices(card.services || '');
-          setReviews(card.reviews || '');
+          setReviews(card.review || '');
           setLinkedin(card.linkedinUrl || '');
           setWebsite(card.websiteUrl || '');
           setProfileImage(card.profileImage || null);
