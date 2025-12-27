@@ -1912,12 +1912,12 @@
 }
 
 .quickActionsRow {
+  position: absolute;
+  bottom: 8px;   
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 10px;
-  width: 100%;
+  gap: 12px;
 }
 
 .quickActionBtn {
