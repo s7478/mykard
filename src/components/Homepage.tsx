@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from "next/link";
-import React from 'react';
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
@@ -613,345 +612,6 @@ export default function Homepage() {
       {/* kanchan - 1st page 
       kanchan -1st page  */}
 
-      {/* Search Bar Section */}
-      {/* <section
-        id="find-digital-card"
-        className="section px-4 sm:px-6 lg:px-12 py-12 lg:py-20"
-        style={{ background: "transparent" }}
-      >
-        <div className="container mx-auto max-w-4xl">
-          <div
-            className="card card-elevated"
-            style={{
-              background: "var(--gradient-light)",
-              padding: "3rem 2rem",
-              borderRadius: "var(--radius-xl)",
-              boxShadow: "var(--shadow-xl)",
-            }}
-          > */}
-      {/* <div className="text-center" style={{ marginBottom: "2.5rem" }}>
-               <h2
-                className="heading-3"
-                style={{
-                  color: "var(--primary-blue)",
-                  fontSize: "2rem",
-                  fontWeight: "500",
-                  marginBottom: "0.75rem",
-                  lineHeight: "1.2",
-                }}
-              >
-                Connect With People
-              </h2> */}
-      {/* <p className="body-text" style={{ 
-                color: 'var(--text-secondary)',
-                fontSize: '1.05rem',
-                maxWidth: '600px',
-                margin: '0 auto 1rem auto'
-              }}>
-                Discover and connect with professionals worldwide through our comprehensive digital card directory. Search by name, company, industry, location, or expertise to find the right connections for your business growth.
-              </p> 
-            </div> */}
-
-      {/* <div className="relative" style={{ maxWidth: "700px", margin: "0 auto" }}>
-              <div className="relative flex items-center">
-                <svg
-                  className="absolute w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  style={{
-                    left: "1.5rem",
-                    color: "#94A3B8",
-                    pointerEvents: "none",
-                  }}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-                <input
-                  type="text"
-                  placeholder="Search by name, skills, company, or city..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onClick={handleConnectSearch}                         // actual change
-                  // onKeyDown={(e) => {
-                  //   if (e.key === "Enter") {
-                  //     handleConnectSearch();
-                  //   }
-                  // }}
-                  className="w-full rounded-full border-2 border-transparent focus:border-blue-500 focus:outline-none transition-all"
-                  style={{
-                    background: "#FFFFFF",
-                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
-                    paddingLeft: "3rem",
-                    paddingRight: "7.5rem",
-                    paddingTop: "1rem",
-                    paddingBottom: "1rem",
-                    fontSize: "0.9rem",
-                    color: "var(--primary-purple)",
-                  }}
-                />
-                <button
-                  className="absolute text-white rounded-full transition-all search-button-mobile"
-                  onClick={handleConnectSearch}
-                  style={{
-                    right: "0.4rem",
-                    paddingLeft: "2rem",
-                    paddingRight: "2rem",
-                    paddingTop: "0.75rem",
-                    paddingBottom: "0.75rem",
-                    fontSize: "15px",
-                    fontWeight: "600",
-                    background: "var(--gradient-primary)",
-                    boxShadow: "var(--shadow-colored)",
-                    cursor: "pointer",
-                    border: "none",
-                  }}
-                >
-                  Search
-                </button>
-              </div>
-
-              <p
-                className="body-text"
-                style={{
-                  color: "var(--text-secondary)",
-                  fontSize: "0.95rem",
-                  maxWidth: "580px",
-                  margin: "0 auto",
-                }}
-              >
-                Access verified professional profiles, view portfolios, and
-                connect instantly with industry leaders, potential clients, and
-                business partners in your network.
-              </p>
-              {hasSearched && (
-                <div className="mt-10" style={{ marginTop: "3.5rem" }}>
-                  {searchLoading ? (
-                    <div className="flex items-center justify-center py-8">
-                      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
-                    </div>
-                  ) : (
-                    <>
-                      {searchResults.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {searchResults.map((profile) => (
-                            <div
-                              key={profile.id}
-                              className="flex items-center justify-between rounded-sm bg-white p-4 shadow-md"
-                            >
-                              <div
-                                className="flex items-center gap-3"
-                                style={{ paddingLeft: "16px" }}
-                              >
-                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white font-semibold">
-                                  {profile.name.charAt(0)}
-                                </div>
-                                <div>
-                                  <div
-                                    className="font-semibold text-gray-900"
-                                    style={{
-                                      filter:
-                                        isLoggedIn === false
-                                          ? "blur(3px)"
-                                          : "none",
-                                    }}
-                                  >
-                                    {profile.name}
-                                  </div>
-                                  {profile.designation && (
-                                    <div className="fontSize-[14px] text-gray-600">
-                                      {profile.designation}
-                                    </div>
-                                  )}
-                                  <div className="text-sm text-gray-500">
-                                    📍 {profile.city}
-                                  </div>
-                                </div>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  if (isLoggedIn === false) {
-                                    router.push("/auth/signup");
-                                  } else {
-                                    handleConnect(profile.id, profile.name);
-                                  }
-                                }}
-                                disabled={
-                                  connectingUserId === profile.id ||
-                                  sentRequests.has(profile.id) ||
-                                  acceptedConnections.has(profile.id)
-                                }
-                                className={`rounded-sm px-4 py-2 text-sm font-semibold text-white shadow transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${acceptedConnections.has(profile.id)
-                                  ? "bg-green-600 hover:bg-green-800"
-                                  : sentRequests.has(profile.id)
-                                    ? "bg-amber-500 hover:bg-amber-600"
-                                    : "bg-blue-600 hover:bg-blue-700"
-                                  }`}
-                                style={{
-                                  minWidth: "90px",
-                                  textAlign: "center",
-                                  marginRight: "12px",
-                                }}
-                              >
-                                {connectingUserId === profile.id
-                                  ? "Connecting..."
-                                  : acceptedConnections.has(profile.id)
-                                    ? "Connected"
-                                    : sentRequests.has(profile.id)
-                                      ? "Sent"
-                                      : "Connect"}
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="py-6 text-center text-gray-500">
-                          No matching profiles found.
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              )}
-            </div> */}
-
-      {/* <section className="relative" 
-            style={{ background: "linear-gradient(135deg, #0f172a, #1e3a8a)", paddingTop: "5rem", paddingBottom: "7rem"}} >
-              
-              {/* Floating Search Card 
-              <div style={{ maxWidth: "900px", margin: "0 auto", padding: "2.5rem 2rem", background: "linear-gradient(90deg, #5b8cff, #9bbcff)",
-              borderRadius: "22px", boxShadow: "0 25px 50px rgba(0,0,0,0.25)"}}>
-                
-              {/* Search Input 
-              <div className="relative flex items-center max-w-[700px] mx-auto">
-                {/* Icon 
-                <svg className="absolute w-5 h-5" style={{ left: "1.5rem", color: "#94a3b8" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-
-      <input
-        type="text"
-        placeholder="Search by name, skills, company or city..."
-        className="w-full rounded-full border-0 focus:outline-none"
-        style={{ paddingLeft: "3.2rem", paddingRight: "8rem", paddingTop: "1rem", paddingBottom: "1rem", fontSize: "0.95rem", background: "#ffffff", boxShadow: "0 6px 14px rgba(0,0,0,0.1)", }}
-      />
-
-      <button
-        className="absolute rounded-full text-white font-semibold"
-        style={{ right: "0.4rem", padding: "0.7rem 2rem", background: "linear-gradient(135deg, #2563eb, #3b82f6)", boxShadow: "0 10px 25px rgba(37,99,235,0.5)", border: "none"}}
-      > Search</button>
-    </div>
-
-    {/* Description Text 
-    <p
-      style={{ marginTop: "1.8rem", maxWidth: "600px", marginInline: "auto", fontSize: "0.95rem", textAlign: "center", color: "#e2e8f0", lineHeight: "1.6" }}
-    >
-      Access verified professional profiles, view portfolios, and connect
-      instantly with industry leaders, potential clients, and business partners
-      in your network. </p>
-    </div>
-</section>
-
- */}
-
-
-
-      {/* <div className="w-full bg-white">
-      {/* SECTION 1: Top Hero & Search
-      <section 
-        className="relative px-6" 
-        style={{ 
-          background: "linear-gradient(180deg, #1e40af 0%, #60a5fa 40%, #ffffff 100%)", 
-          paddingTop: "5rem", 
-          paddingBottom: "4rem" 
-        }}
-      >
-        <div className="container mx-auto flex flex-col items-center">
-          {/* Floating Search Card 
-          <div 
-            style={{ 
-              width: "100%",
-              maxWidth: "800px", 
-              padding: "2rem", 
-              background: "linear-gradient(90deg, #6366f1, #a5b4fc)",
-              borderRadius: "24px", 
-              boxShadow: "0 20px 40px rgba(0,0,0,0.1)"
-            }}
-          >
-            {/* Search Input Container 
-            <div className="relative flex items-center w-full">
-              <svg 
-                className="absolute w-5 h-5" 
-                style={{ left: "1.2rem", color: "#94a3b8" }} 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search by name, skills, company or city..."
-                className="w-full rounded-full border-0 focus:outline-none"
-                style={{ 
-                  padding: "0.8rem 1.5rem 0.8rem 3.5rem", 
-                  fontSize: "0.9rem", 
-                  background: "#ffffff" 
-                }}
-              /> 
-              <button
-                className="absolute text-blue-600 font-bold text-xs uppercase tracking-wider"
-                style={{ right: "1.5rem", border: "none", background: "none", cursor: "pointer" }}
-              >
-                Search
-              </button>
-            </div>
-          </div> */}
-
-      {/* Info Card (The one with the curved arrow in the image) 
-          <div 
-            className="mt-6 p-8 text-center relative"
-            style={{ 
-              maxWidth: "1305px", maxHeight: "333px",
-              background: "rgba(219, 234, 254, 0.7)", 
-              backgroundColor: "#C1DCFF",
-              borderRadius: "10px", 
-              backdropFilter: "blur(10px)",
-              border: "1px solid rgba(255,255,255,0.5)"
-            }}
-          > 
-          
-              <p style={{fontFamily:"Caveat Brush",color: "#000000", fontWeight: "500", lineHeight: "100%", letterSpacing: "10%"}}>
-              Access verified professional profiles, view portfolios <br></br>and connect instantly with industry leaders <br></br>potential clients and business partners in your <br></br>network.
-              </p>
-          
-            
-            {/* Decorative Arrow (CSS implementation) 
-            <div className="absolute -right-8 top-1/2 hidden md:block" style={{ transform: "rotate(-10deg)" }}>
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="2">
-                    <path d="M3 12c6-10 12 10 18 0m-3-3l3 3-3 3" />
-                </svg>
-            </div>
-          </div>
-        </div>
-      </section>
-      
-    </div>
-          </div>
-        </div>
-      </section>
- */}
-
-
-
-
-
 
 
 
@@ -1185,46 +845,6 @@ export default function Homepage() {
                 </div>
               </motion.section>
 
-              {/* --- 2. THE DARK BLUE PROFILE CARD --- */}
-              {/* <motion.section
-        initial={{ opacity: 0, y: 28, scale: 0.985 }}
-        whileInView={{ opacity: 1, y: 0, scale: 1 }}
-        viewport={{ once: true, amount: 0.25 }}
-        transition={{ duration: 1.05, delay: 0.36, ease: [0.4, 0.0, 0.2, 1]}}
-        // </div>style={{ width: "100%",display: "flex", justifyContent: "center", marginTop: "-60px", zIndex: 6 }}
-
-        className="flex justify-center"
-  style={{ marginTop: "-40px", zIndex: 6 }}
-        >
-          <div
-            // style={{
-            //   width: "98%", maxWidth: "1600px",   
-            //   background:"radial-gradient(circle at center, #8B54FF 0%, #173CAA 50%, #0C2160 100%)",
-            //   padding: "100px 270px", borderRadius: "22px", boxShadow: "0 28px 60px rgba(0,0,0,0.28)"
-            // }}
-            className=" w-[95%] sm:w-[92%] md:max-w-[880px] text-center rounded-2xl"
-    style={{
-      background:
-        "radial-gradient(circle at center, #8B54FF 0%, #173CAA 50%, #0C2160 100%)",
-      padding: "120px 30px",
-      boxShadow: "0 28px 60px rgba(0,0,0,0.28)",
-    }}
-          >
-            <p 
-              //className="text-3xl md:text-[20px] font-medium leading-[1.6]"
-               className=" text-white text-base sm:text-lg md:text-4xl leading-relaxed font-medium "
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color:"white",fontWeight:"200", fontSize:"35px",
-                letterSpacing: "0.02em", lineHeight: "1.2", textAlign: "center", textShadow: "0px 2px 4px rgba(0,0,0,0.1)"
-              }}
-            >
-              MyKard is your smart digital profile designed to help you get <br className="hidden md:block" /> 
-              discovered and grow your network. <br className="hidden md:block" />
-              Whether you're a freelancer or a CEO, replace scattered <br className="hidden md:block" />
-              links and physical cards with one powerful QR code that tells <br className="hidden md:block" />
-              your story.
-            </p>
-         </div>
-      </motion.section>   */}
 
 
               {/* --- 2. THE DARK BLUE PROFILE CARD --- */}
@@ -1259,99 +879,16 @@ export default function Homepage() {
                 </div>
               </motion.section>
             </div>
-
-
-
-            {/* Right Side - Stats Cards */}
-            {/*<div className="grid grid-cols-1 gap-5 stats-grid">
-              {[
-                { stat: "100%", label: "Growth Oriented", color: "#667eea" },
-                {
-                  stat: "42%",
-                  label: "Increase in Professional Connections",
-                  color: "#667eea",
-                },
-                { stat: "70%", label: "Better Follow-ups", color: "#667eea" },
-              ].map((item, idx) => (
-                <div
-                  key={idx}
-                  className="stats-card"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #ffffffff 0%, #ffffffff 100%)",
-                    borderRadius: "1.5rem",
-                    padding: "2rem 2.5rem",
-                    position: "relative",
-                    overflow: "hidden",
-                    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.15)",
-                    border: "1px solid rgba(255, 255, 255, 0.1)",
-                    transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                  }}
-                >
-                  {/* Gradient accent line 
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      height: "4px",
-                      background: `linear-gradient(90deg, ${item.color} 0%, transparent 100%)`,
-                    }}
-                  ></div>
-
-                  {/* Subtle glow effect 
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "50%",
-                      right: "-20%",
-                      width: "200px",
-                      height: "200px",
-                      background: `radial-gradient(circle, ${item.color}20 0%, transparent 70%)`,
-                      borderRadius: "50%",
-                      filter: "blur(40px)",
-                    }}
-                  ></div>
-
-                  <div style={{ position: "relative", zIndex: 1 }}>
-                    <h3
-                      style={{
-                        fontSize: "3rem",
-                        fontWeight: "800",
-                        background: `linear-gradient(135deg, ${item.color} 0%, #a78bfa 100%)`,
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                        backgroundClip: "text",
-                        marginBottom: "0.5rem",
-                        letterSpacing: "-0.02em",
-                      }}
-                    >
-                      {item.stat}
-                    </h3>
-                    <p
-                      style={{
-                        color: "#000000",
-                        fontSize: "0.95rem",
-                        fontWeight: "500",
-                        margin: 0,
-                      }}
-                    >
-                      {item.label}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
-
         </div>
-
       </section>
-      <GrowthMetricsSection />
+
+
+
 
       {/* --------------------------------------kanchan 3 page start --------------------- 
       -----------------kanchan 3 page---------------*/}
+      <GrowthMetricsSection />
 
       {/* Build Credibility That Converts */}
       <section
@@ -1804,8 +1341,8 @@ export default function Homepage() {
               );
             })}
           </div>
-        </div>
-      </section>*/}
+           </div>
+         </section>*/}
 
       <section id="faq" className="section py-12 lg:py-20 px-4 sm:px-6 lg:px-12" style={{ background: "white" }}>
         <div className="container mx-auto max-w-4xl">
@@ -1882,6 +1419,6 @@ export default function Homepage() {
           </div>
         </div>
       </section>
-    </div >
+    </div>
   );
 }
