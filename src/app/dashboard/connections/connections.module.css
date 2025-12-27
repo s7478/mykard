@@ -1123,7 +1123,7 @@
   position: relative;
   width: 100%;
   height: 165px; /* further reduced for mobile */
-  perspective: 1000px;
+  perspective: 1200px;
 }
 
 @media (min-width: 640px) {
@@ -1139,14 +1139,14 @@
 }
 
 .flipCardInner {
-  position: absolute;
+  position: relative;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
   width: 100%;
   height: 100%;
-  transition: transform 700ms;
+ transition: transform 0.7s ease;
   transform-style: preserve-3d;
 }
 
@@ -1166,8 +1166,9 @@
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
   border: 1px solid;
   padding: 10px; /* reduced padding for mobile */
-  transition: all 300ms;
+  transition: all 0.4s ease;
   overflow: hidden; /* keep children inside rounded card */
+   backface-visibility: hidden;
 }
 
 @media (min-width: 640px) {
@@ -2247,6 +2248,24 @@
   height: 44px;
   border-radius: 12px;
 }
+.statusBadge {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #22c55e; /* green */
+  background: rgba(34, 197, 94, 0.12);
+  padding: 4px 10px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 5;
+}
+
+
+
 
 
 

@@ -893,6 +893,7 @@ export default function DashboardContactPage() {
                                   )}
                                 </div>
                                 <div>
+
                                   <h3
                                     className={styles.mobileCardTitle}
                                     onClick={() => setPreviewContact(contact)}
@@ -1026,8 +1027,10 @@ export default function DashboardContactPage() {
                                   gap: '12px',
                                   padding: '14px 12px 10px 12px', /* added extra top padding */
                                   height: 'auto'
+                                  
                                 }}
                               >
+                                
                                 {/* Left: Avatar */}
                                 <div style={{ width: 45, height: 45, flexShrink: 0 }}>
                                   <div className={styles.avatarPlaceholder}>
@@ -1216,7 +1219,7 @@ export default function DashboardContactPage() {
           ) : (
             /* Requests View */
             <div className={styles.requestsViewContainer}>
-              <h3 className={styles.requestsTitle}>Connection Requests</h3>
+              <h3 className={styles.requestsTitle}> </h3>
               {connectionRequests.length > 0 ? (
                 <div className={styles.requestsList}>
                   {connectionRequests.map((request) => (
