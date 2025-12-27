@@ -1060,7 +1060,7 @@ function MessagesPageContent() {
       color: colors.textMain,
       padding: "10px 14px 8px 14px", // ⬅️ more vertical space
       borderRadius: "18px 18px 18px 4px",
-      fontSize: "26px", // ⬅️ message slightly bigger
+      fontSize: "16px", // ⬅️ message slightly bigger
       // lineHeight: "1.6",
       boxShadow: "0 2px 4px rgba(0,0,0,0.04)",
       maxWidth: "80%",

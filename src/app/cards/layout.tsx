@@ -16,6 +16,7 @@ export default function CardsLayout({
   const pathname = usePathname();
   const { isAuthenticated, checkAuth, isLoading } = useAuth();
   const [isLgUp, setIsLgUp] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Check if this is a public card page
   const isPublicCardPage = pathname?.startsWith('/cards/public');
@@ -51,14 +52,14 @@ export default function CardsLayout({
 
   return (
     <div className="h-screen overflow-hidden" style={{ backgroundColor: "#f8fafc" }}>
-      {/* Sidebar */}
-      <Sidebar />
+      {/* Sidebar (controlled so mobile stays closed) */}
+      <Sidebar isOpen={isLgUp ? isSidebarOpen : false} setIsOpen={setIsSidebarOpen} />
 
       {/* Main Content */}
       <div
         className="h-full flex flex-col"
         style={{
-          marginLeft: isLgUp ? "18rem" : "0", // matches sidebar width
+          marginLeft: isLgUp ? (isSidebarOpen ? "18rem" : "5rem") : "0", // matches sidebar width
           background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
           transition: "margin-left 0.3s ease-in-out",
         }}
