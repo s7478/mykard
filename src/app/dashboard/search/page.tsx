@@ -585,21 +585,20 @@ function SearchPageContent() {
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 pb-6">
         {/* Header Section */}
-        <header className="relative text-center pt-16 pb-3">
-  <div
-    className="absolute top-6 left-0 right-0 h-28 -z-10"
-    
-  />
+       <header className="relative text-center pt-6 sm:pt-8 md:pt-10 pb-1">
+  <div className="hover-title inline-block cursor-pointer">
+    <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 leading-tight whitespace-nowrap">
+      Build Real <span className="text-[#225BE4]">Connections</span>
+    </h1>
 
-  <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 whitespace-nowrap">
-    Build Real{" "}
-    <span className="text-[#225BE4]">Connections</span>
-  </h1>
-
-  <p className="mt-1 text-sm text-gray-500 max-w-xs mx-auto">
-    Discover professionals and connect instantly
-  </p>
+    <p className="subtitle-hover mt-1 text-sm text-gray-500 max-w-xs mx-auto leading-snug">
+      Discover professionals and connect instantly
+    </p>
+  </div>
 </header>
+
+
+
 
 
 
@@ -672,6 +671,26 @@ function SearchPageContent() {
               </div>
             )}
 
+<<<<<<< HEAD
+          {/* 🔹 Suggested Profiles */}
+          {!hasQuery &&
+            suggestedProfiles.map((p, i) => (
+              <div key={`suggested-${p.username}-${i}`} className="card" role="button"  tabIndex={0} onClick={() => setSelectedProfile(p)}>
+              <div className="card-info">
+                <div className="avatar">
+                  {p.profileImage ? (
+                    <img src={p.profileImage} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }}/>
+                  ) : ( getInitials(p.name || "User"))
+                  }
+                </div>
+                <div className="text-block">
+                  <div className="name truncate-1">{p.name}</div>
+                    {p.designation && ( <div className="designation truncate-1">{p.designation}</div>)}
+                    {p.company && (<div className="company truncate-1">{p.company}</div>)}
+                  <div className="city truncate-1">{p.city}</div>
+                </div>
+              </div>
+=======
             {/* 🔹 Suggested Profiles */}
             {!hasQuery &&
               suggestedProfiles.map((p, i) => (
@@ -690,6 +709,7 @@ function SearchPageContent() {
                       <div className="city truncate-1">{p.city}</div>
                     </div>
                   </div>
+>>>>>>> 24c589e5c8f227a5580dd9aa652ca0171b45ddbb
 
                   <div className="card-action">
                     <button className="connect" onClick={(e) => { e.stopPropagation(); handleConnect(p.id, p.name); }}
@@ -939,5 +959,48 @@ function SearchPageContent() {
 
       </div>
     </div>
+<<<<<<< HEAD
+)}
+
+<style>{`
+  /* utility spinner keyframes */
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* =========================================
+     FORCE SINGLE LINE DESIGNATION — TABLET ONLY
+  ========================================= */
+  @media (min-width: 768px) and (max-width: 1024px) {
+    .card .designation {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+
+      /* disable truncate-2 */
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: horizontal;
+    }
+  }
+    /* ===== Header hover subtitle (hydration-safe) ===== */
+
+.subtitle-hover {
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+
+.hover-title:hover .subtitle-hover {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+`}</style>
+
+=======
   )
 }
+>>>>>>> 24c589e5c8f227a5580dd9aa652ca0171b45ddbb
