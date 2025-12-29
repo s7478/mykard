@@ -1,10 +1,9 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import "../app/globals.css";
@@ -28,7 +27,7 @@ const CardItem = ({ feature, isMobile }: { feature: any, isMobile: boolean }) =>
     }}
   >
     <div style={{ marginBottom: "1rem", width: "100%", height: "120px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <img src={feature.image} alt={feature.title} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
+      <Image src={feature.image} alt={feature.title} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
     </div>
 
     <h3 style={{ color: feature.textColor, fontSize: "1.1rem", fontWeight: "700", margin: "0.75rem 0", textAlign: "center", lineHeight: "1.3" }}>
@@ -535,7 +534,7 @@ export default function Homepage() {
               pointerEvents: 'none'
             }}
           >
-            <img
+            <Image
               src="/assets/worldmap.png"
               alt="World Map"
               style={{
@@ -1365,7 +1364,7 @@ export default function Homepage() {
                       className="w-16 h-16 md:w-20 md:h-20 bg-[#FBCB43] rounded-full flex items-center justify-center shrink-0 shadow-lg overflow-hidden p-3"
                       style={{ marginLeft: '25px' }} // Forcefully moving the icon right from the border
                     >
-                      <img
+                      <Image
                         src={step.image}
                         alt={step.title}
                         className="w-full h-full object-contain"
@@ -1662,6 +1661,6 @@ export default function Homepage() {
           </div>
         </div>
       </section>
-    </div >
+    </div>
   );
 }
