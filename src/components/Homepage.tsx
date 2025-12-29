@@ -27,7 +27,13 @@ const CardItem = ({ feature, isMobile }: { feature: any, isMobile: boolean }) =>
     }}
   >
     <div style={{ marginBottom: "1rem", width: "100%", height: "120px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <Image src={feature.image} alt={feature.title} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
+      <Image
+        src={feature.image}
+        alt={feature.title}
+        width={240}
+        height={160}
+        style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
+      />
     </div>
 
     <h3 style={{ color: feature.textColor, fontSize: "1.1rem", fontWeight: "700", margin: "0.75rem 0", textAlign: "center", lineHeight: "1.3" }}>
@@ -537,6 +543,8 @@ export default function Homepage() {
             <Image
               src="/assets/worldmap.png"
               alt="World Map"
+              width={600}
+              height={503}
               style={{
                 width: '100%', height: 'auto', maxHeight: '503px', objectFit: 'contain',
                 filter: 'drop-shadow(0 0 20px rgba(130, 210, 239, 0.2))',
@@ -1367,6 +1375,8 @@ export default function Homepage() {
                       <Image
                         src={step.image}
                         alt={step.title}
+                        width={80}
+                        height={80}
                         className="w-full h-full object-contain"
                       />
                     </div>

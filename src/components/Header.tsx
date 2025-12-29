@@ -81,15 +81,13 @@ export default function Header() {
           <div className="flex items-center justify-between h-12">
             {/* Logo - Left Side */}
             <Link href="/" className="flex items-center group">
-              <Link href="/" className="flex items-center group">
-                <Image
-                  src="/assets/headerlogo.png"
-                  alt="Logo"
-                  width={144}
-                  height={144}
-                  className="w-40 h-10 object-cover transition-all duration-300 group-hover:scale-105"
-                />
-              </Link>
+              <Image
+                src="/assets/headerlogo.png"
+                alt="Logo"
+                width={144}
+                height={144}
+                className="w-40 h-10 object-cover transition-all duration-300 group-hover:scale-105"
+              />
 
               <svg className="w-6 h-6 text-blue-600 absolute" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ display: 'none' }}>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
