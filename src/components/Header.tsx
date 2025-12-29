@@ -43,12 +43,7 @@ export default function Header() {
   // Auto-close mobile menu on scroll
   useEffect(() => {
     if (!isMenuOpen) return;
-
-    const handleScroll = () => {
-      if (window.innerWidth < 1024) {
-        setIsMenuOpen(false);
-      }
-    };
+    const handleScroll = () => { if (window.innerWidth < 1024) { setIsMenuOpen(false); } };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -59,9 +54,7 @@ export default function Header() {
       await logout();
       window.location.href = '/';
       setIsDropdownOpen(false);
-    } catch (error) {
-      console.error('Logout failed', error);
-    }
+    } catch (error) { console.error('Logout failed', error); }
   };
 
   return (
@@ -79,20 +72,9 @@ export default function Header() {
       <header
         className="bg-white/95 backdrop-blur-xl border-b border-blue-100/50 shadow-sm mobile-fixed-header"
         style={{
-          position: 'fixed',
-          top: '0px',
-          left: '0px',
-          right: '0px',
-          width: '100%',
-          maxWidth: '100vw',
-          minHeight: '90px',
-          height: 'auto',
-          zIndex: 99999,
-          transform: 'translate3d(0px, 0px, 0px)',
-          WebkitTransform: 'translate3d(0px, 0px, 0px)',
-          backfaceVisibility: 'hidden',
-          WebkitBackfaceVisibility: 'hidden',
-          overflow: 'visible'
+          position: 'fixed', top: '0px', left: '0px', right: '0px', width: '100%', maxWidth: '100vw', minHeight: '90px',
+          height: 'auto', zIndex: 99999, transform: 'translate3d(0px, 0px, 0px)',
+          WebkitTransform: 'translate3d(0px, 0px, 0px)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', overflow: 'visible'
         }}
       >
         <nav className="max-w-7xl mx-auto px-6 pt-3 pb-1" style={{ paddingLeft: '1.25rem', paddingRight: '1.25rem', paddingTop: '0.25rem' }}>
@@ -115,9 +97,9 @@ export default function Header() {
             </Link>
 
             {/* Desktop Menu and Actions - Right Side */}
-            <div className="hidden lg:flex items-center gap-6">
+            <div className="hidden lg:flex items-center gap-80">
               {/* Navigation Links */}
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-20">
                 <Link href="/" className="px-2 py-1.5 text-[14px] font-semibold text-blue-600 hover:text-blue-700 transition-colors">
                   Home
                 </Link>
@@ -413,11 +395,11 @@ export default function Header() {
                   </div>
                 ) : (
                   <>
-                    <a href="/auth/login" className="px-4 py-2 text-[14px] font-medium text-gray-700 hover:text-blue-600 transition-colors rounded-md hover:bg-blue-50/50" style={{ textDecoration: 'none' }}>
+                    {/* <a href="/auth/login" className="px-4 py-2 text-[14px] font-medium text-gray-700 hover:text-blue-600 transition-colors rounded-md hover:bg-blue-50/50" style={{ textDecoration: 'none' }}>
                       Login
-                    </a>
+                    </a> */}
                     <a href="/auth/signup" className="relative px-8 py-2 text-[14px] font-semibold text-white bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-full transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:scale-105 overflow-hidden group border-none cursor-pointer"
-                      style={{ minWidth: '100px', minHeight: '36px', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      style={{marginRight: '20px', padding:"8px",minWidth: '100px', minHeight: '36px', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     >
                       <span className="relative z-10 flex items-center justify-center">
                         Create Card

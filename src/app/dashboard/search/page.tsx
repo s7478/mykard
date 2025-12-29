@@ -671,26 +671,6 @@ function SearchPageContent() {
               </div>
             )}
 
-<<<<<<< HEAD
-          {/* 🔹 Suggested Profiles */}
-          {!hasQuery &&
-            suggestedProfiles.map((p, i) => (
-              <div key={`suggested-${p.username}-${i}`} className="card" role="button"  tabIndex={0} onClick={() => setSelectedProfile(p)}>
-              <div className="card-info">
-                <div className="avatar">
-                  {p.profileImage ? (
-                    <img src={p.profileImage} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }}/>
-                  ) : ( getInitials(p.name || "User"))
-                  }
-                </div>
-                <div className="text-block">
-                  <div className="name truncate-1">{p.name}</div>
-                    {p.designation && ( <div className="designation truncate-1">{p.designation}</div>)}
-                    {p.company && (<div className="company truncate-1">{p.company}</div>)}
-                  <div className="city truncate-1">{p.city}</div>
-                </div>
-              </div>
-=======
             {/* 🔹 Suggested Profiles */}
             {!hasQuery &&
               suggestedProfiles.map((p, i) => (
@@ -709,7 +689,6 @@ function SearchPageContent() {
                       <div className="city truncate-1">{p.city}</div>
                     </div>
                   </div>
->>>>>>> 24c589e5c8f227a5580dd9aa652ca0171b45ddbb
 
                   <div className="card-action">
                     <button className="connect" onClick={(e) => { e.stopPropagation(); handleConnect(p.id, p.name); }}
@@ -736,14 +715,14 @@ function SearchPageContent() {
               )
             }
 
-            {loading ? (
+            {/* {loading ? (
               <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", padding: 28 }}>
                 <div style={{ width: 52, height: 52, borderRadius: "50%", border: "4px solid rgba(99,102,241,0.12)", borderTopColor: "rgba(99,102,241,0.95)", animation: "spin 1s linear infinite" }} />
               </div>
             </div>
           )
         )
-      }
+      } */}
       
       {loading ? (
         <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", padding: 28 }}>
@@ -919,7 +898,8 @@ function SearchPageContent() {
 
 
         {selectedProfile && (
-          <Modal isOpen={!!selectedProfile} onClose={() => setSelectedProfile(null)}>
+          <Modal 
+          isOpen={!!selectedProfile} onClose={() => setSelectedProfile(null)}>
 
             <div className="p-6 space-y-3">
               {/* Full Name */}
@@ -956,51 +936,7 @@ function SearchPageContent() {
             </div>
           </Modal>
         )}
-
       </div>
     </div>
-<<<<<<< HEAD
-)}
-
-<style>{`
-  /* utility spinner keyframes */
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  /* =========================================
-     FORCE SINGLE LINE DESIGNATION — TABLET ONLY
-  ========================================= */
-  @media (min-width: 768px) and (max-width: 1024px) {
-    .card .designation {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: block;
-
-      /* disable truncate-2 */
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: horizontal;
-    }
-  }
-    /* ===== Header hover subtitle (hydration-safe) ===== */
-
-.subtitle-hover {
-  opacity: 0;
-  transform: translateY(4px);
-  transition: opacity 0.25s ease, transform 0.25s ease;
-  pointer-events: none;
-}
-
-.hover-title:hover .subtitle-hover {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-`}</style>
-
-=======
   )
 }
->>>>>>> 24c589e5c8f227a5580dd9aa652ca0171b45ddbb
