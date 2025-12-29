@@ -716,14 +716,14 @@ function SearchPageContent() {
               )
             }
 
-            {loading ? (
+            {/* {loading ? (
               <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", padding: 28 }}>
                 <div style={{ width: 52, height: 52, borderRadius: "50%", border: "4px solid rgba(99,102,241,0.12)", borderTopColor: "rgba(99,102,241,0.95)", animation: "spin 1s linear infinite" }} />
               </div>
             </div>
           )
         )
-      }
+      } */}
       
       {loading ? (
         <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", padding: 28 }}>
@@ -899,7 +899,8 @@ function SearchPageContent() {
 
 
         {selectedProfile && (
-          <Modal isOpen={!!selectedProfile} onClose={() => setSelectedProfile(null)}>
+          <Modal 
+          isOpen={!!selectedProfile} onClose={() => setSelectedProfile(null)}>
 
             <div className="p-6 space-y-3">
               {/* Full Name */}
@@ -936,8 +937,7 @@ function SearchPageContent() {
             </div>
           </Modal>
         )}
-
       </div>
-    </div>
-  )
+      </div>
+  );
 }
