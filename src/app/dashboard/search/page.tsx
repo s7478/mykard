@@ -585,21 +585,20 @@ function SearchPageContent() {
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 pb-6">
         {/* Header Section */}
-        <header className="relative text-center pt-16 pb-3">
-  <div
-    className="absolute top-6 left-0 right-0 h-28 -z-10"
-    
-  />
+       <header className="relative text-center pt-6 sm:pt-8 md:pt-10 pb-1">
+  <div className="hover-title inline-block cursor-pointer">
+    <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 leading-tight whitespace-nowrap">
+      Build Real <span className="text-[#225BE4]">Connections</span>
+    </h1>
 
-  <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 whitespace-nowrap">
-    Build Real{" "}
-    <span className="text-[#225BE4]">Connections</span>
-  </h1>
-
-  <p className="mt-1 text-sm text-gray-500 max-w-xs mx-auto">
-    Discover professionals and connect instantly
-  </p>
+    <p className="subtitle-hover mt-1 text-sm text-gray-500 max-w-xs mx-auto leading-snug">
+      Discover professionals and connect instantly
+    </p>
+  </div>
 </header>
+
+
+
 
 
 
@@ -892,7 +891,8 @@ function SearchPageContent() {
 
 
         {selectedProfile && (
-          <Modal isOpen={!!selectedProfile} onClose={() => setSelectedProfile(null)}>
+          <Modal 
+          isOpen={!!selectedProfile} onClose={() => setSelectedProfile(null)}>
 
             <div className="p-6 space-y-3">
               {/* Full Name */}
@@ -929,7 +929,6 @@ function SearchPageContent() {
             </div>
           </Modal>
         )}
-
       </div>
     </div>
   )
