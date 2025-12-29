@@ -716,14 +716,7 @@ function SearchPageContent() {
               )
             }
 
-            {loading ? (
-              <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", padding: 28 }}>
-                <div style={{ width: 52, height: 52, borderRadius: "50%", border: "4px solid rgba(99,102,241,0.12)", borderTopColor: "rgba(99,102,241,0.95)", animation: "spin 1s linear infinite" }} />
-              </div>
-            </div>
-          )
-        )
-      }
+            
       
       {loading ? (
         <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", padding: 28 }}>
