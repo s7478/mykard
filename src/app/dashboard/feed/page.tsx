@@ -21,9 +21,9 @@ export default function FeedPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#F3F4F6] px-6 py-8 ">
-      <div className="flex w-auto m-auto justify-center gap-8">
-        <main className="flex flex-col gap-6 overflow-hidden">
+    <div className="min-h-screen bg-[#F3F4F6] px-4 py-8 flex justify-center">
+      {/* <div className="flex w-auto m-auto justify-center gap-8"> */}
+        <main className="flex flex-col gap-6 w-full lg:w-7/12 mx-auto">
           
           {/* 1. Create Post Widget */}
           <CreatePostWidget currentUser={currentUser} />
@@ -35,7 +35,7 @@ export default function FeedPage() {
           <SuggestedUsersWidget currentUserId={currentUser?.id} />
           
         </main>
-      </div>
+      {/* </div> */}
     </div>
   );
 }

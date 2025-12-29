@@ -15,11 +15,11 @@ type Profile = {
   profileImage?: string;
   email?: string;
   phone?: string;
-  about?: string;      
-  services?: string;   
+  about?: string;
+  services?: string;
   skills?: string;
   category?: string;
-  description?:string;
+  description?: string;
   verified?: boolean;
   views?: number;
 };
@@ -332,7 +332,7 @@ function SearchPageContent() {
       const locationMatch = !locationPart || city.includes(locationPart);
       return keywordsMatch && locationMatch;
     }).slice(0, 50);
-  }, [query, profiles , activeCategory]);
+  }, [query, profiles, activeCategory]);
 
 
   const suggestedProfiles = useMemo(() => {
@@ -627,11 +627,13 @@ function SearchPageContent() {
               placeholder="Search by name, skills, company, or city..." aria-label="Search"
             />
           </div>
-          
+
 
           <div
-            style={{ display: "flex",gap: 8, flexWrap: "nowrap", margin: "14px 0 0" ,alignItems: "center",
-            overflowX: "auto", whiteSpace: "nowrap", paddingBottom: "6px", scrollbarWidth: "none" , msOverflowStyle: "none",}} 
+            style={{
+              display: "flex", gap: 8, flexWrap: "nowrap", margin: "14px 0 0", alignItems: "center",
+              overflowX: "auto", whiteSpace: "nowrap", paddingBottom: "6px", scrollbarWidth: "none", msOverflowStyle: "none",
+            }}
             className="hide-scrollbar"
           >
             {["All", "Developer", "Designer", "Data", "Management", "Healthcare", "Other"].map(cat => (
@@ -657,10 +659,10 @@ function SearchPageContent() {
           </div>
 
           {hasQuery && (
-  <div className="meta">
-    Showing {filtered.length} result{filtered.length !== 1 ? "s" : ""}
-  </div>
-)}
+            <div className="meta">
+              Showing {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+            </div>
+          )}
 
           <div className="grid" style={{ marginTop: 12 }}>
 
@@ -766,17 +768,17 @@ function SearchPageContent() {
                         acceptedConnections.has(p.id)
                           ? { background: "#04c74cff", color: "#fff", cursor: "not-allowed", boxShadow: "none" }
                           : sentRequests.has(p.id)
-                          ? { background: "#0f48e4ff", color: "#fff", cursor: "not-allowed", boxShadow: "none" }
-                          : { background: "#225BE4", color: "#fff" }
+                            ? { background: "#0f48e4ff", color: "#fff", cursor: "not-allowed", boxShadow: "none" }
+                            : { background: "#225BE4", color: "#fff" }
                       }
                     >
                       {acceptedConnections.has(p.id)
                         ? "Connected"
                         : connectingUserId === p.id
-                        ? "Connecting..."
-                        : sentRequests.has(p.id)
-                        ? "Sent"
-                        : "Connect"}
+                          ? "Connecting..."
+                          : sentRequests.has(p.id)
+                            ? "Sent"
+                            : "Connect"}
                     </button>
                   </div>
                 </div>
