@@ -1,11 +1,10 @@
 "use client";
 
-import React from "react";
-import { useState, useEffect } from "react";
-import {PostCard, SuggestedUsersWidget, CreatePost } from "@/components/feed/FeedWidgets";
+import React, { useState, useEffect } from "react";
+import { CreatePostWidget, SuggestedUsersWidget } from "@/components/feed/FeedWidgets";
+import FeedStream from "@/components/feed/FeedStream"; 
 
 export default function FeedPage() {
-
   const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
@@ -22,15 +21,19 @@ export default function FeedPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#F3F4F6] px-6 py-8">
-      <div 
-        className="flex w-auto m-auto justify-center gap-8"
-      >
+    <div className="min-h-screen bg-[#F3F4F6] px-6 py-8 ">
+      <div className="flex w-auto m-auto justify-center gap-8">
         <main className="flex flex-col gap-6 overflow-hidden">
-          <CreatePost currentUser={currentUser} />
-          <PostCard currentUser={currentUser} />
-          <PostCard currentUser={currentUser} />
+          
+          {/* 1. Create Post Widget */}
+          <CreatePostWidget currentUser={currentUser} />
+          
+          {/* 2. Feed Stream (Fetches and renders PostCards automatically) */}
+          <FeedStream filter="all" currentUser={currentUser} />
+          
+          {/* 3. Suggestions */}
           <SuggestedUsersWidget currentUserId={currentUser?.id} />
+          
         </main>
       </div>
     </div>
