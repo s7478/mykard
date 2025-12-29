@@ -15,11 +15,11 @@ type Profile = {
   profileImage?: string;
   email?: string;
   phone?: string;
-  about?: string;      
-  services?: string;   
+  about?: string;
+  services?: string;
   skills?: string;
   category?: string;
-  description?:string;
+  description?: string;
   verified?: boolean;
   views?: number;
 };
@@ -332,7 +332,7 @@ function SearchPageContent() {
       const locationMatch = !locationPart || city.includes(locationPart);
       return keywordsMatch && locationMatch;
     }).slice(0, 50);
-  }, [query, profiles , activeCategory]);
+  }, [query, profiles, activeCategory]);
 
 
   const suggestedProfiles = useMemo(() => {
@@ -586,20 +586,20 @@ function SearchPageContent() {
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 pb-6">
         {/* Header Section */}
         <header className="relative text-center pt-16 pb-3">
-  <div
-    className="absolute top-6 left-0 right-0 h-28 -z-10"
-    
-  />
+          <div
+            className="absolute top-6 left-0 right-0 h-28 -z-10"
 
-  <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 whitespace-nowrap">
-    Build Real{" "}
-    <span className="text-[#225BE4]">Connections</span>
-  </h1>
+          />
 
-  <p className="mt-1 text-sm text-gray-500 max-w-xs mx-auto">
-    Discover professionals and connect instantly
-  </p>
-</header>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 whitespace-nowrap">
+            Build Real{" "}
+            <span className="text-[#225BE4]">Connections</span>
+          </h1>
+
+          <p className="mt-1 text-sm text-gray-500 max-w-xs mx-auto">
+            Discover professionals and connect instantly
+          </p>
+        </header>
 
 
 
@@ -628,11 +628,13 @@ function SearchPageContent() {
               placeholder="Search by name, skills, company, or city..." aria-label="Search"
             />
           </div>
-          
+
 
           <div
-            style={{ display: "flex",gap: 8, flexWrap: "nowrap", margin: "14px 0 0" ,alignItems: "center",
-            overflowX: "auto", whiteSpace: "nowrap", paddingBottom: "6px", scrollbarWidth: "none" , msOverflowStyle: "none",}} 
+            style={{
+              display: "flex", gap: 8, flexWrap: "nowrap", margin: "14px 0 0", alignItems: "center",
+              overflowX: "auto", whiteSpace: "nowrap", paddingBottom: "6px", scrollbarWidth: "none", msOverflowStyle: "none",
+            }}
             className="hide-scrollbar"
           >
             {["All", "Developer", "Designer", "Data", "Management", "Healthcare", "Other"].map(cat => (
@@ -658,10 +660,10 @@ function SearchPageContent() {
           </div>
 
           {hasQuery && (
-  <div className="meta">
-    Showing {filtered.length} result{filtered.length !== 1 ? "s" : ""}
-  </div>
-)}
+            <div className="meta">
+              Showing {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+            </div>
+          )}
 
           <div className="grid" style={{ marginTop: 12 }}>
 
@@ -716,20 +718,20 @@ function SearchPageContent() {
               )
             }
 
-            {loading ? (
+            {/* {loading ? (
               <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", padding: 28 }}>
                 <div style={{ width: 52, height: 52, borderRadius: "50%", border: "4px solid rgba(99,102,241,0.12)", borderTopColor: "rgba(99,102,241,0.95)", animation: "spin 1s linear infinite" }} />
               </div>
             </div>
           )
         )
-      }
-      
-      {loading ? (
-        <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", padding: 28 }}>
-          <div style={{ width: 52, height: 52, borderRadius: "50%", border: "4px solid rgba(99,102,241,0.12)", borderTopColor: "rgba(99,102,241,0.95)", animation: "spin 1s linear infinite" }} />
-        </div>
-        ) : (
+      } */}
+
+            {loading ? (
+              <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", padding: 28 }}>
+                <div style={{ width: 52, height: 52, borderRadius: "50%", border: "4px solid rgba(99,102,241,0.12)", borderTopColor: "rgba(99,102,241,0.95)", animation: "spin 1s linear infinite" }} />
+              </div>
+            ) : (
               filtered.map((p, i) => (
                 <div key={`${p.username}-${i}`} className="card" role="button" aria-label={p.name} onClick={() => setSelectedProfile(p)}>
                   <div className="card-info">
@@ -774,17 +776,17 @@ function SearchPageContent() {
                         acceptedConnections.has(p.id)
                           ? { background: "#04c74cff", color: "#fff", cursor: "not-allowed", boxShadow: "none" }
                           : sentRequests.has(p.id)
-                          ? { background: "#0f48e4ff", color: "#fff", cursor: "not-allowed", boxShadow: "none" }
-                          : { background: "#225BE4", color: "#fff" }
+                            ? { background: "#0f48e4ff", color: "#fff", cursor: "not-allowed", boxShadow: "none" }
+                            : { background: "#225BE4", color: "#fff" }
                       }
                     >
                       {acceptedConnections.has(p.id)
                         ? "Connected"
                         : connectingUserId === p.id
-                        ? "Connecting..."
-                        : sentRequests.has(p.id)
-                        ? "Sent"
-                        : "Connect"}
+                          ? "Connecting..."
+                          : sentRequests.has(p.id)
+                            ? "Sent"
+                            : "Connect"}
                     </button>
                   </div>
                 </div>
