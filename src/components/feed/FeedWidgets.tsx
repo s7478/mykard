@@ -18,6 +18,7 @@ import {
   Share,
   Copy,
   X,
+  Plus,
   // 🟢 ADDED: Icons for visibility selector
   Globe, 
   Users,
@@ -417,14 +418,14 @@ const CreatePostModal = ({ isOpen, onClose, currentUser, initialMediaType }: Cre
               <span style={{ fontWeight: "700", fontSize: "14px" }}>{currentUser?.fullName || "User"}</span>
               
               {/* 🟢 ADDED: Visibility Selector */}
-              <div style={{ position: 'relative' }}>
+              <div style={{ position: 'relative', width: '130px' }}>
                 <button 
                   onClick={() => setShowVisibilityMenu(!showVisibilityMenu)} 
                   style={styles.visibilityBtn}
                   onMouseOver={(e) => (e.currentTarget.style.borderColor = "#374151", e.currentTarget.style.color = "#374151")}
                   onMouseOut={(e) => (e.currentTarget.style.borderColor = "#6b7280", e.currentTarget.style.color = "#6b7280")}
                 >
-                  {visibility === 'public' ? <Globe size={12} /> : <Users size={12} />}
+                  {visibility === 'public' ? <Globe size={16} /> : <Users size={16} />}
                   <span>{visibility === 'public' ? 'Anyone' : 'Connections'}</span>
                   <ChevronDown size={12} />
                 </button>
@@ -553,7 +554,7 @@ export const CreatePostWidget = ({ currentUser }: { currentUser?: any }) => {
             <ImageIcon size={20} className="text-blue-500" /> <span style={{ color: "#525252" }}>Photo</span>
           </button>
           <button onClick={() => openModal(null)} style={styles.mediaBtn} onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")} onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
-            <Type size={20} className="text-orange-400" /> <span style={{ color: "#525252" }}>Write article</span>
+            <Plus size={20} className="text-orange-400" /> <span style={{ color: "#525252" }}>Create story</span>
           </button>
         </div>
       </div>

@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from "next/link";
-import React from 'react';
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
@@ -1194,7 +1193,7 @@ export default function Homepage() {
         // </div>style={{ width: "100%",display: "flex", justifyContent: "center", marginTop: "-60px", zIndex: 6 }}
 
         className="flex justify-center"
-  style={{ marginTop: "-40px", zIndex: 6 }}
+    style={{ marginTop: "-40px", zIndex: 6 }}
         >
           <div
             // style={{
@@ -1259,7 +1258,9 @@ export default function Homepage() {
                 </div>
               </motion.section>
             </div>
-
+          </div>
+        </div>
+      </section>
 
 
             {/* Right Side - Stats Cards */}
