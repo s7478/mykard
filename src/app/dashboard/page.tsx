@@ -259,7 +259,9 @@ const Dashboard = () => {
       <div className="h-10"></div>
 
       {/* Cards Bento Layout */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 place-items-stretch mt-4">
+
+
 
         {isLoadingCards ? (
           <div className="col-span-full text-center py-12">
@@ -278,8 +280,8 @@ const Dashboard = () => {
                   scale: 1.02,
                   y: -4,
                 }}
-                className="transition-all duration-300 break-inside-avoid mb-6 block w-full relative"
-                style={{ marginBottom: '1.5rem' }}
+                className="transition-all duration-300 break-inside-avoid block w-full relative"
+
               >
                 <div onClick={() => router.push(`/cards/${card.id}`)} className="cursor-pointer">
                   {renderCardPreview(card)}

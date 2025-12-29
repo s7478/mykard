@@ -585,11 +585,11 @@ function MessagesPageContent() {
       prev.map((m) =>
         m.senderId === senderId
           ? {
-              ...m,
-              read: true,
-              incomingCount: 0,
-              status: m.status === "New" ? "Read" : m.status,
-            }
+            ...m,
+            read: true,
+            incomingCount: 0,
+            status: m.status === "New" ? "Read" : m.status,
+          }
           : m
       )
     );
@@ -754,18 +754,18 @@ function MessagesPageContent() {
           prev.map((m) =>
             m.senderId === replyId
               ? {
-                  ...m,
-                  status: "Replied",
-                  read: true,
-                  thread: [
-                    ...(m.thread || []),
-                    {
-                      text: replyText,
-                      date: new Date().toISOString(),
-                      direction: "out",
-                    },
-                  ],
-                }
+                ...m,
+                status: "Replied",
+                read: true,
+                thread: [
+                  ...(m.thread || []),
+                  {
+                    text: replyText,
+                    date: new Date().toISOString(),
+                    direction: "out",
+                  },
+                ],
+              }
               : m
           )
         );
@@ -1034,7 +1034,7 @@ function MessagesPageContent() {
       overflowY: "auto" as const,
       scrollbarWidth: "none" as const /* Firefox */,
       msOverflowStyle: "none" as const,
-      "&::-webkit-scrollbar": { display: "none" },
+      // "&::-webkit-scrollbar": { display: "none" },
       padding: "10px", // reduced inner chat padding
       backgroundColor: "#ffffff",
       display: "flex",
@@ -1145,10 +1145,13 @@ function MessagesPageContent() {
 
   // Inject minimal global styles for animation/scrollbar
   const globalStyles = `
-    @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  `;
+  @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  
+  /* Add this specific one for your chat body */
+  .chat-body-scroll::-webkit-scrollbar { display: none; }
+`;
 
   const activeMessage = detailId
     ? messages.find((m) => m.senderId === detailId)
@@ -1511,6 +1514,7 @@ function MessagesPageContent() {
 
             {/* Conversation */}
             <div
+              className="chat-body-scroll no-scrollbar"
               ref={conversationRef}
               style={styles.chatBody}
               onScroll={handleConversationScroll}
@@ -1520,12 +1524,12 @@ function MessagesPageContent() {
                   activeMessage.thread && activeMessage.thread.length > 0
                     ? activeMessage.thread
                     : [
-                        {
-                          text: activeMessage.message,
-                          date: activeMessage.date,
-                          direction: "in" as const,
-                        },
-                      ];
+                      {
+                        text: activeMessage.message,
+                        date: activeMessage.date,
+                        direction: "in" as const,
+                      },
+                    ];
 
                 let lastDateKey: string | null = null;
 

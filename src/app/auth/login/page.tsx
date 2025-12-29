@@ -15,7 +15,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  
+
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value)
     setError('')
@@ -50,12 +50,12 @@ export default function LoginPage() {
         setError(data?.error || 'Login failed. Please try again.')
         return
       }
-      
+
       const data = await res.json().catch(() => ({}))
       if (data?.token) {
         localStorage.setItem('token', data.token)
       }
-      
+
       if (data?.needsOnboarding) {
         window.location.href = '/onboarding'
       } else {
@@ -74,7 +74,7 @@ export default function LoginPage() {
       setError('')
       const provider = new GoogleAuthProvider()
       if (!auth) throw new Error('Authentication is not configured.')
-      
+
       const result = await signInWithPopup(auth as any, provider)
       const idToken = await result.user.getIdToken(true)
 
@@ -84,7 +84,7 @@ export default function LoginPage() {
         credentials: 'include',
         body: JSON.stringify({ idToken }),
       })
-      
+
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
         if (res.status === 403 || data?.error?.includes('deactivated')) {
@@ -92,7 +92,7 @@ export default function LoginPage() {
         }
         throw new Error(data?.error || 'Authentication failed')
       }
-      
+
       if (data?.needsOnboarding) {
         window.location.href = '/onboarding'
       } else {
@@ -108,7 +108,7 @@ export default function LoginPage() {
   return (
     <div className={styles.page}>
       <div className={styles.card}>
-        
+
         {/* Header Section */}
         <div className={styles.header}>
           <div className={styles.logoWrapper}>
@@ -116,8 +116,8 @@ export default function LoginPage() {
               <Image
                 src="/assets/headerlogo.png"
                 alt="MyKard Logo"
-                width={180} 
-                height={48} 
+                width={180}
+                height={48}
                 priority
                 className="h-auto w-auto object-contain" // Slightly smaller logo for compact look
               />
@@ -135,7 +135,7 @@ export default function LoginPage() {
 
         {/* Form Section */}
         <form onSubmit={handleLogin} className={styles.form}>
-          
+
           <div className={styles.inputGroup}>
             <label htmlFor="email" className={styles.label}>
              Email 
@@ -187,7 +187,7 @@ export default function LoginPage() {
                 )}
               </button>
             </div>
-            
+
 
             <div className={styles.forgotPass}>
               <Link href="/auth/forgot-password" className={styles.link}>
@@ -207,10 +207,10 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <button 
-          type="button" 
-          onClick={handleGoogleLogin} 
-          className={styles.googleBtn} 
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          className={styles.googleBtn}
           disabled={loading}
         >
           Continue with Google

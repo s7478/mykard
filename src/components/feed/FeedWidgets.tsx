@@ -1,6 +1,6 @@
 "use client";
 
-import React, { CSSProperties, useState, useEffect } from "react";
+import React, { CSSProperties, useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
@@ -16,10 +16,15 @@ import {
   Image as ImageIcon,
   Type,
   Share,
-  Copy, // Added Copy icon
+  Copy,
+  X,
+  // 🟢 ADDED: Icons for visibility selector
+  Globe, 
+  Users,
+  ChevronDown
 } from "lucide-react";
 
-// --- Utilities & Styles ---
+// --- Utilities ---
 
 const truncateStyle: CSSProperties = {
   whiteSpace: "nowrap",
@@ -36,20 +41,23 @@ const getInitials = (name: string) =>
     .toUpperCase()
     .slice(0, 2) || "U";
 
+// --- Styles ---
+
 const styles: Record<string, CSSProperties> = {
   createPostCard: {
     backgroundColor: "#ffffff",
     border: "1px solid #f1f5f9",
-    borderRadius: "12px",
-    padding: "12px 16px",
+    borderRadius: "16px",
+    padding: "16px 20px 8px 20px",
     width: "100%",
+    textAlign: "left",
     boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
   },
   inputArea: {
     display: "flex",
     alignItems: "center",
     gap: "12px",
-    marginBottom: "12px",
+    marginBottom: "8px",
   },
   fakeInput: {
     flex: 1,
@@ -64,38 +72,27 @@ const styles: Record<string, CSSProperties> = {
     fontWeight: "500",
     cursor: "pointer",
     transition: "background 0.2s",
+    backgroundColor: "#ffffff",
   },
-  actionGroup: {
+  mediaRow: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center",
     paddingTop: "4px",
+    paddingBottom: "4px",
   },
-  actionItem: {
+  mediaBtn: {
     display: "flex",
     alignItems: "center",
     gap: "8px",
-    padding: "8px 12px",
-    borderRadius: "4px",
-    cursor: "pointer",
-    transition: "background 0.2s",
-    border: "none",
+    padding: "12px 8px",
     background: "none",
-  },
-  pageWrapper: {
-    minHeight: "100vh",
-    backgroundColor: "#F3F4F6",
-    padding: "16px",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-  },
-  feedContainer: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "16px",
-    width: "100%",
-    maxWidth: "500px",
+    border: "none",
+    fontSize: "13px",
+    fontWeight: "600",
+    color: "#525252",
+    cursor: "pointer",
+    borderRadius: "8px",
+    transition: "background-color 0.2s",
   },
   // --- Post Card Styles ---
   postCard: {
@@ -105,7 +102,7 @@ const styles: Record<string, CSSProperties> = {
     padding: "16px",
     width: "100%",
     textAlign: "left",
-    position: "relative", // Needed for popup context if not using fixed backdrop
+    position: "relative",
   },
   postHeader: {
     display: "flex",
@@ -208,7 +205,7 @@ const styles: Record<string, CSSProperties> = {
     color: "#475569",
     lineHeight: "1.4",
   },
-  // --- Suggested Widget Styles ---
+  // --- Widget Styles ---
   widgetCard: {
     backgroundColor: "#ffffff",
     borderRadius: "20px",
@@ -247,227 +244,440 @@ const styles: Record<string, CSSProperties> = {
     color: "#1e40af",
     border: "1px solid #bfdbfe",
     cursor: "default",
+  },
+  modalOverlay: { position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", zIndex: 60, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" },
+  modalContainer: { backgroundColor: "#fff", width: "100%", maxWidth: "600px", borderRadius: "16px", display: "flex", flexDirection: "column", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)", overflow: "hidden", maxHeight: "90vh" },
+  modalHeader: { padding: "16px 20px", borderBottom: "1px solid #f3f4f6", display: "flex", justifyContent: "space-between", alignItems: "center" },
+  modalTitle: { fontSize: "18px", fontWeight: "700", color: "#1f2937" },
+  modalCloseBtn: { background: "none", border: "none", cursor: "pointer", color: "#6b7280", padding: "4px" },
+  modalBody: { padding: "20px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "16px" },
+  modalTextarea: { width: "100%", minHeight: "120px", border: "none", outline: "none", fontSize: "16px", color: "#374151", resize: "none", fontFamily: "inherit" },
+  modalFooter: { padding: "16px 20px", borderTop: "1px solid #f3f4f6", display: "flex", justifyContent: "space-between", alignItems: "center" },
+  postButton: { backgroundColor: "#2563eb", color: "#fff", padding: "8px 24px", borderRadius: "9999px", fontWeight: "600", fontSize: "14px", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" },
+  previewArea: { position: "relative", width: "100%", borderRadius: "12px", overflow: "hidden", border: "1px solid #e5e7eb", marginTop: "10px" },
+  removeMediaBtn: { position: "absolute", top: "8px", right: "8px", backgroundColor: "rgba(0,0,0,0.6)", color: "white", border: "none", borderRadius: "50%", padding: "4px", cursor: "pointer" },
+
+  // 🟢 ADDED: Styles for Visibility Selector
+  visibilityBtn: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    padding: "4px 10px",
+    borderRadius: "9999px",
+    border: "1px solid #6b7280",
+    fontSize: "12px",
+    fontWeight: "600",
+    color: "#6b7280",
+    background: "transparent",
+    cursor: "pointer",
+    transition: "all 0.2s",
+  },
+  visibilityDropdown: {
+    position: "absolute",
+    top: "100%",
+    left: 0,
+    marginTop: "6px",
+    backgroundColor: "#fff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "8px",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+    padding: "4px",
+    zIndex: 70,
+    width: "140px",
+    display: "flex",
+    flexDirection: "column",
+  },
+  visibilityItem: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    width: "100%",
+    padding: "8px 12px",
+    fontSize: "12px",
+    fontWeight: "500",
+    color: "#374151",
+    background: "transparent",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
+    textAlign: "left",
   }
 };
 
 // --- Components ---
 
-export const CreatePost = ({ currentUser }: { currentUser: any }) => {
-  const myAvatar = currentUser?.profileImage;
-  const myInitials = getInitials(currentUser?.fullName || "Me");
+// --- 🟢 NEW COMPONENT: Create Post Modal ---
+
+interface CreatePostModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  currentUser: any;
+  initialMediaType?: 'image' | 'video' | null;
+}
+
+const CreatePostModal = ({ isOpen, onClose, currentUser, initialMediaType }: CreatePostModalProps) => {
+  const [content, setContent] = useState("");
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [mediaPreview, setMediaPreview] = useState<string | null>(null);
+  const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // 🟢 ADDED: Visibility State
+  const [visibility, setVisibility] = useState<'public' | 'connections'>('public');
+  const [showVisibilityMenu, setShowVisibilityMenu] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Handle initial trigger (e.g. clicking "Photo" opens picker immediately)
+  useEffect(() => {
+    if (isOpen && initialMediaType && fileInputRef.current) {
+      setMediaType(initialMediaType);
+      // Small timeout to allow modal to render
+      setTimeout(() => fileInputRef.current?.click(), 100);
+    }
+  }, [isOpen, initialMediaType]);
+
+  // Handle File Selection
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setMediaFile(file);
+    const isVideo = file.type.startsWith("video/");
+    setMediaType(isVideo ? 'video' : 'image');
+
+    // Create Preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setMediaPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeMedia = () => {
+    setMediaFile(null);
+    setMediaPreview(null);
+    setMediaType(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handlePost = async () => {
+    if (!content.trim() && !mediaFile) return;
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/posts/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          content, 
+          imageUrl: mediaType === 'image' ? mediaPreview : undefined,
+          // videoUrl: mediaType === 'video' ? mediaPreview : undefined,
+          visibility, // 🟢 ADDED: Send visibility to backend
+        }),
+      });
+
+      if (res.ok) {
+        toast.success("Posted successfully!");
+        window.location.reload();
+        onClose();
+      } else {
+        throw new Error("Failed");
+      }
+    } catch (e) {
+      toast.error("Failed to post. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!isOpen) return null;
 
   return (
-    <div style={styles.createPostCard}>
-      <div style={styles.inputArea}>
-        <div style={{ position: "relative", width: "48px", height: "48px", borderRadius: "50%", overflow: "hidden", flexShrink: 0, backgroundColor:"#e2e8f0", display:'flex', alignItems:'center', justifyContent:'center' }}>
-          {myAvatar ? (
-            <Image src={myAvatar} alt="Me" fill unoptimized style={{ objectFit: "cover" }} />
-          ) : (
-            <span style={{ fontSize: "20px", fontWeight: "600", color: "#64748b" }}>{myInitials}</span>
+    <div style={styles.modalOverlay}>
+      <div style={styles.modalContainer}>
+        {/* Header */}
+        <div style={styles.modalHeader}>
+          <h2 style={styles.modalTitle}>Create a post</h2>
+          <button onClick={onClose} style={styles.modalCloseBtn}><X size={24} /></button>
+        </div>
+
+        {/* Body */}
+        <div style={styles.modalBody}>
+          {/* User Info & Visibility */}
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{ position: "relative", width: "40px", height: "40px", borderRadius: "50%", overflow: "hidden", backgroundColor: "#e2e8f0" }}>
+              {currentUser?.profileImage ? (
+                <Image src={currentUser.profileImage} alt="Me" fill unoptimized style={{ objectFit: "cover" }} />
+              ) : (
+                <div style={{width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center'}}>{getInitials(currentUser?.fullName || "Me")}</div>
+              )}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+              <span style={{ fontWeight: "700", fontSize: "14px" }}>{currentUser?.fullName || "User"}</span>
+              
+              {/* 🟢 ADDED: Visibility Selector */}
+              <div style={{ position: 'relative' }}>
+                <button 
+                  onClick={() => setShowVisibilityMenu(!showVisibilityMenu)} 
+                  style={styles.visibilityBtn}
+                  onMouseOver={(e) => (e.currentTarget.style.borderColor = "#374151", e.currentTarget.style.color = "#374151")}
+                  onMouseOut={(e) => (e.currentTarget.style.borderColor = "#6b7280", e.currentTarget.style.color = "#6b7280")}
+                >
+                  {visibility === 'public' ? <Globe size={12} /> : <Users size={12} />}
+                  <span>{visibility === 'public' ? 'Anyone' : 'Connections'}</span>
+                  <ChevronDown size={12} />
+                </button>
+
+                {showVisibilityMenu && (
+                  <div style={styles.visibilityDropdown}>
+                    <button 
+                      onClick={() => { setVisibility('public'); setShowVisibilityMenu(false); }} 
+                      style={styles.visibilityItem}
+                      onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f3f4f6"}
+                      onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                    >
+                      <Globe size={14} /> Anyone
+                    </button>
+                    <button 
+                      onClick={() => { setVisibility('connections'); setShowVisibilityMenu(false); }} 
+                      style={styles.visibilityItem}
+                      onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f3f4f6"}
+                      onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                    >
+                      <Users size={14} /> Connections only
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Text Area */}
+          <textarea
+            style={styles.modalTextarea}
+            placeholder="What do you want to talk about?"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
+
+          {/* Media Preview */}
+          {mediaPreview && (
+            <div style={styles.previewArea}>
+              <button onClick={removeMedia} style={styles.removeMediaBtn}><X size={16} /></button>
+              {mediaType === 'video' ? (
+                <video src={mediaPreview} controls style={{ width: "100%", maxHeight: "300px", display: "block" }} />
+              ) : (
+                <img src={mediaPreview} alt="Preview" style={{ width: "100%", maxHeight: "300px", objectFit: "contain", display: "block" }} />
+              )}
+            </div>
           )}
         </div>
-        <div 
-          style={styles.fakeInput} 
-          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")}
-          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-        >
-          Start a post
+
+        {/* Footer */}
+        <div style={styles.modalFooter}>
+          <div style={{ display: "flex", gap: "12px" }}>
+            <button 
+              onClick={() => fileInputRef.current?.click()} 
+              style={{ ...styles.mediaBtn, padding: "8px" }}
+              title="Add Media"
+            >
+              <ImageIcon size={20} className="text-blue-500" />
+            </button>
+            <button 
+              onClick={() => fileInputRef.current?.click()} 
+              style={{ ...styles.mediaBtn, padding: "8px" }}
+              title="Add Video"
+            >
+              <Video size={20} className="text-green-600" />
+            </button>
+            
+            {/* Hidden Input */}
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              style={{ display: "none" }} 
+              accept={mediaType === 'video' ? "video/*" : "image/*,video/*"}
+              onChange={handleFileChange}
+            />
+          </div>
+
+          <button 
+            onClick={handlePost} 
+            disabled={loading || (!content.trim() && !mediaFile)}
+            style={{ 
+              ...styles.postButton, 
+              opacity: (!content.trim() && !mediaFile) ? 0.5 : 1,
+              cursor: (!content.trim() && !mediaFile) ? "not-allowed" : "pointer"
+            }}
+          >
+            {loading && <Loader2 size={16} className="animate-spin" />}
+            Post
+          </button>
         </div>
-      </div>
-      
-      <div style={styles.actionGroup}>
-        <button style={styles.actionItem} onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")} onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
-          <Video size={20} color="#70b5f9" />
-          <span style={{ fontSize: "14px", fontWeight: "600", color: "#666" }}>Video</span>
-        </button>
-        
-        <button style={styles.actionItem} onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")} onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
-          <ImageIcon size={20} color="#7fc15e" />
-          <span style={{ fontSize: "14px", fontWeight: "600", color: "#666" }}>Photo</span>
-        </button>
-        
-        <button style={styles.actionItem} onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")} onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
-          <Type size={20} color="#e7a33e" />
-          <span style={{ fontSize: "14px", fontWeight: "600", color: "#666" }}>Write article</span>
-        </button>
       </div>
     </div>
   );
 };
 
-export const PostCard = ({ currentUser }: { currentUser: any }) => {
+// --- MAIN WIDGETS ---
+
+export const CreatePostWidget = ({ currentUser }: { currentUser?: any }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [initialMediaType, setInitialMediaType] = useState<'image' | 'video' | null>(null);
+
+  const myAvatar = currentUser?.profileImage;
+  const myInitials = getInitials(currentUser?.fullName || "Me");
+
+  const openModal = (type: 'image' | 'video' | null = null) => {
+    setInitialMediaType(type);
+    setIsModalOpen(true);
+  };
+
+  return (
+    <>
+      <div style={styles.createPostCard}>
+        <div style={styles.inputArea}>
+          <div style={{ position: "relative", width: "48px", height: "48px", borderRadius: "50%", overflow: "hidden", flexShrink: 0, backgroundColor: "#e2e8f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            {myAvatar ? <Image src={myAvatar} alt="Me" fill unoptimized style={{ objectFit: "cover" }} /> : <span style={{ fontSize: "14px", fontWeight: "700", color: "#64748b" }}>{myInitials}</span>}
+          </div>
+          <div style={styles.fakeInput} onClick={() => openModal(null)} onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")} onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ffffff")}>
+            Start a post
+          </div>
+        </div>
+        <div style={styles.mediaRow}>
+          <button onClick={() => openModal('video')} style={styles.mediaBtn} onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")} onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
+            <Video size={20} className="text-green-600" /> <span style={{ color: "#525252" }}>Video</span>
+          </button>
+          <button onClick={() => openModal('image')} style={styles.mediaBtn} onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")} onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
+            <ImageIcon size={20} className="text-blue-500" /> <span style={{ color: "#525252" }}>Photo</span>
+          </button>
+          <button onClick={() => openModal(null)} style={styles.mediaBtn} onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")} onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
+            <Type size={20} className="text-orange-400" /> <span style={{ color: "#525252" }}>Write article</span>
+          </button>
+        </div>
+      </div>
+
+      <CreatePostModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        currentUser={currentUser}
+        initialMediaType={initialMediaType}
+      />
+    </>
+  );
+};
+
+export const PostCard = ({ currentUser, postData }: { currentUser?: any; postData: any }) => {
   const [isConnected, setIsConnected] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(1200);
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isLiked, setIsLiked] = useState(postData?.isLiked || false);
+  const [likesCount, setLikesCount] = useState(postData?.likesCount || 0);
+  const [isSaved, setIsSaved] = useState(postData?.isSaved || false);
   const [showComments, setShowComments] = useState(false);
-  const [showMenu, setShowMenu] = useState(false); // State for popup menu
+  const [showMenu, setShowMenu] = useState(false);
+
+  if (!postData) return null;
 
   const handleConnect = () => {
     setIsConnected(true);
     toast.success("Connection request sent!");
   };
-  
-  const handleLike = () => {
-    setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
-    setIsLiked(!isLiked);
+
+  const handleLike = async () => {
+    const newLiked = !isLiked;
+    setIsLiked(newLiked);
+    setLikesCount((prev: number) => (newLiked ? prev + 1 : prev - 1));
+    try {
+      await fetch("/api/posts/like", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ postId: postData.id }) });
+    } catch (e) { setIsLiked(!newLiked); setLikesCount((prev: number) => (newLiked ? prev - 1 : prev + 1)); }
   };
 
-  const handleBookmark = () => {
-    setIsBookmarked(!isBookmarked);
+  const handleSave = async () => {
+    const newSaved = !isSaved;
+    setIsSaved(newSaved);
     setShowMenu(false);
-    toast.success(isBookmarked ? "Removed from saved" : "Post saved!");
+    try {
+      await fetch("/api/posts/save", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ postId: postData.id }) });
+      toast.success(newSaved ? "Post saved!" : "Removed from saved");
+    } catch (e) { setIsSaved(!newSaved); toast.error("Action failed"); }
   };
 
-  const handleShare = () => {
-    setShowMenu(false);
-    toast.success("Shared to your feed!");
-  };
-
-  const handleCopyLink = () => {
-    setShowMenu(false);
-    toast.success("Link copied to clipboard!");
-  };
-
-  const demoComments = [
-    { id: 1, user: "Amit Verma", avatar: "Amit", text: "This looks amazing! 🔥" },
-    { id: 2, user: "Sarah J.", avatar: "Sarah", text: "Nagpur tech scene is growing fast." },
-  ];
+  const handleShare = () => { setShowMenu(false); toast.success("Shared!"); };
+  const handleCopyLink = () => { setShowMenu(false); navigator.clipboard.writeText(`${window.location.origin}/post/${postData.id}`); toast.success("Copied!"); };
 
   const myAvatar = currentUser?.profileImage;
   const myInitials = getInitials(currentUser?.fullName || "Me");
+  const authorName = postData.author?.fullName || "User";
+  const authorTitle = postData.author?.title || "Member";
+  const authorImage = postData.author?.profileImage;
+  const authorInitials = getInitials(authorName);
 
   return (
     <div style={styles.postCard}>
-      {/* --- Popup Menu Backdrop --- */}
-      {showMenu && (
-        <div style={styles.menuBackdrop} onClick={() => setShowMenu(false)} />
-      )}
-
-      {/* --- Header --- */}
+      {showMenu && <div style={styles.menuBackdrop} onClick={() => setShowMenu(false)} />}
+      
       <div style={styles.postHeader}>
-        {/* Left: Avatar + Info */}
         <div style={{ display: "flex", alignItems: "center", minWidth: 0, flex: 1 }}>
-          <div style={{ position: "relative", width: "40px", height: "40px", borderRadius: "50%", overflow: "hidden", flexShrink: 0 }}>
-            <Image src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sanya" alt="User" fill unoptimized style={{ objectFit: "cover" }} />
+          <div style={{ position: "relative", width: "40px", height: "40px", borderRadius: "50%", overflow: "hidden", flexShrink: 0, backgroundColor: "#f3f4f6" }}>
+            {authorImage ? <Image src={authorImage} alt={authorName} fill unoptimized style={{ objectFit: "cover" }} /> : <div style={{ display: "flex", width: "100%", height: "100%", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "700", color: "#64748b" }}>{authorInitials}</div>}
           </div>
           <div style={styles.postMeta}>
             <h3 style={{ fontWeight: "700", fontSize: "14px", margin: 0, display: "flex", alignItems: "center", gap: "4px", ...truncateStyle }}>
-              Sanya Kapoor
-              <Check size={12} style={{ backgroundColor: "#2563eb", color: "white", borderRadius: "50%", padding: "2px", flexShrink: 0 }} />
+              {authorName} <Check size={12} style={{ backgroundColor: "#2563eb", color: "white", borderRadius: "50%", padding: "2px", flexShrink: 0 }} />
             </h3>
-            <p style={{ color: "#64748b", fontSize: "11px", margin: 0, ...truncateStyle }}>UI/UX Designer • @sanya_ux</p>
+            <p style={{ color: "#64748b", fontSize: "11px", margin: 0, ...truncateStyle }}>{authorTitle}</p>
           </div>
         </div>
 
-        {/* Right: Connect Btn + Menu */}
         <div style={styles.headerActions}>
-          <button 
-            onClick={handleConnect}
-            disabled={isConnected}
-            style={{ 
-              backgroundColor: isConnected ? "#e2e8f0" : "#2563eb", 
-              color: isConnected ? "#64748b" : "white", 
-              padding: "6px 14px", 
-              borderRadius: "9999px", 
-              fontSize: "11px", 
-              fontWeight: "700", 
-              border: "none",
-              cursor: isConnected ? "default" : "pointer",
-              transition: "background 0.2s"
-            }}
-          >
+          <button onClick={handleConnect} disabled={isConnected} style={{ backgroundColor: isConnected ? "#e2e8f0" : "#2563eb", color: isConnected ? "#64748b" : "white", padding: "6px 14px", borderRadius: "9999px", fontSize: "11px", fontWeight: "700", border: "none", cursor: isConnected ? "default" : "pointer", transition: "background 0.2s" }}>
             {isConnected ? "Sent" : "Connect"}
           </button>
-
-          <button 
-            onClick={() => setShowMenu(!showMenu)} 
-            style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", borderRadius: "50%", display: "flex" }}
-            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f1f5f9")}
-            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-          >
+          
+          <button onClick={() => setShowMenu(!showMenu)} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", borderRadius: "50%", display: "flex" }}>
             <MoreHorizontal size={20} color="#94a3b8" />
           </button>
 
-          {/* Popup Menu */}
           {showMenu && (
             <div style={styles.menuDropdown}>
-              <button style={styles.menuItem} onClick={handleShare} onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f8fafc")} onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
-                <Share size={16} /> Share
-              </button>
-              <button style={styles.menuItem} onClick={handleCopyLink} onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f8fafc")} onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
-                <Copy size={16} /> Copy Link
-              </button>
-              <button style={styles.menuItem} onClick={handleBookmark} onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f8fafc")} onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
-                <Bookmark size={16} fill={isBookmarked ? "currentColor" : "none"} /> {isBookmarked ? "Unsave" : "Save"}
-              </button>
+              <button style={styles.menuItem} onClick={handleShare}><Share size={16} /> Share</button>
+              <button style={styles.menuItem} onClick={handleCopyLink}><Copy size={16} /> Copy Link</button>
+              <button style={styles.menuItem} onClick={handleSave}><Bookmark size={16} fill={isSaved ? "currentColor" : "none"} /> {isSaved ? "Unsave" : "Save"}</button>
             </div>
           )}
         </div>
       </div>
 
-      {/* --- Content --- */}
       <div>
-        <p style={{ fontSize: "13px", margin: "0 0 12px 0", lineHeight: "1.4", color: "#334155" }}>
-          Creative designer passionate about user-centric experiences. Connect for collaborations in Nagpur! 🚀
-        </p>
+        <p style={{ fontSize: "13px", margin: "0 0 12px 0", lineHeight: "1.4", color: "#334155" }}>{postData.content}</p>
         
-        {/* --- Footer Action Row --- */}
+        {postData.imageUrl && (
+          <div style={{ marginTop: "12px", borderRadius: "12px", overflow: "hidden", position: "relative", width: "100%", maxHeight: "400px" }}>
+             <img src={postData.imageUrl} alt="Post content" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          </div>
+        )}
+
         <div style={styles.actionRow}>
           <div style={{ display: "flex", gap: "16px", color: "#64748b" }}>
-            <button 
-              onClick={handleLike}
-              style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "12px", background: "none", border: "none", cursor: "pointer", padding: 0, color: isLiked ? "#ef4444" : "#64748b" }}
-            >
-              <Heart size={18} fill={isLiked ? "#ef4444" : "none"} color={isLiked ? "#ef4444" : "currentColor"} /> 
-              {likesCount.toLocaleString()}
+            <button onClick={handleLike} style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "12px", background: "none", border: "none", cursor: "pointer", padding: 0, color: isLiked ? "#ef4444" : "#64748b" }}>
+              <Heart size={18} fill={isLiked ? "#ef4444" : "none"} color={isLiked ? "#ef4444" : "currentColor"} /> {likesCount.toLocaleString()}
             </button>
-
-            <button 
-              onClick={() => setShowComments(!showComments)}
-              style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "12px", background: "none", border: "none", cursor: "pointer", padding: 0, color: showComments ? "#2563eb" : "#64748b" }}
-            >
-              <MessageCircle size={18} fill={showComments ? "#dbeafe" : "none"} /> 24
-            </button>
-            <button style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-              <Send size={18} color="#94a3b8" />
+            <button onClick={() => setShowComments(!showComments)} style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "12px", background: "none", border: "none", cursor: "pointer", padding: 0, color: showComments ? "#2563eb" : "#64748b" }}>
+              <MessageCircle size={18} fill={showComments ? "#dbeafe" : "none"} /> {postData.commentsCount || 0}
             </button>
           </div>
-          <button onClick={() => setIsBookmarked(!isBookmarked)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-            <Bookmark size={20} color={isBookmarked ? "#2563eb" : "#94a3b8"} fill={isBookmarked ? "#2563eb" : "none"} />
-          </button>
+          <button style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}><Send size={20} color="#94a3b8" /></button>
         </div>
       </div>
 
-      {/* --- Comment Section --- */}
       {showComments && (
         <div style={styles.commentSection}>
-          {demoComments.map((comment) => (
-            <div key={comment.id} style={styles.commentItem}>
-              <div style={{ position: "relative", width: "28px", height: "28px", borderRadius: "50%", overflow: "hidden", flexShrink: 0 }}>
-                <Image src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${comment.avatar}`} alt={comment.user} fill unoptimized style={{ objectFit: "cover" }} />
-              </div>
-              <div style={styles.commentBubble}>
-                <div style={styles.commentUser}>{comment.user}</div>
-                <div style={styles.commentText}>{comment.text}</div>
-              </div>
-            </div>
-          ))}
-          
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px" }}>
-             <div style={{ position: "relative", width: "28px", height: "28px", borderRadius: "50%", overflow: "hidden", flexShrink: 0, backgroundColor:"#e2e8f0", display:'flex', alignItems:'center', justifyContent:'center' }}>
-                {myAvatar ? (
-                  <Image src={myAvatar} alt="Me" fill unoptimized style={{ objectFit: "cover" }} />
-                ) : (
-                  <span style={{ fontSize: "10px", fontWeight: "700", color: "#64748b" }}>{myInitials}</span>
-                )}
-             </div>
-             <input 
-                type="text" 
-                placeholder="Add a comment..." 
-                style={{ flex: 1, fontSize: "12px", padding: "8px 12px", borderRadius: "20px", border: "1px solid #e2e8f0", outline: "none", backgroundColor: "#f8fafc" }}
-             />
-             <Send size={16} color="#2563eb" style={{ cursor: "pointer" }} />
+            <div style={{ position: "relative", width: "28px", height: "28px", borderRadius: "50%", overflow: "hidden", flexShrink: 0, backgroundColor: "#e2e8f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              {myAvatar ? <Image src={myAvatar} alt="Me" fill unoptimized style={{ objectFit: "cover" }} /> : <span style={{ fontSize: "10px", fontWeight: "700", color: "#64748b" }}>{myInitials}</span>}
+            </div>
+            <input type="text" placeholder="Add a comment..." style={{ flex: 1, fontSize: "12px", padding: "8px 12px", borderRadius: "20px", border: "1px solid #e2e8f0", outline: "none", backgroundColor: "#f8fafc" }} />
+            <Send size={16} color="#2563eb" style={{ cursor: "pointer" }} />
           </div>
         </div>
       )}
@@ -475,6 +685,7 @@ export const PostCard = ({ currentUser }: { currentUser: any }) => {
   );
 };
 
+// ... (SuggestedUsersWidget code remains the same as previously provided, no changes needed) ...
 export const SuggestedUsersWidget = ({ currentUserId }: { currentUserId: string }) => {
   const [profiles, setProfiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -486,26 +697,26 @@ export const SuggestedUsersWidget = ({ currentUserId }: { currentUserId: string 
       try {
         const [usersRes, acceptedRes, sentRes] = await Promise.all([
           fetch("/api/profile/getuser"),
-          fetch("/api/users/connections?type=accepted", { credentials: 'include' }),
-          fetch("/api/users/connections?type=sent", { credentials: 'include' })
+          fetch("/api/users/connections?type=accepted", { credentials: "include" }),
+          fetch("/api/users/connections?type=sent", { credentials: "include" }),
         ]);
 
         if (!usersRes.ok) return;
         const usersData = await usersRes.json();
-        
+
         const existingIds = new Set<string>();
-        existingIds.add(currentUserId); 
+        if (currentUserId) existingIds.add(currentUserId);
 
         if (acceptedRes.ok) {
-           const data = await acceptedRes.json();
-           (data.requests || []).forEach((r: any) => existingIds.add(r.user?.id));
+          const data = await acceptedRes.json();
+          (data.requests || []).forEach((r: any) => existingIds.add(r.user?.id));
         }
         if (sentRes.ok) {
-           const data = await sentRes.json();
-           (data.requests || []).forEach((r: any) => {
-             existingIds.add(r.receiver?.id);
-             setSentRequests(prev => new Set(prev).add(r.receiver?.id));
-           });
+          const data = await sentRes.json();
+          (data.requests || []).forEach((r: any) => {
+            existingIds.add(r.receiver?.id);
+            setSentRequests((prev) => new Set(prev).add(r.receiver?.id));
+          });
         }
 
         const filtered = (usersData.users || [])
@@ -515,9 +726,9 @@ export const SuggestedUsersWidget = ({ currentUserId }: { currentUserId: string 
             name: u.fullName,
             title: u.title || "Professional",
             profileImage: u.profileImage,
-            city: u.location || "Online"
+            city: u.location || "Online",
           }))
-          .slice(0, 3); 
+          .slice(0, 3);
 
         setProfiles(filtered);
       } catch (e) {
@@ -542,7 +753,7 @@ export const SuggestedUsersWidget = ({ currentUserId }: { currentUserId: string 
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Failed to connect");
 
-      setSentRequests(prev => new Set([...prev, userId]));
+      setSentRequests((prev) => new Set([...prev, userId]));
       toast.success(`Connection request sent to ${name}!`);
     } catch (error: any) {
       console.error("Connection error:", error);
@@ -552,16 +763,18 @@ export const SuggestedUsersWidget = ({ currentUserId }: { currentUserId: string 
     }
   };
 
-  if (loading) return null; 
+  if (loading) return null;
   if (profiles.length === 0) return null;
 
   return (
     <div style={styles.widgetCard}>
       <div style={styles.widgetHeader}>
         <span>Suggested for you</span>
-        <Link href="/dashboard/search" style={{ fontSize: "11px", color: "#2563eb", textDecoration: "none" }}>View all</Link>
+        <Link href="/dashboard/search" style={{ fontSize: "11px", color: "#2563eb", textDecoration: "none" }}>
+          View all
+        </Link>
       </div>
-      
+
       <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
         {profiles.map((p) => {
           const isSent = sentRequests.has(p.id);
@@ -580,12 +793,12 @@ export const SuggestedUsersWidget = ({ currentUserId }: { currentUserId: string 
                 <span style={{ fontSize: "13px", fontWeight: "700", ...truncateStyle }}>{p.name}</span>
                 <span style={{ fontSize: "10px", color: "#64748b", ...truncateStyle }}>{p.title}</span>
               </div>
-              <button 
+              <button
                 onClick={() => !isSent && handleConnect(p.id, p.name)}
                 disabled={isSent || connectingId === p.id}
                 style={isSent ? { ...styles.connectBtnSmall, ...styles.connectBtnSent } : styles.connectBtnSmall}
               >
-                {connectingId === p.id ? <Loader2 size={12} className="animate-spin" /> : (isSent ? "Sent" : "Connect")}
+                {connectingId === p.id ? <Loader2 size={12} className="animate-spin" /> : isSent ? "Sent" : "Connect"}
               </button>
             </div>
           );
@@ -594,31 +807,3 @@ export const SuggestedUsersWidget = ({ currentUserId }: { currentUserId: string 
     </div>
   );
 };
-
-export default function FeedPage() {
-  const [currentUser, setCurrentUser] = useState<any>(null);
-
-  useEffect(() => {
-    const fetchMe = async () => {
-      try {
-        const res = await fetch("/api/user/me");
-        if (res.ok) {
-          const data = await res.json();
-          setCurrentUser(data.user);
-        }
-      } catch (e) {}
-    };
-    fetchMe();
-  }, []);
-
-  return (
-    <div style={styles.pageWrapper}>
-      <div style={styles.feedContainer}>
-        <CreatePost currentUser={currentUser} />
-        <PostCard currentUser={currentUser} />
-        <PostCard currentUser={currentUser} />
-        <SuggestedUsersWidget currentUserId={currentUser?.id} />
-      </div>
-    </div>
-  );
-}
