@@ -65,19 +65,19 @@ export default function DashboardContactPage() {
   const [selectedSortOption, setSelectedSortOption] = useState('a-z');
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
-  const [showContactInfo, setShowContactInfo] = useState<{[key: string]: {type: 'phone' | 'email' | null}}>({});
+  const [showContactInfo, setShowContactInfo] = useState<{ [key: string]: { type: 'phone' | 'email' | null } }>({});
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [contactsList, setContactsList] = useState<Contact[]>([]);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [messageModal, setMessageModal] = useState<{isOpen: boolean, contact: Contact | null}>({isOpen: false, contact: null});
+  const [messageModal, setMessageModal] = useState<{ isOpen: boolean, contact: Contact | null }>({ isOpen: false, contact: null });
   const [messageText, setMessageText] = useState('');
   const [connectionRequests, setConnectionRequests] = useState<Contact[]>([]);
   const [activeTab, setActiveTab] = useState<'connections' | 'requests'>('connections');
   const [previewContact, setPreviewContact] = useState<Contact | null>(null);
   const [loading, setLoading] = useState(false);
   const [requestsLoading, setRequestsLoading] = useState(false);
-  const [approveModal, setApproveModal] = useState<{isOpen: boolean, request: Contact | null}>({isOpen: false, request: null});
+  const [approveModal, setApproveModal] = useState<{ isOpen: boolean, request: Contact | null }>({ isOpen: false, request: null });
   const filterRef = useRef<HTMLDivElement>(null);
   const [hasUnreadRequests, setHasUnreadRequests] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
@@ -112,13 +112,13 @@ export default function DashboardContactPage() {
 
   // Handle direct message - open message modal
   const handleDirectMessage = (contact: Contact) => {
-    setMessageModal({isOpen: true, contact});
+    setMessageModal({ isOpen: true, contact });
     setMessageText('');
   };
 
   // Close message modal
   const handleCloseMessageModal = () => {
-    setMessageModal({isOpen: false, contact: null});
+    setMessageModal({ isOpen: false, contact: null });
     setMessageText('');
   };
 
@@ -157,7 +157,7 @@ export default function DashboardContactPage() {
 
       toast.success('Message sent');
       handleCloseMessageModal();
-      
+
       // Trigger message refresh across the app
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new Event('message-sent'));
@@ -173,15 +173,15 @@ export default function DashboardContactPage() {
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       const target = event.target as Element;
-      
+
       // Check if click is inside filter button or dropdown
       const isFilterButton = filterRef.current && filterRef.current.contains(target);
       const isFilterDropdown = target.closest('[data-filter-dropdown]');
-      
+
       if (!isFilterButton && !isFilterDropdown && isFilterOpen) {
         setIsFilterOpen(false);
       }
-      
+
       // Close action dropdown when clicking outside
       if (!target.closest(`.${styles.relativeContainer}`)) { // Check against a specific class for the dropdown container
         setOpenDropdown(null);
@@ -202,13 +202,13 @@ export default function DashboardContactPage() {
         const response = await fetch('/api/users/connections?type=accepted', {
           credentials: 'include',
         });
-        
+
         if (!response.ok) {
           throw new Error('Failed to fetch connections');
         }
-        
+
         const data = await response.json();
-        
+
         // Map backend data to frontend Contact structure
         const mappedConnections: Contact[] = (data.requests || []).map((connection: any) => ({
           id: connection.id,
@@ -227,7 +227,7 @@ export default function DashboardContactPage() {
           connectionStatus: 'connected',
           activityStatus: 'active' as const
         }));
-        
+
         setContactsList(mappedConnections);
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new Event('connections-updated'));
@@ -239,7 +239,7 @@ export default function DashboardContactPage() {
         setLoading(false);
       }
     };
-    
+
     fetchAcceptedConnections();
   }, []);
 
@@ -251,13 +251,13 @@ export default function DashboardContactPage() {
         const response = await fetch('/api/users/connections?type=received', {
           credentials: 'include',
         });
-        
+
         if (!response.ok) {
           throw new Error('Failed to fetch connection requests');
         }
-        
+
         const data = await response.json();
-        
+
         // Map backend data to frontend Contact structure
         const mappedRequests: Contact[] = (data.requests || []).map((request: any) => ({
           id: request.id,
@@ -274,7 +274,7 @@ export default function DashboardContactPage() {
           isIncomingRequest: true,
           activityStatus: 'new' as const
         }));
-        
+
         setConnectionRequests(mappedRequests);
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new Event('connections-updated'));
@@ -286,7 +286,7 @@ export default function DashboardContactPage() {
         setRequestsLoading(false);
       }
     };
-    
+
     fetchConnectionRequests();
   }, []);
 
@@ -418,11 +418,11 @@ export default function DashboardContactPage() {
       }
 
       const data = await response.json();
-      
+
       // Find the request and move it to connections
       const request = connectionRequests.find(c => c.id === contactId);
       if (request) {
-        setContactsList(prev => [...prev, {...request, connectionStatus: 'connected'}]);
+        setContactsList(prev => [...prev, { ...request, connectionStatus: 'connected' }]);
         setConnectionRequests(prev => prev.filter(c => c.id !== contactId));
         toast.success(`Connection with ${request.name} approved!`);
         try {
@@ -470,11 +470,11 @@ export default function DashboardContactPage() {
       }
 
       const data = await response.json();
-      
+
       // Remove the request from the list
       const request = connectionRequests.find(c => c.id === contactId);
       setConnectionRequests(prev => prev.filter(c => c.id !== contactId));
-      
+
       if (request) {
         toast.success(`Connection request from ${request.name} rejected`);
         try {
@@ -531,31 +531,29 @@ export default function DashboardContactPage() {
           {/* Background Pattern */}
           <div className={styles.bgOverlay}></div>
           <div className={styles.bgWhite}></div>
-          
+
           {/* Decorative Elements */}
           <div className={styles.decorativeElement}></div>
-          
+
           <div className={styles.heroContentWrapper}>
             {/* Header Section - Mobile First */}
             <div className={styles.headerFlexContainer}>
               <div className={styles.flexOne}>
                 <h1 className={styles.pageTitle}>Connections</h1>
-                
+
                 {/* Mobile-only: View toggle under title */}
                 <div className={`${styles.mobileOnly} ${styles.hiddenInHeader}`}>
                   <div className={styles.viewToggleContainer}>
-                    <div 
-                      className={`${styles.viewToggleBackground} ${
-                        viewMode === 'table' ? styles.viewToggleTableActive : styles.viewToggleCardsActive
-                      }`}
+                    <div
+                      className={`${styles.viewToggleBackground} ${viewMode === 'table' ? styles.viewToggleTableActive : styles.viewToggleCardsActive
+                        }`}
                     />
-                    <button 
+                    <button
                       onClick={() => setViewMode('table')}
-                      className={`${styles.viewToggleButton} ${
-                        viewMode === 'table' 
-                          ? styles.viewToggleActiveText 
-                          : styles.viewToggleInactiveText
-                      }`}
+                      className={`${styles.viewToggleButton} ${viewMode === 'table'
+                        ? styles.viewToggleActiveText
+                        : styles.viewToggleInactiveText
+                        }`}
                     >
                       <span className={styles.flexCenter}>
                         <svg className={styles.viewToggleIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -564,13 +562,12 @@ export default function DashboardContactPage() {
                         Table View
                       </span>
                     </button>
-                    <button 
+                    <button
                       onClick={() => setViewMode('cards')}
-                      className={`${styles.viewToggleButton} ${
-                        viewMode === 'cards' 
-                          ? styles.viewToggleActiveText 
-                          : styles.viewToggleInactiveText
-                      }`}
+                      className={`${styles.viewToggleButton} ${viewMode === 'cards'
+                        ? styles.viewToggleActiveText
+                        : styles.viewToggleInactiveText
+                        }`}
                     >
                       <span className={styles.flexCenter}>
                         <svg className={styles.viewToggleIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -582,94 +579,34 @@ export default function DashboardContactPage() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Stats and Controls - Mobile Responsive */}
               <div className={`${styles.controlsFlexContainer} ${styles.hiddenInHeader}`}>
                 <div className={styles.statsBox}>
                   {/* Content removed to save space */}
                 </div>
-                
+
                 <div className={styles.controlsGroup}>
                   {/* Mobile: Filter first, then Toggle */}
                   <div className={styles.controlsInnerFlex}>
                     {/* Filter: Desktop Only in Header */}
-                    {!isSidebarOpen && (
-                      <div className={styles.desktopOnly}>
-                        <div className={styles.filterContainer} ref={filterRef} data-filter-dropdown>
-                          <button 
-                            onClick={() => setIsFilterOpen(!isFilterOpen)}
-                            className={styles.filterButton}
-                          >
-                            
-                            <span className={styles.filterText}>Sort by: {selectedSortOption === 'a-z' ? 'A-Z' : selectedSortOption === 'z-a' ? 'Z-A' : selectedSortOption === 'recent' ? 'Recent' : 'Oldest'}</span>
-                            <ChevronDown className={`${styles.chevronIcon} ${isFilterOpen ? styles.rotate180 : ''}`} />
-                          </button>
-                          
-                          {isFilterOpen && (
-                            <div className={styles.filterDropdown}>
-                              <div className={styles.filterDropdownContent}>
-                                <button 
-                                  onClick={() => {
-                                    setSortBy('a-z');
-                                    setSelectedSortOption('a-z');
-                                    setIsFilterOpen(false);
-                                  }}
-                                  className={`${styles.filterOption} ${selectedSortOption === 'a-z' ? styles.filterOptionActive : ''}`}
-                                >
-                                  Sort A-Z
-                                </button>
-                                <button 
-                                  onClick={() => {
-                                    setSortBy('z-a');
-                                    setSelectedSortOption('z-a');
-                                    setIsFilterOpen(false);
-                                  }}
-                                  className={`${styles.filterOption} ${selectedSortOption === 'z-a' ? styles.filterOptionActive : ''}`}
-                                >
-                                  Sort Z-A
-                                </button>
-                                <button 
-                                  onClick={() => {
-                                    setSortBy('recent');
-                                    setSelectedSortOption('recent');
-                                    setIsFilterOpen(false);
-                                  }}
-                                  className={`${styles.filterOption} ${selectedSortOption === 'recent' ? styles.filterOptionActive : ''}`}
-                                >
-                                  Sort by Recent
-                                </button>
-                                <button 
-                                  onClick={() => {
-                                    setSortBy('oldest');
-                                    setSelectedSortOption('oldest');
-                                    setIsFilterOpen(false);
-                                  }}
-                                  className={`${styles.filterOption} ${selectedSortOption === 'oldest' ? styles.filterOptionActive : ''}`}
-                                >
-                                  Sort by Oldest
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                    
+
+
+
+
                     {/* View Toggle - Desktop Only in header controls */}
                     <div className={styles.desktopOnly}>
                       <div className={styles.viewToggleContainer}>
-                        <div 
-                          className={`${styles.viewToggleBackground} ${
-                            viewMode === 'table' ? styles.viewToggleTableActive : styles.viewToggleCardsActive
-                          }`}
+                        <div
+                          className={`${styles.viewToggleBackground} ${viewMode === 'table' ? styles.viewToggleTableActive : styles.viewToggleCardsActive
+                            }`}
                         />
-                        <button 
+                        <button
                           onClick={() => setViewMode('table')}
-                          className={`${styles.viewToggleButton} ${
-                            viewMode === 'table' 
-                              ? styles.viewToggleActiveText 
-                              : styles.viewToggleInactiveText
-                          }`}
+                          className={`${styles.viewToggleButton} ${viewMode === 'table'
+                            ? styles.viewToggleActiveText
+                            : styles.viewToggleInactiveText
+                            }`}
                         >
                           <span className={styles.flexCenter}>
                             <svg className={styles.viewToggleIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -678,13 +615,12 @@ export default function DashboardContactPage() {
                             Table View
                           </span>
                         </button>
-                        <button 
+                        <button
                           onClick={() => setViewMode('cards')}
-                          className={`${styles.viewToggleButton} ${
-                            viewMode === 'cards' 
-                              ? styles.viewToggleActiveText 
-                              : styles.viewToggleInactiveText
-                          }`}
+                          className={`${styles.viewToggleButton} ${viewMode === 'cards'
+                            ? styles.viewToggleActiveText
+                            : styles.viewToggleInactiveText
+                            }`}
                         >
                           <span className={styles.flexCenter}>
                             <svg className={styles.viewToggleIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -699,119 +635,41 @@ export default function DashboardContactPage() {
                 </div>
               </div>
             </div>
-            
+
             {/* Search Bar */}
             <div className={styles.searchBarSection}>
               <div className={styles.searchBarWrapper}>
                 <div className={styles.searchBarInner}>
                   {/* Mobile layout: search + filter row and view toggle */}
                   <div className={styles.mobileOnly}>
-                    <div className={styles.searchFilterRow}>
-                      <div className={styles.searchColumn}>
-                        <div className={styles.relativeContainer}>
-                          <div className={styles.searchIconContainer}>
-                            <Search className={styles.searchIcon} />
-                          </div>
-                          <input
-                            type="text"
-                            placeholder="Search Connections..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className={`${styles.searchInput} ${styles.searchInputCompact}`}
-                          />
-                        </div>
-                      </div>
-                      {!isSidebarOpen && (
-                        <div className={styles.filterColumn}>
-                          <div className={styles.filterContainer} ref={filterRef} data-filter-dropdown>
-                            <button 
-                              onClick={() => setIsFilterOpen(!isFilterOpen)}
-                              className={`${styles.filterButton} ${styles.filterButtonCompact}`}
-                            >
-                             
-                              <span className={styles.filterText}>Filter</span>
-                              <ChevronDown className={`${styles.chevronIcon} ${isFilterOpen ? styles.rotate180 : ''}`} />
-                            </button>
-                            {isFilterOpen && (
-                              <div className={styles.filterDropdown}>
-                                <div className={styles.filterDropdownContent}>
-                                  <button 
-                                    onClick={() => {
-                                      setSortBy('a-z');
-                                      setSelectedSortOption('a-z');
-                                      setIsFilterOpen(false);
-                                    }}
-                                    className={`${styles.filterOption} ${selectedSortOption === 'a-z' ? styles.filterOptionActive : ''}`}
-                                  >
-                                    Sort A-Z
-                                  </button>
-                                  <button 
-                                    onClick={() => {
-                                      setSortBy('z-a');
-                                      setSelectedSortOption('z-a');
-                                      setIsFilterOpen(false);
-                                    }}
-                                    className={`${styles.filterOption} ${selectedSortOption === 'z-a' ? styles.filterOptionActive : ''}`}
-                                  >
-                                    Sort Z-A
-                                  </button>
-                                  <button 
-                                    onClick={() => {
-                                      setSortBy('recent');
-                                      setSelectedSortOption('recent');
-                                      setIsFilterOpen(false);
-                                    }}
-                                    className={`${styles.filterOption} ${selectedSortOption === 'recent' ? styles.filterOptionActive : ''}`}
-                                  >
-                                    Sort by Recent
-                                  </button>
-                                  <button 
-                                    onClick={() => {
-                                      setSortBy('oldest');
-                                      setSelectedSortOption('oldest');
-                                      setIsFilterOpen(false);
-                                    }}
-                                    className={`${styles.filterOption} ${selectedSortOption === 'oldest' ? styles.filterOptionActive : ''}`}
-                                  >
-                                    Sort by Oldest
-                                  </button>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
+
 
                     <div className={styles.viewToggleContainer}>
-                      <div 
-                        className={`${styles.viewToggleBackground} ${
-                          viewMode === 'table' ? styles.viewToggleTableActive : styles.viewToggleCardsActive
-                        }`}
+                      <div
+                        className={`${styles.viewToggleBackground} ${viewMode === 'table' ? styles.viewToggleTableActive : styles.viewToggleCardsActive
+                          }`}
                       />
-                      <button 
+                      <button
                         onClick={() => setViewMode('table')}
-                        className={`${styles.viewToggleButton} ${
-                          viewMode === 'table' 
-                            ? styles.viewToggleActiveText 
-                            : styles.viewToggleInactiveText
-                        }`}
+                        className={`${styles.viewToggleButton} ${viewMode === 'table'
+                          ? styles.viewToggleActiveText
+                          : styles.viewToggleInactiveText
+                          }`}
                       >
                         <span className={styles.flexCenter}>
-                          
+
                           Table View
                         </span>
                       </button>
-                      <button 
+                      <button
                         onClick={() => setViewMode('cards')}
-                        className={`${styles.viewToggleButton} ${
-                          viewMode === 'cards' 
-                            ? styles.viewToggleActiveText 
-                            : styles.viewToggleInactiveText
-                        }`}
+                        className={`${styles.viewToggleButton} ${viewMode === 'cards'
+                          ? styles.viewToggleActiveText
+                          : styles.viewToggleInactiveText
+                          }`}
                       >
                         <span className={styles.flexCenter}>
-                          
+
                           Cards View
                         </span>
                       </button>
@@ -819,73 +677,51 @@ export default function DashboardContactPage() {
                   </div>
 
                   {/* Desktop layout: original search bar only */}
-                  <div className={styles.searchWrapper}>
-                    <Search className={styles.searchIcon} />
-                    <input
-                      type="text" style={{textAlign:"left"}}
-                      placeholder="Search your professional network..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className={styles.searchInput}
-                    />
+                  {/* Search + Filter aligned like Table View */}
+                  <div className={styles.searchRowWrapper}>
+                    <div className={styles.searchRow}>
+                      <div className={styles.searchWrapper}>
+                        <span className={styles.searchIcon}>
+                          <Search />
+                        </span>
+
+                        <input
+                          type="text"
+                          placeholder="Search your professional network..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className={styles.searchInput}
+                        />
+                      </div>
+
+
+                      <div className={styles.filterContainer} ref={filterRef}>
+                        <button
+                          onClick={() => setIsFilterOpen(!isFilterOpen)}
+                          className={styles.filterButton}
+                        >
+                          Sort by : A-Z
+                          <ChevronDown className={styles.chevronIcon} />
+                        </button>
+
+                        {isFilterOpen && (
+                          <div className={styles.filterDropdown}>
+                            <button onClick={() => setSortBy('a-z')}>Sort A–Z</button>
+                            <button onClick={() => setSortBy('z-a')}>Sort Z–A</button>
+                            <button onClick={() => setSortBy('recent')}>Recent</button>
+                            <button onClick={() => setSortBy('oldest')}>Oldest</button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
+
+
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Mobile-only Filter under search bar */}
-        {!isSidebarOpen && (
-          <div className={`${styles.mobileOnly} ${styles.hiddenInHeader}`}>
-            <div className={styles.controlsFlexContainer}>
-              <div className={styles.controlsGroup}>
-                <div className={styles.controlsInnerFlex}>
-                  <div className={styles.filterContainer} ref={filterRef} data-filter-dropdown>
-                    <button 
-                      onClick={() => setIsFilterOpen(!isFilterOpen)}
-                      className={styles.filterButton}
-                    >
-                      <Filter className={styles.filterIcon} />
-                      <span className={styles.filterText}>Filter</span>
-                      <ChevronDown className={`${styles.chevronIcon} ${isFilterOpen ? styles.rotate180 : ''}`} />
-                    </button>
-                    {isFilterOpen && (
-                      <div className={styles.filterDropdown}>
-                        <div className={styles.filterDropdownContent}>
-                          <button 
-                            onClick={() => { setSortBy('a-z'); setSelectedSortOption('a-z'); setIsFilterOpen(false); }}
-                            className={`${styles.filterOption} ${selectedSortOption === 'a-z' ? styles.filterOptionActive : ''}`}
-                          >
-                            Sort A-Z
-                          </button>
-                          <button 
-                            onClick={() => { setSortBy('z-a'); setSelectedSortOption('z-a'); setIsFilterOpen(false); }}
-                            className={`${styles.filterOption} ${selectedSortOption === 'z-a' ? styles.filterOptionActive : ''}`}
-                          >
-                            Sort Z-A
-                          </button>
-                          <button 
-                            onClick={() => { setSortBy('recent'); setSelectedSortOption('recent'); setIsFilterOpen(false); }}
-                            className={`${styles.filterOption} ${selectedSortOption === 'recent' ? styles.filterOptionActive : ''}`}
-                          >
-                            Sort by Recent
-                          </button>
-                          <button 
-                            onClick={() => { setSortBy('oldest'); setSelectedSortOption('oldest'); setIsFilterOpen(false); }}
-                            className={`${styles.filterOption} ${selectedSortOption === 'oldest' ? styles.filterOptionActive : ''}`}
-                          >
-                            Sort by Oldest
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Smart Insights Panel (desktop only) */}
         <div className={`${styles.insightsPanel} ${styles.desktopOnly}`}>
@@ -899,13 +735,13 @@ export default function DashboardContactPage() {
         {/* Content Area */}
         <div className={styles.tabsContainer}>
           <div className={styles.tabs}>
-            <button 
+            <button
               onClick={() => handleTabClick('connections')}
               className={`${styles.tabButton} ${activeTab === 'connections' ? styles.tabButtonActive : ''}`}
             >
               Connections
             </button>
-            <button 
+            <button
               onClick={() => handleTabClick('requests')}
               className={`${styles.tabButton} ${activeTab === 'requests' ? styles.tabButtonActive : ''}`}
               style={{ position: 'relative' }}
@@ -924,8 +760,8 @@ export default function DashboardContactPage() {
                     <thead className={styles.tableHead}>
                       <tr>
                         <th className={styles.tableHeader}>NAME</th>
-                        <th className={styles.tableHeader} style={{textAlign:'left'}}>TITLE</th>
-                        <th className={styles.tableHeader} style={{textAlign:'left'}}>COMPANY</th>
+                        <th className={styles.tableHeader} style={{ textAlign: 'left' }}>TITLE</th>
+                        <th className={styles.tableHeader} style={{ textAlign: 'left' }}>COMPANY</th>
                         <th className={styles.tableHeader}>DATE</th>
                         <th className={styles.tableHeader}></th>
                         <th className={styles.tableHeader}></th>
@@ -957,7 +793,7 @@ export default function DashboardContactPage() {
                                   style={{
                                     display: 'block',
                                     maxWidth: '320px',
-                                   whiteSpace: 'normal',
+                                    whiteSpace: 'normal',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
                                     textAlign: 'left'
@@ -979,10 +815,10 @@ export default function DashboardContactPage() {
                           </td>
 
                           <td>
-                            <span className={styles.tableCellText} style={{ display: 'block', maxWidth: 180,whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }}>{(contact.title || '').trim()}</span>
+                            <span className={styles.tableCellText} style={{ display: 'block', maxWidth: 180, whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }}>{(contact.title || '').trim()}</span>
                           </td>
                           <td>
-                            <span  style={{ display: 'block', maxWidth: 200, whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }}>{(contact.company || '').trim()}</span>
+                            <span style={{ display: 'block', maxWidth: 200, whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }}>{(contact.company || '').trim()}</span>
                           </td>
                           <td className={styles.tableDataDate}>
                             <span>{contact.dateAdded}</span>
@@ -1003,14 +839,14 @@ export default function DashboardContactPage() {
                           </td>
                           <td className={styles.tableDataCell}>
                             <div className={styles.relativeContainer}>
-                              <button 
+                              <button
                                 onClick={() => setOpenDropdown(openDropdown === contact.id ? null : contact.id)}
                                 className={styles.moreButton}
                                 style={{ flexShrink: 0 }}
                               >
                                 <MoreHorizontal className={styles.moreIcon} />
                               </button>
-                              
+
                               {/* Dropdown Menu */}
                               {openDropdown === contact.id && (
                                 <div className={styles.dropdownMenu}>
@@ -1057,6 +893,7 @@ export default function DashboardContactPage() {
                                   )}
                                 </div>
                                 <div>
+
                                   <h3
                                     className={styles.mobileCardTitle}
                                     onClick={() => setPreviewContact(contact)}
@@ -1065,16 +902,16 @@ export default function DashboardContactPage() {
                                     {(contact.name || '').trim()}
                                   </h3>
                                   {contact.title && (
-                                    <p className={styles.mobileCardSubtitle} style={{ display: 'block', maxWidth: 240,whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }}>{(contact.title || '').trim()}</p>
+                                    <p className={styles.mobileCardSubtitle} style={{ display: 'block', maxWidth: 240, whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }}>{(contact.title || '').trim()}</p>
                                   )}
                                   {(contact.company || contact.location) && (
-                                    <p className={styles.mobileCardSubtitle} style={{ display: 'block', maxWidth: 240,whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }}>
+                                    <p className={styles.mobileCardSubtitle} style={{ display: 'block', maxWidth: 240, whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }}>
                                       {[(contact.company || '').trim(), (contact.location || '').trim()]
                                         .filter(Boolean)
                                         .join(' • ')}
                                     </p>
                                   )}
-                                 {/* {contact.phone && (
+                                  {/* {contact.phone && (
                                     <p className={styles.mobileCardSubtitle}>
                                       {contact.phone}
                                     </p>
@@ -1095,7 +932,7 @@ export default function DashboardContactPage() {
                                   )}
                                 </button>
                                 <div className={styles.relativeContainer}>
-                                  <button 
+                                  <button
                                     onClick={() => setOpenDropdown(openDropdown === contact.id ? null : contact.id)}
                                     className={styles.mobileMoreButton}
                                     style={{ flexShrink: 0 }}
@@ -1104,7 +941,7 @@ export default function DashboardContactPage() {
                                   </button>
                                   {openDropdown === contact.id && (
                                     <div className={styles.dropdownMenuMobile}>
-                                      <button 
+                                      <button
                                         onClick={() => handleDeleteConnection(contact.id)}
                                         className={styles.dropdownItemDeleteMobile}
                                       >
@@ -1168,20 +1005,18 @@ export default function DashboardContactPage() {
                       >
                         {/* Card Container with 3D Flip Effect */}
                         <div className={styles.flipCardContainer}>
-                          <div className={`${styles.flipCardInner} ${
-                            hoveredCard === contact.id ? styles.rotateY180 : ''
-                          }`}>
-                            
-                            {/* Front of Card */}
-                            <div className={`${styles.cardFace} ${styles.backfaceHidden} ${
-                              index % 4 === 1 ? styles.cardFront1 :
-                              index % 4 === 2 ? styles.cardFront2 :
-                              index % 4 === 3 ? styles.cardFront3 :
-                              styles.cardFront4
+                          <div className={`${styles.flipCardInner} ${hoveredCard === contact.id ? styles.rotateY180 : ''
                             }`}>
-                              
+
+                            {/* Front of Card */}
+                            <div className={`${styles.cardFace} ${styles.backfaceHidden} ${index % 4 === 1 ? styles.cardFront1 :
+                              index % 4 === 2 ? styles.cardFront2 :
+                                index % 4 === 3 ? styles.cardFront3 :
+                                  styles.cardFront4
+                              }`}>
+
                               {/* Top-right action removed for a cleaner card front */}
-                              
+
                               <div
                                 className={styles.cardContentFlex}
                                 style={{
@@ -1192,8 +1027,10 @@ export default function DashboardContactPage() {
                                   gap: '12px',
                                   padding: '14px 12px 10px 12px', /* added extra top padding */
                                   height: 'auto'
+
                                 }}
                               >
+
                                 {/* Left: Avatar */}
                                 <div style={{ width: 45, height: 45, flexShrink: 0 }}>
                                   <div className={styles.avatarPlaceholder}>
@@ -1228,7 +1065,7 @@ export default function DashboardContactPage() {
                                       margin: 0,
                                       lineHeight: 1.2,
                                       fontWeight: 600,
-                                     whiteSpace: 'normal',
+                                      whiteSpace: 'normal',
                                       overflow: 'hidden',
                                       textOverflow: 'ellipsis',
                                       padding: 0,
@@ -1240,7 +1077,7 @@ export default function DashboardContactPage() {
                                     className={styles.cardTitle}
                                     style={{
                                       margin: '2px 0 0',
-                                   whiteSpace: 'normal',
+                                      whiteSpace: 'normal',
                                       overflow: 'hidden',
                                       textOverflow: 'ellipsis',
                                       padding: 0,
@@ -1252,7 +1089,7 @@ export default function DashboardContactPage() {
                                     className={styles.cardCompany}
                                     style={{
                                       margin: '2px 0 0',
-                                     whiteSpace: 'normal',
+                                      whiteSpace: 'normal',
                                       overflow: 'hidden',
                                       textOverflow: 'ellipsis',
                                       padding: 0,
@@ -1273,12 +1110,11 @@ export default function DashboardContactPage() {
                             </div>
 
                             {/* Back of Card - Different templates based on contact ID */}
-                            <div className={`${styles.cardFace} ${styles.backfaceHidden} ${styles.rotateY180} ${
-                              index % 4 === 1 ? styles.cardBack1 :
+                            <div className={`${styles.cardFace} ${styles.backfaceHidden} ${styles.rotateY180} ${index % 4 === 1 ? styles.cardBack1 :
                               index % 4 === 2 ? styles.cardBack2 :
-                              index % 4 === 3 ? styles.cardBack3 :
-                              styles.cardBack4
-                            }`}>
+                                index % 4 === 3 ? styles.cardBack3 :
+                                  styles.cardBack4
+                              }`}>
                               <div className={styles.cardBackCenter}>
                                 <div className={styles.quickHeader}>
                                   <h3 className={styles.quickTitle} style={{ color: '#ffffff' }}>{contact.name}</h3>
@@ -1383,7 +1219,7 @@ export default function DashboardContactPage() {
           ) : (
             /* Requests View */
             <div className={styles.requestsViewContainer}>
-              <h3 className={styles.requestsTitle}>Connection Requests</h3>
+              <h3 className={styles.requestsTitle}> </h3>
               {connectionRequests.length > 0 ? (
                 <div className={styles.requestsList}>
                   {connectionRequests.map((request) => (
@@ -1409,7 +1245,7 @@ export default function DashboardContactPage() {
                       </div>
 
                       <div className={styles.requestActions}>
-                        <button 
+                        <button
                           onClick={() => openApproveModal(request)}
                           style={{
                             background: 'linear-gradient(to bottom right, #1e3a8a, #2563eb)',
@@ -1422,7 +1258,7 @@ export default function DashboardContactPage() {
                         >
                           Approve
                         </button>
-                        <button 
+                        <button
                           onClick={() => handleRejectRequest(request.id)}
                           className={styles.requestRejectButton}
                         >
@@ -1438,7 +1274,7 @@ export default function DashboardContactPage() {
             </div>
           )}
         </div>
-        
+
         {/* Message Modal */}
         {messageModal.isOpen && messageModal.contact && (
           <div className={styles.modalOverlay}>
@@ -1480,7 +1316,7 @@ export default function DashboardContactPage() {
           >
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <p className={styles.modalBody}>
-              Approving will allow this person to connect with you and see your card information, including your phone number, email, job title, and other shared details.
+                Approving will allow this person to connect with you and see your card information, including your phone number, email, job title, and other shared details.
               </p>
               <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                 <button onClick={closeApproveModal} className={styles.modalCancelButton} style={{ flex: 1 }}>

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/hooks/use-auth"
 import Header from "@/components/Header"
 import Homepage from "@/components/Homepage"
+import TopFooter from "@/components/TopFooter"
 import Footer from "@/components/Footer"
 
 export default function Home() {
@@ -14,7 +15,7 @@ export default function Home() {
   useEffect(() => {
     // Only check auth once on mount
     checkAuth()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -31,7 +32,7 @@ export default function Home() {
     try {
       target = sessionStorage.getItem('scrollTarget')
       if (target) sessionStorage.removeItem('scrollTarget')
-    } catch {}
+    } catch { }
     if (target) {
       // wait for homepage sections to render
       const attemptScroll = () => {
@@ -62,6 +63,7 @@ export default function Home() {
       <main className="flex-1">
         <Homepage />
       </main>
+      <TopFooter />
       <Footer />
     </div>
   )
