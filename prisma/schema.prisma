@@ -49,6 +49,16 @@ model User {
   sentMessages        Message[]            @relation("SentMessages")
   passwordResetTokens PasswordResetToken[]
 
+
+
+  posts         Post[]
+  likes         Like[]
+  comments      Comment[]
+  savedPosts    SavedPost[]
+
+
+  
+
   @@index([username])
   @@map("users")
 }
@@ -246,4 +256,66 @@ enum MessageTag {
   SUPPORT
   PRICING
   FEEDBACK
+}
+
+
+
+
+model Post {
+  id        String   @id @default(cuid())
+  content   String?  @db.Text
+  imageUrl  String?  @db.VarChar(1000)
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author    User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  likes     Like[]
+  comments  Comment[]
+  savedBy   SavedPost[]
+
+  @@index([authorId])
+  @@map("posts")
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId]) // Prevent duplicate likes
+  @@index([postId])
+  @@map("likes")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@map("comments")
+}
+
+model SavedPost {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([userId])
+  @@map("saved_posts")
 }
