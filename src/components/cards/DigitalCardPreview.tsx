@@ -168,11 +168,9 @@ const DigitalCardPreview: React.FC<DigitalCardProps> = ({
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
-      
-      <div style={{
-        width: "360px",
-        borderRadius: "28px",
+    <div className="w-full h-full" style={{ position: 'relative' }}>
+      <div className="w-full max-w-[360px]"
+  style={{ borderRadius: "28px",
         overflow: "hidden", 
         boxShadow: "0 25px 50px rgba(0, 0, 0, 0.15)",
         fontFamily: fontFamily,

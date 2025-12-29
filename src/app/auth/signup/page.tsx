@@ -243,9 +243,10 @@ export default function SignupPage() {
         {/* STEP 1: Email Input */}
         {step === 'email' && (
           <>
-            <p className="text-center text-gray-600 mb-6 text-sm leading-relaxed">
+            <p className="text-center text-black-700 mb-6 text-sm leading-relaxed">
               First impressions matter.<br />
               Make yours unforgettable!
+              
             </p>
 
             <h2 className={styles.title}>Create an account</h2>
@@ -255,15 +256,15 @@ export default function SignupPage() {
                 <label htmlFor="email" className="label">
                   Email
                 </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="auth-input"
-                  placeholder="Enter your email"
-                  required
-                />
+               <input
+  id="email"
+  type="email"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  className={styles.authInput}
+  placeholder="Enter your email"
+/>
+
               </div>
 
               {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
@@ -277,7 +278,7 @@ export default function SignupPage() {
               </button>
             </form>
 
-            <p className="text-center text-sm text-gray-600 mt-10">
+            <p className="text-center text-sm text-black-700 mt-10">
               Already have an account?{' '}
               <Link href="/auth/login" className="text-primary-green hover:text-primary-green-dark font-medium">
                 Log in

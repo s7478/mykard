@@ -1,11 +1,13 @@
 "use client";
 
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import "../app/globals.css";
+import GrowthMetricsSection from "./GrowthMetricsSection";
 
 type Profile = {
   id: string;
@@ -15,8 +17,41 @@ type Profile = {
   designation?: string;
 };
 
+//kanchan added
+
+const CardItem = ({ feature, isMobile }: { feature: any, isMobile: boolean }) => (
+  <div
+    style={{
+      background: feature.cardColor, borderRadius: "1.25rem", padding: "1.25rem 0.75rem", border: feature.border,
+      width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
+    }}
+  >
+    <div style={{ marginBottom: "1rem", width: "100%", height: "120px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <Image src={feature.image} alt={feature.title} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
+    </div>
+
+    <h3 style={{ color: feature.textColor, fontSize: "1.1rem", fontWeight: "700", margin: "0.75rem 0", textAlign: "center", lineHeight: "1.3" }}>
+      {feature.title}
+    </h3>
+
+    <div
+      className={`overflow-hidden transition-all duration-500 w-full ${isMobile ? "max-h-'300px' opacity-100" : "max-h-0 opacity-0 group-hover:max-h-'300px' group-hover:opacity-100"
+        }`}
+      style={{ background: feature.boxColor, borderRadius: "0.75rem", }}
+    >
+      <div style={{ padding: "0.75rem" }}>
+        <p style={{ color: feature.textColor, fontSize: "0.8rem", lineHeight: "1.4", textAlign: "center", fontWeight: "400", margin: 0 }}>
+          {feature.description}
+        </p>
+      </div>
+    </div>
+  </div>
+);
+
 export default function Homepage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Profile[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -24,10 +59,34 @@ export default function Homepage() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [connectingUserId, setConnectingUserId] = useState<string | null>(null);
   const [sentRequests, setSentRequests] = useState<Set<string>>(new Set());
-  const [acceptedConnections, setAcceptedConnections] = useState<Set<string>>(
-    new Set()
-  );
+  const [acceptedConnections, setAcceptedConnections] = useState<Set<string>>(new Set());
+  const [isHovered, setIsHovered] = useState(false);
   const router = useRouter();
+  const [showInfoCard, setShowInfoCard] = React.useState(false);
+  const infoCardRef = React.useRef<HTMLDivElement | null>(null);
+
+  const pageVariants = {
+    hidden: { opacity: 0, rotateX: 55, scale: 0.98, y: 40, transformOrigin: "top center" },
+    show: { opacity: 1, rotateX: 0, scale: 1, y: 0, transition: { duration: 1.1, ease: [0.22, 1, 0.36, 1] }},
+    exit: { opacity: 0.3, rotateX: -35, y: -20, transition: { duration: 0.6 } }
+  };
+
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) { setShowInfoCard(true); // Reveal when card comes into view
+          }
+        });
+      },
+      { threshold: 0.2 } // triggers when 20% visible
+    );
+
+    if (infoCardRef.current) observer.observe(infoCardRef.current);
+
+    return () => observer.disconnect();
+  }, []);
+
 
   useEffect(() => {
     const loadConnectionStatuses = async () => {
@@ -90,14 +149,9 @@ export default function Homepage() {
       setSearchLoading(true);
       setHasSearched(true);
 
-      const response = await fetch("/api/profile/getuser", {
-        credentials: "include",
-      });
+      const response = await fetch("/api/profile/getuser", { credentials: "include", });
 
-      console.log("handleConnectSearch fetch response", {
-        ok: response.ok,
-        status: response.status,
-      });
+      console.log("handleConnectSearch fetch response", { ok: response.ok, status: response.status, });
 
       if (!response.ok) {
         console.error("Failed to fetch users");
@@ -149,9 +203,8 @@ export default function Homepage() {
       const keywords = keywordsPart.split(/\s+/).filter(Boolean);
 
       const filtered = mapped.filter((p) => {
-        const hay = `${p.name} ${p.designation ?? ""} ${p.company ?? ""} ${
-          p.city ?? ""
-        }`.toLowerCase();
+        const hay = `${p.name} ${p.designation ?? ""} ${p.company ?? ""} ${p.city ?? ""
+          }`.toLowerCase();
         const city = (p.city || "").toLowerCase();
 
         const keywordsMatch =
@@ -207,6 +260,162 @@ export default function Homepage() {
     }
   };
 
+  //kanchan added
+  interface Feature {
+    title: string;
+    desc: string;
+    icon: React.ReactElement<React.SVGProps<SVGSVGElement>>;
+  }
+
+  const features: Feature[] = [
+    {
+      title: "Smart Card",
+      desc: "Showcase your photo, bio, skills, and links in one beautiful & centralized hub.",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="5" width="20" height="14" rx="2" />
+          <path d="M6 10h2" />
+          <path d="M6 14h2" />
+          <path d="M11 10h7" />
+          <path d="M11 14h4" />
+          <circle cx="18" cy="8" r="1" fill="currentColor" />
+        </svg>
+      ),
+    },
+    {
+      title: "Share Instantly",
+      desc: "No app needed. Share via QR, link, or message. Works across any device instantly.",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13" />
+          <polygon points="22 2 15 22 11 13 2 9 22 2" />
+        </svg>
+      ),
+    },
+    {
+      title: "Grow Your Network",
+      desc: "Connect instantly with professionals nearby or in your industry effortlessly.",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M4.93 19.07l1.41-1.41m11.32-11.32l1.41-1.41" />
+        </svg>
+      ),
+    },
+    {
+      title: "Always Up To Date",
+      desc: "Update your info anytime — your contacts automatically get the latest version.",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3" />
+        </svg>
+      ),
+    },
+    {
+      title: "One Card, Many Use",
+      desc: "Use at events, bios, resumes, and email signatures. Your link replaces everything.",
+      icon: (
+        <svg width="61" height="61" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="1.5">
+          <rect x="3" y="3" width="7" height="7" />
+          <rect x="14" y="3" width="7" height="7" />
+          <rect x="14" y="14" width="7" height="7" />
+          <rect x="3" y="14" width="7" height="7" />
+        </svg>
+      ),
+    },
+    {
+      title: "Smart Analysis",
+      desc: "Track engagement, see who viewed your card, and monitor your network growth.",
+      icon: (
+        <svg width="61" height="61" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="1.5">
+          <path d="M12 20v-8m0 0V4m0 8h8m-8 0H4" />
+        </svg>
+      ),
+    },
+    {
+      title: "Built For Everyone",
+      desc: "From students to CEOs — MyKard helps you share who you are beautifully.",
+      icon: (
+        <svg width="61" height="61" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="1.5">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+      ),
+    }
+  ];
+
+  //kanchan added 
+  const steps = [
+    {
+      title: "Create Your Profile",
+      description: "Sign up and enter you professional details.",
+      image: "/assets/profile-icon.png",
+      number: "1",
+    },
+    {
+      title: "Customize Your card",
+      description: "Design your card with themes, colors and logos.",
+      image: "/assets/customize-icon.png",
+      number: "2",
+    },
+    {
+      title: "Start Sharing",
+      description: "Use a link or QR code to share your card instantly.",
+      image: "/assets/sharing-icon.png",
+      number: "3",
+    },
+    {
+      title: "Track views & leads",
+      description: "Track who views your card and generates leads.",
+      image: "/assets/track-icon.png",
+      number: "4",
+    },
+  ];
+
+
+  //kanchan
+  const credibilityData = [
+    {
+      title: "Verified Badges",
+      description: "Add a verified badge to your profile, giving your contact confidence and showcasing your authenticity.",
+      image: "/assets/verifiedbadges.png",
+      cardColor: "#1E293B",
+      border: "4px solid white",
+      textColor: "#FFFFFF",
+      boxColor: "rgba(255, 255, 255, 0.15)"
+    },
+    {
+      title: "Smart Analytics",
+      description: "Gain insights into who views your profile, what they click, and how to improve your professional presence.",
+      image: "/assets/smartanalytics.png",
+      cardColor: "#FFFFFF",
+      border: "4px solid #00E5FF",
+      textColor: "#000000",
+      boxColor: "#E2E8F0"
+    },
+    {
+      title: "Custom Profile Themes",
+      description: "Customize your digital identity with professional templates and colors, ensuring your profile makes a memorable first impression.",
+      image: "/assets/customprofile.jpg",
+      cardColor: "#FFFFFF",
+      border: "4px solid #00E5FF",
+      textColor: "#000000",
+      boxColor: "#E2E8F0"
+    },
+    {
+      title: "Review Links",
+      description: "Link your top reviews directly to your profile, showcasing your reputation and building instant trust with every new connection.",
+      image: "/assets/Reviewlink.png",
+      cardColor: "#1E293B",
+      border: "4px solid white",
+      textColor: "#FFFFFF",
+      boxColor: "rgba(255, 255, 255, 0.15)"
+    }
+  ];
+
+
   return (
     <div
       className="overflow-x-hidden"
@@ -219,210 +428,129 @@ export default function Homepage() {
     >
       {/* Header removed: page.tsx renders the global header */}
 
-      {/* Hero Section */}
+      {/* -------------------kanchan 1st page---------------------------------------
+      ----------------------------------------------kanchan 1st page----------------------------------- */}
+
       <section
-        className="section flex items-center px-4 sm:px-6 lg:px-12 hero-section"
+        // Yahan "items-start" add kiya gaya hai
+        className="flex flex-col justify-end items-start lg:items-center lg:justify-center"
         style={{
-          background: "transparent",
-          minHeight: "100vh", // Use full viewport height
-          paddingTop: "1rem", // Minimal top padding to use available space
-          paddingBottom: "1rem",
-          position: "relative",
-          overflow: "hidden",
+          position: 'relative', width: '100%', minHeight: '100vh', backgroundColor: '#071337',
+          overflow: 'hidden', fontFamily: "'Plus Jakarta Sans', sans-serif", padding: '2rem 0 4rem',
         }}
       >
-        {/* Large Organic Blob Background - Left */}
+        {/* 2. Main Content Container */}
         <div
-          style={{
-            position: "absolute",
-            top: "-20%",
-            left: "-10%",
-            width: "60%",
-            height: "120%",
-            background:
-              "linear-gradient(135deg, rgba(108, 93, 184, 0.12) 0%, rgba(103, 58, 183, 0.08) 100%)",
-            borderRadius: "40% 60% 70% 30% / 40% 50% 60% 50%",
-            filter: "blur(80px)",
-            animation: "float 15s ease-in-out infinite",
-            transform: "rotate(-10deg)",
-          }}
-        ></div>
-
-        {/* Large Organic Blob Background - Right */}
-        <div
-          style={{
-            position: "absolute",
-            top: "10%",
-            right: "-10%",
-            width: "50%",
-            height: "100%",
-            background:
-              "linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(103, 58, 183, 0.08) 100%)",
-            borderRadius: "60% 40% 30% 70% / 60% 30% 70% 40%",
-            filter: "blur(80px)",
-            animation: "float 20s ease-in-out infinite reverse",
-            transform: "rotate(15deg)",
-          }}
-        ></div>
-
-        {/* Subtle gradient orbs */}
-        <div
-          style={{
-            position: "absolute",
-            top: "30%",
-            left: "20%",
-            width: "300px",
-            height: "300px",
-            background:
-              "radial-gradient(circle, rgba(108, 93, 184, 0.15) 0%, transparent 70%)",
-            borderRadius: "50%",
-            filter: "blur(60px)",
-            animation: "pulse 8s ease-in-out infinite",
-          }}
-        ></div>
-        <div
-          style={{
-            position: "absolute",
-            bottom: "20%",
-            right: "25%",
-            width: "250px",
-            height: "250px",
-            background:
-              "radial-gradient(circle, rgba(33, 150, 243, 0.12) 0%, transparent 70%)",
-            borderRadius: "50%",
-            filter: "blur(60px)",
-            animation: "pulse 10s ease-in-out infinite reverse",
-          }}
-        ></div>
-
-        <div
-          className="container mx-auto w-full"
-          style={{ position: "relative", zIndex: 10 }}
+          // items-start ensures left alignment on mobile
+          className="container mx-auto px-6 lg:px-12 h-full flex flex-col justify-end items-start lg:justify-center mb-8 lg:mb-0"
+          style={{ position: 'relative', zIndex: 10, width: '100%', minHeight: 'auto', }}
         >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center hero-grid-mobile">
-            {/* Left Side - Content */}
-            <div
-              className="hero-content"
-              style={{
-                animation: "fadeInUp 1s ease-out",
-                position: "relative",
-              }}
-            >
+          {/* Content Wrapper */}
+          <div className="relative flex flex-col items-start text-left w-full">
+
+            {/* Heading Group */}
+            <div style={{ maxWidth: '800px', zIndex: 20, width: '100%' }}>
               <h1
-                className="heading-1"
                 style={{
-                  color: "var(--foreground)",
-                  fontWeight: "600",
-                  lineHeight: "1.3",
-                  paddingBottom: "1rem",
-                  overflow: "visible",
+                  fontSize: 'clamp(30px, 7vw, 56px)', fontWeight: 700, lineHeight: '1.1', color: '#FFFFFF', marginBottom: '0', textAlign: 'left', // Extra safety for left align 
+                  }}
+
+                // Mobile par whitespace-normal kiya gaya hai
+                className="whitespace-normal lg:whitespace-nowrap mb-4 lg:mb-0"
+              >
+                Connecting People Before
+              </h1>
+              <h1
+                style={{
+                  fontSize: 'clamp(30px, 7vw, 56px)',
+                  fontWeight: 700,
+                  lineHeight: '1.1',
+                  color: '#FFFFFF',
+                  marginBottom: '20px',
+                  marginTop: '0',
+                  textAlign: 'left',
                 }}
               >
-                More Than a Card —{" "}
-                <span className="gradient-text">
-                  It&apos;s How Connections Begin.
-                </span>
+                the Conversation
               </h1>
 
               <p
-                className="body-large"
                 style={{
-                  color: "var(--text-primary)",
-                  maxWidth: "540px",
-                  marginBottom: "1rem",
+                  fontSize: 'clamp(16px, 4vw, 28px)', fontWeight: 500, lineHeight: '1.4',
+                  color: '#FFFFFF', maxWidth: '650px', opacity: 0.9, marginBottom: '2rem', textAlign: 'left',
                 }}
               >
-                Turn every introduction into an opportunity with your personal
-                MyKard — meet people, connect instantly, and stay remembered.
+                A universal digital identity that introduces you perfectly—instantly and professionally.
               </p>
-              {/* <p className="body-text" style={{ 
-                color: 'var(--text-secondary)',
-                maxWidth: '520px',
-                marginBottom: '2rem'
-              }}>
-                Join thousands of professionals who've revolutionized their networking approach. No more lost cards, outdated information, or missed opportunities – just seamless, modern connections that drive real business results.
-              </p> */}
 
-              <div className="flex flex-wrap gap-4 hero-button-container">
+              {/* Buttons Group */}
+              <div className="flex flex-wrap gap-4 lg:gap-6 items-start justify-start">
                 <Link
                   href="/auth/signup"
-                  className="text-white rounded-full transition-all"
+                  className="flex items-center justify-center gap-2 transition-transform hover:scale-105"
                   style={{
-                    paddingLeft: "2.5rem",
-                    paddingRight: "2.5rem",
-                    paddingTop: "1rem",
-                    paddingBottom: "1rem",
-                    fontSize: "16px",
-                    fontWeight: "600",
-                    background:
-                      "linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%)",
-                    boxShadow: "0 10px 30px rgba(59, 130, 246, 0.4)",
-                    cursor: "pointer",
-                    display: "inline-block",
-                    textDecoration: "none",
+                    width: '160px',
+                    height: '50px',
+                    background: 'linear-gradient(93.85deg, #82D2EF 11.38%, #1986A4 62.78%)',
+                    borderRadius: '30px',
+                    boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.3)',
+                    color: '#F0FCFF',
+                    fontSize: '16px',
+                    fontWeight: 800,
+                    textDecoration: 'none',
                   }}
                 >
                   Get Started
+                  <span style={{ fontSize: '20px' }}>→</span>
+                </Link>
+
+                <Link
+                  href="/login"
+                  className="flex items-center justify-center transition-transform hover:scale-105"
+                  style={{
+                    width: '110px',
+                    height: '50px',
+                    background: 'linear-gradient(107.27deg, #82D2EF 0%, #1986A4 60.66%)',
+                    borderRadius: '30px',
+                    color: '#F0FCFF',
+                    fontSize: '18px',
+                    fontWeight: 800,
+                    textDecoration: 'none',
+                  }}
+                >
+                  Log In
                 </Link>
               </div>
             </div>
+          </div>
 
-            {/* Right Side - Front Image */}
-            <div
-              className="relative flex justify-center items-center order-1 lg:order-2 min-h-200px lg:min-h-500px"
-              style={{ overflow: "visible" }}
-            >
-              <div
-                className="relative"
-                style={{ maxWidth: "500px", width: "100%" }}
-              >
-                {/* Front Image */}
-                <div
-                  className="lg:pt-4 pt-0 lg:px-4 px-2"
-                  style={{
-                    width: "100%",
-                    height: "auto",
-                    maxHeight: "70vh", // Reduced height to ensure full visibility
-                    position: "relative",
-                    animation: "fadeInUp 1.2s ease-out 0.3s both",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <div
-                    style={{
-                      maxWidth: "500px",
-                      maxHeight: "150vh", // Further increased height for much larger image
-                      width: "100%",
-                      height: "auto",
-                      borderRadius: "20px",
-                      filter: "drop-shadow(0 25px 50px rgba(0, 0, 0, 0.15))",
-                      background: "transparent",
-                    }}
-                  >
-                    <img
-                      src="/assets/final.png"
-                      alt="MyKard Digital Business Card"
-                      style={{
-                        width: "100%",
-                        height: "auto",
-                        objectFit: "contain",
-                        background: "transparent",
-                        mixBlendMode: "multiply", // This will help remove white background
-                        borderRadius: "20px",
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+          {/* World Map remains as it is */}
+          <div
+            className="hidden lg:block lg:absolute lg:right-0"
+            style={{
+              zIndex: 10,
+              opacity: 0.7,
+              maxWidth: '600px',
+              pointerEvents: 'none'
+            }}
+          >
+            <Image
+              src="/assets/worldmap.png"
+              alt="World Map"
+              style={{
+                width: '100%', height: 'auto', maxHeight: '503px', objectFit: 'contain',
+                filter: 'drop-shadow(0 0 20px rgba(130, 210, 239, 0.2))',
+              }}
+            />
           </div>
         </div>
       </section>
 
+      {/* kanchan - 1st page 
+      kanchan -1st page  */}
+
       {/* Search Bar Section */}
-      <section
+      {/* <section
         id="find-digital-card"
         className="section px-4 sm:px-6 lg:px-12 py-12 lg:py-20"
         style={{ background: "transparent" }}
@@ -436,9 +564,9 @@ export default function Homepage() {
               borderRadius: "var(--radius-xl)",
               boxShadow: "var(--shadow-xl)",
             }}
-          >
-            <div className="text-center" style={{ marginBottom: "2.5rem" }}>
-              <h2
+          > */}
+      {/* <div className="text-center" style={{ marginBottom: "2.5rem" }}>
+               <h2
                 className="heading-3"
                 style={{
                   color: "var(--primary-blue)",
@@ -449,33 +577,18 @@ export default function Homepage() {
                 }}
               >
                 Connect With People
-              </h2>
-              {/* <p className="body-text" style={{ 
+              </h2> */}
+      {/* <p className="body-text" style={{ 
                 color: 'var(--text-secondary)',
                 fontSize: '1.05rem',
                 maxWidth: '600px',
                 margin: '0 auto 1rem auto'
               }}>
                 Discover and connect with professionals worldwide through our comprehensive digital card directory. Search by name, company, industry, location, or expertise to find the right connections for your business growth.
-              </p> */}
-              <p
-                className="body-text"
-                style={{
-                  color: "var(--text-secondary)",
-                  fontSize: "0.95rem",
-                  maxWidth: "580px",
-                  margin: "0 auto",
-                }}
-              >
-                Access verified professional profiles, view portfolios, and
-                connect instantly with industry leaders, potential clients, and
-                business partners in your network.
-              </p>
-            </div>
-            <div
-              className="relative"
-              style={{ maxWidth: "700px", margin: "0 auto" }}
-            >
+              </p> 
+            </div> */}
+
+      {/* <div className="relative" style={{ maxWidth: "700px", margin: "0 auto" }}>
               <div className="relative flex items-center">
                 <svg
                   className="absolute w-6 h-6"
@@ -538,6 +651,20 @@ export default function Homepage() {
                   Search
                 </button>
               </div>
+
+              <p
+                className="body-text"
+                style={{
+                  color: "var(--text-secondary)",
+                  fontSize: "0.95rem",
+                  maxWidth: "580px",
+                  margin: "0 auto",
+                }}
+              >
+                Access verified professional profiles, view portfolios, and
+                connect instantly with industry leaders, potential clients, and
+                business partners in your network.
+              </p>
               {hasSearched && (
                 <div className="mt-10" style={{ marginTop: "3.5rem" }}>
                   {searchLoading ? (
@@ -596,13 +723,12 @@ export default function Homepage() {
                                   sentRequests.has(profile.id) ||
                                   acceptedConnections.has(profile.id)
                                 }
-                                className={`rounded-sm px-4 py-2 text-sm font-semibold text-white shadow transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${
-                                  acceptedConnections.has(profile.id)
-                                    ? "bg-green-600 hover:bg-green-800"
-                                    : sentRequests.has(profile.id)
+                                className={`rounded-sm px-4 py-2 text-sm font-semibold text-white shadow transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${acceptedConnections.has(profile.id)
+                                  ? "bg-green-600 hover:bg-green-800"
+                                  : sentRequests.has(profile.id)
                                     ? "bg-amber-500 hover:bg-amber-600"
                                     : "bg-blue-600 hover:bg-blue-700"
-                                }`}
+                                  }`}
                                 style={{
                                   minWidth: "90px",
                                   textAlign: "center",
@@ -612,10 +738,10 @@ export default function Homepage() {
                                 {connectingUserId === profile.id
                                   ? "Connecting..."
                                   : acceptedConnections.has(profile.id)
-                                  ? "Connected"
-                                  : sentRequests.has(profile.id)
-                                  ? "Sent"
-                                  : "Connect"}
+                                    ? "Connected"
+                                    : sentRequests.has(profile.id)
+                                      ? "Sent"
+                                      : "Connect"}
                               </button>
                             </div>
                           ))}
@@ -629,802 +755,676 @@ export default function Homepage() {
                   )}
                 </div>
               )}
+            </div> */}
+
+      {/* <section className="relative" 
+            style={{ background: "linear-gradient(135deg, #0f172a, #1e3a8a)", paddingTop: "5rem", paddingBottom: "7rem"}} >
+              
+              {/* Floating Search Card 
+              <div style={{ maxWidth: "900px", margin: "0 auto", padding: "2.5rem 2rem", background: "linear-gradient(90deg, #5b8cff, #9bbcff)",
+              borderRadius: "22px", boxShadow: "0 25px 50px rgba(0,0,0,0.25)"}}>
+                
+              {/* Search Input 
+              <div className="relative flex items-center max-w-[700px] mx-auto">
+                {/* Icon 
+                <svg className="absolute w-5 h-5" style={{ left: "1.5rem", color: "#94a3b8" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+
+              <input
+                type="text"
+                placeholder="Search by name, skills, company or city..."
+                className="w-full rounded-full border-0 focus:outline-none"
+                style={{ paddingLeft: "3.2rem", paddingRight: "8rem", paddingTop: "1rem", paddingBottom: "1rem", fontSize: "0.95rem", background: "#ffffff", boxShadow: "0 6px 14px rgba(0,0,0,0.1)", }}
+              />
+
+                  <button
+                    className="absolute rounded-full text-white font-semibold"
+                    style={{ right: "0.4rem", padding: "0.7rem 2rem", background: "linear-gradient(135deg, #2563eb, #3b82f6)", boxShadow: "0 10px 25px rgba(37,99,235,0.5)", border: "none"}}
+                  > Search</button>
+                </div>
+
+              {/* Description Text 
+              <p
+                style={{ marginTop: "1.8rem", maxWidth: "600px", marginInline: "auto", fontSize: "0.95rem", textAlign: "center", color: "#e2e8f0", lineHeight: "1.6" }}
+              >
+                Access verified professional profiles, view portfolios, and connect
+                instantly with industry leaders, potential clients, and business partners
+                in your network. </p>
+              </div>
+          </section>
+      */}
+
+
+
+      {/* <div className="w-full bg-white">
+      {/* SECTION 1: Top Hero & Search
+      <section 
+        className="relative px-6" 
+        style={{ 
+          background: "linear-gradient(180deg, #1e40af 0%, #60a5fa 40%, #ffffff 100%)", 
+          paddingTop: "5rem", 
+          paddingBottom: "4rem" 
+        }}
+      >
+        <div className="container mx-auto flex flex-col items-center">
+          {/* Floating Search Card 
+          <div 
+            style={{ 
+              width: "100%",
+              maxWidth: "800px", 
+              padding: "2rem", 
+              background: "linear-gradient(90deg, #6366f1, #a5b4fc)",
+              borderRadius: "24px", 
+              boxShadow: "0 20px 40px rgba(0,0,0,0.1)"
+            }}
+          >
+            {/* Search Input Container 
+            <div className="relative flex items-center w-full">
+              <svg 
+                className="absolute w-5 h-5" 
+                style={{ left: "1.2rem", color: "#94a3b8" }} 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Search by name, skills, company or city..."
+                className="w-full rounded-full border-0 focus:outline-none"
+                style={{ 
+                  padding: "0.8rem 1.5rem 0.8rem 3.5rem", 
+                  fontSize: "0.9rem", 
+                  background: "#ffffff" 
+                }}
+              /> 
+              <button
+                className="absolute text-blue-600 font-bold text-xs uppercase tracking-wider"
+                style={{ right: "1.5rem", border: "none", background: "none", cursor: "pointer" }}
+              >
+                Search
+              </button>
+            </div>
+          </div> */}
+
+      {/* Info Card (The one with the curved arrow in the image) 
+          <div 
+            className="mt-6 p-8 text-center relative"
+            style={{ 
+              maxWidth: "1305px", maxHeight: "333px",
+              background: "rgba(219, 234, 254, 0.7)", 
+              backgroundColor: "#C1DCFF",
+              borderRadius: "10px", 
+              backdropFilter: "blur(10px)",
+              border: "1px solid rgba(255,255,255,0.5)"
+            }}
+          > 
+          
+              <p style={{fontFamily:"Caveat Brush",color: "#000000", fontWeight: "500", lineHeight: "100%", letterSpacing: "10%"}}>
+              Access verified professional profiles, view portfolios <br></br>and connect instantly with industry leaders <br></br>potential clients and business partners in your <br></br>network.
+              </p>
+          
+            
+            {/* Decorative Arrow (CSS implementation) 
+            <div className="absolute -right-8 top-1/2 hidden md:block" style={{ transform: "rotate(-10deg)" }}>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="2">
+                    <path d="M3 12c6-10 12 10 18 0m-3-3l3 3-3 3" />
+                </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+    </div>
+          </div>
+        </div>
+      </section>
+ */}
+
+
+
+      {/* New Search Bar Section --> Vaijayanti */}
+
+      <div className="w-full bg-[#030b25]">
+        {/* SECTION 1: Search */}
+        <section
+          className="relative px-4 md:px-6 flex flex-col  w-full items-center justify-center min-h-fit md:min-h-[600px] overflow-hidden"
+          style={{
+            background: "linear-gradient(180deg, #030b25 0%, #0a1941 45%, #bce1ff 100%)", paddingTop: "4rem", paddingBottom: "6rem" }}
+        >
+          <div className="container mx-auto flex flex-col items-center relative w-full">
+
+            {/* 2. Floating Search Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 70, scale: 0.97 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, amount: 0.35 }}
+              transition={{
+                duration: 1.05, ease: [0.16, 1, 0.3, 1],   // soft bounce-ease
+                opacity: { duration: 0.6 },
+                y: { duration: 0.70, ease: [0.23, 1, 0.32, 1]},
+                scale: { duration: 0.30, ease: "easeOut" }
+              }}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+              className="transition-all duration-300 ease-in-out cursor-default w-[800px] z-20"
+              style={{
+                padding: "clamp(1.2rem, 4vw, 2.6rem) clamp(1rem, 4vw, 3.8rem)",
+                borderRadius: "26px",
+                background: "linear-gradient(105deg, #6c8ef2 0%, #8ca6f8 50%, #ffffff 100%)",
+                boxShadow: isHovered ? "0 25px 50px rgba(0,0,0,0.6)" : "0 20px 40px rgba(0,0,0,0.35)",
+                marginBottom: "-45px",
+                transform: isHovered ? "scale(1.02)" : "scale(1)"
+              }}
+            >
+
+              {/* Search Input Container */}
+              <div className="relative flex items-center w-[650px] mx-auto shadow-lg rounded-full bg-[#fff5f2]">
+                <div className="absolute left-4 md:left-5 flex items-center pointer-events-none">
+                  <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search by name, skills..."
+                  className=" w-full rounded-full border-0 focus:outline-none text-sm md:text-lg"
+                  style={{
+                    padding: "1rem 5rem", background: "transparent", color: "#666", paddingLeft: "clamp(3rem, 10vw, 4rem)"
+                  }}
+                />
+                <button
+                  className="absolute right-2 md:right-4 bg-white px-3 md:px-6 py-2 md:py-3 rounded-full text-blue-600 font-bold text-xs md:text-base shadow-sm border border-gray-100 hover:bg-gray-50 transition-colors"
+                  style={{ cursor: "pointer", padding: "10px 12px" }}
+                >
+                  Search
+                </button>
+              </div>
+            </motion.div>
+
+
+            {/* 4. Info Card - Always visible on mobile, hover effect on desktop */}
+            <motion.div
+              ref={infoCardRef}
+
+              initial={{ opacity: 0, y: 55, scale: 0.97 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, amount: 0.35 }}
+
+              transition={{
+                duration: 0.58,
+                delay: 0.20,
+                ease: [0.22, 1, 0.32, 1]
+              }}
+
+              className={` relative text-center w-[1000px] 
+              bg-[#c1dcff] shadow-xl mx-auto
+              ${showInfoCard ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}
+            `}
+              style={{
+                zIndex: 10,
+                borderRadius: "42px",
+                paddingTop: "100px",
+                paddingBottom: "75px",
+                paddingLeft: "6px",
+                paddingRight: "6px",
+              }}
+            >
+
+              <p
+                className="mx-auto px-4 sm:px-6 md:px-10"
+                style={{
+                  fontFamily: "Caveat Brush, cursive",
+                  color: "#000",
+                  fontSize: "clamp(1.10rem, 2.6vw, 1.6rem)",
+                  fontWeight: 400,
+                  lineHeight: 1.38,
+                  maxWidth: "780px",
+                  margin: "0 auto",
+                  textAlign: "center"
+                }} >
+                Access verified professional profiles, view portfolios <br></br>and connect instantly with industry leaders <br></br>potential clients and business partners in your<br></br> network.
+              </p>
+
+              {/* The Arrow - Hidden on Mobile */}
+              <div className="absolute right-[10%] bottom-[68%] hidden lg:block w-[70px] h-[70px] opacity-50">
+                <svg viewBox="0 0 100 100" fill="none" className="w-full h-full" style={{ transform: "rotate(-5deg)" }}>
+                  <path d="M75 20C78 35 65 45 55 45C45 45 42 35 50 30C60 25 68 38 62 55C55 75 35 85 15 92" stroke="#4b5563" strokeWidth="6" strokeLinecap="round" />
+                  <path d="M28 82L15 92L25 98" stroke="#4b5563" strokeWidth="6" strokeLinecap="round" />
+                </svg>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      </div>
+
+
+
+      {/* What is Digital Business Card */}
+      <section id="what-is-digital-card"
+        style={{ background: "transparent", marginTop: "0px", paddingBottom: "0.05rem", position: "relative", overflow: "hidden", }}
+      >
+        {/* Subtle background decoration */}
+        <div
+          style={{
+            position: "absolute", top: "20%", left: "-5%", width: "300px", height: "300px",
+            background: "radial-gradient(circle, rgba(108, 93, 184, 0.08) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(60px)",
+          }}
+        ></div>
+
+        <div
+          style={{
+            position: "absolute", bottom: "10%", width: "350px", height: "550px", borderRadius: "50%", filter: "blur(60px)",
+            background: "radial-gradient(circle, rgba(33, 150, 243, 0.08) 0%, transparent 70%)",
+          }}
+        ></div>
+
+        <div style={{ position: "relative", zIndex: 10 }}>
+          <div>
+            <div>
+              {/* --- GRADIENT SECTION --- */}
+              <section >
+                <div
+                  style={{
+                    height: "600px", opacity: "1",
+                    background: "radial-gradient(59.51% 59.98% at 50% 81.4%, #8EBFFF 8.45%, #A5E0FF 55.77%, #FFFFFF 100%)",
+                    position: "relative",
+                    display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", overflow: "hidden",
+                  }}
+                >
+                  <h2 className="text-[#06214A] text-4xl md:text-7xl font-extrabold text-center" style={{ marginTop: "250px", letterSpacing: "0%", maxWidth: "90%", zIndex: 2, fontStyle: "Plus Jakarta Sans" }}>
+                    MyKard isn’t just a Digital Card
+                  </h2>
+                  <div
+                    style={{
+                      position: "absolute", bottom: "-10%", width: "120%", height: "50%", filter: "blur(60px)", zIndex: 3,
+                      background: "radial-gradient(50% 50% at 50% 50%, rgba(142, 191, 255, 0.4) 0%, rgba(255, 255, 255, 0) 100%)",
+                    }}
+                  />
+                </div>
+              </section>
+
+              {/* --- 1. THE GRADIENT CONTAINER  --- */}
+              <motion.section
+                variants={{
+                  hidden: { opacity: 0, rotateX: 75, transformOrigin: "top center" },
+                  show: {
+                    opacity: 1, rotateX: 0,
+                    transition: { duration: 1.1, ease: [0.22, 1, 0.36, 1] }
+                  },
+                  exit: { opacity: 0.4, rotateX: -45, transition: { duration: 0.7 } }
+                }}
+                initial="hidden" whileInView="show" exit="exit"
+                viewport={{ amount: 0.35 }} transition={{ duration: 1, delay: 0.18, ease: [0.4, 0.0, 0.2, 1] }}
+
+                style={{
+                  perspective: "1400px",
+                  width: "100vw",
+                  position: "relative",
+                  left: "50%",
+                  marginLeft: "-50vw",
+                  height: "416px",
+                  background: "linear-gradient(180deg, #FFFFFF 0%, #B0D2F0 60%, #83A1FE 100%)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "0 30px 30px 30px",
+                  zIndex: 10, padding: "20px", maxWidth: "100%",
+                }}
+              >
+                <div
+                  className="flex items-center justify-center p-6 md:p-12"
+                  style={{
+                    width: "95%", maxWidth: "750px", minHeight: "180px",
+                    borderRadius: "16px", border: "1.5px solid #3b82f6", backgroundColor: "transparent",
+                  }}
+                >
+                  <p className="text-center"
+                    style={{
+                      fontFamily: "'Plus Jakarta Sans', sans-serif", maxWidth: "620px", color: "#000", fontWeight: 700, fontSize: "clamp(1rem, 2.8vw, 1.45rem)",
+                      lineHeight: "1.35", margin: "0 auto", textShadow: "0px 4px 4px rgba(0, 0, 0, 0.3)",
+                    }}
+                  >
+                    Made in India, for the world — MyKard is the <br />
+                    modern way to network, connect, and build <br />
+                    your personal brand.
+                  </p>
+                </div>
+              </motion.section>
+
+
+
+              {/* --- 2. THE DARK BLUE PROFILE CARD --- */}
+              <motion.section
+                initial={{ opacity: 0, y: 28, scale: 0.985 }} whileInView={{ opacity: 1, y: 0, scale: 1 }} viewport={{ once: true, amount: 0.25 }}
+                transition={{ duration: 1.05, delay: 0.36, ease: [0.4, 0.0, 0.2, 1] }} className="flex justify-center"style={{ marginTop: "-40px", zIndex: 6 }}
+              >
+
+                <div
+                  className="text-center rounded-2xl"
+                  style={{
+                    width: "95%", background: "radial-gradient(circle at center, #8B54FF 0%, #173CAA 50%, #0C2160 100%)",
+                    padding: "clamp(48px, 6vw, 120px) clamp(36px, 5vw, 80px)", borderRadius: "22px", boxShadow: "0 28px 60px rgba(0,0,0,0.28)",
+                  }}
+                >
+                  <p
+                    style={{
+                      fontFamily: "'Plus Jakarta Sans', sans-serif", color: "white", fontWeight: 300, fontSize: "clamp(1.3rem, 2.6vw, 1.5rem)", lineHeight: 1.35, letterSpacing: "0.02em",
+                      textAlign: "center", textShadow: "0px 2px 4px rgba(0,0,0,0.1)", margin: "0 auto", maxWidth: "880px"
+                    }}
+                  >
+                    MyKard is your smart digital profile designed to help you get <br className="hidden md:block" />
+                    discovered and grow your network. <br className="hidden md:block" />
+                    Whether you're a freelancer or a CEO, replace scattered <br className="hidden md:block" />
+                    links and physical cards with one powerful QR code that tells <br className="hidden md:block" />
+                    your story.
+                  </p>
+                </div>
+              </motion.section>
             </div>
           </div>
         </div>
       </section>
 
-      {/* What is Digital Business Card */}
+
+      {/* --------------------------------------kanchan 3 page start --------------------- 
+      -----------------kanchan 3 page---------------*/}
+      <GrowthMetricsSection />
+          
+      {/* Build Credibility That Converts */}
       <section
-        id="what-is-digital-card"
-        className="section px-6 lg:px-12"
+        id="build-credibility"
+        // bg-white is the default for mobile. md:bg-transparent lets the gradient show on desktop.
+        className="section px-6 lg:px-12 bg-white md:bg-transparent"
         style={{
-          background: "transparent",
-          paddingTop: "5rem",
-          paddingBottom: "5rem",
-          position: "relative",
-          overflow: "hidden",
+          // We only apply the gradient if the screen is wider than 768px (Desktop)
+          backgroundImage: typeof window !== 'undefined' && window.innerWidth >= 768
+            ? "linear-gradient(215deg, #FFFFFF 0%, #B1E4FF 40%, #B1E4FF 60%, #678DFF 100%)"
+            : "none",
+          paddingTop: "5rem", paddingBottom: "5rem", position: "relative", overflow: "hidden", 
         }}
       >
-        {/* Subtle background decoration */}
+        {/* --- BACKGROUND ORBS --- */}
+        {/* Added 'hidden md:block' to BOTH to ensure mobile is pure white */}
         <div
-          style={{
-            position: "absolute",
-            top: "20%",
-            left: "-5%",
-            width: "300px",
-            height: "300px",
-            background:
-              "radial-gradient(circle, rgba(108, 93, 184, 0.08) 0%, transparent 70%)",
-            borderRadius: "50%",
-            filter: "blur(60px)",
-          }}
-        ></div>
-        <div
-          style={{
-            position: "absolute",
-            bottom: "10%",
-            right: "-5%",
-            width: "350px",
-            height: "350px",
-            background:
-              "radial-gradient(circle, rgba(33, 150, 243, 0.08) 0%, transparent 70%)",
-            borderRadius: "50%",
-            filter: "blur(60px)",
-          }}
+          className="hidden md:block"
+          style={{ position: "absolute", top: "-10%", left: "-5%", width: "400px", height: "400px", background: "radial-gradient(circle, rgba(102, 126, 234, 0.15) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(80px)", animation: "float 12s ease-in-out infinite" }}
         ></div>
 
         <div
-          className="container mx-auto"
-          style={{ position: "relative", zIndex: 10 }}
-        >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            {/* Left Side - Content */}
-            <div style={{ textAlign: "center" }}>
-              <h2
-                className="heading-2"
-                style={{
-                  color: "#110032ff",
-                  marginBottom: "1.5rem",
-                  fontWeight: "500",
-                }}
+          className="hidden md:block" // <--- Added this to hide the purple orb on mobile
+          style={{ position: "absolute", bottom: "-10%", right: "-5%", width: "450px", height: "450px", background: "radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(80px)", animation: "float 15s ease-in-out infinite reverse" }}
+        ></div>
+
+        <div className="container mx-auto text-center" style={{ position: "relative", zIndex: 10 }}>
+          <h2 style={{ color: "#000000", fontSize: "2.5rem", marginBottom: "1rem", fontWeight: "700" }}>
+            Build Credibility That Converts
+          </h2>
+          <p style={{ color: "#334155", fontSize: "1.125rem", maxWidth: "42rem", margin: "0 auto 3rem auto", lineHeight: "1.6" }}>
+            Make every introduction with MyKard, you’re not just sharing contact info — you’re showcasing your identity, credibility and personal brand.
+          </p>
+
+          {/* --- DESKTOP VIEW: Grid --- */}
+          <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto px-4 group/container">
+            {credibilityData.map((feature, idx) => (
+              <div
+                key={idx}
+                className="group relative transition-all duration-300 hover:scale-105 group-hover/container:blur-sm hover:blur-none"
+                style={{ borderRadius: "1.75rem", padding: "1rem", cursor: "pointer", height: "100%" }}
               >
-                MyKard isn't just a
-                <span
-                  style={{
-                    background: "var(--gradient-primary)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text",
-                  }}
-                >
-                  {" "}
-                  digital card{" "}
-                </span>
-              </h2>
-              <p
-                className="body-large"
-                style={{
-                  color: "#64748B",
-                  marginBottom: "1.5rem",
-                }}
-              >
-                MyKard is your all-in-one digital identity and networking card —
-                a smart, shareable profile that brings together everything about
-                you in one link. Whether you're a student, freelancer,
-                professional, or business owner, MyKard helps you connect, get
-                discovered, and grow your network effortlessly. No more lost
-                visiting cards or scattered links — just one personal link or QR
-                that lets anyone know who you are, what you do, and how to reach
-                you.
-              </p>
-              <p
-                className="body-text"
-                style={{
-                  color: "#647488 ",
-                  marginBottom: "1rem",
-                }}
-              >
-                Made in India, for the world — MyKard is the modern way to
-                network, connect, and build your personal brand.
-              </p>
-              {/* <p className="body-text" style={{ 
-                color: '#647488 ',
-                marginBottom: '2rem'
-              }}>
-                Perfect for professionals, entrepreneurs, and businesses looking to make lasting impressions while staying ahead in the digital age.
-              </p> */}
-              <div style={{ display: "flex", justifyContent: "center" }}>
-                <Link
-                  href="/auth/signup"
-                  className="text-white rounded-full transition-all"
-                  style={{
-                    paddingLeft: "2.5rem",
-                    paddingRight: "2.5rem",
-                    paddingTop: "1rem",
-                    paddingBottom: "1rem",
-                    fontWeight: "600",
-                    background:
-                      "linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%)",
-                    boxShadow: "0 10px 30px rgba(59, 130, 246, 0.4)",
-                    cursor: "pointer",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    textDecoration: "none",
-                    border: "none",
-                  }}
-                >
-                  <span>Get Started Free</span>
-                </Link>
+                <CardItem feature={feature} isMobile={false} />
               </div>
+            ))}
+          </div>
+
+          {/* --- MOBILE VIEW: Carousel --- */}
+          <div className="md:hidden flex flex-col items-center">
+            <div className="w-full max-w-[320px] min-h-[420px]">
+              <CardItem feature={credibilityData[currentIndex]} isMobile={true} />
             </div>
 
-            {/* Right Side - Stats Cards */}
-            <div className="grid grid-cols-1 gap-5 stats-grid">
-              {[
-                { stat: "100%", label: "Growth Oriented", color: "#667eea" },
-                {
-                  stat: "42%",
-                  label: "Increase in Professional Connections",
-                  color: "#667eea",
-                },
-                { stat: "70%", label: "Better Follow-ups", color: "#667eea" },
-              ].map((item, idx) => (
-                <div
-                  key={idx}
-                  className="stats-card"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #ffffffff 0%, #ffffffff 100%)",
-                    borderRadius: "1.5rem",
-                    padding: "2rem 2.5rem",
-                    position: "relative",
-                    overflow: "hidden",
-                    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.15)",
-                    border: "1px solid rgba(255, 255, 255, 0.1)",
-                    transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                  }}
-                >
-                  {/* Gradient accent line */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      height: "4px",
-                      background: `linear-gradient(90deg, ${item.color} 0%, transparent 100%)`,
-                    }}
-                  ></div>
-
-                  {/* Subtle glow effect */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "50%",
-                      right: "-20%",
-                      width: "200px",
-                      height: "200px",
-                      background: `radial-gradient(circle, ${item.color}20 0%, transparent 70%)`,
-                      borderRadius: "50%",
-                      filter: "blur(40px)",
-                    }}
-                  ></div>
-
-                  <div style={{ position: "relative", zIndex: 1 }}>
-                    <h3
-                      style={{
-                        fontSize: "3rem",
-                        fontWeight: "800",
-                        background: `linear-gradient(135deg, ${item.color} 0%, #a78bfa 100%)`,
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                        backgroundClip: "text",
-                        marginBottom: "0.5rem",
-                        letterSpacing: "-0.02em",
-                      }}
-                    >
-                      {item.stat}
-                    </h3>
-                    <p
-                      style={{
-                        color: "#000000",
-                        fontSize: "0.95rem",
-                        fontWeight: "500",
-                        margin: 0,
-                      }}
-                    >
-                      {item.label}
-                    </p>
-                  </div>
-                </div>
+            {/* Pagination Dots */}
+            <div className="flex gap-3 mt-8">
+              {credibilityData.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentIndex(i)}
+                  className={`h-2.5 rounded-full transition-all duration-300 ${currentIndex === i ? "w-8 bg-gray-600" : "w-2.5 bg-gray-300"
+                    }`}
+                />
               ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Build Credibility That Converts */}
-      <section
-        id="build-credibility"
-        className="section px-6 lg:px-12"
-        style={{
-          background: "transparent",
-          paddingTop: "5rem",
-          paddingBottom: "5rem",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        {/* Animated background elements */}
-        <div
-          style={{
-            position: "absolute",
-            top: "-10%",
-            left: "-5%",
-            width: "400px",
-            height: "400px",
-            background:
-              "radial-gradient(circle, rgba(102, 126, 234, 0.15) 0%, transparent 70%)",
-            borderRadius: "50%",
-            filter: "blur(80px)",
-            animation: "float 12s ease-in-out infinite",
-          }}
-        ></div>
-        <div
-          style={{
-            position: "absolute",
-            bottom: "-10%",
-            right: "-5%",
-            width: "450px",
-            height: "450px",
-            background:
-              "radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%)",
-            borderRadius: "50%",
-            filter: "blur(80px)",
-            animation: "float 15s ease-in-out infinite reverse",
-          }}
-        ></div>
+      {/* --------------------------------------kanchan 3 page end --------------------- 
+      -----------------kanchan 3 page---------------*/}
 
-        {/* Grid pattern overlay */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundImage:
-              "linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)",
-            backgroundSize: "50px 50px",
-            opacity: 0.5,
-          }}
-        ></div>
-
-        <div
-          className="container mx-auto text-center"
-          style={{ position: "relative", zIndex: 10 }}
-        >
-          <h2
-            className="heading-2"
-            style={{
-              color: "#0c0000ff",
-              marginBottom: "1rem",
-              fontWeight: "500",
-            }}
-          >
-            Build Credibility That{" "}
-            <span
-              style={{
-                background: "var(--gradient-primary)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              Converts
-            </span>
-          </h2>
-          <p
-            className="body-large"
-            style={{
-              color: "#1c2e44ff",
-              maxWidth: "48rem",
-              margin: "0 auto 1.5rem auto",
-            }}
-          >
-            Make every introduction memorable with MyKard, you’re not just
-            sharing contact info — you’re showcasing your identity, credibility,
-            and personal brand.
-          </p>
-          {/* <p className="body-text" style={{ 
-            color: '#64748B',
-            maxWidth: '46rem',
-            margin: '0 auto 3rem auto'
-          }}>
-            From verified professional badges and client testimonials to portfolio showcases and achievement highlights, our platform provides everything you need to demonstrate your expertise and build lasting trust with prospects and clients.
-          </p> */}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 credibility-grid">
-            {[
-              {
-                icon: (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                ),
-                title: "Verified badges",
-                color: "#a78bfa",
-              },
-              {
-                icon: (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-                  />
-                ),
-                title:
-                  "Add your reviews link (Google / LinkedIn / Certificates)",
-                color: "#a78bfa",
-              },
-              {
-                icon: (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
-                  />
-                ),
-                title: "Custom profile themes",
-                color: "#a78bfa",
-              },
-              {
-                icon: (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                  />
-                ),
-                title: "Smart analytics",
-                color: "#a78bfa",
-              },
-            ].map((feature, idx) => (
-              <div
-                key={idx}
-                className="credibility-card"
-                style={{
-                  background: "white",
-                  borderRadius: "1.5rem",
-                  padding: "2rem 1.5rem",
-                  border: "1px solid rgba(99, 102, 241, 0.2)",
-                  position: "relative",
-                  overflow: "hidden",
-                  transition: "all 0.3s ease",
-                  cursor: "pointer",
-                  boxShadow: "0 10px 30px rgba(0, 0, 0, 0.1)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-8px)";
-                  e.currentTarget.style.boxShadow = `0 20px 40px ${feature.color}40`;
-                  e.currentTarget.style.borderColor = `${feature.color}60`;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow =
-                    "0 10px 30px rgba(0, 0, 0, 0.1)";
-                  e.currentTarget.style.borderColor = "rgba(99, 102, 241, 0.2)";
-                }}
-              >
-                {/* Top accent line */}
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: "3px",
-                    background: `linear-gradient(90deg, ${feature.color} 0%, transparent 100%)`,
-                  }}
-                ></div>
-
-                {/* Icon container */}
-                <div
-                  style={{
-                    width: "64px",
-                    height: "64px",
-                    margin: "0 auto 1.5rem auto",
-                    borderRadius: "1rem",
-                    background:
-                      "linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    border: "2px solid rgba(59, 130, 246, 0.3)",
-                    position: "relative",
-                  }}
-                >
-                  {/* Glow effect */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      inset: "-10px",
-                      background: `radial-gradient(circle, ${feature.color}20 0%, transparent 70%)`,
-                      borderRadius: "1rem",
-                      filter: "blur(15px)",
-                      zIndex: -1,
-                    }}
-                  ></div>
-
-                  <svg
-                    style={{
-                      width: "32px",
-                      height: "32px",
-                      color: "white",
-                    }}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    {feature.icon}
-                  </svg>
-                </div>
-
-                {/* Title */}
-                <h3
-                  style={{
-                    color: "#334155",
-                    fontSize: "1rem",
-                    fontWeight: "600",
-                    lineHeight: "1.5",
-                    minHeight: "3rem",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    textAlign: "center",
-                  }}
-                >
-                  {feature.title}
-                </h3>
-
-                {/* Checkmark */}
-                <div
-                  style={{
-                    marginTop: "1rem",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "0.5rem",
-                  }}
-                >
-                  <svg
-                    style={{
-                      width: "20px",
-                      height: "20px",
-                      color: feature.color,
-                    }}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={3}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span
-                    style={{
-                      color: "#94a3b8",
-                      fontSize: "0.875rem",
-                      fontWeight: "500",
-                    }}
-                  >
-                    Included
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/*------------------ kanchan 4 start--------------------- */}
 
       {/* Why Every Professional Needs */}
-      <section
-        id="features"
-        className="section py-12 lg:py-20 px-4 sm:px-6 lg:px-12"
-        style={{
-          background: "transparent",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        {/* Subtle glowing orb background elements */}
-        <div
-          style={{
-            position: "absolute",
-            top: "10%",
-            left: "15%",
-            width: "150px",
-            height: "150px",
-            background:
-              "radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%)",
-            borderRadius: "50%",
-            filter: "blur(50px)",
-            animation: "float 12s ease-in-out infinite",
-          }}
-        ></div>
-        <div
-          style={{
-            position: "absolute",
-            bottom: "5%",
-            right: "10%",
-            width: "200px",
-            height: "200px",
-            background:
-              "radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%)",
-            borderRadius: "50%",
-            filter: "blur(60px)",
-            animation: "float 15s ease-in-out infinite reverse",
-          }}
-        ></div>
+      <section className="py-16 md:py-24 relative bg-white md:bg-transparent" style={{
+        backgroundImage: typeof window !== 'undefined' && window.innerWidth >= 768
+          ? 'linear-gradient(290.34deg, #FFFFFF 6.5%, #B1E4FF 38.6%, #B1E4FF 66.8%, #678DFF 94.99%)'
+          : 'none',
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center'
+      }}>
+        <style>{`
+        /* Your existing desktop flip-card CSS stays exactly here */
+        .flip-card { perspective: 1000px; width: 100%; max-width: 320px; height: 200px; margin: 0 auto; }
+        .flip-card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; cursor: pointer; }
+        .flip-card:hover .flip-card-inner { transform: rotateY(180deg); }
+        .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 16px; overflow: hidden; box-sizing: border-box; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); }
+        .flip-card-front { background: linear-gradient(135deg, #ffffff 0%, rgba(125, 162, 255, 0.8) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); }
+        .flip-card-back { background: rgba(255, 255, 255, 0.95); transform: rotateY(180deg); padding: 20px; display: flex; flex-direction: column; border: 1px solid rgba(0, 0, 0, 0.1); }
+        .card-header-bar { position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, #4A90E2 0%, #8B7FFF 100%); }
+        .hover-text { position: absolute; bottom: 12px; font-size: 10px; color: #4b5563; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
+      `}</style>
 
-        <div
-          className="container mx-auto"
-          style={{ position: "relative", zIndex: 2 }}
-        >
-          <h2
-            className="heading-2 text-center mb-16"
-            style={{
-              color: "#000000",
-              textShadow: "0 0 15px rgba(0, 0, 0, 0.1)",
-              fontWeight: "500",
-            }}
-          >
-            Why Every Professional Needs{" "}
-            <span className="gradient-text">MyKard</span>
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 professional-cards-grid">
-            {[
-              {
-                title: "Smart Digital Card",
-                desc: "Create a beautiful, shareable profile that works like a mini LinkedIn — your photo, bio, skills, and social links, all in one place.",
-              },
-              {
-                title: "Share Instantly — Anywhere",
-                desc: "No app needed. Share your MyKard via QR, link, or message. Works across any device — no downloads, no hassle.",
-              },
-              {
-                title: "Grow Your Network Effortlessly",
-                desc: "Discover professionals, entrepreneurs, and creators nearby or in your industry. Connect instantly and keep your network updated.",
-              },
-              {
-                title: "Always Up to Date",
-                desc: "No more reprinting cards. Update your info anytime — and your contacts always have the latest version automatically.",
-              },
-              {
-                title: "One Card, Many Uses",
-                desc: "Use it at events, meetings, online bios, resumes, and even WhatsApp or email signatures. Your single link replaces everything.",
-              },
-              {
-                title: "Smart Insights",
-                desc: "Know who viewed or saved your card, track engagement, and see how your network grows over time.",
-              },
-              {
-                title: "Built for Everyone",
-                desc: "From students and freelancers to founders and CEOs — MyKard helps you share who you are and what you do, beautifully.",
-              },
-            ].map((feature, idx) => (
-              <div
-                key={idx}
-                className="card p-6 flex flex-col items-center text-center transition-all duration-300 ease-in-out professional-card"
-                style={{
-                  background: "white", // Darker card background
-                  borderRadius: "1.5rem",
-                  border: "1px solid rgba(99, 102, 241, 0.2)",
-                  boxShadow: "0 10px 30px rgba(0, 0, 0, 0.4)",
-                  transform: "translateY(0)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-10px)";
-                  e.currentTarget.style.boxShadow =
-                    "0 20px 40px rgba(99, 102, 241, 0.3)";
-                  e.currentTarget.style.border =
-                    "1px solid rgba(99, 102, 241, 0.5)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow =
-                    "0 10px 30px rgba(0, 0, 0, 0.4)";
-                  e.currentTarget.style.border =
-                    "1px solid rgba(99, 102, 241, 0.2)";
-                }}
-              >
-                <h3
-                  className="text-xl font-semibold mb-3"
-                  style={{ color: "#334155" }}
-                >
-                  {feature.title}
-                </h3>
-                <p
-                  className="text-gray-400 text-sm leading-relaxed"
-                  style={{ color: "grey" }}
-                >
-                  {feature.desc}
-                </p>
-              </div>
-            ))}
+        <div className="container mx-auto px-4 sm:px-6 relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black-900 mb-4">
+              Why Every Professional Needs MyKard
+            </h2>
           </div>
-        </div>
-      </section>
 
-      {/* FAQ Section */}
-      <section
-        id="how-it-works"
-        className="section py-12 lg:py-20 px-4 sm:px-6 lg:px-12"
-        style={{ background: "var(--background-purple-light)" }}
-      >
-        <div className="container mx-auto max-w-4xl">
-          <h2
-            className="heading-2 text-center mb-16"
-            style={{ color: "#1A1A2E", fontWeight: "500" }}
-          >
-            How It <span className="gradient-text">Works</span>
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 how-it-works-grid">
-            {[
-              {
-                icon: (
-                  <svg
-                    className="w-12 h-12"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5.121 17.804A13.937 13.0 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 13a2 2 0 11-4 0 2 2 0 014 0z"
-                    />
-                  </svg>
-                ),
-                title: "Create Your Profile",
-                description: "Sign up and enter your professional details.",
-              },
-              {
-                icon: (
-                  <svg
-                    className="w-12 h-12"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
-                    />
-                  </svg>
-                ),
-                title: "Customize Your Digital Card",
-                description: "Design your card with themes, colors, and logos.",
-              },
-              {
-                icon: (
-                  <svg
-                    className="w-12 h-12"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                    />
-                  </svg>
-                ),
-                title: "Share It Anywhere",
-                description:
-                  "Use a link or QR code to share your card instantly.",
-              },
-              {
-                icon: (
-                  <svg
-                    className="w-12 h-12"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                    />
-                  </svg>
-                ),
-                title: "Track Views & Leads",
-                description: "Monitor who views your card and generates leads.",
-              },
-            ].map((card, idx) => (
-              <div
-                key={idx}
-                className="card p-6 text-center flex flex-col items-center how-it-works-card"
-                style={{ boxShadow: "0 10px 20px rgba(0,0,0,0.05)" }}
-              >
-                <div
-                  className="mb-4 w-20 h-20 flex items-center justify-center rounded-full"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)",
-                    color: "#fff",
-                  }}
-                >
-                  {card.icon}
+          {/* --- DESKTOP VIEW: Grid with Flip Cards (Unchanged) --- */}
+          <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((feature, idx) => (
+              <div key={idx} className="px-2">
+                <div className="flip-card">
+                  <div className="flip-card-inner">
+                    <div className="flip-card-front">
+                      <div className="mb-4">
+                        <div className="w-16 h-16 mx-auto flex items-center justify-center">
+                          {feature.icon}
+                        </div>
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-800 text-center">{feature.title}</h3>
+                      <span className="hover-text">Hover to learn more</span>
+                    </div>
+                    <div className="flip-card-back">
+                      <div className="card-header-bar"></div>
+                      <div className="flex items-start gap-4 mt-2">
+                        <div className="w-12 h-12 shrink-0 flex items-center justify-center bg-blue-50 rounded-lg p-2">
+                          {React.cloneElement(feature.icon, {
+                            ...feature.icon.props,
+                            width: 32,
+                            height: 32,
+                            strokeWidth: 1.5,
+                            className: 'w-8 h-8' // Using Tailwind for consistent sizing
+                          })}
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-gray-900 mb-2">{feature.title}</h3>
+                          <p className="text-sm text-gray-700 leading-relaxed">{feature.desc}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <h3
-                  className="text-lg font-semibold mb-2"
-                  style={{ color: "#334155" }}
-                >
-                  {card.title}
-                </h3>
-                <p className="text-sm text-gray-600">{card.description}</p>
               </div>
             ))}
+          </div>
+
+          {/* --- MOBILE VIEW: Vertical Accordion --- */}
+          <div className="md:hidden flex flex-col gap-4 px-2">
+            {features.map((feature, idx) => {
+              const isOpen = openIndex === idx;
+              return (
+                <div
+                  key={idx}
+                  /* Changed 'rounded-xl' to 'rounded-lg' or 'rounded-md' to reduce radius */
+                  className={`overflow-hidden rounded-lg border-2 transition-all duration-300 ${isOpen
+                    ? 'border-blue-400 bg-blue-50/50 shadow-lg'
+                    : 'border-blue-300 bg-blue-100/30'
+                    }`}
+                >
+                  <button
+                    onClick={() => setOpenIndex(isOpen ? null : idx)}
+                    className="w-full flex items-center justify-between p-5 text-left"
+                  >
+                    <div className="flex items-center gap-4">
+                      {/* Reduced icon container radius from 'rounded-lg' to 'rounded-md' */}
+                      <div className="w-10 h-10 flex items-center justify-center bg-white rounded-md shadow-sm">
+                        {React.cloneElement(feature.icon, {
+                          ...feature.icon.props,
+                          width: 24,
+                          height: 24,
+                          className: 'w-6 h-6' // Using Tailwind for consistent sizing
+                        })}
+                      </div>
+                      <span className="text-lg font-bold text-gray-800">{feature.title}</span>
+                    </div>
+                    <svg
+                      className={`w-6 h-6 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+                      fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  <AnimatePresence>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <div className="px-5 pb-6 pt-0 ml-14">
+                          <p className="text-gray-700 text-sm leading-relaxed border-t border-blue-200 pt-3">
+                            {feature.desc}
+                          </p>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section
-        className="section py-12 lg:py-20 px-4 sm:px-6 lg:px-12"
-        style={{ background: "transparent" }}
-      >
-        <div className="container mx-auto text-center flex flex-col items-center">
-          <h2
-            className="heading-2 mb-6"
-            style={{ color: "var(--foreground)", fontWeight: "500" }}
-          >
-            Ready to Go Digital?
+      {/*------------------ kanchan 4 end--------------------- */}
+
+      {/*------------------ kanchan 5 start--------------------- */}
+
+      {/* how it works Section */}
+      <section id="how-it-works" className="py-16 lg:py-24 px-4 bg-white overflow-hidden" style={{ paddingBottom: '30px', paddingTop: '20px' }}>
+        <div className="container mx-auto max-w-5xl">
+          {/* Main Heading */}
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-20 text-[#1A1A2E] tracking-tight">
+            How it Works?
           </h2>
-          <p
-            className="body-large mb-8 max-w-2xl mx-auto"
-            style={{ color: "var(--text-primary)" }}
+
+          {/* Steps Stack */}
+          <div className="flex flex-col gap-8 mb-24">
+            {steps.map((step, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.2, duration: 0.6 }}
+                className="relative group"
+              >
+                {/* The Bar */}
+                <div className="bg-[#2D3A6D] rounded-sm p-6 md:p-10 flex items-center justify-between shadow-lg border-l-4 border-[#FBCB43]">
+                  <div className="flex items-center gap-8">
+                    {/* Icon Circle - Forced Right Movement */}
+                    <div
+                      className="w-16 h-16 md:w-20 md:h-20 bg-[#FBCB43] rounded-full flex items-center justify-center shrink-0 shadow-lg overflow-hidden p-3"
+                      style={{ marginLeft: '25px' }} // Forcefully moving the icon right from the border
+                    >
+                      <Image
+                        src={step.image}
+                        alt={step.title}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+
+                    {/* Text content */}
+                    <div className="max-w-md text-left">
+                      <h3 className="text-2xl md:text-3xl font-bold mb-1 !text-white leading-tight">
+                        {step.title}
+                      </h3>
+                      <p className="!text-white text-sm md:text-lg opacity-90 leading-relaxed">
+                        {step.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Number aligned to the right */}
+                  <div className="w-24 flex justify-center items-center">
+                    <span className="text-7xl md:text-9xl font-black !text-white opacity-100 select-none tracking-tighter">
+                      {step.number}
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Bottom CTA Section */}
+          <div
+            className="text-center"
+            style={{ marginTop: '40px' }} // Forcefully adding space above and below CTA
           >
-            Join millions of professionals who have already made the switch to
-            MyKard.
-          </p>
-          <Link
-            href="/auth/signup"
-            className="btn btn-large px-12 py-4 text-lg font-semibold rounded-full shadow-xl hover:shadow-2xl transition-all"
-            style={{
-              background: "linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%)",
-              color: "white",
-              boxShadow: "0 15px 35px rgba(59, 130, 246, 0.4)",
-            }}
-          >
-            Create Your Free Card Now
-          </Link>
+            <h2 className="text-3xl md:text-4xl font-bold mb-10 text-black">
+              Join millions of Professionals now!
+            </h2>
+
+            <Link
+              href="/auth/signup"
+              className="inline-flex items-center justify-center px-14 py-5 text-xl font-bold rounded-full transition-all hover:scale-105 shadow-2xl active:scale-95 group"
+              style={{
+                background: "linear-gradient(90deg, #87CEEB 0%, #008B8B 100%)",
+                color: "white",
+                minWidth: "280px"
+              }}
+            >
+              Create Your Card
+              <span className="ml-3 transition-transform group-hover:translate-x-2">→</span>
+            </Link>
+          </div>
         </div>
       </section>
+      {/*------------------ kanchan 5 end--------------------- */}
+
+
 
       {/* Contact Form Section */}
 
       {/* FAQ (Enhanced) - placed at the end, above the footer */}
-      <section
+      {/*<section
         id="faq"
         className="section py-12 lg:py-20 px-4 sm:px-6 lg:px-12"
         style={{ background: "transparent" }}
@@ -1579,6 +1579,83 @@ export default function Homepage() {
                     )}
                   </div>
                 </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>*/}
+
+      <section id="faq" className="section py-12 lg:py-20 px-4 sm:px-6 lg:px-12" style={{ background: "white" }}>
+        <div className="container mx-auto max-w-4xl">
+          {/* Header Animation */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, ease: "easeOut" }} style={{ textAlign: "center", marginBottom: "1rem" }}
+          >
+            <h2 className="heading-2" style={{ color: "#000000", fontWeight: 700, fontSize: "2.5rem", fontFamily: "'Plus Jakarta Sans', sans-serif" }}> Frequently Asked Question </h2>
+            <p style={{ color: "#000000", marginTop: 8, fontSize: "1.1rem" }}> Everything you need to know to get started with MyKard </p>
+          </motion.div>
+
+          {/* Accordion Container */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 30 }}>
+            {[
+              {
+                q: "How does MyKard works?",
+                a: (
+                  <ul style={{ margin: 0, paddingLeft: "1.2rem", display: "flex", flexDirection: "column", gap: "clamp(6px, 2vw, 10px)", }}>
+                    {[
+                      (<div //style={{ display: "flex", flexDirection: "column", gap: "0px" }}
+                      >
+                        <p>• <strong>Create Your Profile</strong> – Add your professional details.</p>
+                        <p>• <strong>Customize Your Card</strong> – Personalize with themes and logos.</p>
+                        <p>• <strong>Share Anywhere</strong> – Use your link or QR code instantly.</p>
+                        <p>• <strong>Track Insights</strong> – Monitor views, leads, and engagement.</p>
+                      </div>)
+                    ].map((text, i) => (<li key={i} style={{ fontSize: "clamp(0.9rem, 2.6vw, 0.05rem)", lineHeight: 0.5, color: "#0f172a" }}> {text} </li>))}</ul>),
+              },
+
+              { q: "How can I search for a professional?", a: "In the Dashboard, use the Search feature at the top. You can search by name, category, or email to quickly find any professional profile.", },
+              { q: "How can I see my connections?", a: "Go to your Dashboard and click on the Connections tab. You'll see all your active and pending connections in one place.", },
+              { q: "How much does it cost to get started?", a: "You can get started for free with a basic MyKard. Just click “Create Your Free Card Now” on the homepage to begin designing your digital card.", },
+              { q: "How does MyKard help grow my professional network?", a: "MyKard helps you connect instantly through shareable QR or link — whether at events, meetings, or online.", },
+            ].map((item, idx) => {
+              const isOpen = openFaq === idx;
+              return (
+                <motion.div
+                  key={idx} initial={{ opacity: 0, y: 60 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.7, delay: idx * 0.15, ease: [0.21, 0.47, 0.32, 0.98] }} style={{ position: "relative" }}
+                >
+                  {/* Question Button */}
+                  <button
+                    onClick={() => setOpenFaq(isOpen ? null : idx)}
+                    style={{
+                      width: "100%", textAlign: "left", padding: "18px 35px", background: "#1E2B58", color: "white",
+                      border: "none", borderRadius: isOpen ? "20px 20px 0 0" : "20px",
+                      display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer",
+                      position: "relative", zIndex: 2, boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
+                      transition: "border-radius 0.3s ease, background 0.3s ease"
+                    }}
+                  >
+                    <span style={{ fontSize: "18px", fontWeight: "400" }}> {item.q} </span>
+                    <svg
+                      width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.3s ease", strokeWidth: 2, }}
+                    >
+                      <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </button>
+
+                  {/* Answer Box */}
+                  <div
+                    style={{
+                      maxHeight: isOpen ? "500px" : "0px", opacity: isOpen ? 1 : 0, overflow: "hidden", transition: "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)", background: "#F8FAFC",
+                      border: isOpen ? "1.5px solid #1E2B58" : "1.5px solid transparent", borderRadius: "0 0 20px 20px",
+                      marginTop: "-25px", padding: isOpen ? "35px 25px 15px 25px" : "0px 25px", zIndex: 1, color: "#334155",
+                    }}
+                  >
+                    <div style={{ fontSize: "15px", lineHeight: "1" }}> {item.a} </div>
+                  </div>
+                </motion.div>
               );
             })}
           </div>
