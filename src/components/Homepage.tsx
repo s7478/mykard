@@ -1,13 +1,12 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
-// import "../app/globals.css";
+import "../app/globals.css";
 import GrowthMetricsSection from "./GrowthMetricsSection";
 
 type Profile = {
@@ -20,24 +19,15 @@ type Profile = {
 
 //kanchan added
 
-
 const CardItem = ({ feature, isMobile }: { feature: any, isMobile: boolean }) => (
   <div
     style={{
-      background: feature.cardColor,
-      borderRadius: "1.25rem",
-      padding: "1.25rem 0.75rem",
-      border: feature.border,
-      width: "100%",
-      height: "100%",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
+      background: feature.cardColor, borderRadius: "1.25rem", padding: "1.25rem 0.75rem", border: feature.border,
+      width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
     }}
   >
     <div style={{ marginBottom: "1rem", width: "100%", height: "120px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <img src={feature.image} alt={feature.title} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
+      <Image src={feature.image} alt={feature.title} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
     </div>
 
     <h3 style={{ color: feature.textColor, fontSize: "1.1rem", fontWeight: "700", margin: "0.75rem 0", textAlign: "center", lineHeight: "1.3" }}>
@@ -45,12 +35,9 @@ const CardItem = ({ feature, isMobile }: { feature: any, isMobile: boolean }) =>
     </h3>
 
     <div
-      className={`overflow-hidden transition-all duration-500 w-full ${isMobile ? "max-h-[300px] opacity-100" : "max-h-0 opacity-0 group-hover:max-h-[300px] group-hover:opacity-100"
+      className={`overflow-hidden transition-all duration-500 w-full ${isMobile ? "max-h-'300px' opacity-100" : "max-h-0 opacity-0 group-hover:max-h-'300px' group-hover:opacity-100"
         }`}
-      style={{
-        background: feature.boxColor,
-        borderRadius: "0.75rem",
-      }}
+      style={{ background: feature.boxColor, borderRadius: "0.75rem", }}
     >
       <div style={{ padding: "0.75rem" }}>
         <p style={{ color: feature.textColor, fontSize: "0.8rem", lineHeight: "1.4", textAlign: "center", fontWeight: "400", margin: 0 }}>
@@ -79,38 +66,16 @@ export default function Homepage() {
   const infoCardRef = React.useRef<HTMLDivElement | null>(null);
 
   const pageVariants = {
-    hidden: {
-      opacity: 0,
-      rotateX: 55,
-      scale: 0.98,
-      y: 40,
-      transformOrigin: "top center"
-    },
-    show: {
-      opacity: 1,
-      rotateX: 0,
-      scale: 1,
-      y: 0,
-      transition: {
-        duration: 1.1,
-        ease: [0.22, 1, 0.36, 1]
-      }
-    },
-    exit: {
-      opacity: 0.3,
-      rotateX: -35,
-      y: -20,
-      transition: { duration: 0.6 }
-    }
+    hidden: { opacity: 0, rotateX: 55, scale: 0.98, y: 40, transformOrigin: "top center" },
+    show: { opacity: 1, rotateX: 0, scale: 1, y: 0, transition: { duration: 1.1, ease: [0.22, 1, 0.36, 1] }},
+    exit: { opacity: 0.3, rotateX: -35, y: -20, transition: { duration: 0.6 } }
   };
-
 
   React.useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setShowInfoCard(true); // Reveal when card comes into view
+          if (entry.isIntersecting) { setShowInfoCard(true); // Reveal when card comes into view
           }
         });
       },
@@ -184,14 +149,9 @@ export default function Homepage() {
       setSearchLoading(true);
       setHasSearched(true);
 
-      const response = await fetch("/api/profile/getuser", {
-        credentials: "include",
-      });
+      const response = await fetch("/api/profile/getuser", { credentials: "include", });
 
-      console.log("handleConnectSearch fetch response", {
-        ok: response.ok,
-        status: response.status,
-      });
+      console.log("handleConnectSearch fetch response", { ok: response.ok, status: response.status, });
 
       if (!response.ok) {
         console.error("Failed to fetch users");
@@ -475,25 +435,15 @@ export default function Homepage() {
         // Yahan "items-start" add kiya gaya hai
         className="flex flex-col justify-end items-start lg:items-center lg:justify-center"
         style={{
-          position: 'relative',
-          width: '100%',
-          minHeight: '100vh',
-          backgroundColor: '#071337',
-          overflow: 'hidden',
-          fontFamily: "'Plus Jakarta Sans', sans-serif",
-          padding: '2rem 0 4rem',
+          position: 'relative', width: '100%', minHeight: '100vh', backgroundColor: '#071337',
+          overflow: 'hidden', fontFamily: "'Plus Jakarta Sans', sans-serif", padding: '2rem 0 4rem',
         }}
       >
         {/* 2. Main Content Container */}
         <div
           // items-start ensures left alignment on mobile
           className="container mx-auto px-6 lg:px-12 h-full flex flex-col justify-end items-start lg:justify-center mb-8 lg:mb-0"
-          style={{
-            position: 'relative',
-            zIndex: 10,
-            width: '100%',
-            minHeight: 'auto',
-          }}
+          style={{ position: 'relative', zIndex: 10, width: '100%', minHeight: 'auto', }}
         >
           {/* Content Wrapper */}
           <div className="relative flex flex-col items-start text-left w-full">
@@ -502,13 +452,9 @@ export default function Homepage() {
             <div style={{ maxWidth: '800px', zIndex: 20, width: '100%' }}>
               <h1
                 style={{
-                  fontSize: 'clamp(30px, 7vw, 56px)',
-                  fontWeight: 700,
-                  lineHeight: '1.1',
-                  color: '#FFFFFF',
-                  marginBottom: '0',
-                  textAlign: 'left', // Extra safety for left align
-                }}
+                  fontSize: 'clamp(30px, 7vw, 56px)', fontWeight: 700, lineHeight: '1.1', color: '#FFFFFF', marginBottom: '0', textAlign: 'left', // Extra safety for left align 
+                  }}
+
                 // Mobile par whitespace-normal kiya gaya hai
                 className="whitespace-normal lg:whitespace-nowrap mb-4 lg:mb-0"
               >
@@ -530,14 +476,8 @@ export default function Homepage() {
 
               <p
                 style={{
-                  fontSize: 'clamp(16px, 4vw, 28px)',
-                  fontWeight: 500,
-                  lineHeight: '1.4',
-                  color: '#FFFFFF',
-                  maxWidth: '650px',
-                  opacity: 0.9,
-                  marginBottom: '2rem',
-                  textAlign: 'left',
+                  fontSize: 'clamp(16px, 4vw, 28px)', fontWeight: 500, lineHeight: '1.4',
+                  color: '#FFFFFF', maxWidth: '650px', opacity: 0.9, marginBottom: '2rem', textAlign: 'left',
                 }}
               >
                 A universal digital identity that introduces you perfectly—instantly and professionally.
@@ -594,14 +534,11 @@ export default function Homepage() {
               pointerEvents: 'none'
             }}
           >
-            <img
+            <Image
               src="/assets/worldmap.png"
               alt="World Map"
               style={{
-                width: '100%',
-                height: 'auto',
-                maxHeight: '503px',
-                objectFit: 'contain',
+                width: '100%', height: 'auto', maxHeight: '503px', objectFit: 'contain',
                 filter: 'drop-shadow(0 0 20px rgba(130, 210, 239, 0.2))',
               }}
             />
@@ -834,30 +771,29 @@ export default function Homepage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
 
-      <input
-        type="text"
-        placeholder="Search by name, skills, company or city..."
-        className="w-full rounded-full border-0 focus:outline-none"
-        style={{ paddingLeft: "3.2rem", paddingRight: "8rem", paddingTop: "1rem", paddingBottom: "1rem", fontSize: "0.95rem", background: "#ffffff", boxShadow: "0 6px 14px rgba(0,0,0,0.1)", }}
-      />
+              <input
+                type="text"
+                placeholder="Search by name, skills, company or city..."
+                className="w-full rounded-full border-0 focus:outline-none"
+                style={{ paddingLeft: "3.2rem", paddingRight: "8rem", paddingTop: "1rem", paddingBottom: "1rem", fontSize: "0.95rem", background: "#ffffff", boxShadow: "0 6px 14px rgba(0,0,0,0.1)", }}
+              />
 
-      <button
-        className="absolute rounded-full text-white font-semibold"
-        style={{ right: "0.4rem", padding: "0.7rem 2rem", background: "linear-gradient(135deg, #2563eb, #3b82f6)", boxShadow: "0 10px 25px rgba(37,99,235,0.5)", border: "none"}}
-      > Search</button>
-    </div>
+                  <button
+                    className="absolute rounded-full text-white font-semibold"
+                    style={{ right: "0.4rem", padding: "0.7rem 2rem", background: "linear-gradient(135deg, #2563eb, #3b82f6)", boxShadow: "0 10px 25px rgba(37,99,235,0.5)", border: "none"}}
+                  > Search</button>
+                </div>
 
-    {/* Description Text 
-    <p
-      style={{ marginTop: "1.8rem", maxWidth: "600px", marginInline: "auto", fontSize: "0.95rem", textAlign: "center", color: "#e2e8f0", lineHeight: "1.6" }}
-    >
-      Access verified professional profiles, view portfolios, and connect
-      instantly with industry leaders, potential clients, and business partners
-      in your network. </p>
-    </div>
-</section>
-
- */}
+              {/* Description Text 
+              <p
+                style={{ marginTop: "1.8rem", maxWidth: "600px", marginInline: "auto", fontSize: "0.95rem", textAlign: "center", color: "#e2e8f0", lineHeight: "1.6" }}
+              >
+                Access verified professional profiles, view portfolios, and connect
+                instantly with industry leaders, potential clients, and business partners
+                in your network. </p>
+              </div>
+          </section>
+      */}
 
 
 
@@ -949,36 +885,27 @@ export default function Homepage() {
 
 
 
-
-
-
-
-
       {/* New Search Bar Section --> Vaijayanti */}
-
-
 
       <div className="w-full bg-[#030b25]">
         {/* SECTION 1: Search */}
         <section
           className="relative px-4 md:px-6 flex flex-col  w-full items-center justify-center min-h-fit md:min-h-[600px] overflow-hidden"
           style={{
-            background: "linear-gradient(180deg, #030b25 0%, #0a1941 45%, #bce1ff 100%)",
-            paddingTop: "4rem",
-            paddingBottom: "6rem"
-          }}
+            background: "linear-gradient(180deg, #030b25 0%, #0a1941 45%, #bce1ff 100%)", paddingTop: "4rem", paddingBottom: "6rem" }}
         >
           <div className="container mx-auto flex flex-col items-center relative w-full">
 
             {/* 2. Floating Search Card */}
             <motion.div
-              initial={{ opacity: 0, y: 24, scale: 0.98 }}
+              initial={{ opacity: 0, y: 70, scale: 0.97 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true, amount: 0.35 }}
               transition={{
-                duration: 0.95,
-                delay: 0.10,
-                ease: [0.22, 1, 0.36, 1]
+                duration: 1.05, ease: [0.16, 1, 0.3, 1],   // soft bounce-ease
+                opacity: { duration: 0.6 },
+                y: { duration: 0.70, ease: [0.23, 1, 0.32, 1]},
+                scale: { duration: 0.30, ease: "easeOut" }
               }}
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
@@ -987,7 +914,7 @@ export default function Homepage() {
                 padding: "clamp(1.2rem, 4vw, 2.6rem) clamp(1rem, 4vw, 3.8rem)",
                 borderRadius: "26px",
                 background: "linear-gradient(105deg, #6c8ef2 0%, #8ca6f8 50%, #ffffff 100%)",
-                boxShadow: isHovered ? "0 25px 50px rgba(0,0,0,0.3)" : "0 20px 40px rgba(0,0,0,0.25)",
+                boxShadow: isHovered ? "0 25px 50px rgba(0,0,0,0.6)" : "0 20px 40px rgba(0,0,0,0.35)",
                 marginBottom: "-45px",
                 transform: isHovered ? "scale(1.02)" : "scale(1)"
               }}
@@ -1019,20 +946,18 @@ export default function Homepage() {
             </motion.div>
 
 
-
-
             {/* 4. Info Card - Always visible on mobile, hover effect on desktop */}
             <motion.div
               ref={infoCardRef}
 
-              initial={{ opacity: 0, y: 36, scale: 0.985 }}
+              initial={{ opacity: 0, y: 55, scale: 0.97 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true, amount: 0.35 }}
 
               transition={{
-                duration: 1.05,
-                delay: 0.32,
-                ease: [0.22, 1, 0.36, 1]
+                duration: 0.58,
+                delay: 0.20,
+                ease: [0.22, 1, 0.32, 1]
               }}
 
               className={` relative text-center w-[1000px] 
@@ -1076,9 +1001,11 @@ export default function Homepage() {
         </section>
       </div>
 
+
+
       {/* What is Digital Business Card */}
       <section id="what-is-digital-card"
-        style={{ background: "transparent", marginTop: "0px", paddingBottom: "5rem", position: "relative", overflow: "hidden", }}
+        style={{ background: "transparent", marginTop: "0px", paddingBottom: "0.05rem", position: "relative", overflow: "hidden", }}
       >
         {/* Subtle background decoration */}
         <div
@@ -1090,9 +1017,8 @@ export default function Homepage() {
 
         <div
           style={{
-            position: "absolute", bottom: "10%", width: "350px", height: "550px",
+            position: "absolute", bottom: "10%", width: "350px", height: "550px", borderRadius: "50%", filter: "blur(60px)",
             background: "radial-gradient(circle, rgba(33, 150, 243, 0.08) 0%, transparent 70%)",
-            borderRadius: "50%", filter: "blur(60px)",
           }}
         ></div>
 
@@ -1124,30 +1050,15 @@ export default function Homepage() {
               {/* --- 1. THE GRADIENT CONTAINER  --- */}
               <motion.section
                 variants={{
-                  hidden: {
-                    opacity: 0,
-                    rotateX: 75,
-                    transformOrigin: "top center"
-                  },
+                  hidden: { opacity: 0, rotateX: 75, transformOrigin: "top center" },
                   show: {
-                    opacity: 1,
-                    rotateX: 0,
-                    transition: {
-                      duration: 1.1,
-                      ease: [0.22, 1, 0.36, 1]
-                    }
+                    opacity: 1, rotateX: 0,
+                    transition: { duration: 1.1, ease: [0.22, 1, 0.36, 1] }
                   },
-                  exit: {
-                    opacity: 0.4,
-                    rotateX: -45,
-                    transition: { duration: 0.7 }
-                  }
+                  exit: { opacity: 0.4, rotateX: -45, transition: { duration: 0.7 } }
                 }}
-                initial="hidden"
-                whileInView="show"
-                exit="exit"
-                viewport={{ amount: 0.35 }}
-                transition={{ duration: 1, delay: 0.18, ease: [0.4, 0.0, 0.2, 1] }}
+                initial="hidden" whileInView="show" exit="exit"
+                viewport={{ amount: 0.35 }} transition={{ duration: 1, delay: 0.18, ease: [0.4, 0.0, 0.2, 1] }}
 
                 style={{
                   perspective: "1400px",
@@ -1184,56 +1095,12 @@ export default function Homepage() {
                 </div>
               </motion.section>
 
-              {/* --- 2. THE DARK BLUE PROFILE CARD --- */}
-              {/* <motion.section
-        initial={{ opacity: 0, y: 28, scale: 0.985 }}
-        whileInView={{ opacity: 1, y: 0, scale: 1 }}
-        viewport={{ once: true, amount: 0.25 }}
-        transition={{ duration: 1.05, delay: 0.36, ease: [0.4, 0.0, 0.2, 1]}}
-        // </div>style={{ width: "100%",display: "flex", justifyContent: "center", marginTop: "-60px", zIndex: 6 }}
-
-        className="flex justify-center"
-    style={{ marginTop: "-40px", zIndex: 6 }}
-        >
-          <div
-            // style={{
-            //   width: "98%", maxWidth: "1600px",   
-            //   background:"radial-gradient(circle at center, #8B54FF 0%, #173CAA 50%, #0C2160 100%)",
-            //   padding: "100px 270px", borderRadius: "22px", boxShadow: "0 28px 60px rgba(0,0,0,0.28)"
-            // }}
-            className=" w-[95%] sm:w-[92%] md:max-w-[880px] text-center rounded-2xl"
-    style={{
-      background:
-        "radial-gradient(circle at center, #8B54FF 0%, #173CAA 50%, #0C2160 100%)",
-      padding: "120px 30px",
-      boxShadow: "0 28px 60px rgba(0,0,0,0.28)",
-    }}
-          >
-            <p 
-              //className="text-3xl md:text-[20px] font-medium leading-[1.6]"
-               className=" text-white text-base sm:text-lg md:text-4xl leading-relaxed font-medium "
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color:"white",fontWeight:"200", fontSize:"35px",
-                letterSpacing: "0.02em", lineHeight: "1.2", textAlign: "center", textShadow: "0px 2px 4px rgba(0,0,0,0.1)"
-              }}
-            >
-              MyKard is your smart digital profile designed to help you get <br className="hidden md:block" /> 
-              discovered and grow your network. <br className="hidden md:block" />
-              Whether you're a freelancer or a CEO, replace scattered <br className="hidden md:block" />
-              links and physical cards with one powerful QR code that tells <br className="hidden md:block" />
-              your story.
-            </p>
-         </div>
-      </motion.section>   */}
 
 
               {/* --- 2. THE DARK BLUE PROFILE CARD --- */}
               <motion.section
-                initial={{ opacity: 0, y: 28, scale: 0.985 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true, amount: 0.25 }}
-                transition={{ duration: 1.05, delay: 0.36, ease: [0.4, 0.0, 0.2, 1] }}
-                className="flex justify-center"
-                style={{ marginTop: "-40px", zIndex: 6 }}
+                initial={{ opacity: 0, y: 28, scale: 0.985 }} whileInView={{ opacity: 1, y: 0, scale: 1 }} viewport={{ once: true, amount: 0.25 }}
+                transition={{ duration: 1.05, delay: 0.36, ease: [0.4, 0.0, 0.2, 1] }} className="flex justify-center"style={{ marginTop: "-40px", zIndex: 6 }}
               >
 
                 <div
@@ -1263,97 +1130,10 @@ export default function Homepage() {
       </section>
 
 
-            {/* Right Side - Stats Cards */}
-            {/*<div className="grid grid-cols-1 gap-5 stats-grid">
-              {[
-                { stat: "100%", label: "Growth Oriented", color: "#667eea" },
-                {
-                  stat: "42%",
-                  label: "Increase in Professional Connections",
-                  color: "#667eea",
-                },
-                { stat: "70%", label: "Better Follow-ups", color: "#667eea" },
-              ].map((item, idx) => (
-                <div
-                  key={idx}
-                  className="stats-card"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #ffffffff 0%, #ffffffff 100%)",
-                    borderRadius: "1.5rem",
-                    padding: "2rem 2.5rem",
-                    position: "relative",
-                    overflow: "hidden",
-                    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.15)",
-                    border: "1px solid rgba(255, 255, 255, 0.1)",
-                    transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                  }}
-                >
-                  {/* Gradient accent line 
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      height: "4px",
-                      background: `linear-gradient(90deg, ${item.color} 0%, transparent 100%)`,
-                    }}
-                  ></div>
-
-                  {/* Subtle glow effect 
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "50%",
-                      right: "-20%",
-                      width: "200px",
-                      height: "200px",
-                      background: `radial-gradient(circle, ${item.color}20 0%, transparent 70%)`,
-                      borderRadius: "50%",
-                      filter: "blur(40px)",
-                    }}
-                  ></div>
-
-                  <div style={{ position: "relative", zIndex: 1 }}>
-                    <h3
-                      style={{
-                        fontSize: "3rem",
-                        fontWeight: "800",
-                        background: `linear-gradient(135deg, ${item.color} 0%, #a78bfa 100%)`,
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                        backgroundClip: "text",
-                        marginBottom: "0.5rem",
-                        letterSpacing: "-0.02em",
-                      }}
-                    >
-                      {item.stat}
-                    </h3>
-                    <p
-                      style={{
-                        color: "#000000",
-                        fontSize: "0.95rem",
-                        fontWeight: "500",
-                        margin: 0,
-                      }}
-                    >
-                      {item.label}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-        </div>
-
-      </section>
-      <GrowthMetricsSection />
-
       {/* --------------------------------------kanchan 3 page start --------------------- 
       -----------------kanchan 3 page---------------*/}
-
+      <GrowthMetricsSection />
+          
       {/* Build Credibility That Converts */}
       <section
         id="build-credibility"
@@ -1364,10 +1144,7 @@ export default function Homepage() {
           backgroundImage: typeof window !== 'undefined' && window.innerWidth >= 768
             ? "linear-gradient(215deg, #FFFFFF 0%, #B1E4FF 40%, #B1E4FF 60%, #678DFF 100%)"
             : "none",
-          paddingTop: "5rem",
-          paddingBottom: "5rem",
-          position: "relative",
-          overflow: "hidden",
+          paddingTop: "5rem", paddingBottom: "5rem", position: "relative", overflow: "hidden", 
         }}
       >
         {/* --- BACKGROUND ORBS --- */}
@@ -1587,7 +1364,7 @@ export default function Homepage() {
                       className="w-16 h-16 md:w-20 md:h-20 bg-[#FBCB43] rounded-full flex items-center justify-center shrink-0 shadow-lg overflow-hidden p-3"
                       style={{ marginLeft: '25px' }} // Forcefully moving the icon right from the border
                     >
-                      <img
+                      <Image
                         src={step.image}
                         alt={step.title}
                         className="w-full h-full object-contain"
@@ -1827,13 +1604,14 @@ export default function Homepage() {
                 a: (
                   <ul style={{ margin: 0, paddingLeft: "1.2rem", display: "flex", flexDirection: "column", gap: "clamp(6px, 2vw, 10px)", }}>
                     {[
-                      (<div style={{ display: "flex", flexDirection: "column", gap: "0px" }}>
+                      (<div //style={{ display: "flex", flexDirection: "column", gap: "0px" }}
+                      >
                         <p>• <strong>Create Your Profile</strong> – Add your professional details.</p>
                         <p>• <strong>Customize Your Card</strong> – Personalize with themes and logos.</p>
                         <p>• <strong>Share Anywhere</strong> – Use your link or QR code instantly.</p>
                         <p>• <strong>Track Insights</strong> – Monitor views, leads, and engagement.</p>
                       </div>)
-                    ].map((text, i) => (<li key={i} style={{ fontSize: "clamp(0.9rem, 2.6vw, 1rem)", lineHeight: 1.5, color: "#0f172a" }}> {text} </li>))}</ul>),
+                    ].map((text, i) => (<li key={i} style={{ fontSize: "clamp(0.9rem, 2.6vw, 0.05rem)", lineHeight: 0.5, color: "#0f172a" }}> {text} </li>))}</ul>),
               },
 
               { q: "How can I search for a professional?", a: "In the Dashboard, use the Search feature at the top. You can search by name, category, or email to quickly find any professional profile.", },
@@ -1883,6 +1661,6 @@ export default function Homepage() {
           </div>
         </div>
       </section>
-    </div >
+    </div>
   );
 }
