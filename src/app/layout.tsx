@@ -3,7 +3,6 @@ import { Poppins } from "next/font/google";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { ToastProvider } from "@/components/providers/toast-provider";
 import FirebaseConfigProvider from "@/components/FirebaseConfigProvider";
-import { VersionChecker } from "@/components/VersionChecker";
 import "./globals.css";
 
 const poppins= Poppins({
@@ -47,7 +46,6 @@ export default function RootLayout({
       <body suppressHydrationWarning className={`${poppins.variable} antialiased`}>
         <FirebaseConfigProvider config={firebaseConfig}>
           <AuthProvider>
-            <VersionChecker />
             <ToastProvider />
             {children}
           </AuthProvider>

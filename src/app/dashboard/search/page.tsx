@@ -603,6 +603,9 @@ function SearchPageContent() {
 
 
 
+
+
+
         {/* Search Container */}
         <div className="search-container" style={{
           backgroundColor: '#fff',
@@ -892,7 +895,8 @@ function SearchPageContent() {
 
 
         {selectedProfile && (
-          <Modal isOpen={!!selectedProfile} onClose={() => setSelectedProfile(null)}>
+          <Modal 
+          isOpen={!!selectedProfile} onClose={() => setSelectedProfile(null)}>
 
             <div className="p-6 space-y-3">
               {/* Full Name */}
@@ -929,7 +933,6 @@ function SearchPageContent() {
             </div>
           </Modal>
         )}
-
       </div>
     </div >
   )

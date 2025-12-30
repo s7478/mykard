@@ -1,10 +1,9 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import "../app/globals.css";
@@ -20,24 +19,21 @@ type Profile = {
 
 //kanchan added
 
-
 const CardItem = ({ feature, isMobile }: { feature: any, isMobile: boolean }) => (
   <div
     style={{
-      background: feature.cardColor,
-      borderRadius: "1.25rem",
-      padding: "1.25rem 0.75rem",
-      border: feature.border,
-      width: "100%",
-      height: "100%",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
+      background: feature.cardColor, borderRadius: "1.25rem", padding: "1.25rem 0.75rem", border: feature.border,
+      width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
     }}
   >
     <div style={{ marginBottom: "1rem", width: "100%", height: "120px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <img src={feature.image} alt={feature.title} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
+      <Image
+        src={feature.image}
+        alt={feature.title}
+        width={240}
+        height={160}
+        style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
+      />
     </div>
 
     <h3 style={{ color: feature.textColor, fontSize: "1.1rem", fontWeight: "700", margin: "0.75rem 0", textAlign: "center", lineHeight: "1.3" }}>
@@ -45,12 +41,9 @@ const CardItem = ({ feature, isMobile }: { feature: any, isMobile: boolean }) =>
     </h3>
 
     <div
-      className={`overflow-hidden transition-all duration-500 w-full ${isMobile ? "max-h-[300px] opacity-100" : "max-h-0 opacity-0 group-hover:max-h-[300px] group-hover:opacity-100"
+      className={`overflow-hidden transition-all duration-500 w-full ${isMobile ? "max-h-'300px' opacity-100" : "max-h-0 opacity-0 group-hover:max-h-'300px' group-hover:opacity-100"
         }`}
-      style={{
-        background: feature.boxColor,
-        borderRadius: "0.75rem",
-      }}
+      style={{ background: feature.boxColor, borderRadius: "0.75rem", }}
     >
       <div style={{ padding: "0.75rem" }}>
         <p style={{ color: feature.textColor, fontSize: "0.8rem", lineHeight: "1.4", textAlign: "center", fontWeight: "400", margin: 0 }}>
@@ -79,38 +72,16 @@ export default function Homepage() {
   const infoCardRef = React.useRef<HTMLDivElement | null>(null);
 
   const pageVariants = {
-    hidden: {
-      opacity: 0,
-      rotateX: 55,
-      scale: 0.98,
-      y: 40,
-      transformOrigin: "top center"
-    },
-    show: {
-      opacity: 1,
-      rotateX: 0,
-      scale: 1,
-      y: 0,
-      transition: {
-        duration: 1.1,
-        ease: [0.22, 1, 0.36, 1]
-      }
-    },
-    exit: {
-      opacity: 0.3,
-      rotateX: -35,
-      y: -20,
-      transition: { duration: 0.6 }
-    }
+    hidden: { opacity: 0, rotateX: 55, scale: 0.98, y: 40, transformOrigin: "top center" },
+    show: { opacity: 1, rotateX: 0, scale: 1, y: 0, transition: { duration: 1.1, ease: [0.22, 1, 0.36, 1] }},
+    exit: { opacity: 0.3, rotateX: -35, y: -20, transition: { duration: 0.6 } }
   };
-
 
   React.useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setShowInfoCard(true); // Reveal when card comes into view
+          if (entry.isIntersecting) { setShowInfoCard(true); // Reveal when card comes into view
           }
         });
       },
@@ -184,14 +155,9 @@ export default function Homepage() {
       setSearchLoading(true);
       setHasSearched(true);
 
-      const response = await fetch("/api/profile/getuser", {
-        credentials: "include",
-      });
+      const response = await fetch("/api/profile/getuser", { credentials: "include", });
 
-      console.log("handleConnectSearch fetch response", {
-        ok: response.ok,
-        status: response.status,
-      });
+      console.log("handleConnectSearch fetch response", { ok: response.ok, status: response.status, });
 
       if (!response.ok) {
         console.error("Failed to fetch users");
@@ -475,25 +441,15 @@ export default function Homepage() {
         // Yahan "items-start" add kiya gaya hai
         className="flex flex-col justify-end items-start lg:items-center lg:justify-center"
         style={{
-          position: 'relative',
-          width: '100%',
-          minHeight: '100vh',
-          backgroundColor: '#071337',
-          overflow: 'hidden',
-          fontFamily: "'Plus Jakarta Sans', sans-serif",
-          padding: '2rem 0 4rem',
+          position: 'relative', width: '100%', minHeight: '100vh', backgroundColor: '#071337',
+          overflow: 'hidden', fontFamily: "'Plus Jakarta Sans', sans-serif", padding: '2rem 0 4rem',
         }}
       >
         {/* 2. Main Content Container */}
         <div
           // items-start ensures left alignment on mobile
           className="container mx-auto px-6 lg:px-12 h-full flex flex-col justify-end items-start lg:justify-center mb-8 lg:mb-0"
-          style={{
-            position: 'relative',
-            zIndex: 10,
-            width: '100%',
-            minHeight: 'auto',
-          }}
+          style={{ position: 'relative', zIndex: 10, width: '100%', minHeight: 'auto', }}
         >
           {/* Content Wrapper */}
           <div className="relative flex flex-col items-start text-left w-full">
@@ -517,14 +473,8 @@ export default function Homepage() {
 
               <p
                 style={{
-                  fontSize: 'clamp(16px, 4vw, 28px)',
-                  fontWeight: 500,
-                  lineHeight: '1.4',
-                  color: '#FFFFFF',
-                  maxWidth: '650px',
-                  opacity: 0.9,
-                  marginBottom: '2rem',
-                  textAlign: 'left',
+                  fontSize: 'clamp(16px, 4vw, 28px)', fontWeight: 500, lineHeight: '1.4',
+                  color: '#FFFFFF', maxWidth: '650px', opacity: 0.9, marginBottom: '2rem', textAlign: 'left',
                 }}
               >
                 A universal digital identity that introduces you perfectly—instantly and professionally.
@@ -581,14 +531,13 @@ export default function Homepage() {
               pointerEvents: 'none'
             }}
           >
-            <img
+            <Image
               src="/assets/worldmap.png"
               alt="World Map"
+              width={600}
+              height={503}
               style={{
-                width: '100%',
-                height: 'auto',
-                maxHeight: '503px',
-                objectFit: 'contain',
+                width: '100%', height: 'auto', maxHeight: '503px', objectFit: 'contain',
                 filter: 'drop-shadow(0 0 20px rgba(130, 210, 239, 0.2))',
               }}
             />
@@ -599,34 +548,363 @@ export default function Homepage() {
       {/* kanchan - 1st page 
       kanchan -1st page  */}
 
+      {/* Search Bar Section */}
+      {/* <section
+        id="find-digital-card"
+        className="section px-4 sm:px-6 lg:px-12 py-12 lg:py-20"
+        style={{ background: "transparent" }}
+      >
+        <div className="container mx-auto max-w-4xl">
+          <div
+            className="card card-elevated"
+            style={{
+              background: "var(--gradient-light)",
+              padding: "3rem 2rem",
+              borderRadius: "var(--radius-xl)",
+              boxShadow: "var(--shadow-xl)",
+            }}
+          > */}
+      {/* <div className="text-center" style={{ marginBottom: "2.5rem" }}>
+               <h2
+                className="heading-3"
+                style={{
+                  color: "var(--primary-blue)",
+                  fontSize: "2rem",
+                  fontWeight: "500",
+                  marginBottom: "0.75rem",
+                  lineHeight: "1.2",
+                }}
+              >
+                Connect With People
+              </h2> */}
+      {/* <p className="body-text" style={{ 
+                color: 'var(--text-secondary)',
+                fontSize: '1.05rem',
+                maxWidth: '600px',
+                margin: '0 auto 1rem auto'
+              }}>
+                Discover and connect with professionals worldwide through our comprehensive digital card directory. Search by name, company, industry, location, or expertise to find the right connections for your business growth.
+              </p> 
+            </div> */}
+
+      {/* <div className="relative" style={{ maxWidth: "700px", margin: "0 auto" }}>
+              <div className="relative flex items-center">
+                <svg
+                  className="absolute w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  style={{
+                    left: "1.5rem",
+                    color: "#94A3B8",
+                    pointerEvents: "none",
+                  }}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search by name, skills, company, or city..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onClick={handleConnectSearch}                         // actual change
+                  // onKeyDown={(e) => {
+                  //   if (e.key === "Enter") {
+                  //     handleConnectSearch();
+                  //   }
+                  // }}
+                  className="w-full rounded-full border-2 border-transparent focus:border-blue-500 focus:outline-none transition-all"
+                  style={{
+                    background: "#FFFFFF",
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
+                    paddingLeft: "3rem",
+                    paddingRight: "7.5rem",
+                    paddingTop: "1rem",
+                    paddingBottom: "1rem",
+                    fontSize: "0.9rem",
+                    color: "var(--primary-purple)",
+                  }}
+                />
+                <button
+                  className="absolute text-white rounded-full transition-all search-button-mobile"
+                  onClick={handleConnectSearch}
+                  style={{
+                    right: "0.4rem",
+                    paddingLeft: "2rem",
+                    paddingRight: "2rem",
+                    paddingTop: "0.75rem",
+                    paddingBottom: "0.75rem",
+                    fontSize: "15px",
+                    fontWeight: "600",
+                    background: "var(--gradient-primary)",
+                    boxShadow: "var(--shadow-colored)",
+                    cursor: "pointer",
+                    border: "none",
+                  }}
+                >
+                  Search
+                </button>
+              </div>
+
+              <p
+                className="body-text"
+                style={{
+                  color: "var(--text-secondary)",
+                  fontSize: "0.95rem",
+                  maxWidth: "580px",
+                  margin: "0 auto",
+                }}
+              >
+                Access verified professional profiles, view portfolios, and
+                connect instantly with industry leaders, potential clients, and
+                business partners in your network.
+              </p>
+              {hasSearched && (
+                <div className="mt-10" style={{ marginTop: "3.5rem" }}>
+                  {searchLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+                    </div>
+                  ) : (
+                    <>
+                      {searchResults.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {searchResults.map((profile) => (
+                            <div
+                              key={profile.id}
+                              className="flex items-center justify-between rounded-sm bg-white p-4 shadow-md"
+                            >
+                              <div
+                                className="flex items-center gap-3"
+                                style={{ paddingLeft: "16px" }}
+                              >
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white font-semibold">
+                                  {profile.name.charAt(0)}
+                                </div>
+                                <div>
+                                  <div
+                                    className="font-semibold text-gray-900"
+                                    style={{
+                                      filter:
+                                        isLoggedIn === false
+                                          ? "blur(3px)"
+                                          : "none",
+                                    }}
+                                  >
+                                    {profile.name}
+                                  </div>
+                                  {profile.designation && (
+                                    <div className="fontSize-[14px] text-gray-600">
+                                      {profile.designation}
+                                    </div>
+                                  )}
+                                  <div className="text-sm text-gray-500">
+                                    📍 {profile.city}
+                                  </div>
+                                </div>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (isLoggedIn === false) {
+                                    router.push("/auth/signup");
+                                  } else {
+                                    handleConnect(profile.id, profile.name);
+                                  }
+                                }}
+                                disabled={
+                                  connectingUserId === profile.id ||
+                                  sentRequests.has(profile.id) ||
+                                  acceptedConnections.has(profile.id)
+                                }
+                                className={`rounded-sm px-4 py-2 text-sm font-semibold text-white shadow transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${acceptedConnections.has(profile.id)
+                                  ? "bg-green-600 hover:bg-green-800"
+                                  : sentRequests.has(profile.id)
+                                    ? "bg-amber-500 hover:bg-amber-600"
+                                    : "bg-blue-600 hover:bg-blue-700"
+                                  }`}
+                                style={{
+                                  minWidth: "90px",
+                                  textAlign: "center",
+                                  marginRight: "12px",
+                                }}
+                              >
+                                {connectingUserId === profile.id
+                                  ? "Connecting..."
+                                  : acceptedConnections.has(profile.id)
+                                    ? "Connected"
+                                    : sentRequests.has(profile.id)
+                                      ? "Sent"
+                                      : "Connect"}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="py-6 text-center text-gray-500">
+                          No matching profiles found.
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+            </div> */}
+
+      {/* <section className="relative" 
+            style={{ background: "linear-gradient(135deg, #0f172a, #1e3a8a)", paddingTop: "5rem", paddingBottom: "7rem"}} >
+              
+              {/* Floating Search Card 
+              <div style={{ maxWidth: "900px", margin: "0 auto", padding: "2.5rem 2rem", background: "linear-gradient(90deg, #5b8cff, #9bbcff)",
+              borderRadius: "22px", boxShadow: "0 25px 50px rgba(0,0,0,0.25)"}}>
+                
+              {/* Search Input 
+              <div className="relative flex items-center max-w-[700px] mx-auto">
+                {/* Icon 
+                <svg className="absolute w-5 h-5" style={{ left: "1.5rem", color: "#94a3b8" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+
+              <input
+                type="text"
+                placeholder="Search by name, skills, company or city..."
+                className="w-full rounded-full border-0 focus:outline-none"
+                style={{ paddingLeft: "3.2rem", paddingRight: "8rem", paddingTop: "1rem", paddingBottom: "1rem", fontSize: "0.95rem", background: "#ffffff", boxShadow: "0 6px 14px rgba(0,0,0,0.1)", }}
+              />
+
+                  <button
+                    className="absolute rounded-full text-white font-semibold"
+                    style={{ right: "0.4rem", padding: "0.7rem 2rem", background: "linear-gradient(135deg, #2563eb, #3b82f6)", boxShadow: "0 10px 25px rgba(37,99,235,0.5)", border: "none"}}
+                  > Search</button>
+                </div>
+
+              {/* Description Text 
+              <p
+                style={{ marginTop: "1.8rem", maxWidth: "600px", marginInline: "auto", fontSize: "0.95rem", textAlign: "center", color: "#e2e8f0", lineHeight: "1.6" }}
+              >
+                Access verified professional profiles, view portfolios, and connect
+                instantly with industry leaders, potential clients, and business partners
+                in your network. </p>
+              </div>
+          </section>
+      */}
+
+
+
+      {/* <div className="w-full bg-white">
+      {/* SECTION 1: Top Hero & Search
+      <section 
+        className="relative px-6" 
+        style={{ 
+          background: "linear-gradient(180deg, #1e40af 0%, #60a5fa 40%, #ffffff 100%)", 
+          paddingTop: "5rem", 
+          paddingBottom: "4rem" 
+        }}
+      >
+        <div className="container mx-auto flex flex-col items-center">
+          {/* Floating Search Card 
+          <div 
+            style={{ 
+              width: "100%",
+              maxWidth: "800px", 
+              padding: "2rem", 
+              background: "linear-gradient(90deg, #6366f1, #a5b4fc)",
+              borderRadius: "24px", 
+              boxShadow: "0 20px 40px rgba(0,0,0,0.1)"
+            }}
+          >
+            {/* Search Input Container 
+            <div className="relative flex items-center w-full">
+              <svg 
+                className="absolute w-5 h-5" 
+                style={{ left: "1.2rem", color: "#94a3b8" }} 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Search by name, skills, company or city..."
+                className="w-full rounded-full border-0 focus:outline-none"
+                style={{ 
+                  padding: "0.8rem 1.5rem 0.8rem 3.5rem", 
+                  fontSize: "0.9rem", 
+                  background: "#ffffff" 
+                }}
+              /> 
+              <button
+                className="absolute text-blue-600 font-bold text-xs uppercase tracking-wider"
+                style={{ right: "1.5rem", border: "none", background: "none", cursor: "pointer" }}
+              >
+                Search
+              </button>
+            </div>
+          </div> */}
+
+      {/* Info Card (The one with the curved arrow in the image) 
+          <div 
+            className="mt-6 p-8 text-center relative"
+            style={{ 
+              maxWidth: "1305px", maxHeight: "333px",
+              background: "rgba(219, 234, 254, 0.7)", 
+              backgroundColor: "#C1DCFF",
+              borderRadius: "10px", 
+              backdropFilter: "blur(10px)",
+              border: "1px solid rgba(255,255,255,0.5)"
+            }}
+          > 
+          
+              <p style={{fontFamily:"Caveat Brush",color: "#000000", fontWeight: "500", lineHeight: "100%", letterSpacing: "10%"}}>
+              Access verified professional profiles, view portfolios <br></br>and connect instantly with industry leaders <br></br>potential clients and business partners in your <br></br>network.
+              </p>
+          
+            
+            {/* Decorative Arrow (CSS implementation) 
+            <div className="absolute -right-8 top-1/2 hidden md:block" style={{ transform: "rotate(-10deg)" }}>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="2">
+                    <path d="M3 12c6-10 12 10 18 0m-3-3l3 3-3 3" />
+                </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+    </div>
+          </div>
+        </div>
+      </section>
+ */}
 
 
 
       {/* New Search Bar Section --> Vaijayanti */}
-
-
 
       <div className="w-full bg-[#030b25]">
         {/* SECTION 1: Search */}
         <section
           className="relative px-4 md:px-6 flex flex-col  w-full items-center justify-center min-h-fit md:min-h-[600px] overflow-hidden"
           style={{
-            background: "linear-gradient(180deg, #030b25 0%, #0a1941 45%, #bce1ff 100%)",
-            paddingTop: "4rem",
-            paddingBottom: "6rem"
-          }}
+            background: "linear-gradient(180deg, #030b25 0%, #0a1941 45%, #bce1ff 100%)", paddingTop: "4rem", paddingBottom: "6rem" }}
         >
           <div className="container mx-auto flex flex-col items-center relative w-full">
 
             {/* 2. Floating Search Card */}
             <motion.div
-              initial={{ opacity: 0, y: 24, scale: 0.98 }}
+              initial={{ opacity: 0, y: 70, scale: 0.97 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true, amount: 0.35 }}
               transition={{
-                duration: 0.95,
-                delay: 0.10,
-                ease: [0.22, 1, 0.36, 1]
+                duration: 1.05, ease: [0.16, 1, 0.3, 1],   // soft bounce-ease
+                opacity: { duration: 0.6 },
+                y: { duration: 0.70, ease: [0.23, 1, 0.32, 1]},
+                scale: { duration: 0.30, ease: "easeOut" }
               }}
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
@@ -635,7 +913,7 @@ export default function Homepage() {
                 padding: "clamp(1.2rem, 4vw, 2.6rem) clamp(1rem, 4vw, 3.8rem)",
                 borderRadius: "26px",
                 background: "linear-gradient(105deg, #6c8ef2 0%, #8ca6f8 50%, #ffffff 100%)",
-                boxShadow: isHovered ? "0 25px 50px rgba(0,0,0,0.3)" : "0 20px 40px rgba(0,0,0,0.25)",
+                boxShadow: isHovered ? "0 25px 50px rgba(0,0,0,0.6)" : "0 20px 40px rgba(0,0,0,0.35)",
                 marginBottom: "-45px",
                 transform: isHovered ? "scale(1.02)" : "scale(1)"
               }}
@@ -667,20 +945,18 @@ export default function Homepage() {
             </motion.div>
 
 
-
-
             {/* 4. Info Card - Always visible on mobile, hover effect on desktop */}
             <motion.div
               ref={infoCardRef}
 
-              initial={{ opacity: 0, y: 36, scale: 0.985 }}
+              initial={{ opacity: 0, y: 55, scale: 0.97 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true, amount: 0.35 }}
 
               transition={{
-                duration: 1.05,
-                delay: 0.32,
-                ease: [0.22, 1, 0.36, 1]
+                duration: 0.58,
+                delay: 0.20,
+                ease: [0.22, 1, 0.32, 1]
               }}
 
               className={` relative text-center w-[1000px] 
@@ -723,6 +999,8 @@ export default function Homepage() {
           </div>
         </section>
       </div>
+
+
 
       {/* What is Digital Business Card */}
       <section id="what-is-digital-card"
@@ -820,8 +1098,6 @@ export default function Homepage() {
       <GrowthMetricsSection />
 
 
-
-
       {/* --------------------------------------kanchan 3 page start --------------------- 
       -----------------kanchan 3 page---------------*/}
 
@@ -835,10 +1111,7 @@ export default function Homepage() {
           backgroundImage: typeof window !== 'undefined' && window.innerWidth >= 768
             ? "linear-gradient(215deg, #FFFFFF 0%, #B1E4FF 40%, #B1E4FF 60%, #678DFF 100%)"
             : "none",
-          paddingTop: "5rem",
-          paddingBottom: "5rem",
-          position: "relative",
-          overflow: "hidden",
+          paddingTop: "5rem", paddingBottom: "5rem", position: "relative", overflow: "hidden", 
         }}
       >
         {/* --- BACKGROUND ORBS --- */}
@@ -1268,8 +1541,8 @@ export default function Homepage() {
               );
             })}
           </div>
-           </div>
-         </section>*/}
+        </div>
+      </section>*/}
 
       <section id="faq" className="section py-12 lg:py-20 px-4 sm:px-6 lg:px-12" style={{ background: "white" }}>
         <div className="container mx-auto max-w-4xl">
@@ -1290,13 +1563,14 @@ export default function Homepage() {
                 a: (
                   <ul style={{ margin: 0, paddingLeft: "1.2rem", display: "flex", flexDirection: "column", gap: "clamp(6px, 2vw, 10px)", }}>
                     {[
-                      (<div style={{ display: "flex", flexDirection: "column", gap: "0px" }}>
+                      (<div //style={{ display: "flex", flexDirection: "column", gap: "0px" }}
+                      >
                         <p>• <strong>Create Your Profile</strong> – Add your professional details.</p>
                         <p>• <strong>Customize Your Card</strong> – Personalize with themes and logos.</p>
                         <p>• <strong>Share Anywhere</strong> – Use your link or QR code instantly.</p>
                         <p>• <strong>Track Insights</strong> – Monitor views, leads, and engagement.</p>
                       </div>)
-                    ].map((text, i) => (<li key={i} style={{ fontSize: "clamp(0.9rem, 2.6vw, 1rem)", lineHeight: 1.5, color: "#0f172a" }}> {text} </li>))}</ul>),
+                    ].map((text, i) => (<li key={i} style={{ fontSize: "clamp(0.9rem, 2.6vw, 0.05rem)", lineHeight: 0.5, color: "#0f172a" }}> {text} </li>))}</ul>),
               },
 
               { q: "How can I search for a professional?", a: "In the Dashboard, use the Search feature at the top. You can search by name, category, or email to quickly find any professional profile.", },
