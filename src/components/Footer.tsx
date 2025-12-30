@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Facebook, Instagram, Linkedin, X, Mail, MapPin } from "lucide-react";
+import { Linkedin, Mail, MapPin } from "lucide-react";
 import { useState, useEffect } from 'react';
 
 const scrollToSection = (sectionId: string) => {
@@ -155,12 +155,22 @@ export default function Footer() {
           {/* Brand */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <Image
-              src="/assets/mklogo.png"
+              //src="/assets/mklogo.png"
+              src="/assets/MyKard_Logo.png"
               alt="MyKard Logo"
               width={140}
               height={50}
               className="object-contain"
             />
+             {/* <Image
+                    src="/assets/MyKard_Logo.png"
+                    alt="Logo"
+                    width={144}
+                    height={144}
+                    className="w-40 h-10 rounded-sm object-cover transition-all duration-300 group-hover:scale-105 bg-white/95"
+              /> */}
+
+              
 
             <p className="footer-desc" style={{
               fontSize: '0.95rem',
@@ -174,7 +184,7 @@ export default function Footer() {
 
             {/* Social */}
             <div className="footer-social" style={{ display: 'flex', gap: '1.2rem', marginTop: '1rem' }}>
-              {[Instagram, Linkedin, X, Facebook].map((Icon, i) => (
+              {[Linkedin].map((Icon, i) => (
                 <Icon key={i}
                   size={28}
                   style={{ color: '#000', opacity: 0.8, transition: '0.3s' }}

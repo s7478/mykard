@@ -80,13 +80,13 @@ export default function Header() {
         <nav className="max-w-7xl mx-auto px-6 pt-3 pb-1" style={{ paddingLeft: '1.25rem', paddingRight: '1.25rem', paddingTop: '0.25rem' }}>
           <div className="flex items-center justify-between h-12">
             {/* Logo - Left Side */}
-            <Link href="/" className="flex items-center group">
+            <Link href="/" className="flex items-center group shrink-0">
               <Image
                 src="/assets/headerlogo.png"
                 alt="Logo"
                 width={144}
                 height={144}
-                className="w-40 h-10 object-cover transition-all duration-300 group-hover:scale-105"
+                className="w-32 h-8 object-contain transition-all duration-300 group-hover:scale-105"
               />
 
               <svg className="w-6 h-6 text-blue-600 absolute" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ display: 'none' }}>
@@ -95,9 +95,9 @@ export default function Header() {
             </Link>
 
             {/* Desktop Menu and Actions - Right Side */}
-            <div className="hidden lg:flex items-center gap-80">
+            <div className="hidden lg:flex items-center flex-1 justify-end ml-5">
               {/* Navigation Links */}
-              <div className="flex items-center gap-20">
+              <div className="flex items-center gap-10 xl:gap-10 mr-10">
                 <Link href="/" className="px-2 py-1.5 text-[14px] font-semibold text-blue-600 hover:text-blue-700 transition-colors">
                   Home
                 </Link>
