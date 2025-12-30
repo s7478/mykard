@@ -177,6 +177,7 @@
   transition: opacity 0.2s, transform 0.1s;
 }
 
+
 .googleBtn:hover {
   opacity: 0.95;
 }
@@ -212,3 +213,10 @@
     font-size: 1.25rem;
   }
 }
+.googleIcon {
+  width: 30px;
+  height: 19px;
+  margin-right: 10px;
+  padding-left: 2px ;
+}
+
