@@ -591,7 +591,7 @@ function SearchPageContent() {
 
           />
 
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 whitespace-nowrap">
+          <h1 className="text-lg sm:text-xl md:text-2xl font-extrabold text-slate-900 whitespace-nowrap">
             Build Real{" "}
             <span className="text-[#225BE4]">Connections</span>
           </h1>
@@ -690,7 +690,7 @@ function SearchPageContent() {
                     </div>
                     <div className="text-block">
                       <div className="name truncate-1">{p.name}</div>
-                      {p.designation && (<div className="designation truncate-2">{p.designation}</div>)}
+                      {p.designation && (<div className="designation truncate-1">{p.designation}</div>)}
                       {p.company && (<div className="company truncate-1">{p.company}</div>)}
                       <div className="city truncate-1">{p.city}</div>
                     </div>
