@@ -15,14 +15,14 @@ export async function GET(req: NextRequest) {
     // 1. Get IDs of connections (Accepted status)
     const connections = await prisma.connection.findMany({
       where: {
-        OR: [{ requesterId: userId }, { receiverId: userId }],
-        status: "accepted",
+        OR: [{ senderId: userId }, { receiverId: userId }],
+        status: "ACCEPTED",
       },
-      select: { requesterId: true, receiverId: true },
+      select: { senderId: true, receiverId: true },
     });
 
     const friendIds = connections.map((c) =>
-      c.requesterId === userId ? c.receiverId : c.requesterId
+      c.senderId === userId ? c.receiverId : c.senderId
     );
 
     // Add self to list (to see own story)
