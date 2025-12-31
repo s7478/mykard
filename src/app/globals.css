@@ -245,7 +245,7 @@ h1,
   line-height: 1.1;
   color: var(--text-primary);
   letter-spacing: -0.03em;
-  margin-bottom: 1.3rem;
+ /* margin-bottom: 1.3rem;*/
 }
 
 h1 span,
