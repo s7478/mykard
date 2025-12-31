@@ -2599,3 +2599,53 @@
   gap: 4px;
   z-index: 5;
 }
+
+
+/* =========================================
+   REMOVE ALL SHADOW CONTAINERS – CONNECTIONS
+   ========================================= */
+
+/* Kill shadows everywhere on this page */
+.heroSection,
+.searchBarWrapper,
+.searchBarInner,
+.insightsPanel,
+.tableViewContainer,
+.cardsViewContainer,
+.desktopTableWrapper,
+.mobileCard,
+.cardFace,
+.requestCard {
+  box-shadow: none !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Search bar should look flat */
+.searchInput,
+.filterButton {
+  box-shadow: none !important;
+}
+
+/* Remove fake spacing that looked like container */
+.searchBarSection {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Remove top padding that creates card feel */
+.heroSection {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Mobile extra gaps fix */
+@media (max-width: 639px) {
+  .heroSection {
+    padding: 0 !important;
+  }
+
+  .mobileCardsList {
+    gap: 8px !important;
+  }
+}

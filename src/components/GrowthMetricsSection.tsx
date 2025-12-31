@@ -181,7 +181,8 @@ const GrowthMetricsSection = () => {
 
             initial="hidden"
 
-            animate="visible"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
 
             variants={containerVariants}
 
@@ -287,7 +288,7 @@ const GrowthMetricsSection = () => {
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.9 }}
-                                className="w-[85%] max-w-[320px] aspect-[16/11] rounded-[35px] p-6 flex items-center justify-between shadow-lg relative overflow-hidden"
+                                className="w-[85%] max-w-[320px] 'aspect-16/11' rounded-[35px] p-6 flex items-center justify-between shadow-lg relative overflow-hidden"
                                 style={{
                                     // Updated to use the specific gradient from the array
                                     background: metrics[currentIndex].mobileBg,
@@ -295,7 +296,7 @@ const GrowthMetricsSection = () => {
                                     boxSizing: "border-box",
                                 }}
                             >
-                                <div className="text-left z-10 pr-4">
+                                <div className="text-left z-10 " style={{ padding: '10px' }}>
                                     <h3 className="text-2xl font-bold text-gray-900 mb-4">{metrics[currentIndex].title}</h3>
                                     <p className="text-gray-700 text-sm font-medium">{metrics[currentIndex].description}</p>
                                 </div>

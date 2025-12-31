@@ -585,17 +585,21 @@ function SearchPageContent() {
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 pb-6">
         {/* Header Section */}
-       <header className="relative text-center pt-6 sm:pt-8 md:pt-10 pb-1">
-  <div className="hover-title inline-block cursor-pointer">
-    <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 leading-tight whitespace-nowrap">
-      Build Real <span className="text-[#225BE4]">Connections</span>
-    </h1>
+        <header className="relative text-center pt-16 pb-3">
+          <div
+            className="absolute top-6 left-0 right-0 h-28 -z-10"
 
-    <p className="subtitle-hover mt-1 text-sm text-gray-500 max-w-xs mx-auto leading-snug">
-      Discover professionals and connect instantly
-    </p>
-  </div>
-</header>
+          />
+
+          <h1 className="text-lg sm:text-xl md:text-2xl font-extrabold text-slate-900 whitespace-nowrap">
+            Build Real{" "}
+            <span className="text-[#225BE4]">Connections</span>
+          </h1>
+
+          <p className="mt-1 text-sm text-gray-500 max-w-xs mx-auto">
+            Discover professionals and connect instantly
+          </p>
+        </header>
 
 
 
@@ -686,7 +690,7 @@ function SearchPageContent() {
                     </div>
                     <div className="text-block">
                       <div className="name truncate-1">{p.name}</div>
-                      {p.designation && (<div className="designation truncate-2">{p.designation}</div>)}
+                      {p.designation && (<div className="designation truncate-1">{p.designation}</div>)}
                       {p.company && (<div className="company truncate-1">{p.company}</div>)}
                       <div className="city truncate-1">{p.city}</div>
                     </div>
@@ -717,13 +721,11 @@ function SearchPageContent() {
               )
             }
 
-            
-      
-      {loading ? (
-        <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", padding: 28 }}>
-          <div style={{ width: 52, height: 52, borderRadius: "50%", border: "4px solid rgba(99,102,241,0.12)", borderTopColor: "rgba(99,102,241,0.95)", animation: "spin 1s linear infinite" }} />
-        </div>
-        ) : (
+            {loading ? (
+              <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", padding: 28 }}>
+                <div style={{ width: 52, height: 52, borderRadius: "50%", border: "4px solid rgba(99,102,241,0.12)", borderTopColor: "rgba(99,102,241,0.95)", animation: "spin 1s linear infinite" }} />
+              </div>
+            ) : (
               filtered.map((p, i) => (
                 <div key={`${p.username}-${i}`} className="card" role="button" aria-label={p.name} onClick={() => setSelectedProfile(p)}>
                   <div className="card-info">
@@ -932,6 +934,6 @@ function SearchPageContent() {
           </Modal>
         )}
       </div>
-    </div>
+    </div >
   )
 }

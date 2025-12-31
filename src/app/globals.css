@@ -30,7 +30,8 @@
 }
 
 /* Reset scroll position on page load */
-html, body {
+html,
+body {
   scroll-behavior: smooth;
   scroll-padding-top: 0;
 }
@@ -53,13 +54,13 @@ html, body {
     position: relative !important;
     overflow-x: hidden !important;
   }
-  
+
   body {
     position: relative !important;
     -webkit-overflow-scrolling: touch !important;
     min-height: 100vh !important;
   }
-  
+
   .mobile-fixed-header {
     position: fixed !important;
     top: env(safe-area-inset-top, 0) !important;
@@ -70,12 +71,15 @@ html, body {
 
 /* Messages Page Styles */
 .no-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 .no-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+  display: none;
+  /* Chrome, Safari, Opera */
 }
 
 .message-text-left {
@@ -90,26 +94,26 @@ html, body {
   --primary-purple: #6C5CE7;
   --primary-orange: #FDA146;
   --accent-blue: #00D2FF;
-  
+
   /* Background Colors */
   --background: #F0F5FF;
   --background-white: #FFFFFF;
   --background-light-blue: #E6F0FF;
   --background-purple-light: #F0EDFF;
-  
+
   /* Text Colors */
   --foreground: #1A1A1A;
   --text-primary: #2D3748;
   --text-secondary: #718096;
   --text-light: #A0AEC0;
   --text-white: #FFFFFF;
-  
+
   /* Alert Colors */
   --alert-red: #FF4757;
   --alert-red-light: #FFE8EA;
   --success-blue: #0066FF;
   --warning-orange: #FDA146;
-  
+
   /* Gradient Colors */
   --gradient-primary: linear-gradient(135deg, #0066FF 0%, #6C5CE7 100%);
   --gradient-secondary: linear-gradient(135deg, #00D2FF 0%, #0066FF 100%);
@@ -117,7 +121,7 @@ html, body {
   --gradient-light: linear-gradient(135deg, #E6F0FF 0%, #F0EDFF 100%);
   --gradient-card: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
   --gradient-overlay: linear-gradient(180deg, rgba(0, 102, 255, 0.05) 0%, rgba(108, 92, 231, 0.05) 100%);
-  
+
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -125,7 +129,7 @@ html, body {
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   --shadow-card: 0 8px 16px rgba(0, 102, 255, 0.1);
   --shadow-colored: 0 10px 40px rgba(0, 102, 255, 0.2);
-  
+
   /* Border Radius */
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
@@ -133,7 +137,7 @@ html, body {
   --radius-xl: 1.5rem;
   --radius-2xl: 2rem;
   --radius-full: 9999px;
-  
+
   /* Spacing */
   --spacing-xs: 0.5rem;
   --spacing-sm: 0.75rem;
@@ -149,23 +153,35 @@ html, body {
   --color-primary-light: #2563eb;
   --color-primary-dark: #1d4ed8;
   --color-primary-fade: rgba(37, 99, 235, 0.1);
-  --color-primary-soft: #eff6ff; /* bg-blue-50 equivalent */
-  --color-primary-border: #bfdbfe; /* border-blue-200 equivalent */
+  --color-primary-soft: #eff6ff;
+  /* bg-blue-50 equivalent */
+  --color-primary-border: #bfdbfe;
+  /* border-blue-200 equivalent */
 
   /* General Colors for card views */
-  --color-text-dark: #1f2937; /* Gray 900 */
-  --color-text-medium: #4b5563; /* Gray 600 */
-  --color-text-light: #6b7280; /* Gray 500 */
-  --color-background: #f9fafb; /* Gray 50 */
+  --color-text-dark: #1f2937;
+  /* Gray 900 */
+  --color-text-medium: #4b5563;
+  /* Gray 600 */
+  --color-text-light: #6b7280;
+  /* Gray 500 */
+  --color-background: #f9fafb;
+  /* Gray 50 */
   --color-white: #ffffff;
-  --color-border: #e5e7eb; /* Gray 200 */
+  --color-border: #e5e7eb;
+  /* Gray 200 */
 
   /* Specific Colors for card views */
-  --color-success: #10b981; /* Green 500 */
-  --color-danger: #ef4444; /* Red 500 */
-  --color-danger-bg: #fef2f2; /* Red 50 */
-  --color-danger-border: #fecaca; /* Red 200 */
-  --color-danger-text: #b91c1c; /* Red 800 */
+  --color-success: #10b981;
+  /* Green 500 */
+  --color-danger: #ef4444;
+  /* Red 500 */
+  --color-danger-bg: #fef2f2;
+  /* Red 50 */
+  --color-danger-border: #fecaca;
+  /* Red 200 */
+  --color-danger-text: #b91c1c;
+  /* Red 800 */
   --color-red-600: #dc2626;
   --color-purple-600: #9333ea;
 
@@ -197,7 +213,9 @@ html {
 }
 
 /* Prevent horizontal scrolling on all elements */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   max-width: 100%;
 }
 
@@ -219,22 +237,26 @@ body {
    ======================================== */
 
 /* Headings */
-h1, .heading-1 {
-  font-size: 3.5rem; /* 56px */
+h1,
+.heading-1 {
+  font-size: 3.5rem;
+  /* 56px */
   font-weight: 800;
   line-height: 1.1;
   color: var(--text-primary);
   letter-spacing: -0.03em;
-  margin-bottom: 1.3rem;
+ /* margin-bottom: 1.3rem;*/
 }
 
-h1 span, .heading-1 span {
+h1 span,
+.heading-1 span {
   color: var(--primary-blue);
   position: relative;
   display: inline-block;
 }
 
-h1 span::after, .heading-1 span::after {
+h1 span::after,
+.heading-1 span::after {
   content: '';
   position: absolute;
   bottom: 8px;
@@ -248,8 +270,10 @@ h1 span::after, .heading-1 span::after {
   z-index: -1;
 }
 
-h2, .heading-2 {
-  font-size: 2.5rem; /* 40px */
+h2,
+.heading-2 {
+  font-size: 2.5rem;
+  /* 40px */
   font-weight: 700;
   line-height: 1.2;
   color: var(--text-primary);
@@ -257,8 +281,10 @@ h2, .heading-2 {
   margin-bottom: 0.9rem;
 }
 
-h3, .heading-3 {
-  font-size: 1.9rem; /* 30px */
+h3,
+.heading-3 {
+  font-size: 1.9rem;
+  /* 30px */
   font-weight: 700;
   line-height: 1.3;
   color: var(--text-primary);
@@ -266,24 +292,30 @@ h3, .heading-3 {
   margin-bottom: 0.8rem;
 }
 
-h4, .heading-4 {
-  font-size: 1.5rem; /* 24px */
+h4,
+.heading-4 {
+  font-size: 1.5rem;
+  /* 24px */
   font-weight: 600;
   line-height: 1.4;
   color: var(--text-primary);
   margin-bottom: 0.7rem;
 }
 
-h5, .heading-5 {
-  font-size: 1.2rem; /* 19px */
+h5,
+.heading-5 {
+  font-size: 1.2rem;
+  /* 19px */
   font-weight: 600;
   line-height: 1.4;
   color: var(--text-primary);
   margin-bottom: 0.6rem;
 }
 
-h6, .heading-6 {
-  font-size: 1rem; /* 16px */
+h6,
+.heading-6 {
+  font-size: 1rem;
+  /* 16px */
   font-weight: 600;
   line-height: 1.5;
   color: var(--text-primary);
@@ -291,8 +323,10 @@ h6, .heading-6 {
 }
 
 /* Body Text */
-p, .body-text {
-  font-size: 0.9rem; /* 14px */
+p,
+.body-text {
+  font-size: 0.9rem;
+  /* 14px */
   font-weight: 400;
   line-height: 1.6;
   color: var(--text-primary);
@@ -300,18 +334,22 @@ p, .body-text {
 }
 
 .body-large {
-  font-size: 1rem; /* 16px */
+  font-size: 1rem;
+  /* 16px */
   line-height: 1.6;
 }
 
 .body-small {
-  font-size: 0.8rem; /* 13px */
+  font-size: 0.8rem;
+  /* 13px */
   line-height: 1.5;
 }
 
 /* Description Text */
-.description, .text-description {
-  font-size: 0.85rem; /* 14px */
+.description,
+.text-description {
+  font-size: 0.85rem;
+  /* 14px */
   font-weight: 400;
   line-height: 1.6;
   color: var(--text-secondary);
@@ -319,21 +357,24 @@ p, .body-text {
 }
 
 .description-small {
-  font-size: 0.8rem; /* 13px */
+  font-size: 0.8rem;
+  /* 13px */
   color: var(--text-secondary);
   line-height: 1.5;
 }
 
 /* Caption & Labels */
 .caption {
-  font-size: 0.75rem; /* 12px */
+  font-size: 0.75rem;
+  /* 12px */
   font-weight: 400;
   line-height: 1.4;
   color: var(--text-light);
 }
 
 .label {
-  font-size: 0.875rem; /* 14px */
+  font-size: 0.875rem;
+  /* 14px */
   font-weight: 500;
   line-height: 1.4;
   color: var(--text-primary);
@@ -702,8 +743,10 @@ p, .body-text {
   display: grid;
   gap: 1.5rem;
   grid-template-columns: 1fr;
-  align-items: stretch; /* ensure grid children stretch to same height */
-  justify-content: center; /* center the grid within container */
+  align-items: stretch;
+  /* ensure grid children stretch to same height */
+  justify-content: center;
+  /* center the grid within container */
   justify-items: stretch;
 }
 
@@ -715,6 +758,7 @@ p, .body-text {
 }
 
 @media (min-width: 1100px) {
+
   /* three equal columns centered and equidistant */
   .pricingGrid {
     grid-template-columns: repeat(3, minmax(280px, 1fr));
@@ -732,7 +776,8 @@ p, .body-text {
   flex-direction: column;
   justify-content: space-between;
   min-height: 320px;
-  height: 100%; /* allow card to fill grid cell height */
+  height: 100%;
+  /* allow card to fill grid cell height */
 }
 
 .featured {
@@ -746,7 +791,7 @@ p, .body-text {
 .featured .priceSmall,
 .featured .featureItem,
 .featured .planHeader .badge {
-  color: rgba(255,255,255,0.85);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .featured .planTitle,
@@ -756,7 +801,7 @@ p, .body-text {
 
 /* Make SVG icons inherit color inside featured cards */
 .featured .featureIcon {
-  color: rgba(255,255,255,0.9);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* Hover effects: elevate and slightly shift color */
@@ -766,7 +811,7 @@ p, .body-text {
 
 .planCard:hover {
   transform: translateY(-6px);
-  box-shadow: 0 18px 30px rgba(16,24,40,0.08);
+  box-shadow: 0 18px 30px rgba(16, 24, 40, 0.08);
   border-color: rgba(0, 102, 255, 0.12);
 }
 
@@ -784,7 +829,7 @@ p, .body-text {
 .featured:hover .planSubtitle,
 .featured:hover .featureItem,
 .featured:hover .priceSmall {
-  color: rgba(255,255,255,0.95);
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .planHeader {
@@ -797,12 +842,12 @@ p, .body-text {
 
 /* Ensure the main content area inside the card grows so all cards match height
    and footers align at the bottom */
-.planCard > div:first-child {
+.planCard>div:first-child {
   flex: 1 1 auto;
 }
 
 /* Also make grid children (articles) stretch and be flex containers for consistency */
-.pricingGrid > article {
+.pricingGrid>article {
   display: flex;
   flex-direction: column;
 }
@@ -1027,45 +1072,37 @@ p, .body-text {
    ======================================== */
 
 @media (max-width: 768px) {
-  h1, .heading-1 {
-    font-size: 2.2rem; /* 35px */
-    text-align: center !important;
-  }
-  
-  h2, .heading-2 {
-    text-align: center !important;
-  }
-  
-  h3, .heading-3 {
-    text-align: center !important;
-  }
-  
+
+
+
   /* Center all text content on mobile */
-  .body-large, .body-text, p {
+  /* .body-large,
+  .body-text,
+  p {
     text-align: center !important;
-  }
-  
+  } */
+
   /* Compact mobile sections */
   .section {
     padding-top: 2rem !important;
     padding-bottom: 2rem !important;
   }
-  
+
   /* Extra top space for hero so it clears the fixed mobile header */
   .hero-section {
     padding-top: 5.5rem !important;
   }
-  
+
   .section.py-12 {
     padding-top: 1.5rem !important;
     padding-bottom: 1.5rem !important;
   }
-  
+
   .section.lg\:py-20 {
     padding-top: 2rem !important;
     padding-bottom: 2rem !important;
   }
-  
+
   /* Center get started button */
   .hero-button-container {
     display: flex !important;
@@ -1073,65 +1110,65 @@ p, .body-text {
     width: 100% !important;
     text-align: center !important;
   }
-  
+
   .hero-button-container a {
     margin: 0 auto !important;
     display: block !important;
     width: fit-content !important;
   }
-  
+
   /* Reduce spacing between button and image */
   .hero-content {
     margin-bottom: 0.5rem !important;
   }
-  
+
   /* Reduce gap in hero grid for mobile */
   .hero-grid-mobile {
     gap: 2rem !important;
   }
-  
+
   /* Stats cards in one row (3 cards) */
   .stats-grid {
     display: grid !important;
     grid-template-columns: 1fr 1fr 1fr !important;
     gap: 0.5rem !important;
   }
-  
+
   .stats-card {
     padding: 1rem 0.5rem !important;
   }
-  
+
   .stats-card h3 {
     font-size: 1.5rem !important;
   }
-  
+
   .stats-card p {
     font-size: 0.7rem !important;
   }
-  
+
   /* Build credibility - 2 cards per row */
   .credibility-grid {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
     gap: 0.75rem !important;
   }
-  
+
   .credibility-card {
     padding: 1rem 0.75rem !important;
   }
-  
+
   .credibility-card h3 {
     font-size: 0.8rem !important;
     min-height: 2rem !important;
   }
-  
+
   /* Professional needs - ensure consistent card heights on mobile */
   .professional-cards-grid {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
     gap: 0.5rem !important;
   }
-  
+
   .professional-card {
     padding: 0.75rem 0.5rem !important;
     min-height: 120px !important;
@@ -1139,70 +1176,76 @@ p, .body-text {
     display: flex !important;
     flex-direction: column !important;
   }
-  
+
   .professional-card h3 {
     font-size: 0.8rem !important;
     margin-bottom: 0.25rem !important;
     line-height: 1.2 !important;
     flex-shrink: 0 !important;
   }
-  
+
   .professional-card p {
     font-size: 0.65rem !important;
     line-height: 1.2 !important;
     margin: 0 !important;
     flex-grow: 1 !important;
   }
-  
+
   /* How it works - 2 cards per row */
   .how-it-works-grid {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
     gap: 0.75rem !important;
   }
-  
+
   .how-it-works-card {
     padding: 1rem 0.75rem !important;
   }
-  
+
   .how-it-works-card h3 {
     font-size: 0.9rem !important;
   }
-  
+
   .how-it-works-card p {
     font-size: 0.75rem !important;
   }
-  
+
   /* Connect with people search button - reduce width on mobile */
   .search-button-mobile {
     padding-left: 1rem !important;
     padding-right: 1rem !important;
     font-size: 13px !important;
   }
-  
+
   /* Increase height of header buttons on mobile */
   header a[href="/auth/login"] {
     padding-top: 1rem !important;
     padding-bottom: 1rem !important;
     min-height: 48px !important;
   }
-  
+
   header a[href="/auth/signup"] {
     padding-top: 1rem !important;
     padding-bottom: 1rem !important;
     min-height: 48px !important;
   }
-  
-  h2, .heading-2 {
-    font-size: 1.8rem; /* 29px */
+
+  h2,
+  .heading-2 {
+    font-size: 1.8rem;
+    /* 29px */
   }
-  
-  h3, .heading-3 {
-    font-size: 1.3rem; /* 21px */
+
+  h3,
+  .heading-3 {
+    font-size: 1.3rem;
+    /* 21px */
   }
-  
-  h4, .heading-4 {
-    font-size: 1.1rem; /* 18px */
+
+  h4,
+  .heading-4 {
+    font-size: 1.1rem;
+    /* 18px */
   }
 }
 
@@ -1213,7 +1256,7 @@ p, .body-text {
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
   }
-  
+
   .professional-cards-grid .professional-card:nth-child(7) {
     grid-column: 2 / 3;
     justify-self: center;
@@ -1252,12 +1295,10 @@ p, .body-text {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent);
   animation: shine 3s infinite;
 }
 
@@ -1265,6 +1306,7 @@ p, .body-text {
   0% {
     left: -100%;
   }
+
   50%,
   100% {
     left: 100%;
@@ -1297,6 +1339,7 @@ p, .body-text {
   0% {
     box-shadow: 0 0 5px var(--primary-blue), 0 0 10px var(--primary-purple), 0 0 15px var(--accent-blue);
   }
+
   100% {
     box-shadow: 0 0 10px var(--primary-blue), 0 0 20px var(--primary-purple), 0 0 30px var(--accent-blue);
   }
@@ -1305,7 +1348,7 @@ p, .body-text {
 /* Text Glow */
 .text-glow {
   text-shadow: 0 0 20px rgba(0, 102, 255, 0.5),
-               0 0 40px rgba(108, 92, 231, 0.3);
+    0 0 40px rgba(108, 92, 231, 0.3);
 }
 
 /* Floating Animation */
@@ -1314,10 +1357,12 @@ p, .body-text {
 }
 
 @keyframes floating {
+
   0%,
   100% {
     transform: translateY(0px);
   }
+
   50% {
     transform: translateY(-10px);
   }
@@ -1325,9 +1370,12 @@ p, .body-text {
 
 /* Float Animation (used in Homepage) */
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0px);
   }
+
   50% {
     transform: translateY(-20px);
   }
@@ -1339,6 +1387,7 @@ p, .body-text {
     opacity: 0;
     transform: translateY(30px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -1351,10 +1400,12 @@ p, .body-text {
     opacity: 0;
     transform: scale(0.8);
   }
+
   50% {
     opacity: 1;
     transform: scale(1.1);
   }
+
   100% {
     opacity: 0;
     transform: scale(0.8);
@@ -1367,10 +1418,12 @@ p, .body-text {
 }
 
 @keyframes pulse {
+
   0%,
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -1389,11 +1442,9 @@ p, .body-text {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(
-    circle,
-    rgba(255, 255, 255, 0.1) 0%,
-    transparent 70%
-  );
+  background: radial-gradient(circle,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 70%);
   animation: rotate 10s linear infinite;
 }
 
@@ -1401,6 +1452,7 @@ p, .body-text {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -1428,6 +1480,7 @@ p, .body-text {
   0% {
     filter: hue-rotate(0deg);
   }
+
   100% {
     filter: hue-rotate(360deg);
   }
@@ -1662,47 +1715,56 @@ p, .body-text {
 
 /* Text Sizes */
 .text-xs {
-  font-size: 0.75rem; /* 12px */
+  font-size: 0.75rem;
+  /* 12px */
   line-height: 1.4;
 }
 
 .text-sm {
-  font-size: 0.875rem; /* 14px */
+  font-size: 0.875rem;
+  /* 14px */
   line-height: 1.5;
 }
 
 .text-base {
-  font-size: 1rem; /* 16px */
+  font-size: 1rem;
+  /* 16px */
   line-height: 1.6;
 }
 
 .text-lg {
-  font-size: 1.125rem; /* 18px */
+  font-size: 1.125rem;
+  /* 18px */
   line-height: 1.7;
 }
 
 .text-xl {
-  font-size: 1.25rem; /* 20px */
+  font-size: 1.25rem;
+  /* 20px */
   line-height: 1.7;
 }
 
 .text-2xl {
-  font-size: 1.5rem; /* 24px */
+  font-size: 1.5rem;
+  /* 24px */
   line-height: 1.4;
 }
 
 .text-3xl {
-  font-size: 1.875rem; /* 30px */
+  font-size: 1.875rem;
+  /* 30px */
   line-height: 1.3;
 }
 
 .text-4xl {
-  font-size: 2.25rem; /* 36px */
+  font-size: 2.25rem;
+  /* 36px */
   line-height: 1.2;
 }
 
 .text-5xl {
-  font-size: 3rem; /* 48px */
+  font-size: 3rem;
+  /* 48px */
   line-height: 1.1;
 }
 

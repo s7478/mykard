@@ -13,6 +13,8 @@ const TopFooter = () => {
     const context = canvas.getContext("2d");
 
     const TWO_PI = Math.PI * 2;
+    // You can change these emojis to whatever you like!
+    const emojiList = ["👻", "✨", "🔥", "🚀", "⭐", "💎"];
 
     function getRandomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -23,110 +25,48 @@ const TopFooter = () => {
         this._x = x;
         this._y = y;
       }
-      setX(x) {
-        this._x = x;
-      }
-      setY(y) {
-        this._y = y;
-      }
-      getX() {
-        return this._x;
-      }
-      getY() {
-        return this._y;
-      }
+      setX(x) { this._x = x; }
+      setY(y) { this._y = y; }
+      getX() { return this._x; }
+      getY() { return this._y; }
       setAngle(angle) {
         const length = this.getLength();
         this._x = Math.cos(angle) * length;
         this._y = Math.sin(angle) * length;
       }
-      getAngle() {
-        return Math.atan2(this._y, this._x);
-      }
+      getAngle() { return Math.atan2(this._y, this._x); }
       setLength(length) {
         const angle = this.getAngle();
         this._x = Math.cos(angle) * length;
         this._y = Math.sin(angle) * length;
       }
-      getLength() {
-        return Math.sqrt(this._x * this._x + this._y * this._y);
-      }
+      getLength() { return Math.sqrt(this._x * this._x + this._y * this._y); }
       addTo(v2) {
         this._x += v2.getX();
         this._y += v2.getY();
       }
-      subtractFrom(v2) {
-        this._x -= v2.getX();
-        this._y -= v2.getY();
-      }
     }
 
-    class Eye {
-      constructor(x, y) {
-        this.position = new Vector2D(x, y);
-        this.irisPosition = new Vector2D(x, y);
-        this.moveRadius = 20;
-        this.sizeRadius = 5;
-      }
-      update(velocity, angle) {
-        this.position.addTo(velocity);
-        this.irisPosition.setX(
-          this.position.getX() + Math.cos(angle) * this.moveRadius
-        );
-        this.irisPosition.setY(
-          this.position.getY() + Math.sin(angle) * this.moveRadius
-        );
-      }
-      render(context) {
-        context.fillStyle = "#000000";
-        context.beginPath();
-        context.arc(
-          this.irisPosition.getX(),
-          this.irisPosition.getY(),
-          this.sizeRadius,
-          0,
-          TWO_PI
-        );
-        context.fill();
-      }
-    }
-
-    class Ghost {
+    class FloatingEmoji {
       constructor(x, y, context) {
         this.position = new Vector2D(x, y);
-        this.handPosition = new Vector2D(x, y);
         this.context = context;
-
-        this.radius = 50;
-        this.eyeDistance = 10;
-        this.eyes = [];
+        this.emoji = emojiList[getRandomInt(0, emojiList.length - 1)];
+        
+        // Randomize size and floating behavior
+        this.size = getRandomInt(30, 50);
         this.bodyBounceAngle = getRandomInt(0, 100);
-        this.bounceDistance = 0.5;
-        this.bounceSpeed = 0.05;
+        this.bounceSpeed = 0.03 + Math.random() * 0.04;
+        this.bounceDistance = 0.5 + Math.random() * 0.5;
 
         this.velocity = new Vector2D(0, 0);
-        this.velocity.setLength(Math.random() * 2 + 1);
+        this.velocity.setLength(Math.random() * 1.5 + 0.5);
         this.velocity.setAngle(Math.random() * TWO_PI);
       }
 
-      initialize() {
-        this.eyes.push(
-          new Eye(
-            this.position.getX() - this.eyeDistance,
-            this.position.getY() - 10
-          )
-        );
-        this.eyes.push(
-          new Eye(
-            this.position.getX() + this.eyeDistance,
-            this.position.getY() - 10
-          )
-        );
-      }
-
       update(mousePosition) {
+        // Change direction occasionally
         if (Math.random() < 0.01) {
-          this.velocity.setLength(Math.random() * 2 + 1);
           this.velocity.setAngle(Math.random() * TWO_PI);
         }
 
@@ -134,133 +74,83 @@ const TopFooter = () => {
           0,
           Math.sin(this.bodyBounceAngle) * this.bounceDistance
         );
-        const handBounce = new Vector2D(
-          0,
-          (Math.sin(this.bodyBounceAngle + 10) * this.bounceDistance) / 2
-        );
+
         this.position.addTo(bodyBounce);
-        this.handPosition.subtractFrom(handBounce);
+        this.position.addTo(this.velocity);
 
-        const dx = mousePosition.x - this.position.getX();
-        const dy = mousePosition.y - this.position.getY();
-        const angle = Math.atan2(dy, dx);
-
-        for (let i = 0; i < this.eyes.length; i++) {
-          this.eyes[i].update(bodyBounce, angle);
-        }
+        // Screen wrap-around
+        if (this.position.getX() < -50) this.position.setX(window.innerWidth + 50);
+        if (this.position.getX() > window.innerWidth + 50) this.position.setX(-50);
+        if (this.position.getY() < -50) this.position.setY(window.innerHeight + 50);
+        if (this.position.getY() > window.innerHeight + 50) this.position.setY(-50);
 
         this.bodyBounceAngle += this.bounceSpeed;
       }
 
       render() {
-        this.context.fillStyle = "#ffffff";
-        this.context.beginPath();
-        this.context.arc(
+        this.context.font = `${this.size}px serif`;
+        this.context.textAlign = "center";
+        this.context.textBaseline = "middle";
+        this.context.fillText(
+          this.emoji,
           this.position.getX(),
-          this.position.getY(),
-          this.radius,
-          0,
-          TWO_PI
+          this.position.getY()
         );
-        this.context.fill();
-
-        this.context.fillStyle = "#ffffff";
-        this.context.beginPath();
-        this.context.arc(
-          this.handPosition.getX() - this.radius + 5,
-          this.handPosition.getY() + 10,
-          10,
-          0,
-          TWO_PI
-        );
-        this.context.fill();
-
-        this.context.fillStyle = "#ffffff";
-        this.context.beginPath();
-        this.context.arc(
-          this.handPosition.getX() + this.radius - 5,
-          this.handPosition.getY() + 10,
-          10,
-          0,
-          TWO_PI
-        );
-        this.context.fill();
-
-        for (let i = 0; i < this.eyes.length; i++) {
-          this.eyes[i].render(this.context);
-        }
       }
     }
 
-    const mousePosition = {
-      x: window.innerWidth / 2,
-      y: window.innerHeight / 2,
-    };
     const ghosts = [];
-    const numberOfGhosts = Math.round(
-      (window.innerWidth + window.innerHeight) / 200
-    );
+    const numberOfGhosts = Math.round((window.innerWidth + window.innerHeight) / 300);
 
     for (let i = 0; i < numberOfGhosts; i++) {
-      const ghost = new Ghost(
+      const ghost = new FloatingEmoji(
         getRandomInt(0, window.innerWidth),
         getRandomInt(0, window.innerHeight),
         context
       );
-      ghost.initialize();
       ghosts.push(ghost);
     }
 
-    const update = () => {
-      for (let i = 0; i < ghosts.length; i++) {
-        ghosts[i].update(mousePosition);
-      }
-    };
-
-    const render = () => {
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      for (let i = 0; i < ghosts.length; i++) {
-        ghosts[i].render();
-      }
-    };
-
     const loop = () => {
-      update();
-      render();
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      ghosts.forEach((ghost) => {
+        ghost.update();
+        ghost.render();
+      });
       requestAnimationFrame(loop);
     };
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    loop();
-
-    const handleMouseMove = (e) => {
-      mousePosition.x = e.clientX;
-      mousePosition.y = e.clientY;
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    loop();
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
-  const letters = ["C", "R", "E","A","T","E"," ","Y","O","U","R", " ", "C", "A", "R", "D"];
+  const letters = ["C", "R", "E", "A", "T", "E", " ", "Y", "O", "U", "R", " ", "C", "A", "R", "D"];
 
   const handleGetInTouch = () => {
     router.push('/contact');
   };
 
   return (
-    <div className="flex flex-col items-center justify-center bg-gradient-to-b from-[#3785b2] via-[#00255C] to-[#111827] relative rounded-t-[50px] md:rounded-t-[80px] w-full pb-20">
-      <canvas className="absolute inset-0 w-full h-full md:block hidden" ref={canvasRef}></canvas>
+    <div className="flex flex-col items-center justify-center bg-gradient-to-b from-[#3785b2] via-[#165dc9] to-[#111827] relative rounded-t-[50px] md:rounded-t-[80px] w-full pb-20 min-h-[400px]">
+      {/* Canvas Layer */}
+      <canvas 
+        className="absolute inset-0 w-full h-full md:block hidden pointer-events-none" 
+        ref={canvasRef}
+      ></canvas>
 
-      
-
+      {/* Button Layer */}
       <motion.div
-        className="relative z-10 flex items-center justify-center w-[90%] max-w-[800px] md:h-[300px] h-auto bg-transparent border-4 border-white rounded-2xl shadow-xl overflow-hidden p-4 group mt-10 md:mt-16 cursor-pointer"
+        className="relative z-10 flex items-center justify-center w-[65%] max-w-[800px] md:h-[300px] bg-transparent border-4 border-white rounded-2xl shadow-xl overflow-hidden p-4 group mt-10 md:mt-16 cursor-pointer"
         initial="scatter"
         whileHover="align"
         variants={containerVariants}
@@ -288,10 +178,7 @@ const TopFooter = () => {
   );
 };
 
-const containerVariants = {
-  scatter: {},
-  align: {},
-};
+const containerVariants = { scatter: {}, align: {} };
 
 const letterVariants = {
   scatter: () => ({
