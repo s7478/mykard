@@ -190,24 +190,21 @@ export default function ContactsPage() {
       {/* Header */}
       <div className={styles.header}>
         <div className={styles.headerContent}>
-          <div className={styles.titleSection}>
-            <h1 className={styles.title}>
-              {/* <Users className={styles.titleIcon} /> */}
-              Lead
-            </h1>
-            <p className={styles.subtitle}>
-             People who reached out using your MyKard link.
-            </p>
-          </div>
-
-          {/* Mobile Export Button */}
+         <div className={styles.titleSection}>
+           <div className={styles.titleRow}>
+             <h1 className={styles.title}>Leads</h1>
+              <button type="button" className={styles.infoButton} aria-label="Leads information"> i </button>
+             </div>
+             {/* Inline helper text (Figma-style) */}
+              <p className={styles.infoText}> People who reached out using your MyKard link. </p>
+              { /* Mobile Export Button */}
           <button onClick={exportToCSV} className={styles.mobileExportButton}>
             <Download size={16} /> Export CSV
           </button>
 
         </div>
       </div>
-
+    </div>
       {/* Search Bar (Mobile) */}
 <div className={styles.searchSection}>
   <div className={styles.searchRow}>
@@ -273,7 +270,17 @@ export default function ContactsPage() {
           </button>
 
         </div>
-      </div>
+      </div> 
+      <div className={styles.tabsContainer}>
+
+      {/* Tabs */}
+       <div className={styles.tabs}>
+          <button className={styles.tab}>Connections</button>
+          <button className={styles.tab}>Requests</button>
+          <button className={styles.tab}>Messages</button>
+          <button className={`${styles.tab} ${styles.activeTab}`}>Leads</button>
+       </div>
+
 
       {/* Results */}
       <div className={styles.resultsSection}>
@@ -322,86 +329,70 @@ export default function ContactsPage() {
                 {filteredContacts.map((contact) => (
                   <div key={contact.id} className={styles.contactCard}>
                     <div className={styles.contactHeader}>
-                      <div className={styles.contactInfo}>
-                        <div className={styles.avatar}>
-                          {contact.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div className={styles.contactDetails}>
-                          <h3 className={styles.contactName}>{contact.name}</h3>
-                        </div>
-                      </div>
-                      <div className={styles.contactMeta}>
-                        <span className={styles.timeStamp}>
-                          <Calendar size={14} />
-                          {formatRelativeTime(contact.createdAt)}
-                        </span>
-                        <div className={styles.dropdownContainer}>
-                          <button
-                            onClick={() => setOpenDropdown(openDropdown === contact.id ? null : contact.id)}
-                            className={styles.moreButton}
-                            title="More options"
-                          >
-                            <MoreHorizontal size={16} />
-                          </button>
-                          {openDropdown === contact.id && (
-                            <div className={styles.dropdownMenu}>
-                              <button 
-                                onClick={() => handleDeleteContact(contact.id)}
-                                className={styles.dropdownItemDelete}
-                              >
-                                Delete Contact
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+  {/* LEFT */}
+  <div className={styles.contactInfo}>
+    <div className={styles.avatar}>
+      {contact.name.charAt(0).toUpperCase()}
+    </div>
 
-                    <div className={styles.contactActions}>
-                      <button
-                        onClick={() => handleEmailClick(contact.email)}
-                        className={`${styles.actionButton} ${styles.messageButton}`}
-                        title="Send email"
-                      >
-                        <Mail size={16} />
-                        {contact.email}
-                      </button>
+    <div className={styles.contactDetails}>
+      <h3 className={styles.contactName}>
+        {contact.name}
+        <span className={styles.contactedViaInline}>
+          (Contacted via {contact.card.cardName || contact.card.fullName})
+        </span>
+      </h3>
 
-                      <button
-                        onClick={() => handlePhoneClick(contact.phone)}
-                        className={`${styles.actionButton} ${styles.phoneButton}`}
-                        title="Call phone"
-                      >
-                        <Phone size={16} />
-                        {contact.phone}
-                      </button>
+      <div className={styles.contactRow}>
+        <Mail size={14} />
+        <span>{contact.email}</span>
+      </div>
 
-                      <p
-                        className={styles.contactCardText}
-                        onClick={() => {
-                          if (contact.sourceUrl) {
-                            handleSourceClick(contact.sourceUrl);
-                          }
-                        }}
-                      >
-                        Contacted via <span className={styles.cardName}>
-                          {contact.card.cardName || contact.card.fullName}
-                          {contact.card.cardName && contact.card.fullName !== contact.card.cardName && (
-                            <span className={styles.cardType}></span>
-                          )}
-                        </span>
-                      </p>
-                      <div className={styles.mobileTimeStamp}>
-                        <Calendar size={14} />
-                        {formatRelativeTime(contact.createdAt)}
-                      </div>
-                    </div>
+      <div className={styles.contactRow}>
+        <Phone size={14} />
+        <span>{contact.phone}</span>
+      </div>
+    </div>
+  </div>
+
+  {/* RIGHT */}
+  <div className={styles.contactMeta}>
+    <span className={styles.timeStamp}>
+      {formatRelativeTime(contact.createdAt)}
+    </span>
+
+    <div className={styles.dropdownContainer}>
+      <button
+        onClick={() =>
+          setOpenDropdown(openDropdown === contact.id ? null : contact.id)
+        }
+        className={styles.moreButton}
+      >
+        <MoreHorizontal size={16} />
+      </button>
+
+      {openDropdown === contact.id && (
+        <div className={styles.dropdownMenu}>
+          <button
+            onClick={() => handleDeleteContact(contact.id)}
+            className={styles.dropdownItemDelete}
+          >
+            Delete Contact
+          </button>
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+
+
                   </div>
                 ))}
               </div>
             )}
           </>
         )}
+      </div>
       </div>
     </div>
   );
