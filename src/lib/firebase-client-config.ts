@@ -28,7 +28,6 @@ export const fetchFirebaseConfig = async (): Promise<FirebaseConfig | null> => {
     (window as any).__FIREBASE_CONFIG__ = config;
     return config;
   } catch (error) {
-    console.error('Failed to fetch Firebase config:', error);
     return null;
   }
 };
@@ -43,20 +42,5 @@ export const firebaseConfig: FirebaseConfig = {
   appId: '',
   measurementId: '',
 };
-
-// Debug function to check configuration
-export const checkFirebaseConfig = () => {
-  if (typeof window !== 'undefined') {
-    const config = (window as any).__FIREBASE_CONFIG__ || firebaseConfig;
-    console.log("🔧 Firebase Config Check:", {
-      hasApiKey: !!config.apiKey,
-      hasAuthDomain: !!config.authDomain,
-      hasProjectId: !!config.projectId,
-      apiKeyPreview: config.apiKey ? `${config.apiKey.substring(0, 10)}...` : 'undefined',
-      authDomain: config.authDomain || 'undefined',
-      projectId: config.projectId || 'undefined',
-    });
-    return config;
-  }
   return firebaseConfig;
 };

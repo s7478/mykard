@@ -24,19 +24,3 @@ export const getServerFirebaseConfig = (): FirebaseConfig => ({
 
 // Deprecated: Use getServerFirebaseConfig() or fetch from /api/config/firebase
 export const firebaseConfig = getServerFirebaseConfig();
-
-// Debug function to check configuration
-export const checkFirebaseConfig = () => {
-  const config = getServerFirebaseConfig();
-  if (typeof window !== 'undefined') {
-    console.log("🔧 Firebase Config Check:", {
-      hasApiKey: !!config.apiKey,
-      hasAuthDomain: !!config.authDomain,
-      hasProjectId: !!config.projectId,
-      apiKeyPreview: config.apiKey ? `${config.apiKey.substring(0, 10)}...` : 'undefined',
-      authDomain: config.authDomain || 'undefined',
-      projectId: config.projectId || 'undefined',
-    });
-  }
-  return config;
-};

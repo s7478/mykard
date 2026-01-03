@@ -40,13 +40,11 @@ const getFirebaseConfig = async (): Promise<FirebaseConfig | null> => {
   // First, check if config is already in window (set by FirebaseConfigProvider)
   const windowConfig = (window as any).__FIREBASE_CONFIG__;
   if (windowConfig && windowConfig.apiKey) {
-    console.log("🔧 Firebase config found in window object");
     return windowConfig;
   }
 
   // Fallback: fetch from API endpoint
   try {
-    console.log("🔧 Fetching Firebase config from API...");
     const response = await fetch('/api/config/firebase');
     if (!response.ok) {
       throw new Error(`Failed to fetch config: ${response.status}`);
@@ -56,15 +54,8 @@ const getFirebaseConfig = async (): Promise<FirebaseConfig | null> => {
     // Store in window for future use
     (window as any).__FIREBASE_CONFIG__ = config;
     
-    console.log("🔧 Firebase config fetched successfully:", {
-      hasApiKey: !!config.apiKey,
-      hasAuthDomain: !!config.authDomain,
-      hasProjectId: !!config.projectId,
-    });
-    
     return config;
   } catch (error) {
-    console.error("❌ Failed to fetch Firebase config:", error);
     return null;
   }
 };
@@ -95,24 +86,8 @@ const initializeFirebase = async (): Promise<Auth | null> => {
       return null;
     }
 
-    // Log configuration for debugging
-    console.log("🔧 Firebase Environment Check:", {
-      hasApiKey: !!config.apiKey,
-      hasAuthDomain: !!config.authDomain,
-      hasProjectId: !!config.projectId,
-      apiKeyPreview: config.apiKey ? `${config.apiKey.substring(0, 10)}...` : 'undefined',
-      authDomain: config.authDomain || 'undefined',
-      projectId: config.projectId || 'undefined',
-    });
-
     // Validate required config
     if (!config.apiKey || !config.authDomain || !config.projectId) {
-      console.error("❌ Firebase configuration is incomplete. Authentication will be disabled.");
-      console.error("Missing config:", {
-        apiKey: !!config.apiKey,
-        authDomain: !!config.authDomain,
-        projectId: !!config.projectId,
-      });
       return null;
     }
 
@@ -121,10 +96,8 @@ const initializeFirebase = async (): Promise<Auth | null> => {
       auth = getAuth(firebaseApp);
       isInitialized = true;
 
-      console.log("🔥 Firebase initialized successfully (client)");
       return auth;
     } catch (error) {
-      console.error("❌ Firebase initialization failed:", error);
       return null;
     }
   })();
