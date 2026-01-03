@@ -1,6 +1,6 @@
 "use client";
 
-import { initializeApp, getApps, getApp } from "firebase/app";
+import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
 import { 
   getAuth,
   RecaptchaVerifier,
@@ -14,25 +14,88 @@ import {
   Auth
 } from "firebase/auth";
 
-// MUST only run on client
-if (typeof window === "undefined") {
-  console.warn("⚠ Firebase skipped on server");
+// Firebase config interface
+interface FirebaseConfig {
+  apiKey: string;
+  authDomain: string;
+  projectId: string;
+  storageBucket: string;
+  messagingSenderId: string;
+  appId: string;
+  measurementId: string;
 }
 
-const getFirebaseConfig = () => {
-  // Direct env vars - Next.js 16 makes NEXT_PUBLIC_ vars available at runtime
-  const config = {
-    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-    measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
-  };
+// Global state for Firebase
+let firebaseApp: FirebaseApp | null = null;
+let auth: Auth | null = null;
+let initializationPromise: Promise<Auth | null> | null = null;
+let isInitialized = false;
 
-  // Log configuration for debugging
-  if (typeof window !== "undefined") {
+// Get config from window object (set by FirebaseConfigProvider) or fetch from API
+const getFirebaseConfig = async (): Promise<FirebaseConfig | null> => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  // First, check if config is already in window (set by FirebaseConfigProvider)
+  const windowConfig = (window as any).__FIREBASE_CONFIG__;
+  if (windowConfig && windowConfig.apiKey) {
+    console.log("🔧 Firebase config found in window object");
+    return windowConfig;
+  }
+
+  // Fallback: fetch from API endpoint
+  try {
+    console.log("🔧 Fetching Firebase config from API...");
+    const response = await fetch('/api/config/firebase');
+    if (!response.ok) {
+      throw new Error(`Failed to fetch config: ${response.status}`);
+    }
+    const config = await response.json();
+    
+    // Store in window for future use
+    (window as any).__FIREBASE_CONFIG__ = config;
+    
+    console.log("🔧 Firebase config fetched successfully:", {
+      hasApiKey: !!config.apiKey,
+      hasAuthDomain: !!config.authDomain,
+      hasProjectId: !!config.projectId,
+    });
+    
+    return config;
+  } catch (error) {
+    console.error("❌ Failed to fetch Firebase config:", error);
+    return null;
+  }
+};
+
+// Initialize Firebase asynchronously
+const initializeFirebase = async (): Promise<Auth | null> => {
+  if (typeof window === "undefined") {
+    console.warn("⚠ Firebase skipped on server");
+    return null;
+  }
+
+  // Return existing auth if already initialized
+  if (isInitialized && auth) {
+    return auth;
+  }
+
+  // Return existing promise if initialization is in progress
+  if (initializationPromise) {
+    return initializationPromise;
+  }
+
+  // Start initialization
+  initializationPromise = (async () => {
+    const config = await getFirebaseConfig();
+    
+    if (!config) {
+      console.error("❌ Firebase config not available");
+      return null;
+    }
+
+    // Log configuration for debugging
     console.log("🔧 Firebase Environment Check:", {
       hasApiKey: !!config.apiKey,
       hasAuthDomain: !!config.authDomain,
@@ -41,44 +104,53 @@ const getFirebaseConfig = () => {
       authDomain: config.authDomain || 'undefined',
       projectId: config.projectId || 'undefined',
     });
-  }
 
-  return config;
-};
+    // Validate required config
+    if (!config.apiKey || !config.authDomain || !config.projectId) {
+      console.error("❌ Firebase configuration is incomplete. Authentication will be disabled.");
+      console.error("Missing config:", {
+        apiKey: !!config.apiKey,
+        authDomain: !!config.authDomain,
+        projectId: !!config.projectId,
+      });
+      return null;
+    }
 
-const firebaseConfig = getFirebaseConfig();
-
-let auth: Auth | null = null;
-
-// Only initialize Firebase on client side and if config is valid
-if (typeof window !== "undefined") {
-  // Validate required config
-  if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.projectId) {
-    console.error("❌ Firebase configuration is incomplete. Authentication will be disabled.");
-    console.error("Missing config:", {
-      apiKey: !!firebaseConfig.apiKey,
-      authDomain: !!firebaseConfig.authDomain,
-      projectId: !!firebaseConfig.projectId,
-    });
-  } else {
     try {
-      const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-      auth = getAuth(app);
+      firebaseApp = !getApps().length ? initializeApp(config) : getApp();
+      auth = getAuth(firebaseApp);
+      isInitialized = true;
 
       console.log("🔥 Firebase initialized successfully (client)");
-      console.log("Firebase Config Check:", {
-        hasApiKey: !!firebaseConfig.apiKey,
-        hasAuthDomain: !!firebaseConfig.authDomain,
-        hasProjectId: !!firebaseConfig.projectId,
-      });
+      return auth;
     } catch (error) {
       console.error("❌ Firebase initialization failed:", error);
+      return null;
     }
-  }
+  })();
+
+  return initializationPromise;
+};
+
+// Get auth instance (initializes if needed)
+const getFirebaseAuth = async (): Promise<Auth | null> => {
+  if (auth) return auth;
+  return initializeFirebase();
+};
+
+// Synchronous getter for auth (returns null if not yet initialized)
+const getAuthSync = (): Auth | null => auth;
+
+// Start initialization immediately on client side
+if (typeof window !== "undefined") {
+  initializeFirebase();
 }
 
 export {
   auth,
+  getFirebaseAuth,
+  getAuthSync,
+  initializeFirebase,
   RecaptchaVerifier,
   signInWithPhoneNumber,
   PhoneAuthProvider,
