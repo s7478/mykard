@@ -2,7 +2,6 @@ import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
 export default defineConfig({
-  datasource: {
-    url: process.env.DATABASE_URL!,
-  },
+  // Prisma config - datasource is defined in schema.prisma
+  // This file enables the Prisma config format for future extensions
 });
