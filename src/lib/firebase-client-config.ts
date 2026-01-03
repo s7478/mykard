@@ -42,5 +42,3 @@ export const firebaseConfig: FirebaseConfig = {
   appId: '',
   measurementId: '',
 };
-  return firebaseConfig;
-};
