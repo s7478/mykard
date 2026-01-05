@@ -270,6 +270,7 @@ model Post {
   authorId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  visibility String  @default("public") // 'public' or 'connections'
 
   author    User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
   likes     Like[]
