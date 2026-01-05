@@ -1,18 +1,15 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState, Suspense } from "react";
-import { Search, X, Trash2, Send, ChevronLeft } from "lucide-react";
+import { Search, X, Trash2, Send, ChevronLeft, Radius, AlignCenter, Underline } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
+import { is } from "zod/v4/locales";
+import { Margarine } from "next/font/google";
+import BorderStyle from "pdf-lib/cjs/core/annotation/BorderStyle";
+import { px } from "framer-motion";
 
 // --- Types ---
-type MessageStatus =
-  | "New"
-  | "Read"
-  | "Replied"
-  | "Pending"
-  | "Archived"
-  | "Deleted";
+type MessageStatus = "New" | "Read" | "Replied" | "Pending" | "Archived" | "Deleted";
 type MessageTag = "Lead" | "Support" | "Pricing" | "Feedback" | null;
 
 interface MessageItem {
@@ -33,7 +30,7 @@ interface MessageItem {
     id?: string;
     text: string;
     date: string;
-    direction: "in" | "out";
+    direction: 'in' | 'out';
   }>;
   replies?: {
     text: string;
@@ -50,13 +47,10 @@ function MessagesPageContent() {
   const [replyId, setReplyId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const lastSentTimeRef = useRef<number>(0);
   const conversationRef = useRef<HTMLDivElement | null>(null);
   const composerInputRef = useRef<HTMLInputElement | null>(null);
 
-  const [activeFilter, setActiveFilter] = useState<
-    "All" | "Unread" | "Replied"
-  >("All");
+  const [activeFilter, setActiveFilter] = useState<"Connections" | "Requests" | "Messages" | "Leads">("Connections");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
   const [chatUpdateTrigger, setChatUpdateTrigger] = useState(0);
@@ -66,8 +60,6 @@ function MessagesPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const chatFromUrl = searchParams.get("chat");
-
-  // const isSm = window.innerWidth >= 640;
 
   const buildMessagesUrl = (chatId: string | null) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -108,14 +100,10 @@ function MessagesPageContent() {
     const onChange = () => setIsMobile(mql.matches);
     onChange();
     // @ts-ignore
-    mql.addEventListener
-      ? mql.addEventListener("change", onChange)
-      : mql.addListener(onChange);
+    (mql.addEventListener ? mql.addEventListener("change", onChange) : mql.addListener(onChange));
     return () => {
       // @ts-ignore
-      mql.removeEventListener
-        ? mql.removeEventListener("change", onChange)
-        : mql.removeListener(onChange);
+      (mql.removeEventListener ? mql.removeEventListener("change", onChange) : mql.removeListener(onChange));
     };
   }, []);
 
@@ -125,25 +113,19 @@ function MessagesPageContent() {
     // Mark message-related notifications as cleared for this user
     const clearMessageNotifications = async () => {
       try {
-        const res = await fetch("/api/notifications", {
-          credentials: "include",
-        });
+        const res = await fetch('/api/notifications', { credentials: 'include' });
         if (!res.ok) return;
         const data = await res.json();
-        const list = Array.isArray(data?.notifications)
-          ? data.notifications
-          : [];
+        const list = Array.isArray(data?.notifications) ? data.notifications : [];
         const messageIds = list
-          .filter((n: any) => n && n.title === "Message received")
+          .filter((n: any) => n && n.title === 'Message received')
           .map((n: any) => n.id as string);
 
-        if (typeof window === "undefined" || messageIds.length === 0) return;
+        if (typeof window === 'undefined' || messageIds.length === 0) return;
 
         let existing: string[] = [];
         try {
-          const stored = window.localStorage.getItem(
-            "dashboard-cleared-notifications"
-          );
+          const stored = window.localStorage.getItem('dashboard-cleared-notifications');
           if (stored) existing = JSON.parse(stored);
         } catch {
           existing = [];
@@ -151,11 +133,8 @@ function MessagesPageContent() {
         const setExisting = new Set(existing || []);
         messageIds.forEach((id: string) => setExisting.add(id));
         const next = Array.from(setExisting);
-        window.localStorage.setItem(
-          "dashboard-cleared-notifications",
-          JSON.stringify(next)
-        );
-        window.dispatchEvent(new Event("notifications-updated"));
+        window.localStorage.setItem('dashboard-cleared-notifications', JSON.stringify(next));
+        window.dispatchEvent(new Event('notifications-updated'));
       } catch {
         // ignore
       }
@@ -174,12 +153,12 @@ function MessagesPageContent() {
       fetchMessages();
     };
 
-    window.addEventListener("message-sent", handleMessageUpdate);
-    window.addEventListener("messages-updated", handleMessageUpdate);
+    window.addEventListener('message-sent', handleMessageUpdate);
+    window.addEventListener('messages-updated', handleMessageUpdate);
 
     return () => {
-      window.removeEventListener("message-sent", handleMessageUpdate);
-      window.removeEventListener("messages-updated", handleMessageUpdate);
+      window.removeEventListener('message-sent', handleMessageUpdate);
+      window.removeEventListener('messages-updated', handleMessageUpdate);
     };
   }, []);
 
@@ -197,188 +176,78 @@ function MessagesPageContent() {
   }, []);
 
   // Enhanced real-time updates when chat is open
-  // useEffect(() => {
-  //   if (!detailId) return;
-
-  //   // Store the current conversation length to detect new messages
-  //   let previousMessageCount = 0;
-  //   const activeMessage = messages.find((m) => m.senderId === detailId);
-  //   if (activeMessage && activeMessage.thread) {
-  //     previousMessageCount = activeMessage.thread.length;
-  //   }
-
-  //   // Poll more frequently when a chat is open for real-time conversation updates
-  //   const chatInterval = setInterval(async () => {
-  //     await fetchMessages();
-
-  //     // Force chat update to refresh the conversation thread
-  //     setChatUpdateTrigger((prev) => prev + 1);
-
-  //     // Check if the active conversation has new messages
-  //     const updatedMessage = messages.find((m) => m.senderId === detailId);
-  //     if (updatedMessage && updatedMessage.thread) {
-  //       const currentMessageCount = updatedMessage.thread.length;
-
-  //       // If new messages were added, trigger UI updates
-  //       if (currentMessageCount > previousMessageCount) {
-  //         previousMessageCount = currentMessageCount;
-
-  //         // Force re-render by updating the state
-  //         setMessages((prev) =>
-  //           prev.map((m) => (m.senderId === detailId ? updatedMessage : m))
-  //         );
-
-  //         // Auto-scroll to bottom to show new messages only when user is near bottom
-  //         if (isNearBottom) {
-  //           setTimeout(() => {
-  //             const container = conversationRef.current;
-  //             if (container) {
-  //               container.scrollTo({
-  //                 top: container.scrollHeight,
-  //                 behavior: "smooth",
-  //               });
-  //             }
-  //           }, 200);
-  //         }
-  //       }
-  //     }
-  //   }, 1500); // Poll every 1.5 seconds when chat is open
-
-  //   return () => {
-  //     clearInterval(chatInterval);
-  //   };
-  // }, [detailId, chatUpdateTrigger, messages, isNearBottom]);
-
-  // // Also fetch when page becomes visible again (user returns to tab)
-  // useEffect(() => {
-  //   const handleVisibilityChange = () => {
-  //     if (!document.hidden) {
-  //       fetchMessages();
-  //     }
-  //   };
-
-  //   document.addEventListener("visibilitychange", handleVisibilityChange);
-
-  //   return () => {
-  //     document.removeEventListener("visibilitychange", handleVisibilityChange);
-  //   };
-  // }, []);
-  // ooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
   useEffect(() => {
     if (!detailId) return;
 
+    // Store the current conversation length to detect new messages
     let previousMessageCount = 0;
-    const activeMessage = messages.find((m) => m.senderId === detailId);
+    const activeMessage = messages.find(m => m.senderId === detailId);
     if (activeMessage && activeMessage.thread) {
       previousMessageCount = activeMessage.thread.length;
     }
 
+    // Poll more frequently when a chat is open for real-time conversation updates
     const chatInterval = setInterval(async () => {
-      // 1. Always fetch the data in the background
       await fetchMessages();
 
-      // 2. ⬇️ CRITICAL CHECK:
-      // If we sent a message in the last 4 seconds, skip the state-update trigger.
-      // This prevents the background fetch from overwriting your local "instant" message.
-      const timeSinceLastSend = Date.now() - lastSentTimeRef.current;
-      if (timeSinceLastSend < 4000) {
-        return;
-      }
+      // Force chat update to refresh the conversation thread
+      setChatUpdateTrigger(prev => prev + 1);
 
-      setChatUpdateTrigger((prev) => prev + 1);
-
-      const updatedMessage = messages.find((m) => m.senderId === detailId);
+      // Check if the active conversation has new messages
+      const updatedMessage = messages.find(m => m.senderId === detailId);
       if (updatedMessage && updatedMessage.thread) {
         const currentMessageCount = updatedMessage.thread.length;
 
+        // If new messages were added, trigger UI updates
         if (currentMessageCount > previousMessageCount) {
           previousMessageCount = currentMessageCount;
 
-          setMessages((prev) =>
-            prev.map((m) => (m.senderId === detailId ? updatedMessage : m))
-          );
+          // Force re-render by updating the state
+          setMessages(prev => prev.map(m =>
+            m.senderId === detailId ? updatedMessage : m
+          ));
 
+          // Auto-scroll to bottom to show new messages only when user is near bottom
           if (isNearBottom) {
             setTimeout(() => {
               const container = conversationRef.current;
               if (container) {
-                container.scrollTo({
-                  top: container.scrollHeight,
-                  behavior: "smooth",
-                });
+                container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
               }
             }, 200);
           }
         }
       }
-    }, 1500);
+    }, 1500); // Poll every 1.5 seconds when chat is open
 
     return () => {
       clearInterval(chatInterval);
     };
-  }, [detailId, messages, isNearBottom]); // Removed chatUpdateTrigger to prevent loop, added messages
-  // useEffect(() => {
-  //   if (!detailId) return;
+  }, [detailId, chatUpdateTrigger, messages, isNearBottom]);
 
-  //   // Store message count in a ref to avoid re-triggering the effect
-  //   let previousMessageCount = 0;
+  // Also fetch when page becomes visible again (user returns to tab)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchMessages();
+      }
+    };
 
-  //   const chatInterval = setInterval(async () => {
-  //     // 1. Fetch data from API
-  //     await fetchMessages();
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
-  //     // 2. Prevent background fetch from overwriting "instant" messages
-  //     const timeSinceLastSend = Date.now() - lastSentTimeRef.current;
-  //     if (timeSinceLastSend < 4000) {
-  //       return;
-  //     }
-
-  //     setChatUpdateTrigger((prev) => prev + 1);
-
-  //     // 3. Use functional update to check against current messages without depending on them
-  //     setMessages((currentMessages) => {
-  //       const updatedMessage = currentMessages.find(
-  //         (m) => m.senderId === detailId
-  //       );
-
-  //       if (updatedMessage && updatedMessage.thread) {
-  //         const currentCount = updatedMessage.thread.length;
-
-  //         // Only trigger scroll if a new message actually arrived
-  //         if (currentCount > previousMessageCount) {
-  //           previousMessageCount = currentCount;
-
-  //           if (isNearBottom) {
-  //             setTimeout(() => {
-  //               const container = conversationRef.current;
-  //               if (container) {
-  //                 container.scrollTo({
-  //                   top: container.scrollHeight,
-  //                   behavior: "smooth",
-  //                 });
-  //               }
-  //             }, 200);
-  //           }
-  //         }
-  //       }
-  //       // Return the current state as is (fetchMessages already updated the outer state)
-  //       return currentMessages;
-  //     });
-  //   }, 1500);
-
-  //   return () => {
-  //     clearInterval(chatInterval);
-  //   };
-  // }, [detailId, isNearBottom]); // Removed 'messages' from here
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   const fetchMessages = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("/api/message/receive", {
-        method: "GET",
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/message/receive', {
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
       });
       if (response.ok) {
@@ -386,17 +255,7 @@ function MessagesPageContent() {
         const inboxMessages = data.messages || [];
         const sentMessages = data.sentMessages || [];
 
-        const sendersMap: Record<
-          string,
-          {
-            id: string;
-            fullName?: string;
-            email?: string;
-            title?: string;
-            company?: string;
-            profileImage?: string;
-          }
-        > = {};
+        const sendersMap: Record<string, { id: string; fullName?: string; email?: string; title?: string; company?: string; profileImage?: string }> = {};
         (data.senders || []).forEach((s: any) => {
           sendersMap[s.id] = s;
         });
@@ -418,9 +277,7 @@ function MessagesPageContent() {
 
         let readPointers: Record<string, string> = {};
         try {
-          const stored = localStorage.getItem(
-            "dashboard-message-read-pointers"
-          );
+          const stored = localStorage.getItem('dashboard-message-read-pointers');
           if (stored) readPointers = JSON.parse(stored);
         } catch {
           readPointers = {};
@@ -440,19 +297,17 @@ function MessagesPageContent() {
           const combined = [
             ...inboxForParty.map((m: any) => ({
               id: m.id,
-              text: m.text || m.message || "",
+              text: m.text || m.message || '',
               date: m.createdAt || m.date || new Date().toISOString(),
-              direction: "in" as const,
+              direction: 'in' as const,
             })),
             ...sentForParty.map((m: any) => ({
               id: m.id,
-              text: m.text || m.message || "",
+              text: m.text || m.message || '',
               date: m.createdAt || m.date || new Date().toISOString(),
-              direction: "out" as const,
+              direction: 'out' as const,
             })),
-          ].sort(
-            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-          );
+          ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
           const latest = combined[combined.length - 1] || null;
 
@@ -460,29 +315,23 @@ function MessagesPageContent() {
             const hasOutgoing = sentForParty.length > 0;
 
             const readPointer = readPointers[partyId];
-            const lastReadAt = readPointer
-              ? new Date(readPointer).getTime()
-              : 0;
+            const lastReadAt = readPointer ? new Date(readPointer).getTime() : 0;
 
-            const incomingCount = combined.filter(
-              (item) =>
-                item.direction === "in" &&
-                new Date(item.date).getTime() > lastReadAt
-            ).length;
+            const incomingCount = combined
+              .filter(item => item.direction === 'in' && new Date(item.date).getTime() > lastReadAt)
+              .length;
 
-            let conversationStatus: MessageStatus = hasOutgoing
-              ? "Replied"
-              : "New";
+            let conversationStatus: MessageStatus = hasOutgoing ? 'Replied' : 'New';
             let conversationRead = incomingCount === 0;
 
             const replies = combined
-              .filter((item) => item.direction === "out")
-              .map((item) => ({ text: item.text, date: item.date }));
+              .filter(item => item.direction === 'out')
+              .map(item => ({ text: item.text, date: item.date }));
 
             groupedBySender.set(partyId, {
               id: latest.id,
-              name: sender.fullName || "Unknown User",
-              email: sender.email || "",
+              name: sender.fullName || 'Unknown User',
+              email: sender.email || '',
               title: sender.title,
               company: sender.company,
               profileImage: sender.profileImage,
@@ -502,18 +351,14 @@ function MessagesPageContent() {
         setMessages(Array.from(groupedBySender.values()));
       }
     } catch (err) {
-      console.error("Error fetching messages:", err);
+      console.error('Error fetching messages:', err);
     }
   };
 
   const formatDate = (date: string) => {
     const d = new Date(date);
     return new Intl.DateTimeFormat(undefined, {
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
+      month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true,
     }).format(d);
   };
 
@@ -521,7 +366,7 @@ function MessagesPageContent() {
     if (!detailId) return;
     const container = conversationRef.current;
     if (!container) return;
-    container.scrollTo({ top: container.scrollHeight, behavior: "auto" });
+    container.scrollTo({ top: container.scrollHeight, behavior: 'auto' });
     setIsNearBottom(true);
   }, [detailId]);
 
@@ -529,26 +374,16 @@ function MessagesPageContent() {
     let filtered = messages;
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (m) =>
-          m.name.toLowerCase().includes(q) ||
-          m.email.toLowerCase().includes(q) ||
-          m.message.toLowerCase().includes(q)
+      filtered = filtered.filter(m =>
+        m.name.toLowerCase().includes(q) || m.email.toLowerCase().includes(q) || m.message.toLowerCase().includes(q)
       );
     }
     switch (activeFilter) {
-      case "Unread":
-        filtered = filtered.filter(
-          (m) => !m.read && m.status !== "Archived" && m.status !== "Deleted"
-        );
-        break;
-      case "Replied":
-        filtered = filtered.filter((m) => m.status === "Replied");
-        break;
-      default:
-        filtered = filtered.filter(
-          (m) => m.status !== "Archived" && m.status !== "Deleted"
-        );
+      case "Connections": filtered = filtered.filter(m => !m.read && m.status !== "Archived" && m.status !== "Deleted"); break;
+      case "Requests": filtered = filtered.filter(m => m.status === "Replied"); break;
+      case "Messages": filtered = filtered.filter(m => m.status === "Replied"); break;
+      case "Leads": filtered = filtered.filter(m => m.status === "Replied"); break;
+      default: filtered = filtered.filter(m => m.status !== "Archived" && m.status !== "Deleted");
     }
 
     return filtered.sort((a, b) => {
@@ -559,43 +394,30 @@ function MessagesPageContent() {
   }, [messages, activeFilter, searchQuery, sortOrder]);
 
   const openDetail = (senderId: string) => {
-    const msg = messages.find((m) => m.senderId === senderId);
+    const msg = messages.find(m => m.senderId === senderId);
 
     if (msg) {
-      const latestDate =
-        msg.thread && msg.thread.length > 0
-          ? msg.thread[msg.thread.length - 1].date
-          : msg.date;
+      const latestDate = msg.thread && msg.thread.length > 0
+        ? msg.thread[msg.thread.length - 1].date
+        : msg.date;
       try {
-        const stored = localStorage.getItem("dashboard-message-read-pointers");
-        const map = stored
-          ? (JSON.parse(stored) as Record<string, string>)
-          : {};
+        const stored = localStorage.getItem('dashboard-message-read-pointers');
+        const map = stored ? (JSON.parse(stored) as Record<string, string>) : {};
         map[msg.senderId] = latestDate;
-        localStorage.setItem(
-          "dashboard-message-read-pointers",
-          JSON.stringify(map)
-        );
+        localStorage.setItem('dashboard-message-read-pointers', JSON.stringify(map));
       } catch {
         // ignore storage errors
       }
     }
 
-    setMessages((prev) =>
-      prev.map((m) =>
-        m.senderId === senderId
-          ? {
-            ...m,
-            read: true,
-            incomingCount: 0,
-            status: m.status === "New" ? "Read" : m.status,
-          }
-          : m
-      )
-    );
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new Event("messages-updated"));
-      window.dispatchEvent(new Event("message-read"));
+    setMessages(prev => prev.map(m =>
+      m.senderId === senderId
+        ? { ...m, read: true, incomingCount: 0, status: m.status === "New" ? "Read" : m.status }
+        : m
+    ));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('messages-updated'));
+      window.dispatchEvent(new Event('message-read'));
     }
     const url = buildMessagesUrl(senderId);
     router.push(url, { scroll: false });
@@ -606,21 +428,19 @@ function MessagesPageContent() {
   const closeDetail = () => {
     setDetailId(null);
     setReplyId(null);
-    if (typeof window !== "undefined" && chatFromUrl) {
+    if (typeof window !== 'undefined' && chatFromUrl) {
       const url = buildMessagesUrl(null);
       router.replace(url, { scroll: false });
     }
   };
 
   const deleteMessage = (senderId: string) => {
-    const messageToDelete = messages.find((m) => m.senderId === senderId);
+    const messageToDelete = messages.find(m => m.senderId === senderId);
 
     if (!messageToDelete) return;
 
     // Remove from UI immediately
-    setMessages((prev) =>
-      prev.filter((m) => m.senderId !== messageToDelete.senderId)
-    );
+    setMessages(prev => prev.filter(m => m.senderId !== messageToDelete.senderId));
 
     // Close detail view if this conversation was open
     if (detailId === senderId) {
@@ -630,24 +450,24 @@ function MessagesPageContent() {
     // Delete entire conversation from database
     const sendDeleteRequest = async () => {
       try {
-        const response = await fetch("/api/message/delete", {
-          method: "DELETE",
+        const response = await fetch('/api/message/delete', {
+          method: 'DELETE',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
-          credentials: "include",
+          credentials: 'include',
           body: JSON.stringify({
-            userId: messageToDelete.senderId,
-          }),
+            userId: messageToDelete.senderId
+          })
         });
 
         if (!response.ok) {
-          console.error("Failed to delete conversation");
+          console.error('Failed to delete conversation');
           // If API fails, refresh messages to get current state
           fetchMessages();
         }
       } catch (error) {
-        console.error("Error deleting conversation:", error);
+        console.error('Error deleting conversation:', error);
         // If API fails, refresh messages to get current state
         fetchMessages();
       }
@@ -656,137 +476,47 @@ function MessagesPageContent() {
     sendDeleteRequest();
   };
 
-  // const sendReply = async () => {
-  //   if (!replyId || !replyText.trim()) return;
-  //   const originalMessage = messages.find((m) => m.senderId === replyId);
-
-  //   if (!originalMessage) return;
-
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     const response = await fetch("/api/message/send", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //       body: JSON.stringify({
-  //         message: replyText.trim(),
-  //         receiverId: originalMessage.senderId,
-  //         status: "REPLIED",
-  //         tag: originalMessage.tag?.toUpperCase() || "SUPPORT",
-  //         read: false,
-  //       }),
-  //     });
-
-  //     if (response.ok) {
-  //       setMessages((prev) =>
-  //         prev.map((m) =>
-  //           m.senderId === replyId
-  //             ? {
-  //                 ...m,
-  //                 status: "Replied",
-  //                 read: true,
-  //                 thread: [
-  //                   ...(m.thread || []),
-  //                   {
-  //                     text: replyText,
-  //                     date: new Date().toISOString(),
-  //                     direction: "out",
-  //                   },
-  //                 ],
-  //               }
-  //             : m
-  //         )
-  //       );
-  //       setReplyText("");
-
-  //       // Ensure the newly sent message is visible above the composer
-  //       setTimeout(() => {
-  //         const container = conversationRef.current;
-  //         if (container) {
-  //           try {
-  //             container.scrollTo({
-  //               top: container.scrollHeight,
-  //               behavior: "smooth",
-  //             });
-  //             setIsNearBottom(true);
-  //           } catch (e) {
-  //             container.scrollTop = container.scrollHeight;
-  //           }
-  //         }
-  //       }, 80);
-  //     } else {
-  //       alert("Failed to send reply.");
-  //     }
-  //   } catch (err) {
-  //     alert("Error sending reply.");
-  //   }
-  // };
   const sendReply = async () => {
     if (!replyId || !replyText.trim()) return;
-    const originalMessage = messages.find((m) => m.senderId === replyId);
+    const originalMessage = messages.find(m => m.senderId === replyId);
 
     if (!originalMessage) return;
 
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("/api/message/send", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/message/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({
           message: replyText.trim(),
           receiverId: originalMessage.senderId,
-          status: "REPLIED",
-          tag: originalMessage.tag?.toUpperCase() || "SUPPORT",
+          status: 'REPLIED',
+          tag: originalMessage.tag?.toUpperCase() || 'SUPPORT',
           read: false,
         }),
       });
 
       if (response.ok) {
-        // ⬇️ UPDATE: Set the timestamp immediately on success
-        lastSentTimeRef.current = Date.now();
-
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.senderId === replyId
-              ? {
-                ...m,
-                status: "Replied",
-                read: true,
-                thread: [
-                  ...(m.thread || []),
-                  {
-                    text: replyText,
-                    date: new Date().toISOString(),
-                    direction: "out",
-                  },
-                ],
-              }
-              : m
-          )
-        );
+        setMessages(prev => prev.map(m => m.senderId === replyId ? {
+          ...m, status: "Replied", read: true,
+          thread: [...(m.thread || []), { text: replyText, date: new Date().toISOString(), direction: 'out' }]
+        } : m));
         setReplyText("");
 
+        // Ensure the newly sent message is visible above the composer
         setTimeout(() => {
           const container = conversationRef.current;
           if (container) {
-            container.scrollTo({
-              top: container.scrollHeight,
-              behavior: "smooth",
-            });
-            setIsNearBottom(true);
+            try {
+              container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+              setIsNearBottom(true);
+            } catch (e) {
+              container.scrollTop = container.scrollHeight;
+            }
           }
         }, 80);
-      } else {
-        alert("Failed to send reply.");
-      }
-    } catch (err) {
-      alert("Error sending reply.");
-    }
+      } else { alert('Failed to send reply.'); }
+    } catch (err) { alert('Error sending reply.'); }
   };
 
   const getInitials = (name: string, email?: string) => {
@@ -821,92 +551,126 @@ function MessagesPageContent() {
     successText: "#059669",
     hoverBg: "#F1F5F9",
   };
-
   const styles = {
     container: {
-      minHeight: "100vh",
-      backgroundColor: colors.bg,
-      fontFamily:
-        '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+      height: "100vh",
+      padding: "2px",
+      backgroundColor: "#ffffff",
+      BorderStyle: "1px solid #E2E8F0",
+      marginTop: "5px",
+      borderRadius: "30px",
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
       color: colors.textMain,
     },
+
+    pageWrapper: {
+      display: "flex",
+      flexDirection: "column" as const,
+      minHeight: "100vh",
+      backgroundColor: "#f0f2f5",
+      padding: " 10px",
+      boxSizing: "border-box",
+      gap: " 15px",
+      paddingBottom: "110px",
+      background: "linear-gradient(135deg, white 0%, #4A90E2 100%)",
+      borderRadius: " 16px",
+      //padding: "20px",
+      position: "relative",
+    },
+
+    container1: {
+      backgroundColor: "transparent",
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+      color: colors.textMain,
+    },
+
     mainCard: {
-      backgroundColor: colors.cardBg,
+      //backgroundColor: colors.cardBg,
       maxWidth: "1200px",
-      height: isMobile ? "100vh" : "calc(100vh - 40px)",
+      height: "auto",
       margin: isMobile ? "0" : "20px auto",
       borderRadius: isMobile ? "0" : "16px",
       boxShadow: isMobile ? "none" : "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
       display: "flex",
       flexDirection: "column" as const,
-      position: "relative" as const,
       overflow: "hidden",
       border: isMobile ? "none" : `1px solid ${colors.border}`,
+      position: "relative" as const,
     },
     header: {
-      padding: "10px 10px", // remove extra top space so search sits closer to header
-      borderBottom: `1px solid ${colors.border}`,
-      backgroundColor: "rgba(255, 255, 255, 0.85)",
       backdropFilter: "blur(8px)",
       zIndex: 10,
+      display: "flex",
+      flexDirection: "column",
     },
+
     searchContainer: {
       position: "relative" as const,
       maxWidth: "100%",
+      display: "flex"
     },
     searchInput: {
-      width: "100%",
-      padding: "12px 16px 12px 40px",
-      borderRadius: "12px",
-      border: `1px solid ${colors.border}`,
-      backgroundColor: "#F1F5F9",
+      width: "329px",
+      padding: "12px 16px 10px 40px",
+      borderRadius: "15px",
+      border: `2px solid #4a90e2`,
+      backgroundColor: "#FFFFFF",
       fontSize: "14px",
       color: colors.textMain,
       outline: "none",
       transition: "all 0.2s ease",
+      maxWidth: isMobile ? "100%" : "329px"
+
     },
     tabsContainer: {
       display: "flex",
       alignItems: "center",
-      gap: "8px",
-      // backgroundColor: "#F1F5F9",
+      gap: "15px",
       flexWrap: "nowrap" as const,
       marginTop: "12px",
       width: "100%",
     },
     tabsList: {
-      display: "flex",
-      alignItems: "center",
-      textAlign: "center" as const,
-      gap: "8px",
+      // display: "flex",
+      gap: "15px",
       overflowX: "hidden" as const,
       paddingBottom: "4px",
-      // flex: "1 1 0%",
+      marginLeft: "5px",
+      flex: "1 1 0%",
       minWidth: 0,
-      // maxWidth: "calc(100% - 110px)", // reserve space for the select so it stays on one line
+      maxWidth: "calc(100% - 110px)", // reserve space for the select so it stays on one line
     },
+
+    filter: {
+      height: "45px",
+      padding: "0 12px",
+      borderRadius: "10px",
+      border: "1px solid #4A90E2",
+      backgroundColor: "#FFFFFF",
+      fontWeight: 500,
+      cursor: "pointer",
+      marginLeft: "10px",
+      whiteSpace: "nowrap" as const,
+      width: "87px",
+    },
+
     tabButton: (isActive: boolean) => ({
       padding: "6px 10px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      textAlign: "center" as const,
-      borderRadius: "9999px",
+      //borderRadius: "8px",
       fontSize: "12px",
-      fontWeight: 600,
-      border: isActive ? "none" : `1px solid ${colors.border}`,
-      backgroundColor: isActive ? "#1E293B" : "transparent",
-      color: isActive ? "#FFFFFF" : colors.textSec,
+      fontWeight: 500,
+      //border: isActive ? "none" : `1px solid ${colors.border}`,
+      //backgroundColor: isActive ? "#1E293B" : "transparent",
+      textDecoration: isActive ? "underline" : "none",
+      underlineColor: isActive ? "#2563EB" : "transparent",
+      color: "#646464",
+      //textDecoration: "underline",
       cursor: "pointer",
       whiteSpace: "nowrap" as const,
       transition: "all 0.15s",
     }),
     sortSelect: {
-      padding: "6px 10px",
-      textAlign: "center" as const,
-      // display: 'flex',
-      // alignItems: 'center',
-      // justifyContent: 'center',
+      padding: "4px 8px",
       fontSize: "11px",
       fontWeight: 600,
       color: colors.textSec,
@@ -917,51 +681,53 @@ function MessagesPageContent() {
       flexShrink: 0,
       marginLeft: "8px",
       borderRadius: "10px",
+      height: "32px",
     },
     sortSelectMobile: {
-      padding: "2px 6px",
-      fontSize: "10px",
-      // lineHeight: 1.1,
-      // height: "24px",
-      fontWeight: 600,
+      //padding: "2px 8px",
+      fontSize: "14px",
+      //lineHeight: 1.1,
+      height: "45px",
+      fontWeight: 500,
       color: colors.textSec,
-      border: `1px solid ${colors.border}`,
-      backgroundColor: "#FFFFFF",
-      borderRadius: "10px",
+      border: `1px solid #4A90E2}`,
+      //backgroundColor: "#FFFFFF",
+      borderRadius: "5px",
       outline: "none",
-      width: "auto",
-      WebkitAppearance: "none" as const,
-      appearance: "none" as const,
+      //width: "auto",
+      //maxWidth: "100px",
+      //WebkitAppearance: "none" as const,
+      //appearance: "none" as const,
+      AlignCenter: "center",
+      //marginLeft: "6px"
     },
     listContainer: {
-      // flex: 1,
+      flex: 1,
       overflowY: "auto" as const,
-      backgroundColor: "#FFFFFF",
-      display: "flex",
-      flexDirection: "column" as const,
-      gap: "5px",
-      padding: "5px 10px",
+      //backgroundColor: "#FAFAFA",
     },
     messageRow: (messageId: string, isRead: boolean) => ({
-      padding: isMobile ? "12px" : "12px 18px", // tighter row padding
-      borderBottom: `1px solid ${colors.border}`,
+      padding: isMobile ? "8px" : "12px 18px", // tighter row padding
+      //borderRadius: "15px 15px 0px 0px",
+      margin: "10px",
+      borderRadius: "10px",
+      border: `2px solid #4A90E2`,
       cursor: "pointer",
-      backgroundColor:
-        hoveredId === messageId ? "#D6CCFF" : isRead ? "#F5F3FF" : "#F5F3FF",
+      //backgroundColor: hoveredId === messageId ? "#F8FAFC" : (isRead ? "#FFFFFF" : "#E0E7FF"),
+      backgroundColor: hoveredId === messageId ? "#E7F8FF" : (isRead ? "#FFFFFF" : "#E0E7FF"),
+      boxShadow: "0px 3px 5px #4A90E0",
       transition: "background-color 0.2s",
       display: "flex",
-      borderRadius: "10px",
       alignItems: "flex-start",
       gap: "16px",
       position: "relative" as const,
+      marginBottom: "15px"
     }),
     avatar: (name: string, profileImage?: string) => ({
       width: "48px",
       height: "48px",
       borderRadius: "50%",
-      background: profileImage
-        ? `url(${profileImage})`
-        : colors.primaryGradient,
+      background: profileImage ? `url(${profileImage})` : colors.primaryGradient,
       backgroundSize: "cover",
       backgroundPosition: "center",
       color: profileImage ? "#FFF" : "#FFF",
@@ -991,14 +757,10 @@ function MessagesPageContent() {
     },
     detailOverlay: {
       position: "fixed" as const,
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
+      top: 0, left: 0, right: 0, bottom: 0,
       backgroundColor: "rgba(15, 23, 42, 0.2)",
       backdropFilter: "blur(4px)",
       zIndex: 50,
-      // padding: '10px 10px 10px 10px',
       display: "flex",
       justifyContent: isMobile ? "center" : "flex-end",
     },
@@ -1012,97 +774,59 @@ function MessagesPageContent() {
       flexDirection: "column" as const,
       animation: "slideIn 0.3s ease-out",
     },
-    // chatHeader: {
-    //   padding: "5px 20px",
-    //   display: "flex",
-    //   alignItems: "center",
-    //   justifyContent: "space-between",
-    //   borderBottom: `1px solid ${colors.border}`,
-    //   backgroundColor: "rgba(255,255,255, 0.85)",
-    //   backdropFilter: "blur(16px)",
-    // },
     chatHeader: {
-      padding: "10px 16px",
+      height: "70px",
+      padding: "0 20px",
       display: "flex",
-      alignItems: "flex-start", // ⬅️ IMPORTANT
+      alignItems: "center",
+      justifyContent: "space-between",
       borderBottom: `1px solid ${colors.border}`,
-      backgroundColor: "rgba(255,255,255,0.85)",
-      backdropFilter: "blur(16px)",
+      backgroundColor: "rgba(255,255,255,0.9)",
+      backdropFilter: "blur(10px)",
     },
     chatBody: {
       flex: 1,
       overflowY: "auto" as const,
-      scrollbarWidth: "none" as const /* Firefox */,
-      msOverflowStyle: "none" as const,
-      // "&::-webkit-scrollbar": { display: "none" },
-      padding: "10px", // reduced inner chat padding
-      backgroundColor: "#ffffff",
+      padding: "16px", // reduced inner chat padding
+      backgroundColor: "#F8FAFC",
       display: "flex",
       flexDirection: "column" as const,
-      gap: "10px",
+      gap: "20px",
     },
-    // bubbleIn: {
-    //   backgroundColor: "#FFFFFF",
-    //   border: `1px solid ${colors.border}`,
-    //   color: colors.textMain,
-    //   padding: "8px 12px",
-    //   borderRadius: "18px 18px 18px 4px",
-    //   fontSize: "15px",
-    //   lineHeight: "1.6",
-    //   boxShadow: "0 2px 4px rgba(0,0,0,0.04)",
-    //   maxWidth: "80%",
-    //   wordBreak: "break-word" as const,
-    //   overflowWrap: "break-word" as const,
-    // },
     bubbleIn: {
       backgroundColor: "#FFFFFF",
       border: `1px solid ${colors.border}`,
       color: colors.textMain,
-      padding: "10px 14px 8px 14px", // ⬅️ more vertical space
+      padding: "14px 18px",
       borderRadius: "18px 18px 18px 4px",
-      fontSize: "16px", // ⬅️ message slightly bigger
-      // lineHeight: "1.6",
+      fontSize: "14px",
+      lineHeight: "1.6",
       boxShadow: "0 2px 4px rgba(0,0,0,0.04)",
       maxWidth: "80%",
       wordBreak: "break-word" as const,
       overflowWrap: "break-word" as const,
     },
-
-    // bubbleOut: {
-    //   background: colors.primaryGradient,
-    //   color: "#FFFFFF",
-    //   padding: "6px 14px",
-    //   borderRadius: "18px 18px 4px 18px",
-    //   fontSize: "15px",
-    //   // textAlign: 'center',
-    //   lineHeight: "1.6",
-    //   boxShadow: "0 4px 12px rgba(99, 102, 241, 0.3)",
-    //   maxWidth: "80%",
-    //   wordBreak: "break-word" as const,
-    //   overflowWrap: "break-word" as const,
-    // },
     bubbleOut: {
       background: colors.primaryGradient,
       color: "#FFFFFF",
-      padding: "10px 16px 8px 16px", // ⬅️ more vertical space
+      padding: "14px 18px",
       borderRadius: "18px 18px 4px 18px",
-      fontSize: "16px", // ⬅️ message slightly bigger
+      fontSize: "14px",
       lineHeight: "1.6",
       boxShadow: "0 4px 12px rgba(99, 102, 241, 0.3)",
       maxWidth: "80%",
       wordBreak: "break-word" as const,
       overflowWrap: "break-word" as const,
     },
-
     composer: {
       padding: isMobile ? "8px 8px" : "12px 16px", // reduced composer padding
       borderTop: `1px solid ${colors.border}`,
-      backgroundColor: "#ffffff",
+      backgroundColor: "#FFFFFF",
       width: "100%",
       boxSizing: "border-box" as const,
     },
     composerInputContainer: {
-      backgroundColor: "#D6CCFF",
+      backgroundColor: "#F8FAFC",
       border: `1px solid ${colors.border}`,
       borderRadius: "16px",
       padding: isMobile ? "4px 8px 4px 10px" : "4px 10px 4px 12px",
@@ -1115,9 +839,8 @@ function MessagesPageContent() {
       width: "100%",
       backgroundColor: "transparent",
       border: "none",
-      padding: "8px 12px",
-      fontSize: "12px",
-      fontWeight: 600,
+      padding: "12px 16px",
+      fontSize: "14px",
       outline: "none",
       resize: "none" as const,
       minHeight: "50px",
@@ -1145,212 +868,168 @@ function MessagesPageContent() {
 
   // Inject minimal global styles for animation/scrollbar
   const globalStyles = `
-  @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-  .no-scrollbar::-webkit-scrollbar { display: none; }
-  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  
-  /* Add this specific one for your chat body */
-  .chat-body-scroll::-webkit-scrollbar { display: none; }
-`;
+    @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  `;
 
-  const activeMessage = detailId
-    ? messages.find((m) => m.senderId === detailId)
-    : null;
+  const activeMessage = detailId ? messages.find(m => m.senderId === detailId) : null;
 
   return (
-    <div style={styles.container}>
-      <style>{globalStyles}</style>
-
-      <div style={styles.mainCard}>
-        {/* --- Header --- */}
+    <>
+      <div style={styles.pageWrapper}>
         <div style={styles.header}>
-          <div style={styles.searchContainer}>
-            <Search
-              style={{
-                position: "absolute",
-                left: "12px",
-                top: "50%",
-                transform: "translateY(-50%)",
-                color: colors.textLight,
-                width: "18px",
-                height: "18px",
-              }}
-            />
-            <input
-              type="text"
-              placeholder="Search messages..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={styles.searchInput}
-            />
-          </div>
 
-          <div style={styles.tabsContainer}>
-            <div className="no-scrollbar" style={styles.tabsList}>
-              {(["All", "Unread", "Replied"] as const).map((f) => (
-                <button
-                  key={f}
-                  onClick={() => setActiveFilter(f)}
-                  style={styles.tabButton(activeFilter === f)}
-                >
-                  {f}
-                </button>
-              ))}
+        </div>
+        <div style={styles.container1}>
+          <style>{globalStyles}</style>
 
-              {!isMobile && (
-                <select
-                  value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value as any)}
-                  style={styles.sortSelect}
-                >
-                  <option value="newest">Newest First</option>
-                  <option value="oldest">Oldest First</option>
-                </select>
-              )}
-            </div>
-            {isMobile && (
-              <div style={styles.tabsList}>
-                <select
-                  value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value as any)}
-                  style={styles.sortSelectMobile}
-                >
-                  <option value="newest">Newest First</option>
-                  <option value="oldest">Oldest First</option>
-                </select>
+          <div style={styles.mainCard}>
+            {/* --- Header --- */}
+            <div style={styles.header}>
+              <div style={styles.searchContainer}>
+                <Search style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: colors.textLight, width: "18px", height: "18px" }} />
+                <input
+                  type="text"
+                  placeholder="Search messages..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  style={styles.searchInput}
+                />
+                {!isMobile && (
+                  <select
+                    value={sortOrder}
+                    onChange={e => setSortOrder(e.target.value as any)}
+                    style={styles.sortSelect}
+                  >
+                    <option value="newest">Filter</option>
+                    <option value="oldest">Sort by A-Z</option>
+                    <option value="oldest">Sort by Z-A</option>
+                    <option value="newest">Recent</option>
+                    <option value="oldest">Oldest</option>
+
+                 </select>
+                )}
+                {isMobile && (
+                  <div style={styles.filter}>
+
+                    <select
+                      value={sortOrder}   //put the name as filter
+                      onChange={e => setSortOrder(e.target.value as any)}
+                      style={styles.sortSelectMobile}
+                    >
+                      <option value="newest">Filter</option>
+                      <option value="oldest">Sort by A-Z</option>
+                      <option value="oldest">Sort by Z-A</option>
+                      <option value="newest">Recent</option>
+                      <option value="oldest">Oldest</option>
+                      {/* <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option> */}
+                    </select>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
         </div>
-        {/* --- Message List --- */}
-        <div style={styles.listContainer}>
-          {filteredMessages.length === 0 ? (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                height: "100%",
-                opacity: 0.5,
-              }}
-            >
-              <Search
+
+        <div style={styles.container}>
+          {/* --- Message List --- */}
+          <div style={{
+            display: "flex",
+            gap: "16px",
+            alignItems: "center",
+            marginTop: "4px",   // ⬅️ reduce space (was 12px)
+            paddingLeft: "10px",
+            flexWrap: "nowrap",
+          }}>
+
+            {(["Connections", "Requests", "Messages", "Leads"] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveFilter(tab)}
                 style={{
-                  width: "40px",
-                  height: "40px",
-                  marginBottom: "16px",
-                  color: colors.textLight,
+                  padding: "6px 4px",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                  color: activeFilter === tab ? "#2563EB" : "#64748B",
+                  borderBottom: activeFilter === tab ? "3px solid #2563EB" : "3px solid transparent",
+                  transition: "all 0.2s ease",
                 }}
-              />
-              <p style={{ fontSize: "14px", color: colors.textSec }}>
-                No messages found
-              </p>
-            </div>
-          ) : (
-            // message card
-            filteredMessages.map((m) => (
-              <div
-                key={m.id}
-                onClick={() => openDetail(m.senderId)}
-                onMouseEnter={() => setHoveredId(m.id)}
-                onMouseLeave={() => setHoveredId(null)}
-                style={styles.messageRow(m.id, m.read)}
               >
-                {/* Avatar */}
-                <div
-                  style={{
-                    ...styles.avatar(m.name, m.profileImage),
-                    position: "relative",
-                    overflow: "hidden",
-                  }}
-                >
-                  {m.profileImage ? (
-                    <Image
-                      src={m.profileImage}
-                      alt={m.name}
-                      // 2. Add the fill prop
-                      fill
-                      // 3. Add sizes for better performance (optional but recommended)
-                      sizes="48px"
-                      style={{
-                        objectFit: "cover",
-                      }}
-                    />
-                  ) : (
-                    getInitials(m.name, m.email)
-                  )}
-                </div>
+                {tab}
+              </button>
+            ))}
+          </div>
 
-                {/* Content */}
-                <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={styles.listContainer}>
+            {filteredMessages.length === 0 ? (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", opacity: 0.5 }}>
+                <Search style={{ width: "40px", height: "40px", marginBottom: "16px", color: colors.textLight }} />
+                <p style={{ fontSize: "14px", color: colors.textSec }}>No messages found</p>
+              </div>
+            ) : (
+              <div>
+                {filteredMessages.map(m => (
                   <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
+                    key={m.id}
+                    onClick={() => openDetail(m.senderId)}
+                    onMouseEnter={() => setHoveredId(m.id)}
+                    onMouseLeave={() => setHoveredId(null)}
+                    style={styles.messageRow(m.id, m.read)}
                   >
-                    <h3
-                      style={{
-                        fontSize: "14px",
-                        margin: 0,
-                        fontWeight: m.read ? 600 : 700,
-                        color: m.read ? colors.textMain : "#000",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        maxWidth: isMobile ? "60%" : "70%",
-                      }}
-                    >
-                      {m.name}
-                    </h3>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontSize: "11px",
-                          color: colors.textLight,
-                          fontWeight: 500,
-                          whiteSpace: "nowrap",
-                          flexShrink: 0,
-                        }}
-                      >
-                        {formatDate(m.date)}
-                      </span>
-                      {!m.read && m.incomingCount > 0 && (
-                        <div style={styles.incomingBadge}>
-                          {m.incomingCount}
-                        </div>
+                    {/* Avatar */}
+                    <div style={styles.avatar(m.name, m.profileImage)}>
+                      {m.profileImage ? (
+                        <img
+                          src={m.profileImage}
+                          alt={m.name}
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      ) : (
+                        getInitials(m.name, m.email)
                       )}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteMessage(m.senderId);
-                        }}
-                        style={{
-                          background: "transparent",
-                          border: "none",
-                          color: colors.textLight,
-                          cursor: "pointer",
-                          padding: "4px",
-                          marginLeft: "auto",
-                          opacity: 1,
-                          transition: "opacity 0.2s",
-                        }}
-                      >
-                        <Trash2 style={{ width: "16px", height: "16px" }} />
-                      </button>
                     </div>
-                  </div>
 
-                  {/* {(m.title || m.company) && (
+                    {/* Content */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                        <h3
+                          style={{
+                            fontSize: "16px",
+                            margin: 0,
+                            fontWeight: m.read ? 600 : 700,
+                            color: m.read ? colors.textMain : "#000",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            maxWidth: isMobile ? "60%" : "70%",
+                          }}
+                        >
+                          {m.name}
+                        </h3>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span
+                            style={{
+                              fontSize: "6px",
+                              color: colors.textLight,
+                              fontWeight: 500,
+                              whiteSpace: "nowrap",
+                              flexShrink: 0,
+                            }}
+                          >
+                            {formatDate(m.date)}
+                          </span>
+                          {!m.read && m.incomingCount > 0 && (
+                            <div style={styles.incomingBadge}>{m.incomingCount}</div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* {(m.title || m.company) && (
                       <p
                         style={{
                           margin: 0,
@@ -1366,383 +1045,216 @@ function MessagesPageContent() {
                       </p>
                     )} */}
 
-                  <p
-                    className="message-text-left"
-                    style={{
-                      margin: 0,
-                      fontSize: "13px",
-                      color: m.read ? colors.textSec : colors.textMain,
-                      fontWeight: m.read ? 400 : 500,
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    {m.message}
-                  </p>
-
-                  {/* <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        marginTop: "8px",
-                        height: "20px",
-                      }}
-                    >
-                      
-                    </div> */}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-
-      {/* --- Detail View Overlay --- */}
-      {activeMessage && (
-        <div
-          style={styles.detailOverlay}
-          onClick={(e) => {
-            // Desktop: click on dimmed background closes chat
-            if (isMobile) return;
-            if (e.target === e.currentTarget) {
-              closeDetail();
-            }
-          }}
-        >
-          <div className="backdrop-blur-lg" style={styles.detailPanel}>
-            {/* Chat Header */}
-            <div style={styles.chatHeader}>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start", // ⬅️ TOP ALIGN
-                  gap: "10px",
-                }}
-              >
-                {isMobile && (
-                  <button
-                    onClick={closeDetail}
-                    style={{
-                      background: "transparent",
-                      border: "none",
-                      padding: "4px",
-                      cursor: "pointer",
-                      marginTop: "4px", // aligns with avatar top
-                    }}
-                  >
-                    <ChevronLeft style={{ color: colors.textSec }} />
-                  </button>
-                )}
-
-                {/* Avatar */}
-                <div
-                  style={{
-                    ...styles.avatar(
-                      activeMessage.name,
-                      activeMessage.profileImage
-                    ),
-                    width: "40px",
-                    height: "40px",
-                    fontSize: "12px",
-                    position: "relative", // ⬅️ Add this
-                    overflow: "hidden", // ⬅️ Add this
-                  }}
-                >
-                  {activeMessage.profileImage ? (
-                    <Image
-                      src={activeMessage.profileImage}
-                      alt={activeMessage.name}
-                      fill // ⬅️ Add this
-                      sizes="40px" // ⬅️ Add this
-                      style={{
-                        objectFit: "cover",
-                      }}
-                    />
-                  ) : (
-                    getInitials(activeMessage.name, activeMessage.email)
-                  )}
-                </div>
-                {/* Name + Title */}
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "flex-start",
-                    justifyContent: "flex-start",
-                    textAlign: "left",
-                    flex: 1,
-                    minWidth: 0,
-                  }}
-                >
-                  <h2
-                    style={{
-                      margin: 0,
-                      padding: 0,
-                      fontSize: "16px",
-                      fontWeight: 700,
-                      color: colors.textMain,
-                      lineHeight: "1.2",
-                    }}
-                  >
-                    {activeMessage.name}
-                  </h2>
-
-                  {(activeMessage.title || activeMessage.company) && (
-                    <p
-                      style={{
-                        margin: "2px 0 0 0",
-                        padding: 0,
-                        fontSize: "12px",
-                        color: colors.textSec,
-                        lineHeight: "1.4",
-                        width: isMobile ? "90%" : "100%",
-                        whiteSpace: isMobile ? "nowrap" : "normal",
-                        overflow: isMobile ? "hidden" : "visible",
-                        textOverflow: isMobile ? "ellipsis" : "clip",
-                      }}
-                    >
-                      {[activeMessage.title, activeMessage.company]
-                        .filter(Boolean)
-                        .join(" • ")}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Conversation */}
-            <div
-              className="chat-body-scroll no-scrollbar"
-              ref={conversationRef}
-              style={styles.chatBody}
-              onScroll={handleConversationScroll}
-            >
-              {(() => {
-                const threadItems =
-                  activeMessage.thread && activeMessage.thread.length > 0
-                    ? activeMessage.thread
-                    : [
-                      {
-                        text: activeMessage.message,
-                        date: activeMessage.date,
-                        direction: "in" as const,
-                      },
-                    ];
-
-                let lastDateKey: string | null = null;
-
-                return threadItems.map((item, idx) => {
-                  const isIncoming = item.direction === "in";
-                  const itemDate = new Date(item.date);
-                  const dateKey = itemDate.toDateString();
-                  const showDateHeader = dateKey !== lastDateKey;
-                  lastDateKey = dateKey;
-
-                  return (
-                    <React.Fragment key={item.id || idx}>
-                      {showDateHeader && (
-                        <div style={{ textAlign: "center", margin: "10px 0" }}>
-                          <span
-                            style={{
-                              fontSize: "11px",
-                              fontWeight: 700,
-                              color: "#94A3B8",
-                              backgroundColor: "#F1F5F9",
-                              padding: "4px 12px",
-                              borderRadius: "20px",
-                            }}
-                          >
-                            {new Intl.DateTimeFormat(undefined, {
-                              month: "short",
-                              day: "numeric",
-                            }).format(itemDate)}
-                          </span>
-                        </div>
-                      )}
+                      <p
+                        className="message-text-left"
+                        style={{
+                          margin: 0,
+                          fontSize: "10px",
+                          color: m.read ? colors.textSec : colors.textMain,
+                          fontWeight: m.read ? 400 : 500,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {m.message}
+                      </p>
 
                       <div
                         style={{
                           display: "flex",
-                          width: "100%",
-                          justifyContent: isIncoming
-                            ? "flex-start"
-                            : "flex-end",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          height: "20px",
                         }}
                       >
-                        <div
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteMessage(m.senderId);
+                          }}
                           style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: isIncoming ? "flex-start" : "flex-end",
-                            width: "100%",
+                            background: "transparent",
+                            border: "none",
+                            color: colors.textLight,
+                            cursor: "pointer",
+                            padding: "4px",
+                            marginLeft: "auto",
+                            opacity: 1,
+                            transition: "opacity 0.2s",
                           }}
                         >
-                          <div
-                            style={{
-                              ...(isIncoming
-                                ? styles.bubbleIn
-                                : styles.bubbleOut),
-                              display: "block",
-                              position: "relative",
-                              lineHeight: "1.4",
-                            }}
-                          >
+                          <Trash2 style={{ width: "16px", height: "16px" }} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+        </div>
+
+        {/* --- Detail View Overlay --- */}
+        {activeMessage && (
+          <div
+            style={styles.detailOverlay}
+            onClick={(e) => {
+              // Desktop: click on dimmed background closes chat
+              if (isMobile) return;
+              if (e.target === e.currentTarget) {
+                closeDetail();
+              }
+            }}
+          >
+            <div style={styles.detailPanel}>
+
+              {/* Chat Header */}
+              <div style={styles.chatHeader}>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  {isMobile && (
+                    <button onClick={closeDetail} style={{ background: "transparent", border: "none", padding: "4px", cursor: "pointer" }}>
+                      <ChevronLeft style={{ color: colors.textSec }} />
+                    </button>
+                  )}
+                  <div
+                    style={{
+                      ...styles.avatar(activeMessage.name, activeMessage.profileImage),
+                      width: "40px",
+                      height: "40px",
+                      fontSize: "12px",
+                    }}
+                  >
+                    {activeMessage.profileImage ? (
+                      <img
+                        src={activeMessage.profileImage}
+                        alt={activeMessage.name}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                    ) : (
+                      getInitials(activeMessage.name, activeMessage.email)
+                    )}
+                  </div>
+                  <div>
+                    <h2 style={{ fontSize: "16px", fontWeight: 700, margin: 0, color: colors.textMain, marginBottom: '4px' }}>{activeMessage.name}</h2>
+                    {(activeMessage.title || activeMessage.company) && (
+                      <p style={{ fontSize: "12px", margin: 0, color: colors.textSec }}>
+                        {[activeMessage.title, activeMessage.company].filter(Boolean).join(" • ")}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Conversation */}
+              <div ref={conversationRef} style={styles.chatBody} onScroll={handleConversationScroll}>
+                {(() => {
+                  const threadItems = (activeMessage.thread && activeMessage.thread.length > 0
+                    ? activeMessage.thread
+                    : [
+                      { text: activeMessage.message, date: activeMessage.date, direction: 'in' as const },
+                    ]);
+
+                  let lastDateKey: string | null = null;
+
+                  return threadItems.map((item, idx) => {
+                    const isIncoming = item.direction === 'in';
+                    const itemDate = new Date(item.date);
+                    const dateKey = itemDate.toDateString();
+                    const showDateHeader = dateKey !== lastDateKey;
+                    lastDateKey = dateKey;
+
+                    return (
+                      <React.Fragment key={item.id || idx}>
+                        {showDateHeader && (
+                          <div style={{ textAlign: "center", margin: "10px 0" }}>
                             <span
                               style={{
-                                fontSize: "16px",
-                                wordBreak: "break-word",
-                                whiteSpace: "pre-wrap",
+                                fontSize: "11px",
+                                fontWeight: 700,
+                                color: "#94A3B8",
+                                backgroundColor: "#F1F5F9",
+                                padding: "4px 12px",
+                                borderRadius: "20px",
                               }}
                             >
-                              {item.text}
+                              {new Intl.DateTimeFormat(undefined, {
+                                month: "short",
+                                day: "numeric",
+                              }).format(itemDate)}
                             </span>
-
-                            <div
-                              style={{
-                                float: "right",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "4px",
-                                marginLeft: "8px",
-                                marginTop: "8px",
-                                position: "relative",
-                                bottom: "-4px",
-                              }}
-                            >
-                              <span
-                                style={{
-                                  fontSize: "11px",
-                                  color: isIncoming
-                                    ? "#94A3B8"
-                                    : "rgba(255,255,255,0.7)",
-                                  fontWeight: 500,
-                                  whiteSpace: "nowrap",
-                                }}
-                              >
-                                {formatDate(item.date).split(",")[1].trim()}
-                              </span>
-
-                              {!isIncoming && (
-                                <span
-                                  style={{
-                                    fontSize: "14px",
-                                    color: "rgba(255,255,255,0.8)",
-                                    display: "flex",
-                                  }}
-                                >
-                                  <svg
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  >
-                                    <polyline points="20 6 9 17 4 12"></polyline>
-                                  </svg>
-                                </span>
-                              )}
-                            </div>
-
-                            <div style={{ clear: "both" }}></div>
                           </div>
-                          {/* <span
-                            style={{
-                              fontSize: "10px",
-                              marginTop: "6px",
-                              color: "#94A3B8",
-                              fontWeight: 500,
-                            }}
-                          >
-                            {isIncoming
-                              ? activeMessage.name.split(" ")[0]
-                              : "You"}{" "}
-                            • {formatDate(item.date).split(",")[1].trim()}
-                          </span> */}
-                        </div>
-                      </div>
-                    </React.Fragment>
-                  );
-                });
-              })()}
-            </div>
+                        )}
 
-            {/* Composer */}
-            <div style={styles.composer}>
-              <div style={styles.composerInputContainer}>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "8px 12px",
-                    gap: "8px",
-                    width: "100%",
-                    boxSizing: "border-box",
-                  }}
-                >
-                  {showReplyLabel && (
-                    <span
-                      style={{
-                        fontSize: "10px",
-                        color: colors.textLight,
-                        flexShrink: 0,
-                        cursor: "pointer",
-                      }}
-                      onClick={() => {
-                        setShowReplyLabel(false);
-                        if (composerInputRef.current) {
-                          composerInputRef.current.focus();
+                        <div style={{ display: "flex", width: "100%", justifyContent: isIncoming ? "flex-start" : "flex-end" }}>
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: isIncoming ? "flex-start" : "flex-end", width: "100%" }}>
+                            <div style={isIncoming ? styles.bubbleIn : styles.bubbleOut}>{item.text}</div>
+                            <span style={{ fontSize: "10px", marginTop: "6px", color: "#94A3B8", fontWeight: 500 }}>
+                              {isIncoming ? activeMessage.name.split(' ')[0] : 'You'} • {formatDate(item.date).split(',')[1].trim()}
+                            </span>
+                          </div>
+                        </div>
+                      </React.Fragment>
+                    );
+                  });
+                })()}
+              </div>
+
+              {/* Composer */}
+              <div style={styles.composer}>
+                <div style={styles.composerInputContainer}>
+                  <div style={{ display: "flex", alignItems: "center", padding: "8px 12px", gap: "8px", width: "100%", boxSizing: "border-box" }}>
+                    {showReplyLabel && (
+                      <span
+                        style={{ fontSize: "14px", color: colors.textLight, flexShrink: 0, cursor: "pointer" }}
+                        onClick={() => {
+                          setShowReplyLabel(false);
+                          if (composerInputRef.current) {
+                            composerInputRef.current.focus();
+                          }
+                        }}
+                      >
+                        Type your reply
+                      </span>
+                    )}
+                    <input
+                      ref={composerInputRef}
+                      type="text"
+                      value={replyText}
+                      onChange={e => setReplyText(e.target.value)}
+                      onFocus={() => setShowReplyLabel(false)}
+                      onBlur={() => {
+                        if (!replyText.trim()) {
+                          setShowReplyLabel(true);
                         }
                       }}
+                      onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (replyText.trim()) sendReply(); } }}
+                      style={{
+                        flex: 1,
+                        backgroundColor: "transparent",
+                        border: "none",
+                        outline: "none",
+                        fontSize: "14px",
+                        color: colors.textMain,
+                        fontFamily: "inherit"
+                      }}
+                    />
+                    <button
+                      onClick={sendReply}
+                      disabled={!replyText.trim()}
+                      style={styles.sendButton(!replyText.trim())}
                     >
-                      Type your reply
-                    </span>
-                  )}
-                  <input
-                    ref={composerInputRef}
-                    type="text"
-                    value={replyText}
-                    onChange={(e) => setReplyText(e.target.value)}
-                    onFocus={() => setShowReplyLabel(false)}
-                    onBlur={() => {
-                      if (!replyText.trim()) {
-                        setShowReplyLabel(true);
-                      }
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        if (replyText.trim()) sendReply();
-                      }
-                    }}
-                    style={{
-                      flex: 1,
-                      backgroundColor: "transparent",
-                      border: "none",
-                      outline: "none",
-                      fontSize: "14px",
-                      color: colors.textMain,
-                      fontFamily: "inherit",
-                    }}
-                  />
-                  <button
-                    onClick={sendReply}
-                    disabled={!replyText.trim()}
-                    style={styles.sendButton(!replyText.trim())}
-                  >
-                    <Send style={{ width: "18px", height: "18px" }} />
-                  </button>
+                      <Send style={{ width: "18px", height: "18px" }} />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }
 
