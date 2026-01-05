@@ -32,7 +32,7 @@
   }
 }
 
-@media (max-width: 639px) {
+@media (max-width: 640px) {
   .hiddenInHeader {
     display: none !important;
   }
@@ -252,7 +252,7 @@
   order: 2;
 }
 
-@media (max-width: 639px) {
+@media (max-width: 640px) {
   .filterContainer {
     width: auto;
     margin-left: 8px;
@@ -402,7 +402,7 @@
 
 }
 
-@media (max-width: 639px) {
+@media (max-width: 640px) {
   .viewToggleContainer {
     margin-top: 16px;
   }
@@ -522,7 +522,7 @@
 
 
 
-@media (max-width: 639px) {
+@media (max-width: 640px) {
   .searchBarWrapper {
     max-width: none;
     width: 100%;
@@ -569,7 +569,7 @@
   }
 } */
 
-@media (max-width: 639px) {
+@media (max-width: 640px) {
   .searchFilterRow {
     display: flex;
     align-items: center;
@@ -694,7 +694,7 @@
   transition-duration: 300ms;
 }
 
-@media (max-width: 639px) {
+@media (max-width: 640px) {
   .searchBarInner {
     background-color: transparent;
     border: none;
@@ -2174,7 +2174,7 @@
 
 /* Connection Requests Styles */
 .tabsContainer {
-  margin-top: 0.5rem;
+  /* margin-top: 0.5rem; */
   border-bottom: 1px solid #e5e7eb;
 }
 
@@ -2222,21 +2222,20 @@
 .requestsList {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.25rem;
 }
 
 .requestCard {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 16px;
-  background-color: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  transition: background-color 150ms ease;
+  gap: 12px;
+  padding: 10px 8px;
+  background-color: transparent;
+  border: 2px solid #93c5fd; /* blue outline */
+  border-radius: 14px;
 }
+
 
 .requestCard:hover {
   background-color: #f9fafb;
@@ -2245,42 +2244,49 @@
 .requestUserInfo {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 12px;
   flex: 1;
   min-width: 0;
-  /* allow text to truncate nicely */
 }
 
+
 .requestAvatar {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 9999px;
-  background-color: #dbeafe;
+  background: linear-gradient(to bottom right, #60a5fa, #2563eb);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  color: #2563eb;
-  font-size: 12px;
+  color: #ffffff;
+  font-size: 16px;
+  box-shadow: 0 0 0 3px #bfdbfe;
+  flex-shrink: 0;
 }
+
 
 .requestName {
-  font-weight: 500;
-  margin-bottom: 0.25rem;
-  font-size: 0.875rem;
-  color: #111827;
+  font-weight: 600;
+  font-size: 15px;
+  color: #0f172a;
+  margin-bottom: 2px;
 }
 
+
 .requestDetails {
-  font-size: 0.75rem;
-  color: #6b7280;
+  font-size: 1rem;
+  color: #475569;
 }
+
 
 .requestActions {
   display: flex;
-  gap: 0.5rem;
+  gap: 8px;
   align-items: center;
+  flex-shrink: 0;
 }
+
 
 .requestApproveButton {
   padding: 0.5rem 1rem;
@@ -2294,14 +2300,18 @@
 
 .requestRejectButton {
   padding: 0.5rem 1rem;
-  background-color: white;
-  color: #ef4444;
-  border: 1px solid #ef4444;
+  background-color: grey;
+  color: white;
   border-radius: 0.375rem;
   font-weight: 500;
   cursor: pointer;
 }
 
+
+.requestApproveButton:hover,
+.requestRejectButton:hover{
+  cursor: pointer;
+}
 .noRequestsText {
   color: #6b7280;
   text-align: center;
@@ -2309,23 +2319,18 @@
 }
 
 /* Mobile layout for Requests: stack actions vertically */
-@media (max-width: 639px) {
-  .requestCard {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
+@media (max-width: 600px) {
+  .requestDetails {
+    font-size: 8px;
   }
+}
 
-  .requestActions {
-    width: 100%;
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .requestApproveButton,
-  .requestRejectButton {
-    width: 100%;
-    height: 40px;
+/* Below 530px → ellipsis */
+@media (max-width: 530px) {
+  .requestDetails {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
 }
 
@@ -2394,7 +2399,7 @@
   padding-bottom: 50px !important;
 }
 
-@media (max-width: 639px) {
+@media (max-width: 640px) {
   .heroSection {
     padding: 0 !important;
     /* completely remove top padding on mobile */
@@ -2614,10 +2619,9 @@
 .cardsViewContainer,
 .desktopTableWrapper,
 .mobileCard,
-.cardFace,
-.requestCard {
+.cardFace {
   box-shadow: none !important;
-  background: transparent !important;
+  background: transparent !important; 
   border: none !important;
 }
 
@@ -2640,7 +2644,7 @@
 }
 
 /* Mobile extra gaps fix */
-@media (max-width: 639px) {
+@media (max-width: 640px) {
   .heroSection {
     padding: 0 !important;
   }
