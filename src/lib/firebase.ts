@@ -14,15 +14,11 @@ import {
   Auth
 } from "firebase/auth";
 
-// Firebase config interface
-interface FirebaseConfig {
-  apiKey: string;
-  authDomain: string;
-  projectId: string;
-  storageBucket: string;
-  messagingSenderId: string;
-  appId: string;
-  measurementId: string;
+import { getStorage, FirebaseStorage } from "firebase/storage";
+
+// MUST only run on client
+if (typeof window === "undefined") {
+  console.warn("⚠ Firebase skipped on server");
 }
 
 // Global state for Firebase
@@ -91,12 +87,31 @@ const initializeFirebase = async (): Promise<Auth | null> => {
       return null;
     }
 
-    try {
-      firebaseApp = !getApps().length ? initializeApp(config) : getApp();
-      auth = getAuth(firebaseApp);
-      isInitialized = true;
+let storage: FirebaseStorage | null = null;
 
-      return auth;
+// Only initialize Firebase on client side and if config is valid
+if (typeof window !== "undefined") {
+  // Validate required config
+  if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.projectId) {
+    console.error("❌ Firebase configuration is incomplete. Authentication will be disabled.");
+    console.error("Missing config:", {
+      apiKey: !!firebaseConfig.apiKey,
+      authDomain: !!firebaseConfig.authDomain,
+      projectId: !!firebaseConfig.projectId,
+    });
+  } else {
+    try {
+      const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+      auth = getAuth(app);
+
+      storage = getStorage(app);
+
+      console.log("🔥 Firebase initialized successfully (client)");
+      console.log("Firebase Config Check:", {
+        hasApiKey: !!firebaseConfig.apiKey,
+        hasAuthDomain: !!firebaseConfig.authDomain,
+        hasProjectId: !!firebaseConfig.projectId,
+      });
     } catch (error) {
       return null;
     }
@@ -131,5 +146,6 @@ export {
   GoogleAuthProvider,
   signInWithPopup,
   createUserWithEmailAndPassword,
-  signInWithEmailAndPassword
+  signInWithEmailAndPassword,
+  storage
 };

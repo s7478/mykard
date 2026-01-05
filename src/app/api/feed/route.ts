@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     const userId = decoded.userId;
 
     const { searchParams } = new URL(req.url);
-    const filter = searchParams.get("filter"); // 'mine', 'saved', or 'all'
+    const filter = searchParams.get("filter"); 
 
     let whereClause: any = {};
 
@@ -23,6 +23,7 @@ export async function GET(req: NextRequest) {
       whereClause = { savedBy: { some: { userId: userId } } };
     }
 
+    // 1. Fetch Posts
     const posts = await prisma.post.findMany({
       where: whereClause,
       orderBy: { createdAt: "desc" },
@@ -37,12 +38,32 @@ export async function GET(req: NextRequest) {
       },
     });
 
+    // 2. Fetch User's Connections (To hide Connect button)
+    const myConnections = await prisma.connection.findMany({
+      where: {
+        OR: [
+          { senderId: userId },
+          { receiverId: userId }
+        ],
+        status: "ACCEPTED"
+      },
+      select: { senderId: true, receiverId: true }
+    });
+
+    // Create a Set of IDs I am connected with
+    const connectedUserIds = new Set(
+      myConnections.map(c => c.senderId === userId ? c.receiverId : c.senderId)
+    );
+
+    // 3. Format Posts
     const formattedPosts = posts.map((post) => ({
       ...post,
       isLiked: post.likes.length > 0,
       isSaved: post.savedBy.length > 0,
       likesCount: post._count.likes,
       commentsCount: post._count.comments,
+      // 🟢 Add this flag:
+      isConnected: connectedUserIds.has(post.authorId) || post.authorId === userId
     }));
 
     return NextResponse.json({ success: true, posts: formattedPosts });
