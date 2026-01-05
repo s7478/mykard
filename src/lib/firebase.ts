@@ -14,6 +14,8 @@ import {
   Auth
 } from "firebase/auth";
 
+import { getStorage, FirebaseStorage } from "firebase/storage";
+
 // MUST only run on client
 if (typeof window === "undefined") {
   console.warn("⚠ Firebase skipped on server");
@@ -50,6 +52,8 @@ const firebaseConfig = getFirebaseConfig();
 
 let auth: Auth | null = null;
 
+let storage: FirebaseStorage | null = null;
+
 // Only initialize Firebase on client side and if config is valid
 if (typeof window !== "undefined") {
   // Validate required config
@@ -64,6 +68,8 @@ if (typeof window !== "undefined") {
     try {
       const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
       auth = getAuth(app);
+
+      storage = getStorage(app);
 
       console.log("🔥 Firebase initialized successfully (client)");
       console.log("Firebase Config Check:", {
@@ -86,5 +92,6 @@ export {
   GoogleAuthProvider,
   signInWithPopup,
   createUserWithEmailAndPassword,
-  signInWithEmailAndPassword
+  signInWithEmailAndPassword,
+  storage
 };

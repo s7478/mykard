@@ -12,17 +12,19 @@ export async function GET(req: NextRequest) {
     const decoded = verify(token, process.env.JWT_SECRET!) as { userId: string };
     const userId = decoded.userId;
 
-    // 1. Get IDs of connections (Accepted status)
+    // 1. Get IDs of connections
+    // FIX: Changed 'requesterId' to 'senderId' to match your schema
+    // FIX: Changed status "accepted" to "ACCEPTED" to match Prisma Enum
     const connections = await prisma.connection.findMany({
       where: {
-        OR: [{ requesterId: userId }, { receiverId: userId }],
-        status: "accepted",
+        OR: [{ senderId: userId }, { receiverId: userId }],
+        status: "ACCEPTED",
       },
-      select: { requesterId: true, receiverId: true },
+      select: { senderId: true, receiverId: true },
     });
 
     const friendIds = connections.map((c) =>
-      c.requesterId === userId ? c.receiverId : c.requesterId
+      c.senderId === userId ? c.receiverId : c.senderId
     );
 
     // Add self to list (to see own story)
@@ -32,14 +34,14 @@ export async function GET(req: NextRequest) {
     const activeStories = await prisma.story.findMany({
       where: {
         authorId: { in: friendIds },
-        expiresAt: { gt: new Date() },
+        expiresAt: { gt: new Date() }, // 24hr logic works here
       },
       include: {
         author: {
           select: { id: true, fullName: true, profileImage: true },
         },
         views: {
-          where: { viewerId: userId }, // Check if viewed
+          where: { viewerId: userId }, // Check if viewed by current user
           select: { id: true },
         },
       },
@@ -58,6 +60,8 @@ export async function GET(req: NextRequest) {
         };
       }
       storiesByUser[story.authorId].stories.push(story);
+      
+      // If views array is empty, user hasn't seen this story yet
       if (story.views.length === 0) {
         storiesByUser[story.authorId].hasUnseen = true;
       }
@@ -65,7 +69,6 @@ export async function GET(req: NextRequest) {
 
     // Convert object to array and sort (Unseen first, then Recent)
     const storyFeed = Object.values(storiesByUser).sort((a: any, b: any) => {
-      // My story first? Or Unseen first? Let's do Unseen first
       if (a.hasUnseen && !b.hasUnseen) return -1;
       if (!a.hasUnseen && b.hasUnseen) return 1;
       return 0;

@@ -17,11 +17,12 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
-    "@prisma/client": "^7.2.0",
+    "@prisma/client": "^5.22.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/nodemailer": "^7.0.4",
     "bcryptjs": "^3.0.2",
+    "browser-image-compression": "^2.0.2",
     "chart.js": "^4.5.1",
     "class-variance-authority": "^0.7.0",
     "cloudinary": "^2.8.0",
@@ -57,7 +58,6 @@
     "zustand": "^4.4.7"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.17",
     "@types/body-parser": "^1.19.6",
     "@types/caseless": "^0.12.5",
     "@types/connect": "^3.4.38",
@@ -75,8 +75,8 @@
     "eslint": "^9",
     "eslint-config-next": "16.0.0",
     "postcss": "^8.5.6",
-    "prisma": "^7.2.0",
-    "tailwindcss": "^4.1.18",
+    "prisma": "^5.22.0",
+    "tailwindcss": "^3.4.17",
     "typescript": "5.9.3"
   }
 }
