@@ -345,7 +345,7 @@ export const CreatePostWidget = ({ currentUser }: { currentUser?: any }) => {
     <>
       <div style={styles.createPostCard}>
         <div style={styles.inputArea}>
-          <div style={{ position: "relative", width: "48px", height: "48px", borderRadius: "50%", overflow: "hidden", flexShrink: 0, backgroundColor: "#e2e8f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          {/* <div style={{ position: "relative", width: "48px", height: "48px", borderRadius: "50%", overflow: "hidden", flexShrink: 0, backgroundColor: "#e2e8f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
             {myAvatar ? <Image src={myAvatar} alt="Me" fill unoptimized style={{ objectFit: "cover" }} /> : <span style={{ fontSize: "14px", fontWeight: "700", color: "#64748b" }}>{myInitials}</span>}
           </div>
           <div style={styles.fakeInput} onClick={() => openPostModal(null)} onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")} onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ffffff")}>Start a post</div>
