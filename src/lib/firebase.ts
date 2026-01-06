@@ -16,6 +16,16 @@ import {
 
 import { getStorage, FirebaseStorage } from "firebase/storage";
 
+// Added interface to fix TypeScript errors
+interface FirebaseConfig {
+  apiKey: string;
+  authDomain: string;
+  projectId: string;
+  storageBucket?: string;
+  messagingSenderId?: string;
+  appId?: string;
+}
+
 // MUST only run on client
 if (typeof window === "undefined") {
   console.warn("⚠ Firebase skipped on server");
@@ -24,6 +34,7 @@ if (typeof window === "undefined") {
 // Global state for Firebase
 let firebaseApp: FirebaseApp | null = null;
 let auth: Auth | null = null;
+let storage: FirebaseStorage | null = null; // FIXED: Moved to global scope so it can be exported
 let initializationPromise: Promise<Auth | null> | null = null;
 let isInitialized = false;
 
@@ -87,35 +98,41 @@ const initializeFirebase = async (): Promise<Auth | null> => {
       return null;
     }
 
-let storage: FirebaseStorage | null = null;
+    // Only initialize Firebase on client side and if config is valid
+    if (typeof window !== "undefined") {
+      // Validate required config
+      // FIXED: Changed 'firebaseConfig' to 'config'
+      if (!config.apiKey || !config.authDomain || !config.projectId) {
+        console.error("❌ Firebase configuration is incomplete. Authentication will be disabled.");
+        console.error("Missing config:", {
+          apiKey: !!config.apiKey,
+          authDomain: !!config.authDomain,
+          projectId: !!config.projectId,
+        });
+      } else {
+        try {
+          // FIXED: Changed 'firebaseConfig' to 'config'
+          const app = !getApps().length ? initializeApp(config) : getApp();
+          auth = getAuth(app);
 
-// Only initialize Firebase on client side and if config is valid
-if (typeof window !== "undefined") {
-  // Validate required config
-  if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.projectId) {
-    console.error("❌ Firebase configuration is incomplete. Authentication will be disabled.");
-    console.error("Missing config:", {
-      apiKey: !!firebaseConfig.apiKey,
-      authDomain: !!firebaseConfig.authDomain,
-      projectId: !!firebaseConfig.projectId,
-    });
-  } else {
-    try {
-      const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-      auth = getAuth(app);
+          // FIXED: Now assigns to the global 'storage' variable
+          storage = getStorage(app);
 
-      storage = getStorage(app);
-
-      console.log("🔥 Firebase initialized successfully (client)");
-      console.log("Firebase Config Check:", {
-        hasApiKey: !!firebaseConfig.apiKey,
-        hasAuthDomain: !!firebaseConfig.authDomain,
-        hasProjectId: !!firebaseConfig.projectId,
-      });
-    } catch (error) {
-      return null;
+          console.log("🔥 Firebase initialized successfully (client)");
+          console.log("Firebase Config Check:", {
+            hasApiKey: !!config.apiKey,
+            hasAuthDomain: !!config.authDomain,
+            hasProjectId: !!config.projectId,
+          });
+          
+          return auth;
+        } catch (error) {
+          return null;
+        }
+      }
     }
-  })();
+    return null;
+  })(); // FIXED: Removed the extra closing syntax that was causing the error
 
   return initializationPromise;
 };
