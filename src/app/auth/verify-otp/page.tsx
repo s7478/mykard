@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { toast } from "react-hot-toast"
-import { auth, PhoneAuthProvider, signInWithCredential, RecaptchaVerifier, signInWithPhoneNumber } from "@/lib/firebase"
+import { getFirebaseAuth, PhoneAuthProvider, signInWithCredential, RecaptchaVerifier, signInWithPhoneNumber } from "@/lib/firebase"
 
 function VerifyOtpContent() {
   const router = useRouter()
@@ -25,12 +25,13 @@ function VerifyOtpContent() {
     }
   }, [])
 
-  const setupRecaptcha = () => {
+  const setupRecaptcha = async () => {
     if (recaptchaRef.current) return recaptchaRef.current
     const container = typeof document !== 'undefined' ? document.getElementById('recaptcha-container-verify') : null
     if (!container) throw new Error('reCAPTCHA container missing')
-    if (!auth) throw new Error('Authentication is not configured. Please set Firebase env vars.')
-    recaptchaRef.current = new RecaptchaVerifier(auth as any, 'recaptcha-container-verify', { size: 'invisible' })
+    const auth = await getFirebaseAuth()
+    if (!auth) throw new Error('Authentication is not configured. Please try again.')
+    recaptchaRef.current = new RecaptchaVerifier(auth, 'recaptcha-container-verify', { size: 'invisible' })
     return recaptchaRef.current
   }
 
@@ -59,8 +60,9 @@ function VerifyOtpContent() {
 
       // Verify OTP with Firebase
       const credential = PhoneAuthProvider.credential(verificationId, otp)
-      if (!auth) throw new Error('Authentication is not configured. Please set Firebase env vars.')
-      await signInWithCredential(auth as any, credential)
+      const auth = await getFirebaseAuth()
+      if (!auth) throw new Error('Authentication is not configured. Please try again.')
+      await signInWithCredential(auth, credential)
       
       console.log('✅ Firebase OTP verified successfully!')
       
@@ -115,9 +117,10 @@ function VerifyOtpContent() {
         toast.error("Phone missing. Go back and start again.")
         return
       }
-      const verifier = setupRecaptcha()
-      if (!auth) throw new Error('Authentication is not configured. Please set Firebase env vars.')
-      const confirmation = await signInWithPhoneNumber(auth as any, target, verifier)
+      const verifier = await setupRecaptcha()
+      const auth = await getFirebaseAuth()
+      if (!auth) throw new Error('Authentication is not configured. Please try again.')
+      const confirmation = await signInWithPhoneNumber(auth, target, verifier)
       if (typeof window !== 'undefined') {
         sessionStorage.setItem('verificationId', confirmation.verificationId)
         sessionStorage.setItem('otpPhone', target)

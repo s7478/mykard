@@ -4,7 +4,7 @@
   import Link from "next/link"
   import Image from "next/image"
   import { useRouter } from "next/navigation"
-  import { auth, GoogleAuthProvider, signInWithPopup } from "@/lib/firebase"
+  import { getFirebaseAuth, GoogleAuthProvider, signInWithPopup } from "@/lib/firebase"
   import styles from "./login.module.css" // css module 
   import GoogleIcon from "@/assets/google.png";
 
@@ -75,9 +75,10 @@
         setLoading(true)
         setError('')
         const provider = new GoogleAuthProvider()
-        if (!auth) throw new Error('Authentication is not configured.')
+        const auth = await getFirebaseAuth()
+        if (!auth) throw new Error('Authentication is not configured. Please try again.')
         
-        const result = await signInWithPopup(auth as any, provider)
+        const result = await signInWithPopup(auth, provider)
         const idToken = await result.user.getIdToken(true)
 
         const res = await fetch('/api/auth/firebase', {

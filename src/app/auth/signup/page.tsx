@@ -5,7 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { toast } from "react-hot-toast"
-import { auth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword } from "@/lib/firebase"
+import { getFirebaseAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword } from "@/lib/firebase"
 import "../../globals.css"
 import styles from "./signup.module.css"
 
@@ -87,10 +87,11 @@ export default function SignupPage() {
       
       console.log('🔐 Starting Google sign-in...')
       const provider = new GoogleAuthProvider()
+      const auth = await getFirebaseAuth()
       if (!auth) {
-        throw new Error('Authentication is not configured. Please set Firebase env vars.')
+        throw new Error('Authentication is not configured. Please try again.')
       }
-      const result = await signInWithPopup(auth as any, provider)
+      const result = await signInWithPopup(auth, provider)
       
       console.log('✅ Google popup success, getting token...')
       const idToken = await result.user.getIdToken(true)
@@ -161,12 +162,13 @@ export default function SignupPage() {
 
     try {
       // Create user in Firebase Auth
+      const auth = await getFirebaseAuth()
       if (!auth) {
-        throw new Error('Authentication is not configured. Please check your Firebase environment variables.')
+        throw new Error('Authentication is not configured. Please try again.')
       }
 
       console.log('🔐 Creating Firebase user account...')
-      const cred = await createUserWithEmailAndPassword(auth as any, email, password)
+      const cred = await createUserWithEmailAndPassword(auth, email, password)
       console.log('✅ Firebase user created successfully')
       
       const idToken = await cred.user.getIdToken(true)

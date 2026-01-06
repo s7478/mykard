@@ -1,34 +1,22 @@
-const fs = require('fs');
-const path = require('path');
+// This script is no longer needed!
+// Firebase configuration is now loaded dynamically at runtime via:
+// 1. API endpoint: /api/config/firebase 
+// 2. FirebaseConfigProvider component
+// 3. window.__FIREBASE_CONFIG__ object
+//
+// Environment variables are read at runtime on the server, not at build time.
+// This allows the same build to work across different environments.
+//
+// Required environment variables (set in Cloud Run or .env):
+// - FIREBASE_API_KEY (or NEXT_PUBLIC_FIREBASE_API_KEY)
+// - FIREBASE_AUTH_DOMAIN (or NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN)
+// - FIREBASE_PROJECT_ID (or NEXT_PUBLIC_FIREBASE_PROJECT_ID)
+// - FIREBASE_STORAGE_BUCKET (or NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET)
+// - FIREBASE_MESSAGING_SENDER_ID (or NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID)
+// - FIREBASE_APP_ID (or NEXT_PUBLIC_FIREBASE_APP_ID)
+// - FIREBASE_MEASUREMENT_ID (or NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID)
 
-// Firebase environment variables
-const replacements = {
-  '__FIREBASE_API_KEY__': process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyBCt_QhVfDJiuG6GXbI9_lqBHa3hDsmDV4',
-  '__FIREBASE_AUTH_DOMAIN__': process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'credlink-01.firebaseapp.com',
-  '__FIREBASE_PROJECT_ID__': process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'credlink-01',
-  '__FIREBASE_STORAGE_BUCKET__': process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'credlink-01.firebasestorage.app',
-  '__FIREBASE_MESSAGING_SENDER_ID__': process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '226902678503',
-  '__FIREBASE_APP_ID__': process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '1:226902678503:web:fd3d13d4482ea4cd19fb42',
-  '__FIREBASE_MEASUREMENT_ID__': process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || 'G-RV6R387M1G',
-};
+console.log('ℹ️ Firebase configuration is now loaded dynamically at runtime.');
+console.log('📝 This script is kept for reference but no longer performs any replacements.');
+console.log('✅ No action needed - config will be fetched from /api/config/firebase');
 
-// Read the firebase config file
-const configPath = path.join(__dirname, '../src/lib/firebase-client-config.ts');
-let content = fs.readFileSync(configPath, 'utf8');
-
-// Replace placeholders with actual values
-Object.entries(replacements).forEach(([placeholder, value]) => {
-  const regex = new RegExp(`${placeholder}`, 'g');
-  content = content.replace(regex, `'${value}'`);
-});
-
-// Write the updated content back
-fs.writeFileSync(configPath, content);
-
-console.log('✅ Firebase configuration updated with environment variables');
-console.log('🔧 Config check:', {
-  hasApiKey: !!replacements['__FIREBASE_API_KEY__'],
-  hasAuthDomain: !!replacements['__FIREBASE_AUTH_DOMAIN__'],
-  hasProjectId: !!replacements['__FIREBASE_PROJECT_ID__'],
-  apiKey: replacements['__FIREBASE_API_KEY__']?.substring(0, 10) + '...',
-});
