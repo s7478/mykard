@@ -29,26 +29,26 @@
 }
 
 /* Global padding fix - 16-20px on both sides for all widths */
-.container {
+/*.container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 1.5rem 1.125rem;
   min-height: 100vh;
   background: #f4f7fc;
   animation: fadeIn 0.5s ease-out;
-}
+}*/
 
 @media (min-width: 768px) {
   /* -------- Full-width container on mobile -------- */
-  .container {
+  /*.container {
     max-width: 100%;
-    padding: 1rem 1rem 5.5rem; /* extra bottom space for mobile nav */
-  }
+    padding: 1rem 1rem 5.5rem; 
+  }*/
 
    /* --------Reduce header height & spacing -------- */
-  .header {
+  /*.header {
     margin-bottom: 1.25rem;
-  }
+  }*/
 
   /*.title {
     font-size: 22px; 
@@ -126,41 +126,41 @@
 
 /* --- Header Section (Premium, Compact, Centered) --- */
 /* Center all header elements perfectly, reduce empty space */
-.header {
+/*.header {
   margin-bottom: 1.75rem;
   text-align: center;
   animation: slideInUp 0.6s ease-out;
   display: flex;
   flex-direction: column;
   align-items: center;
-}
+}*/
 
-.headerContent {
+/*.headerContent {
   display: flex;
   flex-direction: column;
   gap: 0.875rem;
   align-items: center;
   width: 100%;
-}
+}*/
 
-.titleSection {
+/*.titleSection {
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-}
+}*/
 
 /* Slightly larger, perfectly centered, responsive */
-.title {
+/*.title {
   font-family: "Plus Jakarta Sans", Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
   font-size: 32px;
   font-weight: 700;
-  line-height: 1; /* 100% */
+  line-height: 1; 
   letter-spacing: 0;
   color: #2152E5;
   text-align: center;
   margin: 0;
-}
+}*/
 
 
 .titleIcon {
@@ -171,16 +171,16 @@
 }
 
 /* Centered subtitle, soft grey */
-.subtitle {
+/*.subtitle {
   font-size: 0.875rem;
   color: #9ca3af;
   margin: 0;
   line-height: 1.4;
   letter-spacing: 0.3px;
-}
+}*/
 
 /* Badge centered and properly styled */
-.statsSection {
+/*.statsSection {
   display: flex;
   gap: 1rem;
   justify-content: center;
@@ -216,7 +216,7 @@
   font-size: 0.7rem;
   color: #6b7280;
   font-weight: 600;
-}
+}*/
 
 .inlineStatCard {
   flex: 1 1 0;
@@ -472,17 +472,25 @@
 /* --- Contact Card --- */
 /* Increased radius (16-20px), better padding, responsive, no overflow */
 .contactCard {
-  background: #ffffff;
-  border: 1px solid #E5EDFF;
+  background: linear-gradient(
+    180deg,
+    #5695ec 0%,
+    #330ce2 100%
+  );
+
+  border: 1px solid rgba(75, 133, 255, 0.22);
   border-radius: 16px;
   padding: 1rem;
 
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 3px 10px rgba(30, 103, 244, 0.12),
+    0 0 0 1px rgba(75, 133, 255, 0.12);
+
   transition: all 0.25s ease;
   cursor: pointer;
-  width: 100%;
-  box-sizing: border-box;
 }
+
+
 
 
 
@@ -711,13 +719,21 @@
 /* Button styling - interactive, smooth transitions */
 .actionButton {
   height: 36px;
-  background: #F1F5F9;
-  border: 1px solid #E2E8F0;
+
+  background: #F5F9FF;        /* Figma light blue */
+  border: 1px solid #E3ECFF;  /* soft blue border */
+
   border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #334155;
+
+  font-size: 11px;
+  font-weight: 400;
+  color: #2152E5;             /* Figma primary blue */
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
+
 
 
 /* Smooth hover state with color transition */
@@ -1556,7 +1572,7 @@
    LEADS INFO TOOLTIP
    ================================ */
 
-.titleRow {
+/*.titleRow {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1579,23 +1595,21 @@
   justify-content: center;
   padding: 0;
 }
-/* ================================
-   LEADS INFO TOOLTIP (FIGMA STYLE)
-   ================================ */
 
-/* ================================
+
+ ================================
    INFO (i) BUTTON – FIGMA SIZE
-   ================================ */
+   ================================ 
 
 .infoButton {
-  width: 14px;              /* smaller */
-  height: 14px;             /* smaller */
+  width: 14px;             
+  height: 14px;         
   border-radius: 50%;
   border: 1px solid #2152E5;
   background: transparent;
 
   color: #2152E5;
-  font-size: 9px;           /* smaller text */
+  font-size: 9px;           
   font-weight: 600;
   line-height: 1;
 
@@ -1626,7 +1640,7 @@
 
 
 
-/* Show on hover & focus */
+
 .infoButton:focus .tooltip {
   opacity: 1;
   visibility: visible;
@@ -1659,7 +1673,7 @@
   outline: none;
 }
 
-/* Inline helper text (Figma style) */
+
 .infoText {
   margin-top: 6px;
   font-size: 13px;
@@ -1673,7 +1687,7 @@
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.2s ease;
-}
+}*/
 
 /* Show text ONLY when hovering the title row */
 .titleRow:hover + .infoText {
@@ -1747,7 +1761,7 @@
 }
 @media (hover: hover) {
   .contactCard:hover {
-    background: #F0F6FF;
+    /*background: #F0F6FF;*/
     border-color: #4B85FF;
 
     box-shadow: 
@@ -1837,7 +1851,195 @@
   justify-content: flex-end;
   margin-top: 10px;
 }
+.nameRow {
+  display: flex;
+  align-items: center;        /* vertical center */
+  gap: 6px;
+  min-width: 0;               /* required for ellipsis */
+}
+.contactName {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0F172A;
 
+  max-width: 140px;           /* adjust if needed */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.contactedViaInline {
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748B;
 
+  max-width: 140px;           /* 🔥 ellipsis control */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  display: inline-block;
+}
+.contactMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.contactHeader {
+  align-items: center;
+}
+/* ================================
+   FIX: Email & Phone Alignment
+   ================================ */
+
+.contactActions {
+  width: 100%;
+}
+
+.actionButton {
+  width: 100%;                 /* same width */
+  display: flex;
+  align-items: center;         /* vertical center */
+  justify-content: flex-start; /* LEFT align text */
+  gap: 10px;
+
+  padding-left: 12px;          /* Figma-like spacing */
+  text-align: left;
+}
+.actionButton svg {
+  color: #4B85FF;               /* lighter blue icon */
+  margin-right: 6px;
+  flex-shrink: 0;              /* prevent icon shift */
+  width: 16px;
+  height: 16px;
+}
+.actionButton {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 768px) {
+  .contactActions {
+    gap: 6px;
+  }
+
+  .actionButton {
+    height: 40px;              /* consistent height */
+    font-size: 13px;
+  }
+}
+/* ================================
+   FIGMA: COLLAPSED CARD STATE
+   ================================ */
+
+.contactActions,
+.mobileTimeStamp {
+  display: none;
+}
+/* ================================
+   FIGMA: EXPANDED CARD
+   ================================ */
+
+.contactCard.expanded {
+  background: linear-gradient(
+    180deg,
+    #EAF4FF 0%,
+    #FFFFFF 100%
+  );
+
+  border: 1px solid #4B85FF;
+
+  box-shadow:
+    0 8px 20px rgba(75, 133, 255, 0.25),
+    0 0 0 1px rgba(75, 133, 255, 0.35);
+}
+@media (hover: hover) {
+  .contactCard:hover {
+    background: linear-gradient(
+      180deg,
+      #EEF5FF 0%,
+      #FFFFFF 100%
+    );
+
+    border-color: #4B85FF;
+
+    box-shadow:
+      0 8px 20px rgba(75, 133, 255, 0.25),
+      0 0 0 1px rgba(75, 133, 255, 0.35);
+
+    transform: translateY(-2px);
+  }  
+}
+
+.contactCard.expanded .contactActions {
+  display: grid;
+  padding-left: 42px; 
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.contactCard.expanded .mobileTimeStamp {
+  display: flex;
+}
+.contactActions,
+.mobileTimeStamp {
+  animation: fadeIn 0.25s ease-out;
+}
+
+.contactHeader {
+  margin-bottom: 10px;          /* more breathing space */
+}
+
+@media (max-width: 768px) {
+  .actionButton {
+    font-size: 11.5px;
+    padding-left: 10px;
+  }
+
+  .contactCard.expanded .contactActions {
+    padding-left: 36px;
+  }
+}
+/* ================================
+   COLLAPSED QUICK ICON ACTIONS
+   ================================ */
+
+.quickActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+  padding-left: 42px; /* aligns with avatar text */
+}
+
+/* ================================
+   FIGMA STYLE ICON CIRCLE
+   ================================ */
+
+.quickIcon {
+  width: 32px;               /* Figma size */
+  height: 32px;
+
+  border-radius: 50%;        /* 🔥 perfect circle */
+
+  background: #2152E5;       /* light blue bg */
+  border: 1px solid #C7DBFF; /* soft border */
+
+  color: #EAF2FF;            /* icon blue */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quickIcon:hover {
+  background: #1E67F4;
+  border-color: #1E67F4;
+  color: #ffffff;
+}
+ 
 
 
