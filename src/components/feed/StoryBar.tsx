@@ -21,14 +21,17 @@ const getInitials = (name: string) =>
 ========================= */
 const styles = {
   container: {
-    overflowX: "auto" as const,
-    whiteSpace: "nowrap" as const,
     display: "flex",
     padding: '5px',
-    gap: "3px",
     alignItems: "center",
+    overflowX: "auto" as const,        
+    overflowY: "hidden"as const, 
+    whiteSpace: "nowrap" as const,
+
+    scrollbarWidth: "none",
+    msOverflowStyle: "none",
   },
-  storyItem: { width: "85px" },
+  storyItem: { width: "85px" }, // do changes here
   myStoryAvatarWrapper: { width: "60px", height: "60px", borderRadius: "9999px", padding: "2px", position: "relative" as const },
   avatarOuterRing: { width: "64px", height: "64px", borderRadius: "9999px", padding: "2px", display: "flex", alignItems: "center", justifyContent: "center" },
   avatarWhiteRing: { width: "100%", height: "100%", backgroundColor: "#ffffff", borderRadius: "9999px", padding: "2px" },
@@ -66,10 +69,15 @@ export default function StoryBar({ currentUser }: { currentUser: any }) {
   }, []);
 
   const otherStories = stories.filter((s) => s.user.id !== currentUser?.id);
+  <style jsx>{`
+  div::-webkit-scrollbar {
+    display: none;
+  }
+`}</style>
 
   return (
     <>
-      <div className="bg-white border border-slate-100 rounded-md p-4 mb-4 w-full shadow-sm" style={styles.container}>
+      <div className="bg-white border-slate-100 p-4 mb-4 w-full shadow-sm" style={styles.container}>
         {/* My Story (Create) */}
         <div className="flex flex-col items-center cursor-pointer shrink-0" style={styles.storyItem} onClick={() => setIsStoryModalOpen(true)}>
           <div style={styles.myStoryAvatarWrapper}>
@@ -90,7 +98,7 @@ export default function StoryBar({ currentUser }: { currentUser: any }) {
             // 🟢 Add Click Handler to Open Viewer
             onClick={() => { setActiveStoryGroup(group); setViewerOpen(true); }}
           >
-            <div style={{ ...styles.avatarOuterRing, background: group.hasUnseen ? "linear-gradient(45deg, #facc15, #ec4899, #9333ea)" : "#cbd5f5" }}>
+            <div style={{ ...styles.avatarOuterRing, background: group.hasUnseen ? "linear-gradient(45deg, #181FFF, #1279E1)" : "#cbd5f5" }}>
               <div style={styles.avatarWhiteRing}>
                 <div style={styles.avatar}>
                   {group.user.profileImage ? ( <Image src={group.user.profileImage} alt={group.user.fullName} fill className="object-cover" /> ) : ( getInitials(group.user.fullName) )}
@@ -103,7 +111,7 @@ export default function StoryBar({ currentUser }: { currentUser: any }) {
 
         {/* Skeletons */}
         {loading && Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="flex flex-col items-center gap-1 flex-shrink-0" style={styles.storyItem}>
+          <div key={i} className="flex flex-col items-center shrink-0" style={styles.storyItem}>
             <div className="bg-slate-100 animate-pulse" style={styles.skeletonAvatar} />
             <div className="bg-slate-100 animate-pulse" style={styles.skeletonText} />
           </div>
