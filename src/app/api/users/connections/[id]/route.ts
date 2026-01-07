@@ -76,7 +76,7 @@ export async function PATCH(
   }
 }
 
-// DELETE - Remove connection (for accepted connections or cancel pending)
+// DELETE - Remove connection (handles both Connection ID and User ID)
 export async function DELETE(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -94,12 +94,26 @@ export async function DELETE(
     const userId = decoded.userId;
 
     const params = await context.params;
-    const requestId = params.id;
+    const targetId = params.id; // This could be Connection ID OR User ID
 
-    // Find the connection request
-    const connectionRequest = await prisma.connection.findUnique({
-      where: { id: requestId },
+    // 1. First, try to find the connection directly by ID (Dashboard scenario)
+    let connectionRequest = await prisma.connection.findUnique({
+      where: { id: targetId },
     });
+
+    // 2. If NOT found by ID, assume 'targetId' is a User ID and look for the relationship (PostCard scenario)
+    if (!connectionRequest) {
+      connectionRequest = await prisma.connection.findFirst({
+        where: {
+          OR: [
+            // Case A: I sent the request, they received it
+            { senderId: userId, receiverId: targetId },
+            // Case B: They sent the request, I received it
+            { senderId: targetId, receiverId: userId },
+          ],
+        },
+      });
+    }
 
     if (!connectionRequest) {
       return NextResponse.json(
@@ -108,7 +122,7 @@ export async function DELETE(
       );
     }
 
-    // Only involved users can remove connection
+    // Only involved users can remove connection (Security Check)
     if (
       connectionRequest.senderId !== userId &&
       connectionRequest.receiverId !== userId
@@ -119,11 +133,9 @@ export async function DELETE(
       );
     }
 
-    // No need to update user tables - the Connection model deletion below handles the relationship
-
-    // Delete the connection request
+    // Delete the connection request using the actual Connection ID found
     await prisma.connection.delete({
-      where: { id: requestId },
+      where: { id: connectionRequest.id },
     });
 
     return NextResponse.json({
