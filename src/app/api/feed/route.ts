@@ -21,6 +21,8 @@ export async function GET(req: NextRequest) {
       whereClause = { authorId: userId };
     } else if (filter === "saved") {
       whereClause = { savedBy: { some: { userId: userId } } };
+    } else if (filter === "like") {
+      whereClause = { likes: { some: { userId: userId } } };
     }
 
     // 1. Fetch Posts

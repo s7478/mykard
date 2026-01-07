@@ -19,7 +19,7 @@ export default function FeedStream({ filter = "all", currentUser }: FeedStreamPr
       let url = "/api/feed";
       if (filter === "mine") url += "?filter=mine";
       if (filter === "saved") url += "?filter=saved";
-      if (filter === 'like') url += "?filter=like";
+      if (filter === "like") url += "?filter=like";
 
       const res = await fetch(url);
       const data = await res.json();
