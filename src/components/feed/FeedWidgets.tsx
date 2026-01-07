@@ -384,6 +384,8 @@ export const PostCard = ({ currentUser, postData }: { currentUser?: any; postDat
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
+  const [isLoadingConnection, setIsLoadingConnection] = useState(false);
+
   if (!postData) return null;
 
   // --- Handlers ---
@@ -474,7 +476,47 @@ export const PostCard = ({ currentUser, postData }: { currentUser?: any; postDat
   };
 
   // ... (Other handlers: Report, Disconnect, Like, Save, Share... keep same as before)
-  const handleDisconnect = async () => { toast.error("Disconnect API not implemented yet"); setShowMenu(false); };
+  const handleDisconnect = async () => {
+    // 1. Determine the ID to send. 
+    // Ideally use connectionId if available, otherwise fallback to authorId.
+    // (Ensure your Backend DELETE route can handle a userId if connectionId is missing)
+    const contactId = postData.connectionId || postData.authorId;
+
+    if (!contactId) {
+      toast.error('Cannot disconnect: ID missing');
+      return;
+    }
+    
+    if (!confirm("Are you sure you want to remove this connection?")) return;
+
+    try {
+      // 2. Exact fetch logic from your Dashboard
+      const res = await fetch(`/api/users/connections/${contactId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error || 'Failed to remove connection');
+      }
+
+      // 3. Update Local State
+      setIsConnected(false);
+      setShowMenu(false);
+      
+      // 4. Success Message & Sync Events (Copied from Dashboard)
+      toast.success('Connection removed successfully');
+      
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('connections-updated'));
+      }
+
+    } catch (e: any) {
+      console.error('Delete connection error:', e);
+      toast.error(e?.message || 'Failed to remove connection');
+    }
+  };
   const handleReport = () => { toast.success("Post reported."); setShowMenu(false); };
   const handleLike = async () => {
     const newLiked = !isLiked; setIsLiked(newLiked); setLikesCount((prev: number) => (newLiked ? prev + 1 : prev - 1));
@@ -522,16 +564,36 @@ export const PostCard = ({ currentUser, postData }: { currentUser?: any; postDat
           <button onClick={() => setShowMenu(!showMenu)} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", borderRadius: "50%", display: "flex" }}><MoreHorizontal size={20} color="#94a3b8" /></button>
           {showMenu && (
             <div style={styles.menuDropdown}>
-              <button style={styles.menuItem} onClick={handleCopyLink}><Copy size={16} /> Copy Link</button>
+              <button style={styles.menuItem} onClick={handleCopyLink}>
+                <Copy size={16} /> Copy Link
+              </button>
+              
               {isOwnPost ? (
-                <button style={{ ...styles.menuItem, color: "#ef4444" }} onClick={handleDelete}><Trash2 size={16} /> Delete Post</button>
+                <button style={{ ...styles.menuItem, color: "#ef4444" }} onClick={handleDelete}>
+                  <Trash2 size={16} /> Delete Post
+                </button>
               ) : (
                 <>
-                  <button style={{ ...styles.menuItem, color: "#ef4444" }} onClick={handleReport}><Flag size={16} /> Report</button>
+                  <button style={{ ...styles.menuItem, color: "#ef4444" }} onClick={handleReport}>
+                    <Flag size={16} /> Report
+                  </button>
+                  
+                  {/* Toggle between Connect and Disconnect */}
                   {!isConnected ? (
-                     <button style={{ ...styles.menuItem, color: "#2563eb" }} onClick={handleConnect}><UserPlus size={16} /> Connect</button>
+                      <button 
+                        style={{ ...styles.menuItem, color: "#2563eb", opacity: isLoadingConnection ? 0.5 : 1 }} 
+                        onClick={handleConnect}
+                        disabled={isLoadingConnection}
+                      >
+                        <UserPlus size={16} /> {isLoadingConnection ? 'Connecting...' : 'Connect'}
+                      </button>
                   ) : (
-                     <button style={{ ...styles.menuItem, color: "#ef4444" }} onClick={handleDisconnect}><UserMinus size={16} /> Disconnect</button>
+                      <button 
+                        style={{ ...styles.menuItem, color: "#ef4444", opacity: isLoadingConnection ? 0.5 : 1 }} 
+                        onClick={handleDisconnect}
+                      >
+                        <UserMinus size={16} /> Disconnect
+                      </button>
                   )}
                 </>
               )}
