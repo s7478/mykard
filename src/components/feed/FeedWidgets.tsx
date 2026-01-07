@@ -390,7 +390,6 @@ export const PostCard = ({ currentUser, postData }: { currentUser?: any; postDat
 
   // --- Handlers ---
 
-
   const toggleComments = async () => {
     const newState = !showComments;
     setShowComments(newState);
