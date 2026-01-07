@@ -193,9 +193,9 @@ export default function ContactsPage() {
   style={{
     minHeight: "100vh",
     background: `
-      radial-gradient(600px 300px at 50% -50px, rgba(73, 144, 226, 0.25), transparent 70%),
-      radial-gradient(500px 250px at 15% 120px, rgba(30, 103, 244, 0.20), transparent 70%),
-      radial-gradient(500px 250px at 85% 140px, rgba(75, 133, 255, 0.18), transparent 70%),
+      radial-gradient(600px 300px at 50% -50px, rgba(14, 61, 114, 0.25), transparent 70%),
+      radial-gradient(500px 250px at 15% 120px, rgba(40, 107, 241, 0.2), transparent 70%),
+      radial-gradient(500px 250px at 85% 140px, rgba(23, 69, 167, 0.18), transparent 70%),
       linear-gradient(180deg, #F5F9FF 0%, #FFFFFF 55%)
     `
   }}
@@ -323,7 +323,7 @@ export default function ContactsPage() {
             ) : (
               <div className={styles.contactsList}>
                 {filteredContacts.map((contact) => (
-                  <div key={contact.id} className={`${styles.contactCard} ${ expandedContactId === contact.id ? styles.expanded : "" }`} onClick={() => setExpandedContactId( expandedContactId === contact.id ? null : contact.id ) } >
+                  <div key={contact.id} className={`${styles.contactCard} ${ expandedContactId === contact.id ? styles.expanded : "" }`}style={{ background: "linear-gradient(180deg, #9CE1FF 0%, #F0FCFF 100%)",  border: "1px solid #4A90E2",  borderRadius: "16px",  }} onClick={() => setExpandedContactId( expandedContactId === contact.id ? null : contact.id ) } >
                     <div className={styles.contactHeader}>
                       <div className={styles.contactInfo}>
                         <div className={styles.avatar}>
