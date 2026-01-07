@@ -23,8 +23,8 @@ export default function FeedPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#F3F4F6] px-4 py-8 flex justify-center">
-        <main className="flex flex-col gap-6 w-full lg:w-7/12 mx-auto">
+    <div className="min-h-screen px-4 py-8 flex justify-center">
+        <main className="flex flex-col w-full lg:w-7/12 mx-auto">
           
           {/* 1. Create Post Widget */}
           <CreatePostWidget currentUser={currentUser} />

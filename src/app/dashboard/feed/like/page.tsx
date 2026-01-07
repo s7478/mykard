@@ -46,7 +46,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
 };
 
-export default function MyPostsPage() {
+export default function MyLikedPostsPage() {
   const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
@@ -62,10 +62,10 @@ export default function MyPostsPage() {
           <Link href="/dashboard/feed" style={styles.backBtn}>
             <ArrowLeft size={20} />
           </Link>
-          <h1 style={styles.title}>My Posts</h1>
+          <h1 style={styles.title}>Liked Post</h1>
         </div>
 
-        <FeedStream filter="mine" currentUser={currentUser} />
+        <FeedStream filter="like" currentUser={currentUser} />
       </div>
     </div>
   );

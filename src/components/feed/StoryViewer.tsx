@@ -77,7 +77,7 @@ export default function StoryViewer({ isOpen, onClose, stories, user }: StoryVie
   const isVideo = activeStory.imageUrl?.match(/\.(mp4|webm|ogg)$/i);
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black flex items-center justify-center">
+    <div className="fixed inset-0 z-100 bg-black flex items-center justify-center">
       {/* Close Button */}
       <button onClick={onClose} className="absolute top-4 right-4 text-white z-50 p-2 bg-black/20 rounded-full">
         <X size={24} />
