@@ -1,31 +1,19 @@
 "use client";
 
 import styles from "./carddetail.module.css";
-import React, { useState, useRef, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import React, { useState, useRef, useEffect, Suspense } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Delete from "../delete/Delete";
 import { toast } from "react-hot-toast";
 import {
-  FiDownload,
-  FiCopy,
   FiEdit,
-  FiUpload,
   FiToggleLeft,
   FiToggleRight,
-  FiRefreshCw,
   FiMail,
   FiPhone,
-  FiLinkedin,
-  FiGlobe,
+  FiShare2 as FiShareIcon, // Renamed to avoid collision if needed, or use specific imports
 } from "react-icons/fi";
-
-import DigitalCardPreview, {
-  DigitalCardProps,
-} from "@/components/cards/DigitalCardPreview";
-import FlatCardPreview from "@/components/cards/FlatCardPreview";
-import ModernCardPreview from "@/components/cards/ModernCardPreview";
-import SleekCardPreview from "@/components/cards/SleekCardPreview";
 import {
   QrCode,
   Download,
@@ -34,12 +22,80 @@ import {
   Check,
   Link as LinkIcon,
   BarChart3,
-  Users,
-  Eye,
+  Eye,   // Added: Required for the map loop
+  Users, // Added: Required for the map loop
+  ArrowUpRight,
+  ArrowDownRight,
+  Minus
 } from "lucide-react";
 import Link from "next/link";
 import QRCode from "react-qr-code";
-import { DELETE } from "@/app/api/card/delete/route";
+
+/* -------------------------------------------------
+   DESIGN SYSTEM 
+   ------------------------------------------------- */
+const theme = {
+  colors: {
+    bg: "#FFFFFF",
+    primaryBlue: "#2152E5",
+    cardGradient: "linear-gradient(109.79deg, rgba(79, 117, 230, 0.98) 16.59%, #1237A1 76.33%)",
+    cardBorderLine: "#6AD2FF",
+    avatarBg: "#1279E1",
+    avatarBorder: "#A3D4FF",
+    inputText: "#646464",
+    inputBorder: "#767676",
+  },
+  font: "'Plus Jakarta Sans', sans-serif",
+};
+
+// ----------------- IMAGE COMPRESSION -----------------
+const compressImage = (file: File): Promise<File> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const MAX_WIDTH = 800;
+        const MAX_HEIGHT = 800;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const compressedFile = new File([blob], file.name, {
+              type: "image/jpeg",
+              lastModified: Date.now(),
+            });
+            resolve(compressedFile);
+          } else {
+            resolve(file);
+          }
+        }, "image/jpeg", 0.7);
+      };
+    };
+    reader.onerror = (error) => reject(error);
+  });
+};
 
 // ----------------- Card Type Definition -----------------
 interface Card {
@@ -61,10 +117,6 @@ interface Card {
   review?: string;
   photo?: string;
   profileImage?: string;
-  cover?: string;
-  coverImage?: string;
-  bannerImage?: string;
-  documentUrl?: string;
   email?: string;
   phone?: string;
   linkedin?: string;
@@ -79,125 +131,214 @@ interface Card {
   cardType?: string;
   views?: number;
   shares?: number;
-  boost?: "Active" | "Inactive";
-  user?: {
-    id: string;
-    fullName: string;
-    username: string;
-    email: string;
-    location?: string;
-  };
-
-
-  customFields?: string;
-
-
+  documentUrl?: string;
 }
 
 // ----------------- Card Preview -----------------
 const CardPreview: React.FC<{ card: Card }> = ({ card }) => {
-  const renderCardPreview = () => {
-    const commonProps = {
-      firstName: card.fullName || card.name || "",
-      middleName: "",
-      lastName: "",
-      cardName: card.cardName || "",
-      title: card.title || "",
-      company: card.company || "",
-      location: card.location || "",
-      about: card.bio || card.about || card.description || "",
-      skills: card.skills || "",
-      portfolio: card.portfolio || "",
-      experience: card.experience || "",
-      services: card.services || "",
-      review: card.review || "",
-      photo: card.profileImage || card.photo || "",
-      cover: card.coverImage || card.bannerImage || card.cover || "",
-      email: card.email || "",
-      phone: card.phone || "",
-      linkedin: card.linkedinUrl || card.linkedin || "",
-      website: card.websiteUrl || card.website || "",
-      documentUrl: (card as any).documentUrl || "",
-      themeColor1: card.selectedColor || "#3b82f6",
-      themeColor2: card.selectedColor2 || "#2563eb",
-      textColor: card.textColor || "#000000",
-      fontFamily: card.selectedFont || "system-ui, sans-serif",
-      cardType: card.cardType || "",
-    };
+  const [showSkillsOverlay, setShowSkillsOverlay] = useState(false);
 
-    const design = card.selectedDesign || "Classic";
-
-    switch (design) {
-      case "Flat":
-        return <FlatCardPreview {...commonProps} />;
-      case "Modern":
-        return <ModernCardPreview {...commonProps} />;
-      case "Sleek":
-        return <SleekCardPreview {...commonProps} />;
-      case "Classic":
-      default:
-        return <DigitalCardPreview {...commonProps} design={design} />;
-    }
+  const displayData = {
+    name: card.fullName || card.name || "Your Name",
+    title: card.title,
+    company: card.company,
+    location: card.location,
+    about: card.bio || card.about || card.description,
+    photo: card.profileImage || card.photo,
+    phone: card.phone,
+    email: card.email,
+    skills: card.skills
   };
+
+  const initials = displayData.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().substring(0, 2);
+
+  const skillsArray = displayData.skills
+    ? displayData.skills.split(',').map((s: string) => s.trim()).filter((s: string) => s.length > 0)
+    : [];
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 100, damping: 20 }}
-      className="flex items-center justify-center"
-      style={{ maxWidth: "360px" }}
+      style={{
+        width: "100%",
+        maxWidth: "340px",
+        background: theme.colors.cardGradient,
+        borderRadius: "20px",
+        padding: "24px",
+        color: "white",
+        boxShadow: "0 25px 50px -12px rgba(33, 82, 229, 0.35)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        textAlign: "center",
+        position: "relative",
+        margin: "0 auto",
+        zIndex: 1,
+        transition: "all 0.3s ease",
+        border: "1px solid rgba(255,255,255,0.1)",
+        overflow: "hidden",
+        fontFamily: theme.font
+      }}
     >
-      {renderCardPreview()}
+      <div style={{ width: "60%", height: "1px", background: theme.colors.cardBorderLine, position: "absolute", top: "70px", opacity: 0.6 }} />
+
+      <div style={{ width: "88px", height: "88px", borderRadius: "50%", background: theme.colors.avatarBg, border: `3px solid ${theme.colors.avatarBorder}`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px", zIndex: 2, position: "relative", overflow: 'hidden', boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
+        {displayData.photo ? (
+          <img src={displayData.photo} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        ) : (
+          <span style={{ fontFamily: theme.font, fontWeight: '700', fontSize: "32px", color: '#FFFFFF' }}>{initials}</span>
+        )}
+      </div>
+
+      <h3 style={{ fontFamily: theme.font, fontWeight: '700', fontSize: "24px", lineHeight: "1.2", marginBottom: "8px", textShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
+        {displayData.name}
+      </h3>
+
+      {(displayData.title || displayData.company) && (
+        <div style={{ fontSize: "14px", opacity: 0.95, marginBottom: "12px", fontWeight: "500", letterSpacing: "0.3px" }}>
+          {displayData.title && <span>{displayData.title}</span>}
+          {displayData.title && displayData.company && <span style={{ margin: '0 6px' }}>|</span>}
+          {displayData.company && <span>{displayData.company}</span>}
+        </div>
+      )}
+
+      {displayData.location && (
+        <div style={{ fontSize: "12px", opacity: 0.8, marginBottom: "20px", display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,255,255,0.1)', padding: '4px 12px', borderRadius: '20px' }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          {displayData.location}
+        </div>
+      )}
+
+      {(displayData.phone || displayData.email) && (
+        <div style={{ display: "flex", gap: "16px", marginBottom: "24px" }}>
+          {displayData.phone && (
+            <a href={`tel:${displayData.phone}`} style={{ width: "42px", height: "42px", borderRadius: "14px", background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            </a>
+          )}
+          {displayData.email && (
+            <a href={`mailto:${displayData.email}`} style={{ width: "42px", height: "42px", borderRadius: "14px", background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            </a>
+          )}
+        </div>
+      )}
+
+      {displayData.about && (
+        <div style={{ width: '100%', marginBottom: 'auto', textAlign: 'left' }}>
+          <p style={{ fontSize: "13px", opacity: 0.9, lineHeight: '1.5', color: '#FFFFFF', fontFamily: theme.font, background: 'rgba(0,0,0,0.1)', padding: '12px', borderRadius: '12px' }}>
+            {displayData.about.length > 90 ? displayData.about.substring(0, 90) + "..." : displayData.about}
+          </p>
+        </div>
+      )}
+
+      {skillsArray.length > 0 && (
+        <button
+          onClick={() => setShowSkillsOverlay(true)}
+          style={{
+            marginTop: '20px',
+            background: '#FFFFFF',
+            color: theme.colors.primaryBlue,
+            border: 'none',
+            padding: '10px 10px',
+            borderRadius: '30px',
+            fontSize: '14px',
+            fontWeight: '700',
+            cursor: 'pointer',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+            width: '100%',
+            transition: 'transform 0.2s',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px'
+          }}
+        >
+          <span>View Skills & Expertise</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+        </button>
+      )}
+
+      {showSkillsOverlay && (
+        <div style={{
+          position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+          background: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', zIndex: 50,
+          display: 'flex', flexDirection: 'column', padding: '24px', animation: 'fadeIn 0.3s ease-out'
+        }}>
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowSkillsOverlay(false); }}
+            style={{
+              alignSelf: 'flex-end', background: '#F3F4F6', border: 'none', width: '32px', height: '32px',
+              borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#374151'
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+          <h4 style={{ color: '#111827', fontSize: '20px', fontWeight: '800', marginBottom: '20px', marginTop: '10px', textAlign: 'left' }}>Skills & Expertise</h4>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignContent: 'flex-start', overflowY: 'auto' }}>
+            {skillsArray.map((skill: string, i: number) => (
+              <span key={i} style={{ background: theme.colors.primaryBlue, color: 'white', padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: '600', boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)' }}>{skill}</span>
+            ))}
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 };
 
-// ----------------- Main Page -----------------
-const CardDetailsPage = () => {
+// ----------------- Main Page Content -----------------
+const CardDetailsContent = () => {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const cardId = params.id as string;
-  const [activeTab, setActiveTab] = useState<
-    "share" | "settings" | "analytics"
-  >("share");
-  const [searchIndexing, setSearchIndexing] = useState(true);
+
+  const [activeTab, setActiveTab] = useState<"share" | "settings" | "analytics">("share");
+
   const [copied, setCopied] = useState(false);
   const [shareMethod, setShareMethod] = useState<"qr" | "link">("link");
   const [card, setCard] = useState<Card | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isTogglingActive, setIsTogglingActive] = useState(false);
   const [contactsCount, setContactsCount] = useState(0);
   const [showDelete, setShowDelete] = useState(false);
 
-  const qrRef = useRef<HTMLDivElement>(null);
-  const handleToggleActive = async () => {
-    if (isTogglingActive || !card) return;
+  // Growth Analytics State (Mock Data for demonstration, replace with real logic if available)
+  const [analytics, setAnalytics] = useState({
+    contactsGrowth: 12, // Example static values, 
+    viewsGrowth: 8      // or fetch from API
+  });
 
-    setIsTogglingActive(true);
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'analytics') setActiveTab('analytics');
+    else if (tabParam === 'settings') setActiveTab('settings');
+    else if (tabParam === 'share') setActiveTab('share');
+  }, [searchParams]);
+
+  const handleToggleActive = async () => {
+    if (!card) return;
+    const newStatus = !card.cardActive;
+    const statusText = newStatus ? "Active" : "Paused";
+    setCard((prev) => (prev ? { ...prev, cardActive: newStatus } : null));
+
     try {
       const response = await fetch(`/api/card/${cardId}/toggle-active`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to toggle card status");
-      }
-
+      if (!response.ok) throw new Error("Failed to update status");
       const data = await response.json();
-      setCard((prev) =>
-        prev ? { ...prev, cardActive: data.card.cardActive } : null
-      );
-      toast.success(data.message);
+      if (data.card) {
+        setCard((prev) => (prev ? { ...prev, cardActive: data.card.cardActive } : null));
+      }
+      toast.success(`Card is now ${statusText}`);
     } catch (error: any) {
       console.error("Error toggling card status:", error);
-      toast.error(error.message || "Failed to toggle card status");
-    } finally {
-      setIsTogglingActive(false);
+      toast.error("Failed to update status");
+      setCard((prev) => (prev ? { ...prev, cardActive: !newStatus } : null));
     }
   };
 
@@ -205,14 +346,10 @@ const CardDetailsPage = () => {
     try {
       const response = await fetch(`/api/card/delete`, {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cardId }),
       });
-      if (!response.ok) {
-        throw new Error("Failed to delete card");
-      }
+      if (!response.ok) throw new Error("Failed to delete card");
       router.push("/dashboard");
     } catch (error: any) {
       console.error("Error deleting card:", error);
@@ -224,18 +361,10 @@ const CardDetailsPage = () => {
     const fetchCard = async () => {
       try {
         setIsLoading(true);
-        //  console.log('🔍 Fetching card with ID:', cardId);
-
         const response = await fetch(`/api/card/${cardId}`);
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch card");
-        }
-
+        if (!response.ok) throw new Error("Failed to fetch card");
         const data = await response.json();
-
         if (data.success && data.card) {
-          //  console.log('✅ Fetched card:', data.card);
           setCard(data.card);
         } else {
           toast.error("Card not found");
@@ -249,15 +378,11 @@ const CardDetailsPage = () => {
         setIsLoading(false);
       }
     };
-
-    if (cardId) {
-      fetchCard();
-    }
+    if (cardId) fetchCard();
   }, [cardId, router]);
 
+  // Fetch contacts count for analytics
   useEffect(() => {
-    let intervalId: any;
-
     const fetchContacts = async () => {
       try {
         const res = await fetch("/api/contacts", { credentials: "include" });
@@ -265,55 +390,21 @@ const CardDetailsPage = () => {
         const data = await res.json();
         const allContacts = (data.contacts || []) as any[];
         if (cardId) {
-          const filtered = allContacts.filter(
-            (c: any) => c.card && c.card.id === cardId
-          );
+          const filtered = allContacts.filter((c: any) => c.card && c.card.id === cardId);
           setContactsCount(filtered.length);
-        } else {
-          setContactsCount(allContacts.length);
         }
-      } catch (_) {
-        // ignore errors for analytics badge
-      }
+      } catch (_) { }
     };
-
     fetchContacts();
-    intervalId = setInterval(fetchContacts, 20000);
-
-    const onUpdated = () => fetchContacts();
-    if (typeof window !== "undefined") {
-      window.addEventListener("contacts-updated", onUpdated as any);
-    }
-
-    return () => {
-      clearInterval(intervalId);
-      if (typeof window !== "undefined") {
-        window.removeEventListener("contacts-updated", onUpdated as any);
-      }
-    };
   }, [cardId]);
 
   const mockUserData = {
-    cardUrl: `${
-      typeof window !== "undefined" ? window.location.origin : ""
-    }/cards/public/${cardId}`,
+    cardUrl: `${typeof window !== "undefined" ? window.location.origin : ""}/cards/public/${cardId}`,
   };
 
   const copyToClipboard = async (text: string) => {
     try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(text);
-      } else {
-        // Mobile fallback
-        const input = document.createElement("input");
-        input.value = text;
-        document.body.appendChild(input);
-        input.select();
-        input.setSelectionRange(0, 99999);
-        document.execCommand("copy");
-        document.body.removeChild(input);
-      }
-
+      await navigator.clipboard.writeText(text);
       setCopied(true);
       toast.success("Link copied!");
       setTimeout(() => setCopied(false), 1500);
@@ -324,278 +415,59 @@ const CardDetailsPage = () => {
   };
 
   const downloadQR = () => {
-    // Generate QR code for download regardless of current tab
-    // First, try to find existing QR in QR wrapper
     let qrWrapper = document.querySelector(`.${styles.qrWrapper}`);
     let svg = qrWrapper?.querySelector("svg");
-
-    // If we're in Direct Link tab and no QR is visible, temporarily create one
-    if (!svg && shareMethod === "link") {
-      // Create a temporary hidden QR code
-      const tempDiv = document.createElement("div");
-      tempDiv.style.position = "absolute";
-      tempDiv.style.left = "-9999px";
-      tempDiv.style.top = "-9999px";
-      document.body.appendChild(tempDiv);
-
-      // Import QRCode component dynamically and render
-      import("react-qr-code").then((QRCodeModule) => {
-        const QRCode = QRCodeModule.default;
-        const React = require("react");
-        const ReactDOM = require("react-dom/client");
-
-        const root = ReactDOM.createRoot(tempDiv);
-        root.render(
-          React.createElement(QRCode, {
-            value: mockUserData.cardUrl,
-            size: 180,
-          })
-        );
-
-        // Wait a moment for render, then proceed with download
-        setTimeout(() => {
-          const tempSvg = tempDiv.querySelector("svg");
-          if (tempSvg) {
-            processQRDownload(tempSvg, () => {
-              document.body.removeChild(tempDiv);
-            });
-          }
-        }, 100);
-      });
-      return;
+    if (svg) {
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx?.drawImage(img, 0, 0);
+        const a = document.createElement("a");
+        a.download = `MyKard_QR_${cardId}.png`;
+        a.href = canvas.toDataURL("image/png");
+        a.click();
+      };
+      img.src = "data:image/svg+xml;base64," + btoa(svgData);
+    } else {
+      toast.error("Please switch to QR tab first");
     }
-
-    if (!svg) return;
-    processQRDownload(svg);
   };
 
-  const processQRDownload = (svg: Element, cleanup?: () => void) => {
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    const img = new Image();
-
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx?.drawImage(img, 0, 0);
-
-      // Convert to blob for better file handling
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const url = URL.createObjectURL(blob);
-          const downloadLink = document.createElement("a");
-          downloadLink.href = url;
-          downloadLink.download = `MyKard_QR_${cardId}.png`;
-          document.body.appendChild(downloadLink);
-          downloadLink.click();
-          document.body.removeChild(downloadLink);
-          URL.revokeObjectURL(url);
-        }
-        if (cleanup) cleanup();
-      }, "image/png");
-    };
-
-    img.src = "data:image/svg+xml;base64," + btoa(svgData);
-  };
-
-  // Mobile detection utility
   const isMobile = () => {
     if (typeof window === "undefined") return false;
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   };
 
   const incrementShareCount = async () => {
     try {
       await fetch(`/api/card/${cardId}/share`, { method: "POST" });
-      setCard((prev) =>
-        prev ? { ...prev, shares: (prev.shares || 0) + 1 } : prev
-      );
-    } catch (error) {
-      console.error("Error incrementing share count:", error);
-    }
+      setCard(prev => prev ? { ...prev, shares: (prev.shares || 0) + 1 } : prev);
+    } catch (e) { console.error(e); }
   };
 
   const shareProfile = async () => {
-    const shareMessage = `Here is my MyKard digital profile. You can view my details and connect with me here.\n\nThis profile contains my contact information, social links, and business card.\n\nClick the link below to view the card:\n${mockUserData.cardUrl}`;
-
-    // console.log('Navigator share available:', !!navigator.share);
-    // console.log('Current share method:', shareMethod);
-    // console.log('Is mobile device:', isMobile());
-
-    const mobile = isMobile();
-
-    // DIRECT LINK TAB - Always send message + link only (no QR)
-    if (shareMethod === "link") {
-      if (navigator.share && mobile) {
-        // Mobile: Use native share
-        await navigator.share({
-          title: "MyKard Profile",
-          text: shareMessage,
-          url: mockUserData.cardUrl,
-        });
-        await incrementShareCount();
-      } else {
-        // Desktop: Open WhatsApp Web
-        const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
-          shareMessage
-        )}`;
-        window.open(whatsappUrl, "_blank");
-        // Poll for WhatsApp window close
-        const intervalId = setInterval(() => {
-          if (!document.querySelector(`iframe[src="${whatsappUrl}"]`)) {
-            clearInterval(intervalId);
-            incrementShareCount();
-          }
-        }, 1000);
-      }
-      return;
-    }
-
-    // QR TAB - Different behavior for mobile vs desktop
-    if (shareMethod === "qr") {
-      if (navigator.share && mobile) {
-        // Mobile: 2-step share (QR first, then message + link)
-        try {
-          const qrWrapper = document.querySelector(`.${styles.qrWrapper}`);
-          const svg = qrWrapper?.querySelector("svg");
-          if (svg) {
-            const svgData = new XMLSerializer().serializeToString(svg);
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-            const img = new Image();
-
-            await new Promise((resolve) => {
-              img.onload = () => {
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx?.drawImage(img, 0, 0);
-
-                canvas.toBlob(async (blob) => {
-                  if (blob) {
-                    const file = new File([blob], `MyKard_QR_${cardId}.png`, {
-                      type: "image/png",
-                    });
-
-                    // Step 1: Share QR image only
-                    try {
-                      await navigator.share({
-                        files: [file],
-                      });
-
-                      // Step 2: After 300ms, share message + link
-                      setTimeout(async () => {
-                        try {
-                          await navigator.share({
-                            title: "MyKard Profile",
-                            text: shareMessage,
-                            url: mockUserData.cardUrl,
-                          });
-                          await incrementShareCount();
-                        } catch (error) {
-                          console.log(
-                            "Could not share message after QR:",
-                            error
-                          );
-                        }
-                      }, 300);
-                    } catch (error) {
-                      console.log(
-                        "Could not share QR image, fallback to message only:",
-                        error
-                      );
-                      // Fallback: Share message + link only
-                      await navigator.share({
-                        title: "MyKard Profile",
-                        text: shareMessage,
-                        url: mockUserData.cardUrl,
-                      });
-                      await incrementShareCount();
-                    }
-                  }
-                  resolve(null);
-                }, "image/png");
-              };
-              img.src = "data:image/svg+xml;base64," + btoa(svgData);
-            });
-          } else {
-            // No QR found, fallback to message + link only
-            await navigator.share({
-              title: "MyKard Profile",
-              text: shareMessage,
-              url: mockUserData.cardUrl,
-            });
-            await incrementShareCount();
-          }
-        } catch (error) {
-          console.log("QR share failed, fallback to message only:", error);
-          // Fallback: Share message + link only
-          await navigator.share({
-            title: "MyKard Profile",
-            text: shareMessage,
-            url: mockUserData.cardUrl,
-          });
-          await incrementShareCount();
-        }
-      } else {
-        // Desktop: WhatsApp Web cannot send images, send message + link only
-        const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
-          shareMessage
-        )}`;
-        window.open(whatsappUrl, "_blank");
-        // Poll for WhatsApp window close
-        const intervalId = setInterval(() => {
-          if (!document.querySelector(`iframe[src="${whatsappUrl}"]`)) {
-            clearInterval(intervalId);
-            incrementShareCount();
-          }
-        }, 1000);
-      }
+    const shareMessage = `Check out my MyKard profile: ${mockUserData.cardUrl}`;
+    if (navigator.share && isMobile()) {
+      await navigator.share({ title: "MyKard", text: shareMessage, url: mockUserData.cardUrl });
+      await incrementShareCount();
+    } else {
+      copyToClipboard(mockUserData.cardUrl);
     }
   };
 
-  const lineData = {
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    datasets: [
-      {
-        label: "Views",
-        data: [40, 70, 60, 90, 50, 80, 65],
-        borderColor: "#2563eb",
-        backgroundColor: "rgba(37, 99, 235, 0.2)",
-        tension: 0.4,
-        fill: true,
-      },
-    ],
-  };
-
-  const [file, setFile] = useState<File | null>(null);
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const selectedFile = e.target.files[0];
-      setFile(selectedFile);
-
-      // Create preview URL
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoPreview(reader.result as string);
-      };
-      reader.readAsDataURL(selectedFile);
-    }
-  };
-
-  const triggerFileInput = () => {
-    document.getElementById("qrLogoUpload")?.click();
+  const renderPercentageBadge = (value: number) => {
+    if (value > 0) return (<div className="bg-[#dcfce7] text-[#166534] text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1"><ArrowUpRight size={10} /> + {value}%</div>);
+    else if (value < 0) return (<div className="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1"><ArrowDownRight size={10} /> {value}%</div>);
+    return (<div className="bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1"><Minus size={10} /> 0%</div>);
   };
 
   if (isLoading) {
     return (
-      <div
-        className={`${styles.pageContainer} flex items-center justify-center`}
-      >
+      <div className={`${styles.pageContainer} flex items-center justify-center`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-green mx-auto mb-4"></div>
           <p className="text-gray-600">Loading card...</p>
@@ -604,21 +476,7 @@ const CardDetailsPage = () => {
     );
   }
 
-  if (!card)
-    return (
-      <div
-        className={`${styles.pageContainer} flex items-center justify-center`}
-      >
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4 text-gray-800">
-            Card Not Found
-          </h1>
-          <Link href="/dashboard" className="text-blue-600 hover:text-blue-700">
-            Back to Dashboard
-          </Link>
-        </div>
-      </div>
-    );
+  if (!card) return <div className={`${styles.pageContainer}`}>Card Not Found</div>;
 
   return (
     <>
@@ -633,380 +491,74 @@ const CardDetailsPage = () => {
             transition={{ duration: 0.35 }}
             className={styles.settingsPanel}
           >
-            {/* Tabs Container with Edit Button */}
             <div className={styles.tabsContainer}>
               <div className={styles.tabsList}>
                 {["share", "settings", "analytics"].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab as any)}
-                    className={`${styles.tabButton} ${
-                      activeTab === tab ? styles.tabButtonActive : ""
-                    }`}
-                  >
-                    {tab}
-                  </button>
+                  <button key={tab} onClick={() => setActiveTab(tab as any)} className={`${styles.tabButton} ${activeTab === tab ? styles.tabButtonActive : ""}`}>{tab}</button>
                 ))}
               </div>
               <div className={styles.editCardWrapper}>
                 <Link href={`/dashboard/edit?id=${cardId}`}>
-                  <button className={styles.editCardBtn}>
-                    <FiEdit size={16} />
-                    Edit Card
-                  </button>
+                  <button className={styles.editCardBtn}><FiEdit size={16} /> <span className={styles.editBtnText}>Edit Card</span></button>
                 </Link>
               </div>
             </div>
 
-            {/* Tab Contents */}
             <AnimatePresence mode="wait">
-              {/* Share Section */}
               {activeTab === "share" && (
-                <motion.div
-                  key="share"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className={styles.tabContent}
-                >
+                <motion.div key="share" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={styles.tabContent}>
                   <div className={styles.shareToggleWrapper}>
                     <div className={styles.shareToggle}>
-                      <button
-                        onClick={() => setShareMethod("qr")}
-                        className={`${styles.shareToggleButton} ${
-                          shareMethod === "qr"
-                            ? styles.shareToggleButtonActive
-                            : ""
-                        }`}
-                      >
-                        <QrCode className="w-4 h-4" />
-                        QR Code
-                      </button>
-                      <button
-                        onClick={() => setShareMethod("link")}
-                        className={`${styles.shareToggleButton} ${
-                          shareMethod === "link"
-                            ? styles.shareToggleButtonActive
-                            : ""
-                        }`}
-                      >
-                        <LinkIcon className="w-4 h-4" />
-                        Direct Link
-                      </button>
+                      <button onClick={() => setShareMethod("qr")} className={`${styles.shareToggleButton} ${shareMethod === "qr" ? styles.shareToggleButtonActive : ""}`}><QrCode className="w-4 h-4" /> QR Code</button>
+                      <button onClick={() => setShareMethod("link")} className={`${styles.shareToggleButton} ${shareMethod === "link" ? styles.shareToggleButtonActive : ""}`}><LinkIcon className="w-4 h-4" /> Direct Link</button>
                     </div>
                   </div>
 
                   <div className="flex justify-center">
                     {shareMethod === "link" ? (
-                      <div className={styles.directLinkBox}>
-                        <div className={styles.linkDisplay}>
-                          <p className={styles.linkText}>
-                            {mockUserData.cardUrl}
-                          </p>
-                        </div>
-                      </div>
+                      <div className={styles.directLinkBox} onClick={() => copyToClipboard(mockUserData.cardUrl)}><div className={styles.linkDisplay}><p className={styles.linkText}>{mockUserData.cardUrl}</p> <Copy size={16} className={styles.copyIconOverlay} /></div></div>
                     ) : (
-                      <div className={styles.qrWrapper}>
-                        <div className={styles.qrBox}>
-                          <QRCode value={mockUserData.cardUrl} size={180} />
-                        </div>
-                      </div>
+                      <div className={styles.qrWrapper}><div className={styles.qrBox}><QRCode value={mockUserData.cardUrl} size={180} /></div></div>
                     )}
                   </div>
 
                   <div style={{ height: "16px" }}></div>
-
-                  {/* Warning message when card is paused */}
-                  {!card?.cardActive && (
-                    <div
-                      style={{
-                        padding: "12px 16px",
-                        backgroundColor: "#fef3c7",
-                        border: "1px solid #fbbf24",
-                        borderRadius: "8px",
-                        marginBottom: "16px",
-                        textAlign: "center",
-                      }}
-                    >
-                      <p
-                        style={{
-                          color: "#92400e",
-                          fontSize: "14px",
-                          fontWeight: "500",
-                          margin: 0,
-                        }}
-                      >
-                        ⚠️ This card is paused. Activate it in Settings to
-                        enable sharing.
-                      </p>
-                    </div>
-                  )}
+                  {!card?.cardActive && <div style={{ padding: "12px", backgroundColor: "#fef3c7", borderRadius: "8px", textAlign: "center", marginBottom: "16px" }}><p style={{ color: "#92400e", fontSize: "14px", fontWeight: "500", margin: 0 }}>⚠️ This card is paused. Activate it in Settings.</p></div>}
 
                   <div className={styles.actionButtons}>
-                    <motion.button
-                      onClick={() => copyToClipboard(mockUserData.cardUrl)}
-                      className={styles.actionBtn}
-                      whileTap={{ scale: card?.cardActive ? 0.95 : 1 }}
-                      whileHover={{ scale: card?.cardActive ? 1.03 : 1 }}
-                      disabled={!card?.cardActive}
-                      style={{
-                        opacity: card?.cardActive ? 1 : 0.5,
-                        cursor: card?.cardActive ? "pointer" : "not-allowed",
-                      }}
-                    >
-                      {copied ? (
-                        <Check className="w-4 h-4" />
-                      ) : (
-                        <Copy className="w-4 h-4" />
-                      )}
-                      {copied ? "Copied!" : "Copy Link"}
-                    </motion.button>
-                    <motion.button
-                      onClick={downloadQR}
-                      className={styles.actionBtn}
-                      whileTap={{ scale: card?.cardActive ? 0.95 : 1 }}
-                      whileHover={{ scale: card?.cardActive ? 1.03 : 1 }}
-                      disabled={!card?.cardActive}
-                      style={{
-                        opacity: card?.cardActive ? 1 : 0.5,
-                        cursor: card?.cardActive ? "pointer" : "not-allowed",
-                      }}
-                    >
-                      <Download className="w-4 h-4" /> Download QR
-                    </motion.button>
-                    <motion.button
-                      onClick={shareProfile}
-                      className={styles.actionBtn}
-                      whileTap={{ scale: card?.cardActive ? 0.95 : 1 }}
-                      whileHover={{ scale: card?.cardActive ? 1.03 : 1 }}
-                      disabled={!card?.cardActive}
-                      style={{
-                        opacity: card?.cardActive ? 1 : 0.5,
-                        cursor: card?.cardActive ? "pointer" : "not-allowed",
-                      }}
-                    >
-                      <Share2 className="w-4 h-4" /> Share Profile
-                    </motion.button>
+                    <motion.button onClick={() => copyToClipboard(mockUserData.cardUrl)} className={styles.actionBtn} disabled={!card?.cardActive} style={{ opacity: card?.cardActive ? 1 : 0.5 }}>{copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />} {copied ? "Copied!" : "Copy Link"}</motion.button>
+                    <motion.button onClick={downloadQR} className={styles.actionBtn} disabled={!card?.cardActive} style={{ opacity: card?.cardActive ? 1 : 0.5 }}><Download className="w-4 h-4" /> Download QR</motion.button>
+                    <motion.button onClick={shareProfile} className={styles.actionBtn} disabled={!card?.cardActive} style={{ opacity: card?.cardActive ? 1 : 0.5 }}><Share2 className="w-4 h-4" /> Share Profile</motion.button>
                   </div>
                 </motion.div>
               )}
 
-              {/* Analytics Section */}
               {activeTab === "analytics" && (
-                <motion.div
-                  key="analytics"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className={`${styles.tabContent} ${styles.analyticsWrapper}`}
-                >
-                  <h3 className={styles.analyticsTitle}>
-                    <BarChart3 className="w-5 h-5" /> Analytics Overview
-                  </h3>
-
+                <motion.div key="analytics" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={`${styles.tabContent} ${styles.analyticsWrapper}`}>
+                  <h3 className={styles.analyticsTitle}><BarChart3 className="w-5 h-5" /> Analytics Overview</h3>
+                  {/* FIX: Correct mapped array implementation for stats grid */}
                   <div className={styles.statsGrid}>
-                    {[
-                      {
-                        label: "Total Views",
-                        value: card.views?.toString() || "0",
-                        icon: Eye,
-                      },
-                      {
-                        label: "Shares",
-                        value: card.shares?.toString() || "0",
-                        icon: Share2,
-                      },
-                      {
-                        label: "Contacts",
-                        value: contactsCount.toString(),
-                        icon: Users,
-                      },
-                    ].map((s, i) => (
-                      <div key={i} className={styles.statCard}>
-                        <div className={styles.statIcon}>
-                          <s.icon className="w-6 h-6" />
-                        </div>
-                        <p className={styles.statValue}>{s.value}</p>
-                        <p className={styles.statLabel}>{s.label}</p>
-                      </div>
+                    {[{ label: "Profile Views", value: card.views?.toString() || "0", icon: Eye }, { label: "Shares", value: card.shares?.toString() || "0", icon: Share2 }, { label: "Connections", value: contactsCount.toString(), icon: Users }].map((s, i) => (
+                      <div key={i} className={styles.statCard}><div className={styles.statIcon}><s.icon className="w-6 h-6" /></div><p className={styles.statValue}>{s.value}</p><p className={styles.statLabel}>{s.label}</p></div>
                     ))}
                   </div>
                 </motion.div>
               )}
 
-              {/* Full Settings Section */}
               {activeTab === "settings" && (
-                <motion.div
-                  key="settings"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className={`${styles.tabContent} ${styles.settingsContent}`}
-                >
-                  {/* Card Configuration */}
-                  {/* <div className={styles.settingsCard}>
-                    <h3 className={styles.settingsCardTitle}>
-                      <div className={`${styles.dot}`} style={{ backgroundColor: 'var(--color-primary-light)' }}></div> Card Configuration
-                    </h3> */}
-
-                  {/* Card Name */}
-                  {/* <div className={styles.settingsItem}>
-                      <div className={styles.settingsInfo}>
-                        <h4 className={styles.settingsLabel}>Card Name</h4>
-                        <p className={styles.settingsDescription}>Change the name of this card.</p>
-                      </div>
-                      <div className={styles.settingsControl}>
-                        <input
-                          type="text"
-                          defaultValue={card.fullName || card.name || 'Personal'}
-                          className={styles.settingsInput}
-                        />
-                      </div>
-                    </div> */}
-
-                  {/* QR Code Logo */}
-                  {/* <div className={styles.settingsItem}>
-                      <div className={styles.settingsInfo}>
-                        <h4 className={styles.settingsLabel}>QR Code Logo</h4>
-                        <p className={styles.settingsDescription}>Change the logo inside the QR code.</p>
-                      </div>
-                      <div className={styles.settingsControl}>
-                        <input
-                          type="file"
-                          id="qrLogoUpload"
-                          accept="image/*"
-                          onChange={handleFileChange}
-                          style={{ display: 'none' }}
-                        />
-                        <button 
-                          className={styles.settingsButton}
-                          onClick={triggerFileInput}
-                        >
-                          <FiUpload size={16} /> Upload Logo
-                        </button>
-                        {logoPreview && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <img 
-                              src={logoPreview} 
-                              alt="Logo preview" 
-                              style={{ width: '50px', height: '50px', borderRadius: '4px' }}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div> */}
-
-                  {/* Personalized Link */}
-                  {/* <div className={styles.settingsItem}>
-                      <div className={styles.settingsInfo}>
-                        <h4 className={styles.settingsLabel}>Personalized Link</h4>
-                        <p className={styles.settingsDescription}>Create your own link to further your brand.</p>
-                      </div>
-                      <div className={styles.settingsControl}>
-                        <input
-                          type="text"
-                          defaultValue="https://mykard.in/hi/XXXX"
-                          className={styles.settingsInput}
-                          readOnly
-                        />
-                      </div>
-                    </div>
-                  </div> */}
-
-                  {/* Privacy & Visibility */}
-                  <div
-                    className={`${styles.settingsCard} ${styles.privacyCard}`}
-                  >
-                    <h3
-                      className={styles.settingsCardTitle}
-                      style={{ marginBottom: "1rem" }}
-                    >
-                      <div
-                        className={`${styles.dot}`}
-                        style={{ backgroundColor: "var(--color-success)" }}
-                      ></div>{" "}
-                      Privacy & Visibility
-                    </h3>
-
-                    {/* Pause Card */}
+                <motion.div key="settings" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={`${styles.tabContent} ${styles.settingsContent}`}>
+                  <div className={`${styles.settingsCard} ${styles.privacyCard}`}>
+                    <h3 className={styles.settingsCardTitle} style={{ marginBottom: "1rem" }}><div className={`${styles.dot}`} style={{ backgroundColor: "var(--color-success)" }}></div> Privacy & Visibility</h3>
                     <div className={styles.settingsItem}>
-                      <div className={styles.settingsInfo}>
-                        <h4 className={styles.settingsLabel}>Pause Card</h4>
-                        <p className={styles.settingsDescription}>
-                          {card?.cardActive
-                            ? "Card is active and shareable. Click to pause."
-                            : "Card is paused and cannot be shared. Click to activate."}
-                        </p>
-                      </div>
-                      <div className={styles.settingsControl}>
-                        <button
-                          onClick={handleToggleActive}
-                          className={styles.toggleBtn}
-                          disabled={isTogglingActive}
-                        >
-                          {card?.cardActive ? (
-                            <FiToggleRight
-                              className={`${styles.toggleIcon} ${styles.active}`}
-                            />
-                          ) : (
-                            <FiToggleLeft
-                              className={`${styles.toggleIcon} ${styles.inactive}`}
-                            />
-                          )}
-                        </button>
-                      </div>
+                      <div className={styles.settingsInfo}><h4 className={styles.settingsLabel}>Pause Card</h4><p className={styles.settingsDescription}>{card?.cardActive ? "Card is active. Click to pause." : "Card is paused. Click to activate."}</p></div>
+                      <div className={styles.settingsControl}><button onClick={handleToggleActive} className={styles.toggleBtn}>{card?.cardActive ? <FiToggleRight className={`${styles.toggleIcon} ${styles.active}`} /> : <FiToggleLeft className={`${styles.toggleIcon} ${styles.inactive}`} />}</button></div>
                     </div>
                   </div>
-
-                  {/* Advanced Settings */}
-                  {/* <div className={styles.settingsCard}> */}
-                  {/* <h3 className={styles.settingsCardTitle}> */}
-                  {/* <div className={`${styles.dot}`} style={{ backgroundColor: 'var(--color-purple-600)' }}></div> Advanced Settings */}
-                  {/* </h3> */}
-
-                  {/* Renew Link only */}
-                  {/* <div className={styles.settingsItem}>
-                      <div className={styles.settingsInfo}>
-                        <h4 className={styles.settingsLabel}>Renew Link</h4>
-                        <p className={styles.settingsDescription}>Renew the link to your card.</p>
-                      </div>
-                      <div className={styles.settingsControl}>
-                        <button className={`${styles.settingsButton} ${styles.renewButton}`}>
-                          <FiRefreshCw size={16} /> Renew
-                        </button>
-                      </div>
-                    </div>
-                  </div> */}
-
-                  {/* Danger Zone */}
-                  <div
-                    className={`${styles.settingsCard} ${styles.dangerCard}`}
-                  >
-                    <h3
-                      className={`${styles.settingsCardTitle} ${styles.dangerCardTitle}`}
-                    >
-                      <div className={`${styles.dot}`}></div> Danger Zone
-                    </h3>
-                    <div
-                      className={`${styles.settingsItem} ${styles.dangerItem}`}
-                    >
-                      <div className={styles.settingsInfo}>
-                        <h4 className={styles.settingsLabel}>Delete Card</h4>
-                        <p className={styles.settingsDescription}>
-                          Delete this card permanently. This action cannot be
-                          undone.
-                        </p>
-                      </div>
-                      <div className={styles.settingsControl}>
-                        <button
-                          onClick={() => {
-                            setShowDelete(true);
-                          }}
-                          className={`${styles.settingsButton} ${styles.deleteButton}`}
-                        >
-                          Delete Card
-                        </button>
-                      </div>
+                  <div className={`${styles.settingsCard} ${styles.dangerCard}`}>
+                    <h3 className={`${styles.settingsCardTitle} ${styles.dangerCardTitle}`}><div className={`${styles.dot}`}></div> Danger Zone</h3>
+                    <div className={`${styles.settingsItem} ${styles.dangerItem}`}>
+                      <div className={styles.settingsInfo}><h4 className={styles.settingsLabel}>Delete Card</h4><p className={styles.settingsDescription}>Delete this card permanently.</p></div>
+                      <div className={styles.settingsControl}><button onClick={() => setShowDelete(true)} className={`${styles.settingsButton} ${styles.deleteButton}`}>Delete Card</button></div>
                     </div>
                   </div>
                 </motion.div>
@@ -1015,17 +567,15 @@ const CardDetailsPage = () => {
           </motion.div>
         </div>
       </div>
-      {showDelete && (
-        <Delete
-          cardname={card.cardName ?? ""}
-          onConfirm={handleDelete}
-          onCancel={() => {
-            setShowDelete(false);
-          }}
-        />
-      )}
+      {showDelete && <Delete cardname={card.cardName ?? ""} onConfirm={handleDelete} onCancel={() => setShowDelete(false)} />}
     </>
   );
 };
 
-export default CardDetailsPage;
+const CardDetailsPageWrapper = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <CardDetailsContent />
+  </Suspense>
+);
+
+export default CardDetailsPageWrapper;
