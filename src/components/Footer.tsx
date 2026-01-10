@@ -32,7 +32,7 @@ export default function Footer() {
 
   return (
     <footer style={{
-      background: '#3B82F6',
+      background: '#01071E',
       color: '#000000',
       position: 'relative',
       overflow: 'hidden',
@@ -106,7 +106,7 @@ export default function Footer() {
           /* Hover Effect */
           .footer-link {
             transition: color .25s ease;
-            color: #000;
+            color: #fff;
           }
 
           .footer-link:hover {
@@ -167,7 +167,7 @@ export default function Footer() {
               lineHeight: '1.65',
               maxWidth: '420px',
               fontWeight: 500,
-              color: '#000',
+              color: '#fff',
             }}>
               "MyKard enables users to turn static contact details into dynamic professionals identites - making connections easier to share, save, and sustain."
             </p>
@@ -177,7 +177,7 @@ export default function Footer() {
               {[Instagram, Linkedin, X, Facebook].map((Icon, i) => (
                 <Icon key={i}
                   size={28}
-                  style={{ color: '#000', opacity: 0.8, transition: '0.3s' }}
+                  style={{ color: '#fff', opacity: 0.8, transition: '0.3s' }}
                   className="cursor-pointer"
                   onMouseEnter={(e) => {
                     e.currentTarget.style.opacity = '1';
@@ -187,7 +187,7 @@ export default function Footer() {
                   onMouseLeave={(e) => {
                     e.currentTarget.style.opacity = '0.8';
                     e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                    e.currentTarget.style.color = '#000';
+                    e.currentTarget.style.color = '#fff';
                   }}
                 />
               ))}
@@ -253,7 +253,7 @@ export default function Footer() {
 
         {/* Bottom Section */}
         <div style={{
-          borderTop: '2px solid #000',
+          borderTop: '2px solid #fff',
           paddingTop: '2rem',
           textAlign: 'center',
           display: 'flex',

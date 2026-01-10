@@ -761,9 +761,10 @@ if (!raw && activeCategory === "All") {
                   />
                 </div>
 
-                {/* Filter Button */}
+                {/* Filter Button */}{/*
                 <button
-                  onClick={() => setShowFilter(prev => !prev)}
+               
+                onClick={() => setShowFilter(prev => !prev)}
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
@@ -782,7 +783,7 @@ if (!raw && activeCategory === "All") {
                 >
                   Filter
                   <ChevronDown size={16} />
-                </button>
+                </button>*/}~
 
                 {/* 🔽 FILTER DROPDOWN – PASTE HERE */}
                 {showFilter && (
