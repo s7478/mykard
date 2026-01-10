@@ -1,7 +1,7 @@
 "use client";
 
 import styles from "./carddetail.module.css";
-import React, { useState, useRef, useEffect, Suspense } from "react";
+import React, { useState, useRef, useEffect, Suspense, useCallback } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Delete from "../delete/Delete";
@@ -12,7 +12,7 @@ import {
   FiToggleRight,
   FiMail,
   FiPhone,
-  FiShare2 as FiShareIcon, // Renamed to avoid collision if needed, or use specific imports
+  FiShare2 as FiShareIcon,
 } from "react-icons/fi";
 import {
   QrCode,
@@ -22,8 +22,8 @@ import {
   Check,
   Link as LinkIcon,
   BarChart3,
-  Eye,   // Added: Required for the map loop
-  Users, // Added: Required for the map loop
+  Eye,
+  Users,
   ArrowUpRight,
   ArrowDownRight,
   Minus
@@ -48,7 +48,14 @@ const theme = {
   font: "'Plus Jakarta Sans', sans-serif",
 };
 
-// ----------------- IMAGE COMPRESSION -----------------
+// ----------------- UTILS -----------------
+
+// Helper to detect mobile devices
+const isMobile = () => {
+  if (typeof window === "undefined" || typeof navigator === "undefined") return false;
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
+
 const compressImage = (file: File): Promise<File> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -295,8 +302,10 @@ const CardDetailsContent = () => {
   const searchParams = useSearchParams();
   const cardId = params.id as string;
 
-  const [activeTab, setActiveTab] = useState<"share" | "settings" | "analytics">("share");
+  // Ref for hidden QR code (for downloading)
+  const hiddenQrRef = useRef<HTMLDivElement>(null);
 
+  const [activeTab, setActiveTab] = useState<"share" | "settings" | "analytics">("share");
   const [copied, setCopied] = useState(false);
   const [shareMethod, setShareMethod] = useState<"qr" | "link">("link");
   const [card, setCard] = useState<Card | null>(null);
@@ -304,10 +313,10 @@ const CardDetailsContent = () => {
   const [contactsCount, setContactsCount] = useState(0);
   const [showDelete, setShowDelete] = useState(false);
 
-  // Growth Analytics State (Mock Data for demonstration, replace with real logic if available)
+  // Growth Analytics State
   const [analytics, setAnalytics] = useState({
-    contactsGrowth: 12, // Example static values, 
-    viewsGrowth: 8      // or fetch from API
+    contactsGrowth: 12,
+    viewsGrowth: 8
   });
 
   useEffect(() => {
@@ -381,22 +390,32 @@ const CardDetailsContent = () => {
     if (cardId) fetchCard();
   }, [cardId, router]);
 
-  // Fetch contacts count for analytics
+  // ----------------- REAL-TIME CONNECTIONS LOGIC -----------------
+  // Matches Dashboard logic exactly
+  const fetchConnections = useCallback(async () => {
+    try {
+      const res = await fetch("/api/users/connections?type=accepted", { credentials: "include" });
+      if (!res.ok) return;
+      const data = await res.json();
+
+      // Calculate length from the requests/connections array just like Dashboard
+      const connections = data.requests || [];
+      setContactsCount(connections.length);
+    } catch (error) {
+      console.error("Error fetching connections", error);
+    }
+  }, []);
+
   useEffect(() => {
-    const fetchContacts = async () => {
-      try {
-        const res = await fetch("/api/contacts", { credentials: "include" });
-        if (!res.ok) return;
-        const data = await res.json();
-        const allContacts = (data.contacts || []) as any[];
-        if (cardId) {
-          const filtered = allContacts.filter((c: any) => c.card && c.card.id === cardId);
-          setContactsCount(filtered.length);
-        }
-      } catch (_) { }
-    };
-    fetchContacts();
-  }, [cardId]);
+    // Initial fetch
+    fetchConnections();
+
+    // Poll every 5 seconds for real-time updates (Dashboard used 30s, but here we keep 5s for better responsiveness)
+    const interval = setInterval(fetchConnections, 5000);
+
+    // Cleanup interval on unmount
+    return () => clearInterval(interval);
+  }, [fetchConnections]);
 
   const mockUserData = {
     cardUrl: `${typeof window !== "undefined" ? window.location.origin : ""}/cards/public/${cardId}`,
@@ -410,36 +429,57 @@ const CardDetailsContent = () => {
       setTimeout(() => setCopied(false), 1500);
     } catch (err) {
       console.error("Copy failed:", err);
-      toast.error("Unable to copy. Try manually.");
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopied(true);
+        toast.success("Link copied!");
+        setTimeout(() => setCopied(false), 1500);
+      } catch (err) {
+        toast.error("Unable to copy. Try manually.");
+      }
+      document.body.removeChild(textArea);
     }
   };
 
+  // ----------------- IMPROVED DOWNLOAD FUNCTION -----------------
   const downloadQR = () => {
-    let qrWrapper = document.querySelector(`.${styles.qrWrapper}`);
-    let svg = qrWrapper?.querySelector("svg");
+    const qrContainer = hiddenQrRef.current;
+    const svg = qrContainer?.querySelector("svg");
+
     if (svg) {
       const svgData = new XMLSerializer().serializeToString(svg);
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
       const img = new Image();
+
       img.onload = () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx?.drawImage(img, 0, 0);
+        canvas.width = img.width + 40; // Add padding
+        canvas.height = img.height + 40;
+
+        // Fill white background for the QR Code
+        if (ctx) {
+          ctx.fillStyle = "#FFFFFF";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 20, 20); // Draw image with padding
+        }
+
         const a = document.createElement("a");
-        a.download = `MyKard_QR_${cardId}.png`;
+        a.download = `MyKard_QR_${cardId || 'code'}.png`;
         a.href = canvas.toDataURL("image/png");
         a.click();
+        toast.success("QR Code Downloaded!");
       };
-      img.src = "data:image/svg+xml;base64," + btoa(svgData);
-    } else {
-      toast.error("Please switch to QR tab first");
-    }
-  };
 
-  const isMobile = () => {
-    if (typeof window === "undefined") return false;
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      // Base64 encode the SVG data
+      img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
+    } else {
+      toast.error("Generating QR code...");
+    }
   };
 
   const incrementShareCount = async () => {
@@ -449,13 +489,137 @@ const CardDetailsContent = () => {
     } catch (e) { console.error(e); }
   };
 
+  // ----------------- UPDATED SHARE FUNCTION -----------------
   const shareProfile = async () => {
-    const shareMessage = `Check out my MyKard profile: ${mockUserData.cardUrl}`;
-    if (navigator.share && isMobile()) {
-      await navigator.share({ title: "MyKard", text: shareMessage, url: mockUserData.cardUrl });
-      await incrementShareCount();
-    } else {
-      copyToClipboard(mockUserData.cardUrl);
+    const shareMessage = `Here is my MyKard digital profile. You can view my details and connect with me here.\n\nThis profile contains my contact information, social links, and business card.\n\nClick the link below to view the card:\n${mockUserData.cardUrl}`;
+
+    const mobile = isMobile();
+
+    // DIRECT LINK TAB - Always send message + link only (no QR)
+    if (shareMethod === "link") {
+      if (navigator.share && mobile) {
+        // Mobile: Use native share
+        try {
+          await navigator.share({
+            title: "MyKard Profile",
+            text: shareMessage,
+            url: mockUserData.cardUrl,
+          });
+          await incrementShareCount();
+          toast.success("Shared successfully!");
+        } catch (error) {
+          console.log("Share cancelled or failed", error);
+        }
+      } else {
+        // Desktop: Open WhatsApp Web
+        const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareMessage)}`;
+        window.open(whatsappUrl, "_blank");
+        await incrementShareCount();
+      }
+      return;
+    }
+
+    // QR TAB - Different behavior for mobile vs desktop
+    if (shareMethod === "qr") {
+      if (navigator.share && mobile) {
+        // Mobile: 2-step share (QR first, then message + link)
+        try {
+          // Attempt to find the QR code in the active view, fallback to hidden ref if needed
+          const qrWrapper = document.querySelector(`.${styles.qrWrapper}`) || hiddenQrRef.current;
+          const svg = qrWrapper?.querySelector("svg");
+
+          if (svg) {
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            const img = new Image();
+
+            await new Promise((resolve, reject) => {
+              img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                // Add white background for better visibility
+                if (ctx) {
+                  ctx.fillStyle = "#FFFFFF";
+                  ctx.fillRect(0, 0, canvas.width, canvas.height);
+                  ctx.drawImage(img, 0, 0);
+                }
+
+                canvas.toBlob(async (blob) => {
+                  if (blob) {
+                    const file = new File([blob], `MyKard_QR_${cardId}.png`, {
+                      type: "image/png",
+                    });
+
+                    // Step 1: Share QR image only
+                    try {
+                      await navigator.share({
+                        files: [file],
+                        title: "MyKard QR Code"
+                      });
+
+                      // Step 2: After a short delay, share message + link
+                      setTimeout(async () => {
+                        try {
+                          await navigator.share({
+                            title: "MyKard Profile",
+                            text: shareMessage,
+                            url: mockUserData.cardUrl,
+                          });
+                          await incrementShareCount();
+                        } catch (error) {
+                          console.log("Could not share message after QR:", error);
+                        }
+                      }, 500);
+
+                    } catch (error) {
+                      console.log("Could not share QR image, fallback to message only:", error);
+                      // Fallback: Share message + link only
+                      try {
+                        await navigator.share({
+                          title: "MyKard Profile",
+                          text: shareMessage,
+                          url: mockUserData.cardUrl,
+                        });
+                        await incrementShareCount();
+                      } catch (e) {
+                        console.error("Fallback share failed", e);
+                      }
+                    }
+                  }
+                  resolve(null);
+                }, "image/png");
+              };
+              img.onerror = reject;
+              img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
+            });
+          } else {
+            // No QR found, fallback to message + link only
+            await navigator.share({
+              title: "MyKard Profile",
+              text: shareMessage,
+              url: mockUserData.cardUrl,
+            });
+            await incrementShareCount();
+          }
+        } catch (error) {
+          console.log("QR share failed, fallback to message only:", error);
+          // Fallback: Share message + link only
+          try {
+            await navigator.share({
+              title: "MyKard Profile",
+              text: shareMessage,
+              url: mockUserData.cardUrl,
+            });
+            await incrementShareCount();
+          } catch (e) { console.log(e); }
+        }
+      } else {
+        // Desktop: WhatsApp Web cannot send images via URL, send message + link only
+        const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareMessage)}`;
+        window.open(whatsappUrl, "_blank");
+        await incrementShareCount();
+      }
     }
   };
 
@@ -536,7 +700,6 @@ const CardDetailsContent = () => {
               {activeTab === "analytics" && (
                 <motion.div key="analytics" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={`${styles.tabContent} ${styles.analyticsWrapper}`}>
                   <h3 className={styles.analyticsTitle}><BarChart3 className="w-5 h-5" /> Analytics Overview</h3>
-                  {/* FIX: Correct mapped array implementation for stats grid */}
                   <div className={styles.statsGrid}>
                     {[{ label: "Profile Views", value: card.views?.toString() || "0", icon: Eye }, { label: "Shares", value: card.shares?.toString() || "0", icon: Share2 }, { label: "Connections", value: contactsCount.toString(), icon: Users }].map((s, i) => (
                       <div key={i} className={styles.statCard}><div className={styles.statIcon}><s.icon className="w-6 h-6" /></div><p className={styles.statValue}>{s.value}</p><p className={styles.statLabel}>{s.label}</p></div>
@@ -567,6 +730,14 @@ const CardDetailsContent = () => {
           </motion.div>
         </div>
       </div>
+
+      {/* Hidden QR for Downloading - Always rendered so download logic works even on Link tab */}
+      <div style={{ display: 'none', position: 'fixed', pointerEvents: 'none' }}>
+        <div ref={hiddenQrRef}>
+          <QRCode value={mockUserData.cardUrl} size={500} />
+        </div>
+      </div>
+
       {showDelete && <Delete cardname={card.cardName ?? ""} onConfirm={handleDelete} onCancel={() => setShowDelete(false)} />}
     </>
   );
