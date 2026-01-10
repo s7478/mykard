@@ -18,7 +18,6 @@ const styles: Record<string, React.CSSProperties> = {
     maxWidth: "720px", // 👈 matches feed width from image
     display: "flex",
     flexDirection: "column",
-    gap: "10px",
     margin: "0 auto",
   },
 
@@ -27,8 +26,9 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: "center",
     gap: "16px",
     backgroundColor: "#FFFFFF",
-    padding: "16px",
-    borderRadius: "16px",
+    padding: "8px",
+    borderTopLeftRadius: "16px",
+    borderTopRightRadius: "16px",
     border: "1px solid #E5E7EB",
     boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
   },
