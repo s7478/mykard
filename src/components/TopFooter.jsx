@@ -4,10 +4,12 @@ import React, { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation"; // Changed from react-router-dom
 
+
 const TopFooter = () => {
   
   const router = useRouter(); // Changed from useNavigate()
   const canvasRef = useRef(null);
+  
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -17,6 +19,15 @@ const TopFooter = () => {
     const context = canvas.getContext("2d");
 
     const TWO_PI = Math.PI * 2;
+    // You can change these emojis to whatever you like!
+    const emojiList = [ "💳", // card
+  "📱", // mobile
+  "👤", // profile
+  "📇", // contact card
+  "📎", // attachment
+  "🔐", // security
+  "📊", // analytics
+  ];
 
     function getRandomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -253,14 +264,39 @@ const TopFooter = () => {
 
   const letters = ["C","R","E","T","E"," ","Y","O","U","R"," ","C","A","R","D"];
 
-  return (
-    <div className="flex flex-col items-center justify-center bg-gradient-to-b from-[#3785b2] via-[#00255C] to-[#111827] relative rounded-t-[50px] md:rounded-t-[80px] w-full pb-20">
-      <canvas className="absolute inset-0 w-full h-full md:block hidden" ref={canvasRef}></canvas>
+  return  (
+    <div className="relative w-full overflow-hidden">
+  
+  {/* 🔹 FULL WIDTH BACKGROUND (gap yahin fill hoga) */}
+  <div
+    aria-hidden
+    className="
+      absolute
+      top-0 left-1/2 -translate-x-1/2
+      w-screen h-full
+      bg-gradient-to-b from-[#01071E] via-[#165dc9] to-[#2152E5]
+    "
+  />
 
-      <h3 className="relative z-10 text-center text-white font-bold text-2xl md:text-4xl lg:text-5xl px-4 md:px-10 mt-10 md:mt-20">
-        Your Trusted IT Partner for Seamless DaaS and Business Growth
-      </h3>
+  {/* 🔹 ACTUAL ROUNDED SECTION */}
+  <div
+    className="
+      relative z-10
+      flex flex-col items-center justify-center
+      rounded-t-[50px] md:rounded-t-[80px]
+      bg-gradient-to-b from-[#01071E] via-[#165dc9] to-[#2152E5]
+      pb-20 min-h-[400px]
+      overflow-hidden
+    "
+  >
 
+ {/* Canvas Layer */}
+      <canvas 
+        className="absolute inset-0 w-full h-full md:block hidden pointer-events-none" 
+        ref={canvasRef}
+      ></canvas>
+
+      {/* Button Layer */}
       <motion.div
         className="relative z-10 flex items-center justify-center w-[90%] max-w-[800px] md:h-[300px] h-auto bg-transparent border-4 border-white rounded-2xl shadow-xl overflow-hidden p-4 group mt-10 md:mt-16 cursor-pointer"
         initial="scatter"
@@ -288,6 +324,8 @@ const TopFooter = () => {
         </div>
       </motion.div>
     </div>
+    </div>
+    
   );
 };
 

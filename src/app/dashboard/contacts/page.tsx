@@ -36,6 +36,8 @@ export default function ContactsPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [expandedContactId, setExpandedContactId] = useState<string | null>(null);
+
 
   // Force scroll to top on mount to fix refresh scroll offset and ensure header stays fixed
   useEffect(() => {
@@ -186,28 +188,18 @@ export default function ContactsPage() {
 
 
   return (
-    <div className={styles.container}>
-      {/* Header */}
-      <div className={styles.header}>
-        <div className={styles.headerContent}>
-          <div className={styles.titleSection}>
-            <h1 className={styles.title}>
-              {/* <Users className={styles.titleIcon} /> */}
-              Lead
-            </h1>
-            <p className={styles.subtitle}>
-             People who reached out using your MyKard link.
-            </p>
-          </div>
-
-          {/* Mobile Export Button */}
-          <button onClick={exportToCSV} className={styles.mobileExportButton}>
-            <Download size={16} /> Export CSV
-          </button>
-
-        </div>
-      </div>
-
+    <div
+  className={styles.container}
+  style={{
+    minHeight: "100vh",
+    background: `
+      radial-gradient(600px 300px at 50% -50px, rgba(14, 61, 114, 0.25), transparent 70%),
+      radial-gradient(500px 250px at 15% 120px, rgba(40, 107, 241, 0.2), transparent 70%),
+      radial-gradient(500px 250px at 85% 140px, rgba(23, 69, 167, 0.18), transparent 70%),
+      linear-gradient(180deg, #F5F9FF 0%, #FFFFFF 55%)
+    `
+  }}
+>
       {/* Search Bar (Mobile) */}
 <div className={styles.searchSection}>
   <div className={styles.searchRow}>
@@ -217,7 +209,7 @@ export default function ContactsPage() {
       <Search className={styles.searchIcon} />
       <input
         type="text"
-        placeholder={`Search ${contacts.length} contact${contacts.length !== 1 ? 's' : ''}`}
+        placeholder = "Search" 
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         className={styles.searchInput}
@@ -274,6 +266,17 @@ export default function ContactsPage() {
 
         </div>
       </div>
+      {/* Tabs + Results Container (FIGMA STYLE) */}
+<div className={styles.tabsContainer}>
+
+  {/* Tabs */}
+  <div className={styles.tabs}>
+    <button className={styles.tab}>Connections</button>
+    <button className={styles.tab}>Requests</button>
+    <button className={styles.tab}>Messages</button>
+    <button className={`${styles.tab} ${styles.activeTab}`}>Leads</button>
+  </div>
+  
 
       {/* Results */}
       <div className={styles.resultsSection}>
@@ -320,28 +323,27 @@ export default function ContactsPage() {
             ) : (
               <div className={styles.contactsList}>
                 {filteredContacts.map((contact) => (
-                  <div key={contact.id} className={styles.contactCard}>
+                  <div key={contact.id} className={`${styles.contactCard} ${ expandedContactId === contact.id ? styles.expanded : "" }`}style={{ background: "linear-gradient(180deg, #9CE1FF 0%, #F0FCFF 100%)",  border: "1px solid #4A90E2",  borderRadius: "16px",  }} onClick={() => setExpandedContactId( expandedContactId === contact.id ? null : contact.id ) } >
                     <div className={styles.contactHeader}>
                       <div className={styles.contactInfo}>
                         <div className={styles.avatar}>
                           {contact.name.charAt(0).toUpperCase()}
                         </div>
                         <div className={styles.contactDetails}>
-                          <h3 className={styles.contactName}>{contact.name}</h3>
-                        </div>
-                      </div>
+                           <div className={styles.nameRow}>
+                            <h3 className={styles.contactName}>{contact.name}</h3>
+                              <span className={styles.contactedViaInline} title={contact.card.cardName || contact.card.fullName}> (Contacted via {contact.card.cardName || contact.card.fullName}) </span>
+                           </div>
+                          </div>
+                         </div>
                       <div className={styles.contactMeta}>
-                        <span className={styles.timeStamp}>
-                          <Calendar size={14} />
-                          {formatRelativeTime(contact.createdAt)}
-                        </span>
+                        
                         <div className={styles.dropdownContainer}>
-                          <button
-                            onClick={() => setOpenDropdown(openDropdown === contact.id ? null : contact.id)}
+                          <button onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === contact.id ? null : contact.id); }}
                             className={styles.moreButton}
                             title="More options"
                           >
-                            <MoreHorizontal size={16} />
+                            <MoreHorizontal size={9} />
                           </button>
                           {openDropdown === contact.id && (
                             <div className={styles.dropdownMenu}>
@@ -356,10 +358,22 @@ export default function ContactsPage() {
                         </div>
                       </div>
                     </div>
+                    {/* Collapsed quick actions (ICON ONLY) */}
+                     {expandedContactId !== contact.id && (
+                     <div className={styles.quickActions}>
+                      <button onClick={(e) => { e.stopPropagation(); handlePhoneClick(contact.phone); }}
+                        className={styles.quickIcon} title="Call" >< Phone size={14} />
+                      </button>
+                      <button onClick={(e) => { e.stopPropagation(); handleEmailClick(contact.email); }}
+                        className={styles.quickIcon} title="Message" > <Mail size={14} />
+                      </button>
+                    </div>
+                    )}
+
 
                     <div className={styles.contactActions}>
-                      <button
-                        onClick={() => handleEmailClick(contact.email)}
+                      <button onClick={(e) => { e.stopPropagation(); handleEmailClick(contact.email); }}
+
                         className={`${styles.actionButton} ${styles.messageButton}`}
                         title="Send email"
                       >
@@ -367,30 +381,14 @@ export default function ContactsPage() {
                         {contact.email}
                       </button>
 
-                      <button
-                        onClick={() => handlePhoneClick(contact.phone)}
+                      <button onClick={(e) => { e.stopPropagation(); handlePhoneClick(contact.phone);  }}
+
                         className={`${styles.actionButton} ${styles.phoneButton}`}
                         title="Call phone"
                       >
                         <Phone size={16} />
                         {contact.phone}
                       </button>
-
-                      <p
-                        className={styles.contactCardText}
-                        onClick={() => {
-                          if (contact.sourceUrl) {
-                            handleSourceClick(contact.sourceUrl);
-                          }
-                        }}
-                      >
-                        Contacted via <span className={styles.cardName}>
-                          {contact.card.cardName || contact.card.fullName}
-                          {contact.card.cardName && contact.card.fullName !== contact.card.cardName && (
-                            <span className={styles.cardType}></span>
-                          )}
-                        </span>
-                      </p>
                       <div className={styles.mobileTimeStamp}>
                         <Calendar size={14} />
                         {formatRelativeTime(contact.createdAt)}
@@ -402,6 +400,7 @@ export default function ContactsPage() {
             )}
           </>
         )}
+      </div>
       </div>
     </div>
   );

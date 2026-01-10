@@ -67,6 +67,7 @@ export default function Homepage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [currentIndex, setCurrentIndex] = useState(0);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Profile[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -76,6 +77,16 @@ export default function Homepage() {
   const [sentRequests, setSentRequests] = useState<Set<string>>(new Set());
   const [acceptedConnections, setAcceptedConnections] = useState<Set<string>>(new Set());
   const [isHovered, setIsHovered] = useState(false);
+    // ✅ Desktop check for gradients
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsDesktop(window.innerWidth >= 768);
+    check(); // run once on mount
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
   const router = useRouter();
   const [showInfoCard, setShowInfoCard] = React.useState(false);
   const infoCardRef = React.useRef<HTMLDivElement | null>(null);
@@ -392,16 +403,16 @@ export default function Homepage() {
     {
       title: "Verified Badges",
       description: "Add a verified badge to your profile, giving your contact confidence and showcasing your authenticity.",
-      image: "/assets/verifiedbadges.png",
-      cardColor: "#1E293B",
-      border: "4px solid white",
-      textColor: "#FFFFFF",
-      boxColor: "rgba(255, 255, 255, 0.15)"
+      image: "/assets/VerifiedBadges.png",
+     cardColor: "#FFFFFF",
+      border: "4px solid #00E5FF",
+      textColor: "#000000",
+      boxColor: "#E2E8F0"
     },
     {
       title: "Smart Analytics",
       description: "Gain insights into who views your profile, what they click, and how to improve your professional presence.",
-      image: "/assets/smartanalytics.png",
+      image: "/assets/smart-analytics-icon.png.png",
       cardColor: "#FFFFFF",
       border: "4px solid #00E5FF",
       textColor: "#000000",
@@ -410,7 +421,7 @@ export default function Homepage() {
     {
       title: "Custom Profile Themes",
       description: "Customize your digital identity with professional templates and colors, ensuring your profile makes a memorable first impression.",
-      image: "/assets/customprofile.jpg",
+      image: "/assets/Custom Profile Themes.png",
       cardColor: "#FFFFFF",
       border: "4px solid #00E5FF",
       textColor: "#000000",
@@ -419,11 +430,11 @@ export default function Homepage() {
     {
       title: "Review Links",
       description: "Link your top reviews directly to your profile, showcasing your reputation and building instant trust with every new connection.",
-      image: "/assets/Reviewlink.png",
-      cardColor: "#1E293B",
-      border: "4px solid white",
-      textColor: "#FFFFFF",
-      boxColor: "rgba(255, 255, 255, 0.15)"
+      image: "/assets/ReviewLinks.png",
+      cardColor: "#FFFFFF",
+      border: "4px solid #00E5FF",
+      textColor: "#000000",
+      boxColor: "#E2E8F0"
     }
   ];
 
@@ -725,15 +736,19 @@ export default function Homepage() {
 
       {/* Build Credibility That Converts */}
       <section
-        id="build-credibility"
-        className="section px-6 lg:px-12 bg-white md:bg-[image:var(--credibility-bg-gradient)]! "
-        style={{
-          paddingTop: "5rem",
-          paddingBottom: "5rem",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
+  id="build-credibility"
+  className="section px-6 lg:px-12"
+  style={{
+    background: isDesktop
+      ? "linear-gradient(180.96deg, #FFFFFF 8.61%, #B1E4FF 38.39%, #B1E4FF 64.58%, #678DFF 90.1%)"
+      : "#ffffff",
+    paddingTop: "5rem",
+    paddingBottom: "5rem",
+    position: "relative",
+    overflow: "hidden",
+  }}
+>
+
         {/* --- BACKGROUND ORBS --- */}
         {/* Added 'hidden md:block' to BOTH to ensure mobile is pure white */}
         <div
@@ -807,16 +822,17 @@ export default function Homepage() {
 
       {/* Why Every Professional Needs */}
       <section
-        id="why-mykard"
-        className="py-16 md:py-24 relative bg-white md:bg-[image:linear-gradient(290.34deg,#FFFFFF_6.5%,#B1E4FF_38.6%,#B1E4FF_66.8%,#678DFF_94.99%)]!"
-        style={{
-          paddingTop: '1rem',
-          paddingBottom: '1rem',
-          padding: '1rem',
-          display: 'flex',
-          alignItems: 'center'
-        }}
-      >
+  className="py-16 md:py-24 relative"
+  style={{
+    background: isDesktop
+      ? "linear-gradient(356.74deg, #FFFFFF 14.68%, #B1E4FF 44.12%, #B1E4FF 66.95%, #678DFF 89.18%)"
+      : "#ffffff",
+    minHeight: "100vh",
+    display: "flex",
+    alignItems: "center",
+  }}
+>
+
         <style>{`
     /* Your existing desktop flip-card CSS */
     .flip-card { perspective: 1000px; width: 100%; max-width: 320px; height: 200px; margin: 0 auto; }
@@ -1036,7 +1052,7 @@ export default function Homepage() {
               href="/auth/signup"
               className="inline-flex items-center justify-center px-14 py-5 text-xl font-bold rounded-full transition-all hover:scale-105 shadow-2xl active:scale-95 group"
               style={{
-                background: "#1279E1",
+                background: "linear-gradient(90deg,  #225af5ff 100%)",
                 color: "white",
                 minWidth: "220px",
                 fontFamily: "'Plus Jakarta Sans', sans-serif"
@@ -1233,7 +1249,7 @@ export default function Homepage() {
         </div>
       </section>*/}
 
-      <section id="faq" className="section py-12 lg:py-20 px-4 sm:px-4 lg:px-12" style={{ background: "white" }}>
+      <section id="faq" className="section py-12 lg:py-20 px-4 sm:px-6 lg:px-12" style={{ background: "linear-gradient(180deg, #FFFFFF 22.3%, #133785 63.22%, #162A6C 74.95%, #01071E 91.55%)" }} >
         <div className="container mx-auto max-w-4xl">
           {/* Header Animation */}
           <motion.div
@@ -1284,8 +1300,8 @@ export default function Homepage() {
                   <button
                     onClick={() => setOpenFaq(isOpen ? null : idx)}
                     style={{
-                      width: "100%", textAlign: "left", padding: "8px 8px", background: "#1E2B58", color: "white",
-                      border: "none", borderRadius: isOpen ? "15px 15px 0 0" : "15px",
+                      width: "100%", textAlign: "left", padding: "18px 35px", background: "#D0E9FF", color: "black",
+                      border: "none", borderRadius: isOpen ? "20px 20px 0 0" : "20px",
                       display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer",
                       position: "relative", zIndex: 2, boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
                       transition: "border-radius 0.3s ease, background 0.3s ease"

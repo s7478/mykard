@@ -437,4 +437,28 @@
   font-size: 14px;
   color: #334155;
 }
+/* ===== FIGMA CONTACT NAME OVERRIDE ===== */
 
+.name {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 8px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0;
+  color: #000000;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.designation,
+.company,
+.city {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0;
+  color: #6B7280;
+}

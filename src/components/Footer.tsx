@@ -6,12 +6,114 @@ import { Linkedin, Mail, MapPin } from "lucide-react";
 export default function Footer() {
   return (
     <footer style={{
-      background: '#3B82F6',
-      color: '#000',
-      padding: 'clamp(1rem, 2vw, 2rem) 0.6rem',
+      background: '#01071E',
+      color: '#000000',
       position: 'relative',
       overflow: 'hidden'
     }}>
+
+      {/* ---------- RESPONSIVE CSS ----------- */}
+      <style>
+        {`
+          /* Grid responsive */
+          div[role="footer-grid"] {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2.2rem;
+            margin-bottom: 4rem;
+          }
+
+          @media (min-width: 640px) {
+            div[role="footer-grid"] {
+              grid-template-columns: 1.4fr 1fr;
+            }
+          }
+
+          @media (min-width: 1024px) {
+            div[role="footer-grid"] {
+              grid-template-columns: 1.5fr 1fr 1fr 1fr;
+            }
+          }
+
+          .footer-desc {
+            text-align: left;
+          }
+
+          @media (max-width: 640px) {
+            .footer-desc {
+              text-align: center;
+              margin-inline: auto;
+              font-size: 1rem;
+            }
+          }
+
+          @media (max-width: 640px) {
+            .footer-social {
+              justify-content: center;
+            }
+          }
+
+          @media (max-width: 640px) {
+            .footer-column {
+              text-align: center;
+            }
+            .footer-column ul {
+              align-items: center;
+            }
+          }
+
+          @media (max-width: 1024px) {
+            .contact-row {
+              margin-left: 30px;
+            }
+          }
+
+          @media (max-width: 640px) {
+            .contact-row {
+              margin-left: 0px;
+              justify-content: center;
+              text-align: center;
+            }
+          }
+
+          /* Hover Effect */
+          .footer-link {
+            transition: color .25s ease;
+            color: #fff;
+          }
+
+          .footer-link:hover {
+            color: #fff;
+          }
+
+        `}
+      </style>
+
+      {/* ------------------------------------ */}
+
+      {/* Background Watermark */}
+      <div style={{
+        position: 'absolute',
+        bottom: '25%',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        fontSize: '22vw',
+        fontWeight: '900',
+        whiteSpace: 'nowrap',
+        pointerEvents: 'none',
+        zIndex: 0,
+        fontFamily: '"Plus Jakarta Sans", sans-serif',
+        lineHeight: '1',
+        userSelect: 'none',
+        opacity: 0.35,
+        background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 100%)',
+        WebkitBackgroundClip: 'text',
+        backgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        color: 'transparent',
+      }}>
+        MyKard
+      </div>
 
       <div style={{
         maxWidth: '1200px',
