@@ -430,7 +430,7 @@ export function Header() {
                                 <span>My Posts</span>
                               </Link>
                               <Link
-                                href="/dashboard/feed/me"
+                                href="/dashboard/feed/like"
                                 onClick={() => setIsDropdownOpen(false)}
                                 style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 16px", fontSize: "13px", color: "#6b7280", textDecoration: "none", transition: "all 0.2s ease" }}
                                 onMouseEnter={(e) => { e.currentTarget.style.color = "#1d4ed8"; e.currentTarget.style.backgroundColor = "#f9fafb"; }}

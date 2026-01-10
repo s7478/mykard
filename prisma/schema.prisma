@@ -56,6 +56,8 @@ model User {
   comments      Comment[]
   savedPosts    SavedPost[]
 
+  stories   Story[]
+  storyViews StoryView[]
 
   
 
@@ -268,6 +270,7 @@ model Post {
   authorId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  visibility String  @default("public") // 'public' or 'connections'
 
   author    User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
   likes     Like[]
@@ -318,4 +321,32 @@ model SavedPost {
   @@unique([userId, postId])
   @@index([userId])
   @@map("saved_posts")
+}
+
+
+model Story {
+  id        String   @id @default(cuid())
+  imageUrl  String   @db.VarChar(1000) // Image or Video URL
+  videoUrl  String?  @db.VarChar(1000) // Optional separate field if needed
+  authorId  String
+  createdAt DateTime @default(now())
+  expiresAt DateTime // Will be set to createdAt + 24h
+
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  views     StoryView[]
+
+  @@index([authorId])
+  @@index([expiresAt]) // Important for cleanup queries
+}
+
+model StoryView {
+  id        String   @id @default(cuid())
+  storyId   String
+  viewerId  String
+  viewedAt  DateTime @default(now())
+
+  story     Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  viewer    User     @relation(fields: [viewerId], references: [id], onDelete: Cascade)
+
+  @@unique([storyId, viewerId]) // User views story only once
 }
