@@ -1,5 +1,51 @@
 @import "tailwindcss";
 
+/* applied change */
+.post-media-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  max-height: 560px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: black;
+}
+
+/* 🔥 Blurred Background */
+.post-media-blur {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(25px) brightness(0.7);
+  transform: scale(1.2);
+}
+
+/* 🔥 Actual Image / Video */
+.post-media-main {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .post-media-wrapper {
+    max-height: 480px;
+  }
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .post-media-wrapper {
+    max-height: 520px;
+  }
+}
+
+/* applied change */
+
 /* Mobile Header Styles */
 .mobile-fixed-header {
   position: fixed !important;

@@ -35,9 +35,6 @@ export default function FeedPage() {
           {/* 3. Feed Stream */}
           <FeedStream filter="all" currentUser={currentUser} />
           
-          {/* 4. Suggestions */}
-          <SuggestedUsersWidget currentUserId={currentUser?.id} />
-          
         </main>
     </div>
   );

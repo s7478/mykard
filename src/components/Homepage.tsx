@@ -3,12 +3,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import "../app/globals.css";
 import GrowthMetricsSection from "./GrowthMetricsSection";
-// import AnimatedContent from './AnimatedContent';
+import Design from "./Design";
+
 
 type Profile = {
   id: string;
@@ -20,21 +21,24 @@ type Profile = {
 
 //kanchan added
 
+
 const CardItem = ({ feature, isMobile }: { feature: any, isMobile: boolean }) => (
   <div
     style={{
-      background: feature.cardColor, borderRadius: "1.25rem", padding: "1.25rem 0.75rem", border: feature.border,
-      width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
+      background: feature.cardColor,
+      borderRadius: "1.25rem",
+      padding: "1.25rem 0.75rem",
+      border: feature.border,
+      width: "100%",
+      height: "100%",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
     }}
   >
     <div style={{ marginBottom: "1rem", width: "100%", height: "120px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <Image
-        src={feature.image}
-        alt={feature.title}
-        width={240}
-        height={160}
-        style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
-      />
+      <img src={feature.image} alt={feature.title} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
     </div>
 
     <h3 style={{ color: feature.textColor, fontSize: "1.1rem", fontWeight: "700", margin: "0.75rem 0", textAlign: "center", lineHeight: "1.3" }}>
@@ -42,9 +46,12 @@ const CardItem = ({ feature, isMobile }: { feature: any, isMobile: boolean }) =>
     </h3>
 
     <div
-      className={`overflow-hidden transition-all duration-500 w-full ${isMobile ? "max-h-'300px' opacity-100" : "max-h-0 opacity-0 group-hover:max-h-'300px' group-hover:opacity-100"
+      className={`overflow-hidden transition-all duration-500 w-full ${isMobile ? "max-h-[300px] opacity-100" : "max-h-0 opacity-0 group-hover:max-h-[300px] group-hover:opacity-100"
         }`}
-      style={{ background: feature.boxColor, borderRadius: "0.75rem", }}
+      style={{
+        background: feature.boxColor,
+        borderRadius: "0.75rem",
+      }}
     >
       <div style={{ padding: "0.75rem" }}>
         <p style={{ color: feature.textColor, fontSize: "0.8rem", lineHeight: "1.4", textAlign: "center", fontWeight: "400", margin: 0 }}>
@@ -55,10 +62,12 @@ const CardItem = ({ feature, isMobile }: { feature: any, isMobile: boolean }) =>
   </div>
 );
 
+//kanchan added
 export default function Homepage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [currentIndex, setCurrentIndex] = useState(0);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Profile[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -68,21 +77,26 @@ export default function Homepage() {
   const [sentRequests, setSentRequests] = useState<Set<string>>(new Set());
   const [acceptedConnections, setAcceptedConnections] = useState<Set<string>>(new Set());
   const [isHovered, setIsHovered] = useState(false);
+    // ✅ Desktop check for gradients
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsDesktop(window.innerWidth >= 768);
+    check(); // run once on mount
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
   const router = useRouter();
   const [showInfoCard, setShowInfoCard] = React.useState(false);
   const infoCardRef = React.useRef<HTMLDivElement | null>(null);
-
-  const pageVariants = {
-    hidden: { opacity: 0, rotateX: 55, scale: 0.98, y: 40, transformOrigin: "top center" },
-    show: { opacity: 1, rotateX: 0, scale: 1, y: 0, transition: { duration: 1.1, ease: [0.22, 1, 0.36, 1] }},
-    exit: { opacity: 0.3, rotateX: -35, y: -20, transition: { duration: 0.6 } }
-  };
 
   React.useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) { setShowInfoCard(true); // Reveal when card comes into view
+          if (entry.isIntersecting) {
+            setShowInfoCard(true); // Reveal when card comes into view
           }
         });
       },
@@ -382,21 +396,23 @@ export default function Homepage() {
   ];
 
 
+
+
   //kanchan
   const credibilityData = [
     {
       title: "Verified Badges",
       description: "Add a verified badge to your profile, giving your contact confidence and showcasing your authenticity.",
-      image: "/assets/verifiedbadges.png",
-      cardColor: "#1E293B",
-      border: "4px solid white",
-      textColor: "#FFFFFF",
-      boxColor: "rgba(255, 255, 255, 0.15)"
+      image: "/assets/VerifiedBadges.png",
+     cardColor: "#FFFFFF",
+      border: "4px solid #00E5FF",
+      textColor: "#000000",
+      boxColor: "#E2E8F0"
     },
     {
       title: "Smart Analytics",
       description: "Gain insights into who views your profile, what they click, and how to improve your professional presence.",
-      image: "/assets/smartanalytics.png",
+      image: "/assets/smart-analytics-icon.png.png",
       cardColor: "#FFFFFF",
       border: "4px solid #00E5FF",
       textColor: "#000000",
@@ -405,7 +421,7 @@ export default function Homepage() {
     {
       title: "Custom Profile Themes",
       description: "Customize your digital identity with professional templates and colors, ensuring your profile makes a memorable first impression.",
-      image: "/assets/customprofile.jpg",
+      image: "/assets/Custom Profile Themes.png",
       cardColor: "#FFFFFF",
       border: "4px solid #00E5FF",
       textColor: "#000000",
@@ -414,18 +430,17 @@ export default function Homepage() {
     {
       title: "Review Links",
       description: "Link your top reviews directly to your profile, showcasing your reputation and building instant trust with every new connection.",
-      image: "/assets/Reviewlink.png",
-      cardColor: "#1E293B",
-      border: "4px solid white",
-      textColor: "#FFFFFF",
-      boxColor: "rgba(255, 255, 255, 0.15)"
+      image: "/assets/ReviewLinks.png",
+      cardColor: "#FFFFFF",
+      border: "4px solid #00E5FF",
+      textColor: "#000000",
+      boxColor: "#E2E8F0"
     }
   ];
 
 
   return (
     <div
-      className="overflow-x-hidden"
       style={{
         background:
           "linear-gradient(135deg, var(--background-light-blue) 0%, var(--background-purple-light) 50%, var(--background) 100%)",
@@ -485,7 +500,7 @@ export default function Homepage() {
               <div className="flex flex-wrap gap-4 lg:gap-6 items-start justify-start">
                 <Link
                   href="/auth/signup"
-                  className="flex items-center justify-center gap-2 transition-transform hover:scale-105 shadow-lg"
+                  className="flex items-center justify-center transition-transform hover:scale-105 shadow-lg"
                   style={{
                     // Responsive Width & Height using clamp or Tailwind classes
                     width: 'clamp(130px, 30vw, 160px)', // Mobile pe 130px se shuru hoga, desktop pe 160px tak jayega
@@ -493,13 +508,13 @@ export default function Homepage() {
                     background: 'linear-gradient(93.85deg, #82D2EF 11.38%, #1986A4 62.78%)',
                     borderRadius: '30px',
                     color: '#F0FCFF',
-                    fontSize: 'clamp(14px, 4vw, 16px)', // Font size bhi responsive ho gaya
-                    fontWeight: 800,
+                    fontSize: 'clamp(12px, 4vw, 16px)', // Font size bhi responsive ho gaya
+                    fontWeight: 700,
                     textDecoration: 'none',
                   }}
                 >
                   Get Started
-                  <span style={{ fontSize: '18px' }}>→</span>
+                  <span style={{ fontSize: '15px' }}>→</span>
                 </Link>
 
                 <Link
@@ -511,8 +526,8 @@ export default function Homepage() {
                     background: 'linear-gradient(107.27deg, #82D2EF 0%, #1986A4 60.66%)',
                     borderRadius: '30px',
                     color: '#F0FCFF',
-                    fontSize: 'clamp(14px, 4vw, 18px)',
-                    fontWeight: 800,
+                    fontSize: 'clamp(12px, 4vw, 18px)',
+                    fontWeight: 700,
                     textDecoration: 'none',
                   }}
                 >
@@ -549,340 +564,6 @@ export default function Homepage() {
       {/* kanchan - 1st page 
       kanchan -1st page  */}
 
-      {/* Search Bar Section */}
-      {/* <section
-        id="find-digital-card"
-        className="section px-4 sm:px-6 lg:px-12 py-12 lg:py-20"
-        style={{ background: "transparent" }}
-      >
-        <div className="container mx-auto max-w-4xl">
-          <div
-            className="card card-elevated"
-            style={{
-              background: "var(--gradient-light)",
-              padding: "3rem 2rem",
-              borderRadius: "var(--radius-xl)",
-              boxShadow: "var(--shadow-xl)",
-            }}
-          > */}
-      {/* <div className="text-center" style={{ marginBottom: "2.5rem" }}>
-               <h2
-                className="heading-3"
-                style={{
-                  color: "var(--primary-blue)",
-                  fontSize: "2rem",
-                  fontWeight: "500",
-                  marginBottom: "0.75rem",
-                  lineHeight: "1.2",
-                }}
-              >
-                Connect With People
-              </h2> */}
-      {/* <p className="body-text" style={{ 
-                color: 'var(--text-secondary)',
-                fontSize: '1.05rem',
-                maxWidth: '600px',
-                margin: '0 auto 1rem auto'
-              }}>
-                Discover and connect with professionals worldwide through our comprehensive digital card directory. Search by name, company, industry, location, or expertise to find the right connections for your business growth.
-              </p> 
-            </div> */}
-
-      {/* <div className="relative" style={{ maxWidth: "700px", margin: "0 auto" }}>
-              <div className="relative flex items-center">
-                <svg
-                  className="absolute w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  style={{
-                    left: "1.5rem",
-                    color: "#94A3B8",
-                    pointerEvents: "none",
-                  }}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-                <input
-                  type="text"
-                  placeholder="Search by name, skills, company, or city..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onClick={handleConnectSearch}                         // actual change
-                  // onKeyDown={(e) => {
-                  //   if (e.key === "Enter") {
-                  //     handleConnectSearch();
-                  //   }
-                  // }}
-                  className="w-full rounded-full border-2 border-transparent focus:border-blue-500 focus:outline-none transition-all"
-                  style={{
-                    background: "#FFFFFF",
-                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
-                    paddingLeft: "3rem",
-                    paddingRight: "7.5rem",
-                    paddingTop: "1rem",
-                    paddingBottom: "1rem",
-                    fontSize: "0.9rem",
-                    color: "var(--primary-purple)",
-                  }}
-                />
-                <button
-                  className="absolute text-white rounded-full transition-all search-button-mobile"
-                  onClick={handleConnectSearch}
-                  style={{
-                    right: "0.4rem",
-                    paddingLeft: "2rem",
-                    paddingRight: "2rem",
-                    paddingTop: "0.75rem",
-                    paddingBottom: "0.75rem",
-                    fontSize: "15px",
-                    fontWeight: "600",
-                    background: "var(--gradient-primary)",
-                    boxShadow: "var(--shadow-colored)",
-                    cursor: "pointer",
-                    border: "none",
-                  }}
-                >
-                  Search
-                </button>
-              </div>
-
-              <p
-                className="body-text"
-                style={{
-                  color: "var(--text-secondary)",
-                  fontSize: "0.95rem",
-                  maxWidth: "580px",
-                  margin: "0 auto",
-                }}
-              >
-                Access verified professional profiles, view portfolios, and
-                connect instantly with industry leaders, potential clients, and
-                business partners in your network.
-              </p>
-              {hasSearched && (
-                <div className="mt-10" style={{ marginTop: "3.5rem" }}>
-                  {searchLoading ? (
-                    <div className="flex items-center justify-center py-8">
-                      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
-                    </div>
-                  ) : (
-                    <>
-                      {searchResults.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {searchResults.map((profile) => (
-                            <div
-                              key={profile.id}
-                              className="flex items-center justify-between rounded-sm bg-white p-4 shadow-md"
-                            >
-                              <div
-                                className="flex items-center gap-3"
-                                style={{ paddingLeft: "16px" }}
-                              >
-                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white font-semibold">
-                                  {profile.name.charAt(0)}
-                                </div>
-                                <div>
-                                  <div
-                                    className="font-semibold text-gray-900"
-                                    style={{
-                                      filter:
-                                        isLoggedIn === false
-                                          ? "blur(3px)"
-                                          : "none",
-                                    }}
-                                  >
-                                    {profile.name}
-                                  </div>
-                                  {profile.designation && (
-                                    <div className="fontSize-[14px] text-gray-600">
-                                      {profile.designation}
-                                    </div>
-                                  )}
-                                  <div className="text-sm text-gray-500">
-                                    📍 {profile.city}
-                                  </div>
-                                </div>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  if (isLoggedIn === false) {
-                                    router.push("/auth/signup");
-                                  } else {
-                                    handleConnect(profile.id, profile.name);
-                                  }
-                                }}
-                                disabled={
-                                  connectingUserId === profile.id ||
-                                  sentRequests.has(profile.id) ||
-                                  acceptedConnections.has(profile.id)
-                                }
-                                className={`rounded-sm px-4 py-2 text-sm font-semibold text-white shadow transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${acceptedConnections.has(profile.id)
-                                  ? "bg-green-600 hover:bg-green-800"
-                                  : sentRequests.has(profile.id)
-                                    ? "bg-amber-500 hover:bg-amber-600"
-                                    : "bg-blue-600 hover:bg-blue-700"
-                                  }`}
-                                style={{
-                                  minWidth: "90px",
-                                  textAlign: "center",
-                                  marginRight: "12px",
-                                }}
-                              >
-                                {connectingUserId === profile.id
-                                  ? "Connecting..."
-                                  : acceptedConnections.has(profile.id)
-                                    ? "Connected"
-                                    : sentRequests.has(profile.id)
-                                      ? "Sent"
-                                      : "Connect"}
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="py-6 text-center text-gray-500">
-                          No matching profiles found.
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              )}
-            </div> */}
-
-      {/* <section className="relative" 
-            style={{ background: "linear-gradient(135deg, #0f172a, #1e3a8a)", paddingTop: "5rem", paddingBottom: "7rem"}} >
-              
-              {/* Floating Search Card 
-              <div style={{ maxWidth: "900px", margin: "0 auto", padding: "2.5rem 2rem", background: "linear-gradient(90deg, #5b8cff, #9bbcff)",
-              borderRadius: "22px", boxShadow: "0 25px 50px rgba(0,0,0,0.25)"}}>
-                
-              {/* Search Input 
-              <div className="relative flex items-center max-w-[700px] mx-auto">
-                {/* Icon 
-                <svg className="absolute w-5 h-5" style={{ left: "1.5rem", color: "#94a3b8" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-
-              <input
-                type="text"
-                placeholder="Search by name, skills, company or city..."
-                className="w-full rounded-full border-0 focus:outline-none"
-                style={{ paddingLeft: "3.2rem", paddingRight: "8rem", paddingTop: "1rem", paddingBottom: "1rem", fontSize: "0.95rem", background: "#ffffff", boxShadow: "0 6px 14px rgba(0,0,0,0.1)", }}
-              />
-
-                  <button
-                    className="absolute rounded-full text-white font-semibold"
-                    style={{ right: "0.4rem", padding: "0.7rem 2rem", background: "linear-gradient(135deg, #2563eb, #3b82f6)", boxShadow: "0 10px 25px rgba(37,99,235,0.5)", border: "none"}}
-                  > Search</button>
-                </div>
-
-              {/* Description Text 
-              <p
-                style={{ marginTop: "1.8rem", maxWidth: "600px", marginInline: "auto", fontSize: "0.95rem", textAlign: "center", color: "#e2e8f0", lineHeight: "1.6" }}
-              >
-                Access verified professional profiles, view portfolios, and connect
-                instantly with industry leaders, potential clients, and business partners
-                in your network. </p>
-              </div>
-          </section>
-      */}
-
-
-
-      {/* <div className="w-full bg-white">
-      {/* SECTION 1: Top Hero & Search
-      <section 
-        className="relative px-6" 
-        style={{ 
-          background: "linear-gradient(180deg, #1e40af 0%, #60a5fa 40%, #ffffff 100%)", 
-          paddingTop: "5rem", 
-          paddingBottom: "4rem" 
-        }}
-      >
-        <div className="container mx-auto flex flex-col items-center">
-          {/* Floating Search Card 
-          <div 
-            style={{ 
-              width: "100%",
-              maxWidth: "800px", 
-              padding: "2rem", 
-              background: "linear-gradient(90deg, #6366f1, #a5b4fc)",
-              borderRadius: "24px", 
-              boxShadow: "0 20px 40px rgba(0,0,0,0.1)"
-            }}
-          >
-            {/* Search Input Container 
-            <div className="relative flex items-center w-full">
-              <svg 
-                className="absolute w-5 h-5" 
-                style={{ left: "1.2rem", color: "#94a3b8" }} 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search by name, skills, company or city..."
-                className="w-full rounded-full border-0 focus:outline-none"
-                style={{ 
-                  padding: "0.8rem 1.5rem 0.8rem 3.5rem", 
-                  fontSize: "0.9rem", 
-                  background: "#ffffff" 
-                }}
-              /> 
-              <button
-                className="absolute text-blue-600 font-bold text-xs uppercase tracking-wider"
-                style={{ right: "1.5rem", border: "none", background: "none", cursor: "pointer" }}
-              >
-                Search
-              </button>
-            </div>
-          </div> */}
-
-      {/* Info Card (The one with the curved arrow in the image) 
-          <div 
-            className="mt-6 p-8 text-center relative"
-            style={{ 
-              maxWidth: "1305px", maxHeight: "333px",
-              background: "rgba(219, 234, 254, 0.7)", 
-              backgroundColor: "#C1DCFF",
-              borderRadius: "10px", 
-              backdropFilter: "blur(10px)",
-              border: "1px solid rgba(255,255,255,0.5)"
-            }}
-          > 
-          
-              <p style={{fontFamily:"Caveat Brush",color: "#000000", fontWeight: "500", lineHeight: "100%", letterSpacing: "10%"}}>
-              Access verified professional profiles, view portfolios <br></br>and connect instantly with industry leaders <br></br>potential clients and business partners in your <br></br>network.
-              </p>
-          
-            
-            {/* Decorative Arrow (CSS implementation) 
-            <div className="absolute -right-8 top-1/2 hidden md:block" style={{ transform: "rotate(-10deg)" }}>
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="2">
-                    <path d="M3 12c6-10 12 10 18 0m-3-3l3 3-3 3" />
-                </svg>
-            </div>
-          </div>
-        </div>
-      </section>
-      
-    </div>
-          </div>
-        </div>
-      </section>
- */}
-
 
 
       {/* New Search Bar Section --> Vaijayanti */}
@@ -893,7 +574,7 @@ export default function Homepage() {
       <section
         className="relative px-4 md:px-6 flex flex-col w-full items-center justify-center min-h-fit md:min-h-[600px] overflow-hidden"
         style={{
-          background: "linear-gradient(180deg, #030b25 0%, #0a1941 45%, #bce1ff 100%)",
+          background: "radial-gradient( 110% 110% at 50% 120%, #FFFFFF 0%, #B1E4FF 25%, #1070FF 50%, #071337 90%)",
           paddingTop: "4rem",
           paddingBottom: "4rem"
         }}
@@ -957,12 +638,12 @@ export default function Homepage() {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true, amount: 0.1 }}
             transition={{ duration: 0.8 }}
-            className="relative text-center w-[90%] max-w-[1000px] bg-[#c1dcff] shadow-xl mx-auto pt-16 pb-10 md:pt-[100px] md:pb-[75px]"
+            className="relative text-center w-[90%] max-w-[1000px] bg-[#c1dcff] shadow-xl mx-auto md:pt-[150px] md:pb-[75px]"
             style={{
               zIndex: 10,
               borderRadius: "42px",
-              paddingTop: "90px",
-              paddingBottom: "65px",
+              paddingTop: "80px",
+              paddingBottom: "45px",
             }}
           >
             <p
@@ -983,133 +664,70 @@ export default function Homepage() {
               potential clients and business partners in your <br className="hidden md:block" /> 
               network.
             </p>
+          </motion.div>
 
-            {/* 3. Animated Arrow pointing to message */}
-            <div className="absolute right-[11%] bottom-[65%] hidden lg:block w-[70px] h-[70px]">
+            <div className="absolute bottom-0 w-[90%] max-w-[1000px] h-full pointer-events-none z-30 ">
+              {/* 3. Animated Arrow pointing to message */}
+            {/* <div className="absolute right-[12%] top-[31%]  w-[90px] h-[90px] md:w-[120px] md:h-[100px] ">   */}
+
+            <div className="absolute 
+            /* 1. SMALL MOBILE (Gradual scaling starts here) */
+              right-[0%] top-[26%] w-[50px] h-[50px] 
+              
+              /* 2. LARGE MOBILE / TABLETS */
+              sm:right-[2%] sm:top-[28%] sm:w-[75px] sm:h-[75px]
+              
+              /* 3. LAPTOPS / SMALL DESKTOPS */
+              md:right-[6%] md:top-[30%] md:w-[100px] md:h-[90px]
+              
+              /* 4. LARGE DESKTOPS (Maintaining your 'Large' look) */
+              lg:right-[10%] lg:top-[30%] lg:w-[130px] lg:h-[110px]
+              
+              /* 5. EXTRA LARGE SCREENS */
+              xl:right-[12%] xl:top-[28%] xl:w-[100px] xl:h-[100px]"
+            >
+
               <svg viewBox="0 0 100 100" fill="none" className="w-full h-full">
-                {/* Main Curve Line */}
+
                 <motion.path
-                  d="M75 20C78 35 65 45 55 45C45 45 42 35 50 30C60 25 68 38 62 55C55 75 35 85 15 92"
+                  //d="M75 20C78 35 65 45 55 45C45 45 42 35 50 30C60 25 68 38 62 55C55 75 35 85 15 92"
+                  d="M80 15C85 35 70 45 60 45C50 45 47 35 55 30C65 25 73 38 67 55C60 75 40 85 20 92"
                   stroke="#4b5563"
-                  strokeWidth="6"
+                  strokeWidth="8"
                   strokeLinecap="round"
                   initial={{ pathLength: 0, opacity: 0 }}
-                  whileInView={{ pathLength: 1, opacity: 0.5 }}
+                  whileInView={{ pathLength: 1, opacity: 0.7 }}
                   transition={{ delay: 0.8, duration: 0.8, ease: "easeInOut" }}
                 />
                 {/* Arrow Head */}
                 <motion.path
                   d="M28 82L15 92L25 98"
                   stroke="#4b5563"
-                  strokeWidth="6"
+                  strokeWidth="8"
                   strokeLinecap="round"
                   initial={{ opacity: 0, x: 10, y: -10 }}
-                  whileInView={{ opacity: 0.5, x: 0, y: 0 }}
+                  whileInView={{ opacity: 0.7, x: 0, y: 0 }}
                   transition={{ delay: 1.5, duration: 0.3 }}
                 />
               </svg>
             </div>
-          </motion.div>
-        </div>
-      </section>
-    </div>
-  
+
+              {/* The Arrow - Hidden on Mobile */}
+              {/* <div className="absolute right-[10%] bottom-[68%] hidden lg:block w-[70px] h-[70px] opacity-50">
+                <svg viewBox="0 0 100 100" fill="none" className="w-full h-full" style={{ transform: "rotate(-5deg)" }}>
+                  <path d="M75 20C78 35 65 45 55 45C45 45 42 35 50 30C60 25 68 38 62 55C55 75 35 85 15 92" stroke="#4b5563" strokeWidth="6" strokeLinecap="round" />
+                  <path d="M28 82L15 92L25 98" stroke="#4b5563" strokeWidth="6" strokeLinecap="round" />
+                </svg>
+              </div> */}
+          </div>
+          </div>
+        </section>
+      </div>
+      <Design />
 
 
 
-      {/* What is Digital Business Card */}
-      <section id="what-is-digital-card"
-        style={{ background: "transparent", marginTop: "0px", position: "relative", overflow: "hidden" }}
-      >
-        {/* Subtle background decoration */}
-        <div style={{ position: "absolute", top: "20%", left: "-5%", width: "300px", height: "300px", background: "radial-gradient(circle, rgba(108, 93, 184, 0.08) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(60px)" }}></div>
-        <div style={{ position: "absolute", bottom: "10%", width: "350px", height: "550px", background: "radial-gradient(circle, rgba(33, 150, 243, 0.08) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(60px)" }}></div>
 
-        <div className="relative w-full bg-white">
-
-          {/* --- SECTION 1: THE BASE (Sticky) --- ONLY ONCE --- */}
-          <section className="sticky top-0 h-[60vh] flex items-center justify-center overflow-hidden bg-white">
-            <div
-              style={{
-                width: "100%", height: "100%",
-                background: "radial-gradient(59.51% 59.98% at 50% 81.4%, #8EBFFF 8.45%, #A5E0FF 55.77%, #FFFFFF 100%)",
-                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", position: "relative",
-              }}
-            >
-              <motion.h2
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 1.2, ease: "easeOut" }}
-                className="text-[#06214A] text-4xl md:text-7xl font-extrabold text-center px-4"
-                style={{ zIndex: 2, fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-              >
-                MyKard isn’t just a Digital Card
-              </motion.h2>
-            </div>
-          </section>
-
-          {/* --- WRAPPER FOR SCROLL SEQUENCE --- */}
-          <motion.div
-            className="relative z-0 bg-transparent"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.1 }}
-            style={{ marginTop: "-30vh" }} // Reduced margin to prevent ghost spacing
-          >
-            {/* --- SECTION 2: THE GRADIENT SLIDE-UP --- */}
-            <motion.section
-              variants={{
-                hidden: { y: "100vh" },
-                visible: { y: 0 }
-              }}
-              transition={{ duration: 1.2, delay: 1, ease: [0.16, 1, 0.3, 1] }}
-              style={{
-                zIndex: 30,
-                marginTop: "-60vh",
-                width: "100%", minHeight: "60vh",
-                background: "linear-gradient(180deg, #FFFFFF 0%, #B0D2F0 60%, #83A1FE 100%)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                position: "relative",
-                borderRadius: "40px 40px 0 0",
-                boxShadow: "0px -20px 40px rgba(0,0,0,0.1)",
-                padding: "100px 20px",
-              }}
-            >
-              <div className="flex items-center justify-center p-6 md:p-12" style={{ width: "95%", maxWidth: "750px", minHeight: "220px", borderRadius: "16px", border: "1.5px solid #3b82f6", backgroundColor: "rgba(255,255,255,0.2)", backdropFilter: "blur(10px)" }}>
-                <p className="text-center" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: "clamp(1.1rem, 2.8vw, 1.6rem)", color: "#000" }}>
-                  Made in India, for the world — MyKard is the <br className="hidden md:block" />
-                  modern way to network, connect, and build <br className="hidden md:block" />
-                  your personal brand.
-                </p>
-              </div>
-            </motion.section>
-
-            {/* --- SECTION 3: THE DARK BLUE PROFILE CARD --- */}
-            <motion.section
-              variants={{
-                hidden: { y: "100vh" },
-                visible: { y: 0 }
-              }}
-              transition={{ duration: 1.2, delay: 2, ease: [0.16, 1, 0.3, 1] }}
-              className="flex justify-center relative w-full"
-              style={{
-                zIndex: 40,
-                marginTop: "-50vh", // Smoothly overlaps section 2
-                position: "relative",
-                // Matches Section 2 bottom color to hide gaps
-                paddingBottom: "80px"
-              }}
-            >
-              <div className="text-center rounded-2xl" style={{ width: "92%", background: "radial-gradient(circle at center, #8B54FF 0%, #173CAA 50%, #0C2160 100%)", padding: "clamp(60px, 8vw, 140px) clamp(20px, 5vw, 60px)", borderRadius: "32px", boxShadow: "0 40px 80px rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.1)" }}>
-                <p style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "white", fontWeight: 300, fontSize: "clamp(1.1rem, 2.4vw, 1.6rem)", maxWidth: "920px", margin: "0 auto" }}>
-                  MyKard is your smart digital profile designed to help you get discovered and grow your network.
-                </p>
-              </div>
-            </motion.section>
-          </motion.div>
-        </div>
-      </section>
       <GrowthMetricsSection />
 
 
@@ -1118,34 +736,48 @@ export default function Homepage() {
 
       {/* Build Credibility That Converts */}
       <section
-        id="build-credibility"
-        // bg-white is the default for mobile. md:bg-transparent lets the gradient show on desktop.
-        className="section px-6 lg:px-12 bg-white md:bg-transparent"
-        style={{
-          // We only apply the gradient if the screen is wider than 768px (Desktop)
-          backgroundImage: typeof window !== 'undefined' && window.innerWidth >= 768
-            ? "linear-gradient(215deg, #FFFFFF 0%, #B1E4FF 40%, #B1E4FF 60%, #678DFF 100%)"
-            : "none",
-          paddingTop: "5rem", paddingBottom: "5rem", position: "relative", overflow: "hidden", 
-        }}
-      >
+  id="build-credibility"
+  className="section px-6 lg:px-12"
+  style={{
+    background: isDesktop
+      ? "linear-gradient(180.96deg, #FFFFFF 8.61%, #B1E4FF 38.39%, #B1E4FF 64.58%, #678DFF 90.1%)"
+      : "#ffffff",
+    paddingTop: "5rem",
+    paddingBottom: "5rem",
+    position: "relative",
+    overflow: "hidden",
+  }}
+>
+
         {/* --- BACKGROUND ORBS --- */}
         {/* Added 'hidden md:block' to BOTH to ensure mobile is pure white */}
-        <div
-          className="hidden md:block"
-          style={{ position: "absolute", top: "-10%", left: "-5%", width: "400px", height: "400px", background: "radial-gradient(circle, rgba(102, 126, 234, 0.15) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(80px)", animation: "float 12s ease-in-out infinite" }}
-        ></div>
-
         <div
           className="hidden md:block" // <--- Added this to hide the purple orb on mobile
           style={{ position: "absolute", bottom: "-10%", right: "-5%", width: "450px", height: "450px", background: "radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(80px)", animation: "float 15s ease-in-out infinite reverse" }}
         ></div>
 
         <div className="container mx-auto text-center" style={{ position: "relative", zIndex: 10 }}>
-          <h2 style={{ color: "#000000", fontSize: "2.5rem", marginBottom: "1rem", fontWeight: "700" }}>
+
+          {/* HEADING: Mobile pe 3xl (30px), Desktop pe 6xl (60px approx) */}
+          <h2
+            className="text-2xl md:text-4xl lg:text-5xl font-bold text-black-900 mb-4"
+            style={{ color: "#000000", marginBottom: "0.5rem", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+          >
             Build Credibility That Converts
           </h2>
-          <p style={{ color: "#334155", fontSize: "1.125rem", maxWidth: "42rem", margin: "0 auto 3rem auto", lineHeight: "1.6" }}>
+
+          {/* PARAGRAPH: Mobile pe sm (14px), Desktop pe 2xl (24px) */}
+          <p
+            className="text-sm md:text-lg lg:text-2xl font-medium text-gray-600 mb-4"
+            style={{
+              color: "#334155",
+              // fontSize: "1.125rem",  <-- YEH LINE HATANI PADEGI
+              maxWidth: "42rem",
+              margin: "0 auto 2rem auto",
+              lineHeight: "1.6",
+              fontFamily: "'Plus Jakarta Sans', sans-serif"
+            }}
+          >
             Make every introduction with MyKard, you’re not just sharing contact info — you’re showcasing your identity, credibility and personal brand.
           </p>
 
@@ -1164,12 +796,12 @@ export default function Homepage() {
 
           {/* --- MOBILE VIEW: Carousel --- */}
           <div className="md:hidden flex flex-col items-center">
-            <div className="w-full max-w-[320px] min-h-[420px]">
+            <div className="w-full max-w-[320px]">
               <CardItem feature={credibilityData[currentIndex]} isMobile={true} />
             </div>
 
             {/* Pagination Dots */}
-            <div className="flex gap-3 mt-8">
+            <div className="flex gap-3 mt-8" style={{ marginTop: "1rem" }}>
               {credibilityData.map((_, i) => (
                 <button
                   key={i}
@@ -1189,39 +821,62 @@ export default function Homepage() {
       {/*------------------ kanchan 4 start--------------------- */}
 
       {/* Why Every Professional Needs */}
-      <section className="py-16 md:py-24 relative bg-white md:bg-transparent" style={{
-        backgroundImage: typeof window !== 'undefined' && window.innerWidth >= 768
-          ? 'linear-gradient(290.34deg, #FFFFFF 6.5%, #B1E4FF 38.6%, #B1E4FF 66.8%, #678DFF 94.99%)'
-          : 'none',
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center'
-      }}>
-        <style>{`
-        /* Your existing desktop flip-card CSS stays exactly here */
-        .flip-card { perspective: 1000px; width: 100%; max-width: 320px; height: 200px; margin: 0 auto; }
-        .flip-card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; cursor: pointer; }
-        .flip-card:hover .flip-card-inner { transform: rotateY(180deg); }
-        .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 16px; overflow: hidden; box-sizing: border-box; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); }
-        .flip-card-front { background: linear-gradient(135deg, #ffffff 0%, rgba(125, 162, 255, 0.8) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); }
-        .flip-card-back { background: rgba(255, 255, 255, 0.95); transform: rotateY(180deg); padding: 20px; display: flex; flex-direction: column; border: 1px solid rgba(0, 0, 0, 0.1); }
-        .card-header-bar { position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, #4A90E2 0%, #8B7FFF 100%); }
-        .hover-text { position: absolute; bottom: 12px; font-size: 10px; color: #4b5563; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
-      `}</style>
+      <section
+  className="py-16 md:py-24 relative"
+  style={{
+    background: isDesktop
+      ? "linear-gradient(356.74deg, #FFFFFF 14.68%, #B1E4FF 44.12%, #B1E4FF 66.95%, #678DFF 89.18%)"
+      : "#ffffff",
+    minHeight: "100vh",
+    display: "flex",
+    alignItems: "center",
+  }}
+>
 
-        <div className="container mx-auto px-4 sm:px-6 relative z-10">
+        <style>{`
+    /* Your existing desktop flip-card CSS */
+    .flip-card { perspective: 1000px; width: 100%; max-width: 320px; height: 200px; margin: 0 auto; }
+    .flip-card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; cursor: pointer; }
+    .flip-card:hover .flip-card-inner { transform: rotateY(180deg); }
+    
+    /* Front Card Styling (Unchanged) */
+    .flip-card-front { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 16px; overflow: hidden; box-sizing: border-box; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); background: linear-gradient(135deg, #ffffff 0%, rgba(125, 162, 255, 0.8) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); }
+    
+    /* Back Card Styling - Updated to match "Smart Card" Image */
+    .flip-card-back { 
+      position: absolute; 
+      width: 100%; 
+      height: 100%; 
+      -webkit-backface-visibility: hidden; 
+      backface-visibility: hidden; 
+      border-radius: 20px; /* Matching the rounded look */
+      overflow: hidden; 
+      box-sizing: border-box; 
+      transform: rotateY(180deg); 
+      display: flex; 
+      flex-direction: column; 
+      border: 1px solid #000; /* Black border from image */
+      background: white;
+    }
+
+    .hover-text { position: absolute; bottom: 12px; font-size: 10px; color: #4b5563; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
+  `}</style>
+
+        <div className="container mx-auto px-4 sm:px-6 relative z-10" style={{ padding: '0' }}>
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black-900 mb-4">
+            <h2 className="text-2xl md:text-4xl lg:text-5xl text-black-900 mb-4" style={{ color: "#000000", marginBottom: "0.5rem", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               Why Every Professional Needs MyKard
             </h2>
           </div>
 
-          {/* --- DESKTOP VIEW: Grid with Flip Cards (Unchanged) --- */}
+          {/* --- DESKTOP VIEW: Grid with Flip Cards --- */}
           <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, idx) => (
               <div key={idx} className="px-2">
                 <div className="flip-card">
                   <div className="flip-card-inner">
+
+                    {/* FRONT SIDE (Unchanged) */}
                     <div className="flip-card-front">
                       <div className="mb-4">
                         <div className="w-16 h-16 mx-auto flex items-center justify-center">
@@ -1231,23 +886,42 @@ export default function Homepage() {
                       <h3 className="text-xl font-bold text-gray-800 text-center">{feature.title}</h3>
                       <span className="hover-text">Hover to learn more</span>
                     </div>
-                    <div className="flip-card-back">
-                      <div className="card-header-bar"></div>
-                      <div className="flex items-start gap-4 mt-2">
-                        <div className="w-12 h-12 shrink-0 flex items-center justify-center bg-blue-50 rounded-lg p-2">
+
+                    {/* BACK SIDE (Updated to match Smart Card Image) */}
+                    <div className="flip-card-back" >
+
+                      {/* 1. Header with Gradient Background */}
+                      <div
+                        className="px-5 py-4 flex items-center gap-3"
+                        style={{
+                          background: "linear-gradient(90deg, #60A5FA 0%, #A78BFA 100%)", // Blue-Purple Gradient
+                          borderBottom: "1px solid rgba(0,0,0,0.05)"
+                        }}
+                      >
+                        {/* Icon */}
+                        <div className="w-8 h-8 flex items-center justify-center" style={{ paddingLeft: '10px' }}>
                           {React.cloneElement(feature.icon, {
                             ...feature.icon.props,
-                            width: 32,
-                            height: 32,
-                            strokeWidth: 1.5,
-                            className: 'w-8 h-8' // Using Tailwind for consistent sizing
+                            width: 28,
+                            height: 28,
+                            strokeWidth: 2,
+                            stroke: "black", // Black icon color
+                            className: 'w-8 h-8'
                           })}
                         </div>
-                        <div>
-                          <h3 className="text-lg font-bold text-gray-900 mb-2">{feature.title}</h3>
-                          <p className="text-sm text-gray-700 leading-relaxed">{feature.desc}</p>
-                        </div>
+                        {/* Title */}
+                        <h3 className="text-xl font-extrabold text-black tracking-tight leading-none" style={{ paddingTop: '12px' }}>
+                          {feature.title}
+                        </h3>
                       </div>
+
+                      {/* 2. Body with White Background */}
+                      <div className="flex-1 bg-white p-5 flex items-center" style={{ padding: '12px' }}>
+                        <p className="text-sm font-medium text-black leading-relaxed">
+                          {feature.desc}
+                        </p>
+                      </div>
+
                     </div>
                   </div>
                 </div>
@@ -1255,14 +929,13 @@ export default function Homepage() {
             ))}
           </div>
 
-          {/* --- MOBILE VIEW: Vertical Accordion --- */}
+          {/* --- MOBILE VIEW: Vertical Accordion (KEPT EXACTLY AS IS) --- */}
           <div className="md:hidden flex flex-col gap-4 px-2" >
             {features.map((feature, idx) => {
               const isOpen = openIndex === idx;
               return (
                 <div
                   key={idx}
-                  /* Changed 'rounded-xl' to 'rounded-lg' or 'rounded-md' to reduce radius */
                   className={`overflow-hidden rounded-lg border-2 transition-all duration-300 ${isOpen
                     ? 'border-blue-400 bg-blue-50/50 shadow-lg'
                     : 'border-blue-300 bg-blue-100/30'
@@ -1273,13 +946,12 @@ export default function Homepage() {
                     className="w-full flex items-center justify-between p-5 text-left"
                   >
                     <div className="flex items-center gap-4">
-                      {/* Reduced icon container radius from 'rounded-lg' to 'rounded-md' */}
                       <div className="w-10 h-10 flex items-center justify-center bg-white rounded-md shadow-sm">
                         {React.cloneElement(feature.icon, {
                           ...feature.icon.props,
                           width: 24,
                           height: 24,
-                          className: 'w-6 h-6' // Using Tailwind for consistent sizing
+                          className: 'w-6 h-6'
                         })}
                       </div>
                       <span className="text-lg font-bold text-gray-800">{feature.title}</span>
@@ -1320,15 +992,15 @@ export default function Homepage() {
       {/*------------------ kanchan 5 start--------------------- */}
 
       {/* how it works Section */}
-      <section id="how-it-works" className="py-16 lg:py-24 px-4 bg-white overflow-hidden" style={{ paddingBottom: '30px', paddingTop: '20px' }}>
+      <section id="how-it-works" className="py-16 lg:py-24 px-4 bg-white overflow-hidden" >
         <div className="container mx-auto max-w-5xl">
           {/* Main Heading */}
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 md:mb-20 text-[#1A1A2E] tracking-tight">
+          <h2 className="text-2xl md:text-4xl lg:text-5xl text-black-900 text-center tracking-tight" style={{ color: "#000000", marginBottom: "0.5rem", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             How it Works?
           </h2>
 
           {/* Steps Stack */}
-          <div className="flex flex-col gap-8 md:gap-10 mb-24"> {/* Increased gap for larger numbers */}
+          <div className="flex flex-col gap-4 md:gap-6 mb-24"> {/* Increased gap for larger numbers */}
             {steps.map((step, idx) => (
               <motion.div
                 key={idx}
@@ -1342,11 +1014,11 @@ export default function Homepage() {
                 <div className="bg-[#2D3A6D] rounded-sm p-5 md:p-10 flex items-center justify-between shadow-lg border-l-4 border-[#558ee4] relative overflow-visible">
 
                   {/* Text content with Left Margin */}
-                  <div className="max-w-md text-left ml-4 md:ml-8" style={{ marginLeft: '25px', marginTop: '10px', padding: '10px' }}>
-                    <h3 className="text-lg  font-bold  !text-white leading-tight uppercase tracking-wide" style={{ marginBottom: '0px' }}>
+                  <div className="max-w-md text-left ml-4 md:ml-8" style={{ padding: '10px' }}>
+                    <h3 className="text-sm  font-bold  !text-white leading-tight uppercase tracking-wide" style={{ marginBottom: '0px' }}>
                       {step.title}
                     </h3>
-                    <p className="!text-white text-[10px] md:text-base opacity-80 leading-tight font-light mt-0">
+                    <p className="!text-white text-[10px] md:text-base opacity-80 leading-tight font-light mt-0" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '13px' }}>
                       {step.description}
                     </p>
                   </div>
@@ -1354,7 +1026,7 @@ export default function Homepage() {
                   {/* Number: Size increased to spill out top/bottom without changing position */}
                   <div className="w-20 md:w-32 flex justify-center items-center relative">
                     <span
-                      className="text-7xl md:text-[9rem] font-black !text-white select-none tracking-tighter absolute"
+                      className="text-7xl md:text-[6rem] font-black !text-white select-none tracking-tighter absolute"
                       style={{
                         lineHeight: '1',
                         // translate enables spilling out without moving the center point
@@ -1371,8 +1043,8 @@ export default function Homepage() {
           </div>
 
           {/* Bottom CTA Section */}
-          <div className="text-center" style={{ marginTop: '40px' }}>
-            <h2 className="text-3xl md:text-4xl font-bold mb-10 text-black">
+          <div className="text-center" style={{ marginTop: '25px' }}>
+            <h2 className="text-2xl md:text-4xl mb-10 text-black" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '20px', paddingBottom: '4px' }} >
               Join millions of Professionals now!
             </h2>
 
@@ -1380,13 +1052,31 @@ export default function Homepage() {
               href="/auth/signup"
               className="inline-flex items-center justify-center px-14 py-5 text-xl font-bold rounded-full transition-all hover:scale-105 shadow-2xl active:scale-95 group"
               style={{
-                background: "linear-gradient(90deg, #87CEEB 0%, #008B8B 100%)",
+                background: "linear-gradient(90deg,  #225af5ff 100%)",
                 color: "white",
-                minWidth: "280px"
+                minWidth: "220px",
+                fontFamily: "'Plus Jakarta Sans', sans-serif"
               }}
             >
               Create Your Card
-              <span className="ml-3 transition-transform group-hover:translate-x-2">→</span>
+
+              {/* SVG Arrow Replacement */}
+              <svg
+                width="20"
+                height="17"
+                viewBox="0 0 20 17"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="ml-3 transition-transform group-hover:translate-x-2"
+              >
+                <path
+                  d="M4.16663 8.50008H15.8333M15.8333 8.50008L9.99996 3.54175M15.8333 8.50008L9.99996 13.4584"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </Link>
           </div>
         </div>
@@ -1559,15 +1249,22 @@ export default function Homepage() {
         </div>
       </section>*/}
 
-      <section id="faq" className="section py-12 lg:py-20 px-4 sm:px-6 lg:px-12" style={{ background: "white" }}>
+      <section id="faq" className="section py-12 lg:py-20 px-4 sm:px-6 lg:px-12" style={{ background: "linear-gradient(180deg, #FFFFFF 22.3%, #133785 63.22%, #162A6C 74.95%, #01071E 91.55%)" }} >
         <div className="container mx-auto max-w-4xl">
           {/* Header Animation */}
           <motion.div
             initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8, ease: "easeOut" }} style={{ textAlign: "center", marginBottom: "1rem" }}
           >
-            <h2 className="heading-2" style={{ color: "#000000", fontWeight: 700, fontSize: "2.5rem", fontFamily: "'Plus Jakarta Sans', sans-serif" }}> Frequently Asked Question </h2>
-            <p style={{ color: "#000000", marginTop: 8, fontSize: "1.1rem" }}> Everything you need to know to get started with MyKard </p>
+            <h2 className="heading-2 text-2xl md:text-4xl lg:text-5xl font-bold text-black-900 text-center" style={{ color: "#000000", fontWeight: 700, fontFamily: "'Plus Jakarta Sans', sans-serif" }}> Frequently Asked Question </h2>
+            <p className="text-sm md:text-lg lg:text-2xl font-medium text-gray-600 mb-4"
+              style={{
+                color: "#334155",
+                maxWidth: "42rem",
+                margin: "0 auto 1rem auto",
+                lineHeight: "1.6",
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+              }}> Everything you need to know to get started with MyKard </p>
           </motion.div>
 
           {/* Accordion Container */}
@@ -1576,7 +1273,7 @@ export default function Homepage() {
               {
                 q: "How does MyKard works?",
                 a: (
-                  <ul style={{ margin: 0, paddingLeft: "1.2rem", display: "flex", flexDirection: "column", gap: "clamp(6px, 2vw, 10px)", }}>
+                  <ul style={{ margin: 0, display: "flex", flexDirection: "column", gap: "clamp(6px, 2vw, 10px)" }}>
                     {[
                       (<div //style={{ display: "flex", flexDirection: "column", gap: "0px" }}
                       >
@@ -1603,14 +1300,14 @@ export default function Homepage() {
                   <button
                     onClick={() => setOpenFaq(isOpen ? null : idx)}
                     style={{
-                      width: "100%", textAlign: "left", padding: "18px 35px", background: "#1E2B58", color: "white",
+                      width: "100%", textAlign: "left", padding: "18px 35px", background: "#D0E9FF", color: "black",
                       border: "none", borderRadius: isOpen ? "20px 20px 0 0" : "20px",
                       display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer",
                       position: "relative", zIndex: 2, boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
                       transition: "border-radius 0.3s ease, background 0.3s ease"
                     }}
                   >
-                    <span style={{ fontSize: "18px", fontWeight: "400" }}> {item.q} </span>
+                    <span style={{ fontSize: "16px", fontWeight: "400" }}> {item.q} </span>
                     <svg
                       width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                       style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.3s ease", strokeWidth: 2, }}
@@ -1624,7 +1321,7 @@ export default function Homepage() {
                     style={{
                       maxHeight: isOpen ? "500px" : "0px", opacity: isOpen ? 1 : 0, overflow: "hidden", transition: "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)", background: "#F8FAFC",
                       border: isOpen ? "1.5px solid #1E2B58" : "1.5px solid transparent", borderRadius: "0 0 20px 20px",
-                      marginTop: "-25px", padding: isOpen ? "35px 25px 15px 25px" : "0px 25px", zIndex: 1, color: "#334155",
+                      marginTop: "-25px", padding: isOpen ? "28px 4px 6px 4px" : "0px 25px", zIndex: 1, color: "#334155",
                     }}
                   >
                     <div style={{ fontSize: "15px", lineHeight: "1" }}> {item.a} </div>

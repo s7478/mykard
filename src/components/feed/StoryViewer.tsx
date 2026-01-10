@@ -12,10 +12,15 @@ interface StoryViewerProps {
   user: any;
 }
 
-export default function StoryViewer({ isOpen, onClose, stories, user }: StoryViewerProps) {
+export default function StoryViewer({
+  isOpen,
+  onClose,
+  stories,
+  user,
+}: StoryViewerProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progress, setProgress] = useState(0);
-  
+
   const [replyText, setReplyText] = useState("");
   const [sendingReply, setSendingReply] = useState(false);
 
@@ -81,7 +86,7 @@ export default function StoryViewer({ isOpen, onClose, stories, user }: StoryVie
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) return 100;
-        return prev + (hasMedia ? 2 : 3.5); 
+        return prev + (hasMedia ? 2 : 3.5);
       });
     }, 100);
 
@@ -96,18 +101,18 @@ export default function StoryViewer({ isOpen, onClose, stories, user }: StoryVie
     setSendingReply(true);
 
     try {
-      const res = await fetch('/api/message/send', {
-        method: 'POST',
+      const res = await fetch("/api/message/send", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`, 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
-          message: `Replying to story: ${replyText}`,
+          message: replyText,
           receiverId: user.id || user.userId,
-          status: 'PENDING',
-          tag: 'STORY_REPLY',
-          storyId: activeStory.id
+          status: "PENDING",
+          tag: "STORY_REPLY",
+          storyId: activeStory.id,
         }),
       });
 
@@ -125,8 +130,6 @@ export default function StoryViewer({ isOpen, onClose, stories, user }: StoryVie
     }
   };
 
-  
-
   const handleShare = async () => {
     const activeStory = stories[currentIndex];
     const shareUrl = `${window.location.origin}/story/${activeStory.id}`;
@@ -135,11 +138,11 @@ export default function StoryViewer({ isOpen, onClose, stories, user }: StoryVie
       try {
         await navigator.share({
           title: `${user.fullName}'s Story`,
-          text: 'Check out this story on MyKard',
+          text: "Check out this story on MyKard",
           url: shareUrl,
         });
       } catch (err) {
-        console.log('Share cancelled');
+        console.log("Share cancelled");
       }
     } else {
       navigator.clipboard.writeText(shareUrl);
@@ -154,11 +157,10 @@ export default function StoryViewer({ isOpen, onClose, stories, user }: StoryVie
   const isVideo = activeStory.imageUrl?.match(/\.(mp4|webm|ogg)$/i);
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm flex items-center justify-center">
-      
+    <div className="fixed inset-0 z-100 bg-black/95 backdrop-blur-sm flex items-center justify-center">
       {/* Close Button */}
-      <button 
-        onClick={onClose} 
+      <button
+        onClick={onClose}
         className="absolute top-6 right-6 text-white/80 z-50 p-2 bg-white/10 rounded-full hover:bg-white/20 transition backdrop-blur-md"
       >
         <X size={24} />
@@ -166,15 +168,22 @@ export default function StoryViewer({ isOpen, onClose, stories, user }: StoryVie
 
       {/* MAIN CONTAINER */}
       <div className="relative w-full h-full md:w-[400px] md:h-[85vh] md:max-h-[850px] overflow-hidden bg-black shadow-2xl border border-white/10 flex flex-col">
-        
         {/* Progress Bars */}
         <div className="absolute top-3 left-0 right-0 z-20 flex gap-1 px-2 pointer-events-none">
           {stories.map((_, idx) => (
-            <div key={idx} className="h-0.5 flex-1 bg-white/30 rounded-full overflow-hidden">
-              <div 
+            <div
+              key={idx}
+              className="h-0.5 flex-1 bg-white/30 rounded-full overflow-hidden"
+            >
+              <div
                 className={`h-full bg-white transition-all duration-100 ease-linear shadow-[0_0_8px_rgba(255,255,255,0.8)]`}
-                style={{ 
-                  width: idx === currentIndex ? `${progress}%` : idx < currentIndex ? '100%' : '0%' 
+                style={{
+                  width:
+                    idx === currentIndex
+                      ? `${progress}%`
+                      : idx < currentIndex
+                      ? "100%"
+                      : "0%",
                 }}
               />
             </div>
@@ -185,65 +194,62 @@ export default function StoryViewer({ isOpen, onClose, stories, user }: StoryVie
         <div className="absolute top-6 left-4 z-20 flex items-center gap-3 pointer-events-none">
           <div className="relative w-9 h-9 rounded-full overflow-hidden border border-white/30 bg-gray-800">
             {user?.profileImage ? (
-              <Image src={user.profileImage} alt={user.fullName} fill className="object-cover" />
+              <Image
+                src={user.profileImage}
+                alt={user.fullName}
+                fill
+                className="object-cover"
+              />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-xs font-bold text-white">
-                 {user?.fullName?.[0]}
+                {user?.fullName?.[0]}
               </div>
             )}
           </div>
-          <span className="text-white font-medium text-sm drop-shadow-md tracking-wide">{user?.fullName}</span>
+          <span className="text-white font-medium text-sm drop-shadow-md tracking-wide">
+            {user?.fullName}
+          </span>
         </div>
 
         {/* Content Area */}
-        <div className="relative flex-1 bg-zinc-900 flex items-center justify-center overflow-hidden">
+        <div className="story-media-wrapper">
           {!activeStory.imageUrl ? (
-             <div className="text-white font-medium p-6 text-center max-w-[80%]">
-               {activeStory.content || "Content Unavailable"}
-             </div>
+            <div className="text-white text-center p-6">
+              {activeStory.content || "Content unavailable"}
+            </div>
           ) : isVideo ? (
             <video
               src={activeStory.imageUrl}
               autoPlay
               playsInline
               muted={false}
-              onEnded={handleNext} 
+              onEnded={handleNext}
               onTimeUpdate={(e) => {
-                if(replyText.length > 0) return;
+                if (replyText.length > 0) return;
                 const duration = e.currentTarget.duration;
                 const currentTime = e.currentTarget.currentTime;
                 if (duration > 0) {
                   setProgress((currentTime / duration) * 100);
                 }
               }}
-              className="w-full h-full object-cover"
+              className="story-media"
             />
           ) : (
             <img
               src={activeStory.imageUrl}
               alt="Story"
-              className="w-full h-full object-contain bg-black"
+              className="story-media"
             />
           )}
-
-          {/* Navigation Click Zones */}
-          <div className="absolute inset-y-0 left-0 w-1/3 z-10 cursor-pointer" onClick={handlePrev} />
-          <div className="absolute inset-y-0 right-0 w-1/3 z-10 cursor-pointer" onClick={(e) => { e.stopPropagation(); handleNext(); }} />
-          
-          {/* Gradient Overlay */}
-          <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
         </div>
 
         {/* FOOTER */}
-        <div 
+        <div
           className="absolute bottom-6 left-4 right-4 z-30 flex items-center gap-3"
-          onClick={(e) => e.stopPropagation()} 
+          onClick={(e) => e.stopPropagation()}
         >
           {/* Reply Form */}
-          <form 
-            onSubmit={handleSendReply}
-            className="flex-1 relative group"
-          >
+          <form onSubmit={handleSendReply} className="flex-1 relative group">
             <input
               type="text"
               value={replyText}
@@ -251,23 +257,27 @@ export default function StoryViewer({ isOpen, onClose, stories, user }: StoryVie
               placeholder="Send a message..."
               className="w-full h-10 bg-transparent border border-white/40 rounded-full pl-6 pr-14 text-white placeholder-white/70 focus:outline-none focus:border-white focus:bg-black/40 transition-all text-base backdrop-blur-sm shadow-lg"
             />
-            
+
             {/* Send Button inside Input */}
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={!replyText.trim() || sendingReply}
               className={`absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full transition-all duration-200 ${
-                replyText.trim() 
-                  ? "text-white hover:bg-white/20 active:scale-95" 
+                replyText.trim()
+                  ? "text-white hover:bg-white/20 active:scale-95"
                   : "text-white/30 cursor-not-allowed"
               }`}
             >
-              {sendingReply ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+              {sendingReply ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <Send size={16} />
+              )}
             </button>
           </form>
 
           {/* Share Button */}
-          <button 
+          <button
             onClick={handleShare}
             className="h-10 w-10 flex items-center justify-center bg-transparent border border-white/40 rounded-full text-white hover:bg-white/10 hover:border-white transition backdrop-blur-sm shadow-lg"
             title="Share Story"
@@ -275,7 +285,6 @@ export default function StoryViewer({ isOpen, onClose, stories, user }: StoryVie
             <Share2 size={24} />
           </button>
         </div>
-
       </div>
     </div>
   );

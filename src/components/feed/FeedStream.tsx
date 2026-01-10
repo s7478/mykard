@@ -1,18 +1,20 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { PostCard } from "./FeedWidgets";
+import { PostCard, SuggestedUsersWidget } from "./FeedWidgets";
 import { Loader2 } from "lucide-react";
 
 interface FeedStreamProps {
-  filter?: "mine" | "saved" | "like" | "all"; 
+  filter?: "mine" | "saved" | "like" | "all";
   currentUser: any;
 }
 
-export default function FeedStream({ filter = "all", currentUser }: FeedStreamProps) {
+export default function FeedStream({
+  filter = "all",
+  currentUser,
+}: FeedStreamProps) {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Function to refresh posts (passed to CreatePostWidget later)
   const refreshFeed = async () => {
     setLoading(true);
     try {
@@ -35,11 +37,17 @@ export default function FeedStream({ filter = "all", currentUser }: FeedStreamPr
     refreshFeed();
   }, [filter]);
 
-  if (loading) return <div className="flex justify-center py-8"><Loader2 className="animate-spin text-blue-600" size={32} /></div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center py-8">
+        <Loader2 className="animate-spin text-blue-600" size={32} />
+      </div>
+    );
+  }
 
   if (posts.length === 0) {
     return (
-      <div className="text-center py-10 text-gray-500">
+      <div className="text-center py-0 sm:py-10 text-gray-500">
         {filter === "saved" ? "No saved posts yet." : "No posts found."}
       </div>
     );
@@ -47,8 +55,14 @@ export default function FeedStream({ filter = "all", currentUser }: FeedStreamPr
 
   return (
     <div className="flex flex-col w-full">
-      {posts.map((post) => (
-        <PostCard key={post.id} currentUser={currentUser} postData={post} />
+      {posts.map((post, index) => (
+        <React.Fragment key={post.id}>
+          <PostCard currentUser={currentUser} postData={post} />
+
+          {index === 3 && (
+            <SuggestedUsersWidget currentUserId={currentUser?.id} />
+          )}
+        </React.Fragment>
       ))}
     </div>
   );

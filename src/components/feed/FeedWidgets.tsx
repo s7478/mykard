@@ -58,7 +58,7 @@ const styles: Record<string, CSSProperties> = {
   mediaRowCompact: {
     display: "flex",
     alignItems: "center",
-    justifyContent: 'center',
+    justifyContent: "center",
     gap: "6px",
   },
 
@@ -67,19 +67,19 @@ const styles: Record<string, CSSProperties> = {
     gap: "0",
   },
   createPostCard: {
-  backgroundColor: "#ffffff",
-  border: "1px solid #f1f5f9",
-  borderTopRightRadius: "16px",
-  borderTopLeftRadius: "16px",
-  padding: "6px 16px 10px 16px", // ⬅ reduced
-  width: "100%",
-  textAlign: "left",
-  boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-},
+    backgroundColor: "#ffffff",
+    border: "1px solid #f1f5f9",
+    borderTopRightRadius: "16px",
+    borderTopLeftRadius: "16px",
+    padding: "6px 16px 10px 16px",
+    width: "100%",
+    textAlign: "left",
+    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+  },
   inputArea: {
     display: "flex",
-    flexDirection: 'column',
-    justifyContent: 'center',
+    flexDirection: "column",
+    justifyContent: "center",
     alignItems: "center",
     gap: "12px",
   },
@@ -119,19 +119,19 @@ const styles: Record<string, CSSProperties> = {
     whiteSpace: "nowrap",
   },
   postCard: {
-  backgroundColor: "#ffffff",
-  border: "1px solid #f1f5f9",
-  padding: "8px", // ⬅ was 6px, balances mobile
-  width: "100%",
-  textAlign: "left",
-  position: "relative",
-},
+    backgroundColor: "#ffffff",
+    border: "1px solid #f1f5f9",
+    padding: "8px", // ⬅ was 6px, balances mobile
+    width: "100%",
+    textAlign: "left",
+    position: "relative",
+  },
   postHeader: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingBottom: '8px',
-    marginBottom: "6px"
+    paddingBottom: "8px",
+    marginBottom: "6px",
   },
   headerActions: {
     display: "flex",
@@ -193,7 +193,7 @@ const styles: Record<string, CSSProperties> = {
     alignItems: "center",
     justifyContent: "space-between",
     // borderTop: "1px solid gray",
-    paddingTop: '5px',
+    paddingTop: "5px",
     marginTop: "12px",
   },
   commentSection: {
@@ -221,8 +221,6 @@ const styles: Record<string, CSSProperties> = {
   commentText: { fontSize: "12px", color: "#475569", lineHeight: "1.4" },
   widgetCard: {
     backgroundColor: "#ffffff",
-    borderBottomLeftRadius: "20px",
-    borderBottomRightRadius: "20px",
     border: "1px solid #f1f5f9",
     padding: "16px",
     textAlign: "left",
@@ -929,9 +927,9 @@ export const CreatePostWidget = ({ currentUser }: { currentUser?: any }) => {
     "image" | "video" | null
   >(null);
 
-  const [screenType, setScreenType] = useState<
-    "mobile" | "tablet" | "desktop"
-  >("desktop");
+  const [screenType, setScreenType] = useState<"mobile" | "tablet" | "desktop">(
+    "desktop"
+  );
 
   useEffect(() => {
     const update = () => {
@@ -942,21 +940,20 @@ export const CreatePostWidget = ({ currentUser }: { currentUser?: any }) => {
     };
     update();
     window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update)
+    return () => window.removeEventListener("resize", update);
   }, []);
 
   useEffect(() => {
-  if (screenType === "mobile") {
-    document.body.style.overflowX = "hidden";
-  } else {
-    document.body.style.overflowX = "";
-  }
+    if (screenType === "mobile") {
+      document.body.style.overflowX = "hidden";
+    } else {
+      document.body.style.overflowX = "";
+    }
 
-  return () => {
-    document.body.style.overflowX = "";
-  };
-}, [screenType]);
-
+    return () => {
+      document.body.style.overflowX = "";
+    };
+  }, [screenType]);
 
   const openPostModal = (type: "image" | "video" | null = null) => {
     setPostInitialType(type);
@@ -965,6 +962,7 @@ export const CreatePostWidget = ({ currentUser }: { currentUser?: any }) => {
 
   const isMobile = screenType === "mobile";
   const isTablet = screenType === "tablet";
+  const isDesktop = screenType === "desktop";
 
   return (
     <>
@@ -972,23 +970,16 @@ export const CreatePostWidget = ({ currentUser }: { currentUser?: any }) => {
         <div
           style={{
             ...styles.createPostTopRow,
-            flexDirection: isMobile ? "column" : "row",
             alignItems: isMobile ? "stretch" : "center",
           }}
         >
           <div
             style={{
               ...styles.fakeInput,
-              width: isMobile ? "100%" : "auto",
-              flex: 1,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
             }}
-            onClick={() => openPostModal(null)}
-            onMouseOver={(e) =>
-              (e.currentTarget.style.backgroundColor = "#f3f4f6")
-            }
-            onMouseOut={(e) =>
-              (e.currentTarget.style.backgroundColor = "#ffffff")
-            }
           >
             Start a post
           </div>
@@ -1002,25 +993,25 @@ export const CreatePostWidget = ({ currentUser }: { currentUser?: any }) => {
             <button
               onClick={() => openPostModal("video")}
               style={
-                isTablet
+                !isDesktop
                   ? { ...styles.mediaBtn, ...styles.mediaBtnIconOnly }
                   : styles.mediaBtn
               }
             >
               <Video size={20} className="text-green-600" />
-              {!isTablet && <span style={{ color: "#525252" }}>Video</span>}
+              {isDesktop && <span style={{ color: "#525252" }}>Video</span>}
             </button>
 
             <button
               onClick={() => openPostModal("image")}
               style={
-                isTablet
+                !isDesktop
                   ? { ...styles.mediaBtn, ...styles.mediaBtnIconOnly }
                   : styles.mediaBtn
               }
             >
               <ImageIcon size={20} className="text-blue-500" />
-              {!isTablet && <span style={{ color: "#525252" }}>Photo</span>}
+              {isDesktop && <span style={{ color: "#525252" }}>Photo</span>}
             </button>
           </div>
         </div>
@@ -1035,7 +1026,6 @@ export const CreatePostWidget = ({ currentUser }: { currentUser?: any }) => {
     </>
   );
 };
-
 
 // 🟢 UPDATED POST CARD
 export const PostCard = ({
@@ -1175,47 +1165,49 @@ export const PostCard = ({
 
   // ... (Other handlers: Report, Disconnect, Like, Save, Share... keep same as before)
   const handleDisconnect = async () => {
-    // 1. Determine the ID to send. 
+    // 1. Determine the ID to send.
     // Ideally use connectionId if available, otherwise fallback to authorId.
     // (Ensure your Backend DELETE route can handle a userId if connectionId is missing)
     const contactId = postData.connectionId || postData.authorId;
 
     if (!contactId) {
-      toast.error('Cannot disconnect: ID missing');
+      toast.error("Cannot disconnect: ID missing");
       return;
     }
-    
+
     if (!confirm("Are you sure you want to remove this connection?")) return;
 
     try {
       // 2. Exact fetch logic from your Dashboard
       const res = await fetch(`/api/users/connections/${contactId}`, {
-        method: 'DELETE',
-        credentials: 'include',
+        method: "DELETE",
+        credentials: "include",
       });
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err?.error || 'Failed to remove connection');
+        throw new Error(err?.error || "Failed to remove connection");
       }
 
       // 3. Update Local State
       setIsConnected(false);
       setShowMenu(false);
-      
-      // 4. Success Message & Sync Events (Copied from Dashboard)
-      toast.success('Connection removed successfully');
-      
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new Event('connections-updated'));
-      }
 
+      // 4. Success Message & Sync Events (Copied from Dashboard)
+      toast.success("Connection removed successfully");
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("connections-updated"));
+      }
     } catch (e: any) {
-      console.error('Delete connection error:', e);
-      toast.error(e?.message || 'Failed to remove connection');
+      console.error("Delete connection error:", e);
+      toast.error(e?.message || "Failed to remove connection");
     }
   };
-  const handleReport = () => { toast.success("Post reported."); setShowMenu(false); };
+  const handleReport = () => {
+    toast.success("Post reported.");
+    setShowMenu(false);
+  };
   const handleLike = async () => {
     const newLiked = !isLiked;
     setIsLiked(newLiked);
@@ -1395,33 +1387,48 @@ export const PostCard = ({
               <button style={styles.menuItem} onClick={handleCopyLink}>
                 <Copy size={16} /> Copy Link
               </button>
-              
+
               {isOwnPost ? (
-                <button style={{ ...styles.menuItem, color: "#ef4444" }} onClick={handleDelete}>
+                <button
+                  style={{ ...styles.menuItem, color: "#ef4444" }}
+                  onClick={handleDelete}
+                >
                   <Trash2 size={16} /> Delete Post
                 </button>
               ) : (
                 <>
-                  <button style={{ ...styles.menuItem, color: "#ef4444" }} onClick={handleReport}>
+                  <button
+                    style={{ ...styles.menuItem, color: "#ef4444" }}
+                    onClick={handleReport}
+                  >
                     <Flag size={16} /> Report
                   </button>
-                  
+
                   {/* Toggle between Connect and Disconnect */}
                   {!isConnected ? (
-                      <button 
-                        style={{ ...styles.menuItem, color: "#2563eb", opacity: isLoadingConnection ? 0.5 : 1 }} 
-                        onClick={handleConnect}
-                        disabled={isLoadingConnection}
-                      >
-                        <UserPlus size={16} /> {isLoadingConnection ? 'Connecting...' : 'Connect'}
-                      </button>
+                    <button
+                      style={{
+                        ...styles.menuItem,
+                        color: "#2563eb",
+                        opacity: isLoadingConnection ? 0.5 : 1,
+                      }}
+                      onClick={handleConnect}
+                      disabled={isLoadingConnection}
+                    >
+                      <UserPlus size={16} />{" "}
+                      {isLoadingConnection ? "Connecting..." : "Connect"}
+                    </button>
                   ) : (
-                      <button 
-                        style={{ ...styles.menuItem, color: "#ef4444", opacity: isLoadingConnection ? 0.5 : 1 }} 
-                        onClick={handleDisconnect}
-                      >
-                        <UserMinus size={16} /> Disconnect
-                      </button>
+                    <button
+                      style={{
+                        ...styles.menuItem,
+                        color: "#ef4444",
+                        opacity: isLoadingConnection ? 0.5 : 1,
+                      }}
+                      onClick={handleDisconnect}
+                    >
+                      <UserMinus size={16} /> Disconnect
+                    </button>
                   )}
                 </>
               )}
@@ -1442,39 +1449,26 @@ export const PostCard = ({
           {postData.content}
         </p>
         {postData.imageUrl && (
-          <div
-            style={{
-              marginTop: "12px",
-              borderRadius: "12px",
-              overflow: "hidden",
-              position: "relative",
-              width: "100%",
-              maxHeight: "500px",
-              backgroundColor: "#000",
-            }}
-          >
+          <div className="post-media-wrapper">
+            <div
+              className="post-media-blur"
+              style={{
+                backgroundImage: `url(${postData.imageUrl})`,
+              }}
+            />
+
             {postData.imageUrl.match(/\.(mp4|webm|ogg)$/i) ? (
               <video
                 src={postData.imageUrl}
                 controls
                 playsInline
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  maxHeight: "500px",
-                  display: "block",
-                }}
+                className="post-media-main"
               />
             ) : (
               <img
                 src={postData.imageUrl}
-                alt="Post content"
-                style={{
-                  width: "100%",
-                  height: "auto",
-                  objectFit: "cover",
-                  display: "block",
-                }}
+                alt="Post media"
+                className="post-media-main"
               />
             )}
           </div>
@@ -1518,10 +1512,7 @@ export const PostCard = ({
               color: showComments ? "#2563eb" : "#64748b",
             }}
           >
-            <MessageCircle
-              size={18}
-              fill={showComments ? "#dbeafe" : "none"}
-            />{" "}
+            <MessageCircle size={18} fill={showComments ? "#dbeafe" : "none"} />{" "}
             {commentsCount.toLocaleString()}
           </button>
           <button
