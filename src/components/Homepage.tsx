@@ -497,28 +497,13 @@ export default function Homepage() {
                     background: 'linear-gradient(93.85deg, #82D2EF 11.38%, #1986A4 62.78%)',
                     borderRadius: '30px',
                     color: '#F0FCFF',
-                    fontSize: 'clamp(14px, 4vw, 16px)', // Font size bhi responsive ho gaya
-                    fontWeight: 800,
+                    fontSize: 'clamp(12px, 4vw, 16px)', // Font size bhi responsive ho gaya
+                    fontWeight: 700,
                     textDecoration: 'none',
                   }}
                 >
                   Get Started
-                  <svg
-                    width="20"
-                    height="17"
-                    viewBox="0 0 20 17"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="ml-3 transition-transform group-hover:translate-x-2"
-                  >
-                    <path
-                      d="M4.16663 8.50008H15.8333M15.8333 8.50008L9.99996 3.54175M15.8333 8.50008L9.99996 13.4584"
-                      stroke="white"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  <span style={{ fontSize: '15px' }}>→</span>
                 </Link>
 
                 <Link
@@ -530,8 +515,8 @@ export default function Homepage() {
                     background: 'linear-gradient(107.27deg, #82D2EF 0%, #1986A4 60.66%)',
                     borderRadius: '30px',
                     color: '#F0FCFF',
-                    fontSize: 'clamp(14px, 4vw, 18px)',
-                    fontWeight: 800,
+                    fontSize: 'clamp(12px, 4vw, 18px)',
+                    fontWeight: 700,
                     textDecoration: 'none',
                   }}
                 >
@@ -572,108 +557,149 @@ export default function Homepage() {
 
       {/* New Search Bar Section --> Vaijayanti */}
 
-      <div className="w-full bg-[#030b25]">
-        {/* SECTION 1: Search */}
-        <section
-          className="relative px-4 md:px-6 flex flex-col  w-full items-center justify-center min-h-fit md:min-h-[600px] overflow-hidden"
+
+    <div className="w-full bg-[#030b25]">
+      {/* SECTION 1: Search */}
+      <section
+        className="relative px-4 md:px-6 flex flex-col w-full items-center justify-center min-h-fit md:min-h-[600px] overflow-hidden"
+        style={{
+          background: "radial-gradient( 110% 110% at 50% 120%, #FFFFFF 0%, #B1E4FF 25%, #1070FF 50%, #071337 90%)",
+          paddingTop: "4rem",
+          paddingBottom: "4rem"
+        }}
+      >
+        <div className="container mx-auto flex flex-col items-center relative w-full">
+
+          {/* 1. Floating Search Card (The Curtain) */}
+          <motion.div
+            initial={{ opacity: 1, y: 180, scale: 1 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{
+              type: "spring",
+              stiffness: 120,
+              damping: 20,
+              delay: 0.1
+            }}
+            whileHover={{ 
+              scale: 1.02, 
+              boxShadow: "0 25px 50px rgba(0,0,0,0.6)",
+              transition: { duration: 0.3 }
+            }}
+            whileTap={{ scale: 0.98 }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            className="transition-all duration-300 ease-in-out cursor-default w-[800px] z-20"
           style={{
-            background: "linear-gradient(180deg, #030b25 0%, #0a1941 45%, #bce1ff 100%)", paddingTop: "4rem", paddingBottom: "6rem"
+            padding: "clamp(1.2rem, 4vw, 2.6rem) clamp(1rem, 4vw, 3.8rem)",
+            borderRadius: "26px",
+            background: "linear-gradient(105deg, #6c8ef2 0%, #8ca6f8 50%, #ffffff 100%)",
+            boxShadow: isHovered ? "0 25px 50px rgba(0,0,0,0.6)" : "0 20px 40px rgba(0,0,0,0.35)",
+            marginBottom: "-45px", transform: isHovered ? "scale(1.02)" : "scale(1)"
           }}
-        >
-          <div className="container mx-auto flex flex-col items-center relative w-full">
-
-            {/* 2. Floating Search Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 70, scale: 0.97 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, amount: 0.35 }}
-              transition={{
-                duration: 1.05, ease: [0.16, 1, 0.3, 1],   // soft bounce-ease
-                opacity: { duration: 0.6 },
-                y: { duration: 0.70, ease: [0.23, 1, 0.32, 1] },
-                scale: { duration: 0.30, ease: "easeOut" }
-              }}
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
-              className="transition-all duration-300 ease-in-out cursor-default w-[800px] z-20"
-              style={{
-                padding: "clamp(1.2rem, 4vw, 2.6rem) clamp(1rem, 4vw, 3.8rem)",
-                borderRadius: "26px",
-                background: "linear-gradient(105deg, #6c8ef2 0%, #8ca6f8 50%, #ffffff 100%)",
-                boxShadow: isHovered ? "0 25px 50px rgba(0,0,0,0.6)" : "0 20px 40px rgba(0,0,0,0.35)",
-                marginBottom: "-45px",
-                transform: isHovered ? "scale(1.02)" : "scale(1)"
-              }}
-            >
-
-              {/* Search Input Container */}
-              <div className="relative flex items-center w-[650px] mx-auto shadow-lg rounded-full bg-[#fff5f2]">
-                <div className="absolute left-4 md:left-5 flex items-center pointer-events-none">
-                  <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search by name, skills..."
-                  className=" w-full rounded-full border-0 focus:outline-none text-sm md:text-lg"
-                  style={{
-                    padding: "1rem 5rem", background: "transparent", color: "#666", paddingLeft: "clamp(3rem, 10vw, 4rem)"
-                  }}
-                />
-                <button
-                  className="absolute right-2 md:right-4 bg-white px-3 md:px-6 py-2 md:py-3 rounded-full text-blue-600 font-bold text-xs md:text-base shadow-sm border border-gray-100 hover:bg-gray-50 transition-colors"
-                  style={{ cursor: "pointer", padding: "10px 12px" }}
-                >
-                  Search
-                </button>
+          >
+            {/* Search Input Container */}
+            <div className="relative flex items-center w-full max-w-[650px] mx-auto shadow-lg rounded-full bg-[#fff5f2]">
+              <div className="absolute left-4 md:left-5 flex items-center pointer-events-none">
+                <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
               </div>
-            </motion.div>
+              <input
+                type="text"
+                placeholder="Search by name, skills..."
+                className="w-full rounded-full border-0 focus:outline-none text-sm md:text-lg bg-transparent"
+                style={{ padding: "1rem 5rem", color: "#666", paddingLeft: "clamp(3rem, 10vw, 4rem)" }}
+              />
+              <button
+                className="absolute right-2 md:right-4 bg-white px-3 md:px-6 py-2 md:py-3 rounded-full text-blue-600 font-bold text-xs md:text-base shadow-sm border border-gray-100 hover:bg-gray-50 transition-colors"
+                style={{ cursor: "pointer", padding: "10px 12px" }}
+              >
+                Search
+              </button>
+            </div>
+          </motion.div>
 
-
-            {/* 4. Info Card - Always visible on mobile, hover effect on desktop */}
-            <motion.div
-              ref={infoCardRef}
-
-              initial={{ opacity: 0, y: 55, scale: 0.97 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, amount: 0.35 }}
-
-              transition={{
-                duration: 0.58,
-                delay: 0.20,
-                ease: [0.22, 1, 0.32, 1]
-              }}
-
-              className={` relative text-center w-[1000px] 
-              bg-[#c1dcff] shadow-xl mx-auto
-              ${showInfoCard ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}
-            `}
+          {/* 2. Info Card (Message Box) */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={{ duration: 0.8 }}
+            className="relative text-center w-[90%] max-w-[1000px] bg-[#c1dcff] shadow-xl mx-auto md:pt-[150px] md:pb-[75px]"
+            style={{
+              zIndex: 10,
+              borderRadius: "42px",
+              paddingTop: "80px",
+              paddingBottom: "45px",
+            }}
+          >
+            <p
+              className="mx-auto px-2 sm:px-3 md:px-10"
               style={{
-                zIndex: 10,
-                borderRadius: "42px",
-                paddingTop: "100px",
-                paddingBottom: "75px",
-                paddingLeft: "6px",
-                paddingRight: "6px",
+                fontFamily: "Caveat Brush, cursive",
+                color: "#000",
+                fontSize: "clamp(1.10rem, 2.6vw, 1.6rem)",
+                fontWeight: 400,
+                lineHeight: 1.38,
+                maxWidth: "780px",
+                margin: "0 auto",
+                textAlign: "center",
               }}
             >
+              Access verified professional profiles, view portfolios <br className="hidden md:block" />
+              and connect instantly with industry leaders <br className="hidden md:block" />
+              potential clients and business partners in your <br className="hidden md:block" /> 
+              network.
+            </p>
+          </motion.div>
 
-              <p
-                className="mx-auto px-4 sm:px-6 md:px-10"
-                style={{
-                  fontFamily: "Caveat Brush, cursive",
-                  color: "#000",
-                  fontSize: "clamp(1.10rem, 2.6vw, 1.6rem)",
-                  fontWeight: 400,
-                  lineHeight: 1.38,
-                  maxWidth: "780px",
-                  margin: "0 auto",
-                  textAlign: "center"
-                }} >
-                Access verified professional profiles, view portfolios <br></br>and connect instantly with industry leaders <br></br>potential clients and business partners in your<br></br> network.
-              </p>
+            <div className="absolute bottom-0 w-[90%] max-w-[1000px] h-full pointer-events-none z-30 ">
+              {/* 3. Animated Arrow pointing to message */}
+            {/* <div className="absolute right-[12%] top-[31%]  w-[90px] h-[90px] md:w-[120px] md:h-[100px] ">   */}
+
+            <div className="absolute 
+            /* 1. SMALL MOBILE (Gradual scaling starts here) */
+              right-[0%] top-[26%] w-[50px] h-[50px] 
+              
+              /* 2. LARGE MOBILE / TABLETS */
+              sm:right-[2%] sm:top-[28%] sm:w-[75px] sm:h-[75px]
+              
+              /* 3. LAPTOPS / SMALL DESKTOPS */
+              md:right-[6%] md:top-[30%] md:w-[100px] md:h-[90px]
+              
+              /* 4. LARGE DESKTOPS (Maintaining your 'Large' look) */
+              lg:right-[10%] lg:top-[30%] lg:w-[130px] lg:h-[110px]
+              
+              /* 5. EXTRA LARGE SCREENS */
+              xl:right-[12%] xl:top-[28%] xl:w-[100px] xl:h-[100px]"
+            >
+
+              <svg viewBox="0 0 100 100" fill="none" className="w-full h-full">
+
+                <motion.path
+                  //d="M75 20C78 35 65 45 55 45C45 45 42 35 50 30C60 25 68 38 62 55C55 75 35 85 15 92"
+                  d="M80 15C85 35 70 45 60 45C50 45 47 35 55 30C65 25 73 38 67 55C60 75 40 85 20 92"
+                  stroke="#4b5563"
+                  strokeWidth="8"
+                  strokeLinecap="round"
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  whileInView={{ pathLength: 1, opacity: 0.7 }}
+                  transition={{ delay: 0.8, duration: 0.8, ease: "easeInOut" }}
+                />
+                {/* Arrow Head */}
+                <motion.path
+                  d="M28 82L15 92L25 98"
+                  stroke="#4b5563"
+                  strokeWidth="8"
+                  strokeLinecap="round"
+                  initial={{ opacity: 0, x: 10, y: -10 }}
+                  whileInView={{ opacity: 0.7, x: 0, y: 0 }}
+                  transition={{ delay: 1.5, duration: 0.3 }}
+                />
+              </svg>
+            </div>
 
               {/* The Arrow - Hidden on Mobile */}
               <div className="absolute right-[10%] bottom-[68%] hidden lg:block w-[70px] h-[70px] opacity-50">
@@ -1207,7 +1233,7 @@ export default function Homepage() {
         </div>
       </section>*/}
 
-      <section id="faq" className="section py-12 lg:py-20 px-4 sm:px-6 lg:px-12" style={{ background: "white" }}>
+      <section id="faq" className="section py-12 lg:py-20 px-4 sm:px-4 lg:px-12" style={{ background: "white" }}>
         <div className="container mx-auto max-w-4xl">
           {/* Header Animation */}
           <motion.div

@@ -4,7 +4,7 @@ import { PostCard } from "./FeedWidgets";
 import { Loader2 } from "lucide-react";
 
 interface FeedStreamProps {
-  filter?: "mine" | "saved" | "all"; 
+  filter?: "mine" | "saved" | "like" | "all"; 
   currentUser: any;
 }
 
@@ -19,6 +19,7 @@ export default function FeedStream({ filter = "all", currentUser }: FeedStreamPr
       let url = "/api/feed";
       if (filter === "mine") url += "?filter=mine";
       if (filter === "saved") url += "?filter=saved";
+      if (filter === "like") url += "?filter=like";
 
       const res = await fetch(url);
       const data = await res.json();
@@ -45,7 +46,7 @@ export default function FeedStream({ filter = "all", currentUser }: FeedStreamPr
   }
 
   return (
-    <div className="flex flex-col gap-6 w-full">
+    <div className="flex flex-col w-full">
       {posts.map((post) => (
         <PostCard key={post.id} currentUser={currentUser} postData={post} />
       ))}

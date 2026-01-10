@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { CreatePostWidget, SuggestedUsersWidget } from "@/components/feed/FeedWidgets";
 import FeedStream from "@/components/feed/FeedStream"; 
+// 🟢 IMPORT STORY BAR
+import StoryBar from "@/components/feed/StoryBar"; 
 
 export default function FeedPage() {
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -21,21 +23,22 @@ export default function FeedPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#F3F4F6] px-4 py-8 flex justify-center">
-      {/* <div className="flex w-auto m-auto justify-center gap-8"> */}
-        <main className="flex flex-col gap-6 w-full lg:w-7/12 mx-auto">
+    <div className="min-h-screen px-4 py-8 flex justify-center">
+        <main className="flex flex-col w-full lg:w-7/12 mx-auto">
           
           {/* 1. Create Post Widget */}
           <CreatePostWidget currentUser={currentUser} />
+
+          {/* 🟢 2. Story Bar (Placed after Create Post as requested) */}
+          <StoryBar currentUser={currentUser} />
           
-          {/* 2. Feed Stream (Fetches and renders PostCards automatically) */}
+          {/* 3. Feed Stream */}
           <FeedStream filter="all" currentUser={currentUser} />
           
-          {/* 3. Suggestions */}
+          {/* 4. Suggestions */}
           <SuggestedUsersWidget currentUserId={currentUser?.id} />
           
         </main>
-      {/* </div> */}
     </div>
   );
 }
