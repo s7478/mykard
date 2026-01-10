@@ -15,7 +15,7 @@ function decodeJwtPayload(token: string): any | null {
   }
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
   const isApiRequest = path.startsWith('/api')
 
@@ -26,6 +26,11 @@ export function middleware(request: NextRequest) {
 
   if (isStaticAsset) {
     return NextResponse.next()
+  }
+
+  // API request handling (delay removed)
+  if (isApiRequest) {
+    // API-specific logic can be added here if needed
   }
 
   const publicPaths = [
@@ -47,7 +52,7 @@ export function middleware(request: NextRequest) {
     '/api/message/receive',
     '/api/message/send'
   ]
-  
+
   const isAuthPath = path.startsWith('/auth')
   const isAdminPath = path.startsWith('/admin')
   const isDashboardPath = path.startsWith('/dashboard')
@@ -68,13 +73,13 @@ export function middleware(request: NextRequest) {
   const bearerToken = authHeader && authHeader.startsWith('Bearer ')
     ? authHeader.substring('Bearer '.length).trim()
     : undefined
-  
+
   const hasUserToken = request.cookies.has('user_token')
   const hasAdminToken = request.cookies.has('admin_token')
 
   let userId: string | null = null
   let adminId: string | null = null
-  
+
   if (userToken) {
     const decoded = decodeJwtPayload(userToken)
     if (decoded) {

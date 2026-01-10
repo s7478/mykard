@@ -19,30 +19,10 @@ import {
   FiMail,
   FiShare2,
   FiChevronRight,
-  FiPower, // Using Power icon for status
   FiPlay,
-  FiPauseCircle,
-  FiToggleLeft,
-  FiToggleRight
+  FiPauseCircle
 } from "react-icons/fi";
-import { BarChart2, Eye, Plus, PenSquare, ArrowUpRight, ArrowDownRight, Minus, Users } from "lucide-react";
-
-/* -------------------------------------------------
-   DESIGN SYSTEM (For Desktop Card Style)
-   ------------------------------------------------- */
-const theme = {
-  colors: {
-    bg: "#FFFFFF",
-    primaryBlue: "#2152E5",
-    cardGradient: "linear-gradient(109.79deg, rgba(79, 117, 230, 0.98) 16.59%, #1237A1 76.33%)",
-    cardBorderLine: "#6AD2FF",
-    avatarBg: "#1279E1",
-    avatarBorder: "#A3D4FF",
-    inputText: "#646464",
-    inputBorder: "#767676",
-  },
-  font: "'Plus Jakarta Sans', sans-serif",
-};
+import { BarChart2, Eye, Plus, PenSquare } from "lucide-react";
 
 // ----------------- Card Type Definition -----------------
 interface Card {
@@ -89,9 +69,6 @@ interface Card {
   cardActive?: boolean;
   views?: number;
   shares?: number;
-  // Added growth fields for dynamic analytics
-  viewsGrowth?: number;
-  contactsGrowth?: number;
   customFields?: string | any;
   user?: any;
 }
@@ -116,14 +93,7 @@ const Dashboard = () => {
   // Expanded State Logic (For the List Accordion)
   const [expandedCardId, setExpandedCardId] = useState<string | number | null>(null);
 
-  // Real-time Data States
   const [activeCardContacts, setActiveCardContacts] = useState(0);
-
-  // Analytics State
-  const [analytics, setAnalytics] = useState({
-    contactsGrowth: 0,
-    viewsGrowth: 0
-  });
 
   // ----------------- 1. IMAGE HELPER -----------------
   const getCardImage = (card: Card | any) => {
@@ -161,192 +131,69 @@ const Dashboard = () => {
     return imgSource;
   };
 
-  // ----------------- 2. HANDLERS (Moved Up for use in renderCardPreview) -----------------
+  // ----------------- 2. PREVIEW HELPER -----------------
+  const renderCardPreview = (card: Card) => {
+    const capitalizedFullName = capitalizeFirstLetter(card.fullName || "");
+    const nameParts = capitalizedFullName.split(" ");
 
-  // Toggle Active/Paused Status
-  const handleToggleStatus = async (e: React.MouseEvent, card: Card) => {
-    e.stopPropagation();
-
-    const newStatus = !card.cardActive;
-    const statusText = newStatus ? "Active" : "Paused";
-
-    setCardsData(prevCards =>
-      prevCards.map(c =>
-        c.id === card.id ? { ...c, cardActive: newStatus } : c
-      )
-    );
-
+    let parsedCustomFields = [];
     try {
-      const response = await fetch(`/api/card/${card.id}/toggle-active`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        toast.success(`Card is now ${statusText}`);
-      } else {
-        throw new Error(data.error || "Failed to update status");
+      if (card.customFields) {
+        parsedCustomFields =
+          typeof card.customFields === "string"
+            ? JSON.parse(card.customFields)
+            : card.customFields;
       }
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to update status");
-      setCardsData(prevCards =>
-        prevCards.map(c =>
-          c.id === card.id ? { ...c, cardActive: !newStatus } : c
-        )
-      );
+    } catch (err) {
+      console.error("Failed to parse custom fields", err);
+    }
+
+    const commonProps = {
+      firstName: nameParts[0] || "",
+      middleName: nameParts.length === 3 ? nameParts[1] : "",
+      lastName: nameParts.length >= 2 ? nameParts.slice(-1).join("") : "",
+      cardName: capitalizeFirstLetter(card.cardName || card.name || ""),
+      title: card.title || "",
+      company: card.company || "",
+      location: card.location || (card as any).user?.location || "",
+      about: card.bio || card.about || card.description || "",
+      skills: card.skills || "",
+      portfolio: card.portfolio || "",
+      experience: card.experience || "",
+      services: card.services || "",
+      review: card.review || "",
+      photo: getCardImage(card),
+      cover: card.coverImage || card.bannerImage || card.cover || "",
+      email: card.email || "",
+      phone: card.phone || "",
+      linkedin: card.linkedinUrl || card.linkedin || "",
+      website: card.websiteUrl || card.website || "",
+      themeColor1: card.selectedColor || "#3b82f6",
+      themeColor2: card.selectedColor2 || "#2563eb",
+      textColor: card.textColor || "#ffffff",
+      fontFamily: card.selectedFont || "system-ui, sans-serif",
+      cardType: card.cardType || "",
+      documentUrl: card.documentUrl || "",
+      customFields: parsedCustomFields,
+      onDocumentClick: (url: string) => setSelectedDocumentUrl(url),
+    };
+
+    const selectedDesign = card.selectedDesign || "Classic";
+
+    switch (selectedDesign) {
+      case "Flat":
+        return <FlatCardPreview {...commonProps} />;
+      case "Modern":
+        return <ModernCardPreview {...commonProps} />;
+      case "Sleek":
+        return <SleekCardPreview {...commonProps} />;
+      case "Classic":
+      default:
+        return <DigitalCardPreview {...commonProps} />;
     }
   };
 
-  // ----------------- 3. RENDER HELPERS -----------------
-
-  // MOBILE Render: Standard List View
-  const renderMobileCard = (card: Card) => {
-    const isTopProfile = card.id === activeCardId;
-    const isExpanded = card.id === expandedCardId;
-
-    return (
-      <motion.div
-        key={card.id}
-        layout
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        onClick={() => {
-          if (activeCardId !== card.id) setActiveCardId(card.id);
-          if (expandedCardId === card.id) setExpandedCardId(null);
-          else setExpandedCardId(card.id);
-        }}
-        className={`rounded-[0.5rem] p-4 border transition-all duration-200 select-none cursor-pointer ${isTopProfile ? "bg-[#eff6ff] border-blue-200 shadow-sm" : "bg-white border-gray-100 shadow-sm hover:border-blue-100"}`}
-      >
-        <div className="flex items-start gap-3" style={{ fontFamily: 'Poppins, sans-serif, "Plus Jakarta Sans"', fontWeight: "500", padding: "0.5rem" }}>
-          <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 shrink-0 border border-gray-100 relative">
-            <img src={getCardImage(card)} alt={card.name} className="w-full h-full object-cover" onError={(e) => { const target = e.target as HTMLImageElement; if (target.src !== "https://via.placeholder.com/150") target.src = "https://via.placeholder.com/150"; }} />
-          </div>
-          <div className="flex-1 min-w-0 pt-0.5">
-            <div className="flex justify-between items-center">
-              <h4 className="font-bold text-gray-900 truncate text-sm">{card.fullName || card.name}</h4>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-[0.5rem] ml-2 ${isTopProfile ? "bg-[#0B6BCB] text-white" : "bg-gray-100 text-gray-500"}`} style={{ padding: "0.2rem", paddingRight: "0.5rem" }}>{card.cardType ? `${card.cardType.slice(0, 4)}.` : "Card"}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <p className="text-xs text-gray-500 truncate">{card.title}</p>
-              <div className={`w-1.5 h-1.5 rounded-full ${card.cardActive ? "bg-green-500" : "bg-red-400"}`}></div>
-            </div>
-            <p className="text-xs text-gray-400 truncate mt-0.5">{card.company}</p>
-
-            {isExpanded && (
-              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="flex gap-3 mt-4 overflow-hidden" style={{ paddingTop: "0.5rem" }}>
-                <button onClick={(e) => { e.stopPropagation(); router.push(`/dashboard/edit?id=${card.id}`); }} className="flex items-center justify-center gap-1.5 bg-[#1e3a8a] text-white text-xs font-semibold py-2 px-4 rounded-lg shadow-sm hover:bg-[#172554] transition-colors" style={{ padding: "0.4rem 0.8rem", fontFamily: "Poppins, sans-serif,Plus Jakarta Sans" }}><FiEdit3 size={12} /> Edit</button>
-                <button
-                  onClick={(e) => handleToggleStatus(e, card)}
-                  className={`flex items-center justify-center gap-1.5 border text-xs font-semibold py-2 px-4 rounded-lg shadow-sm transition-colors ${card.cardActive ? "bg-red-50 border-red-200 text-red-600 hover:bg-red-100" : "bg-green-50 border-green-200 text-green-600 hover:bg-green-100"}`}
-                  style={{ padding: "0.4rem 0.8rem", fontFamily: "Poppins, sans-serif,Plus Jakarta Sans" }}
-                >
-                  {card.cardActive ? <> <FiToggleLeft size={12} /> Pause </> : <> <FiToggleRight size={12} /> Activate </>}
-                </button>
-              </motion.div>
-            )}
-          </div>
-        </div>
-      </motion.div>
-    );
-  };
-
-  // DESKTOP Render: Professional Card Style (Same as CardDetails)
-  const renderDesktopCard = (card: Card) => {
-    const initials = (card.fullName || card.name || "U").split(" ").map((n: string) => n[0]).join("").toUpperCase().substring(0, 2);
-
-    return (
-      <div style={{
-        width: "100%",
-        maxWidth: "340px",
-        background: theme.colors.cardGradient,
-        borderRadius: "20px",
-        padding: "24px",
-        color: "white",
-        boxShadow: "0 25px 50px -12px rgba(33, 82, 229, 0.35)",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        textAlign: "center",
-        position: "relative",
-        margin: "0 auto",
-        zIndex: 1,
-        transition: "all 0.3s ease",
-        border: "1px solid rgba(255,255,255,0.1)",
-        overflow: "hidden",
-        fontFamily: theme.font
-      }}>
-        {/* Decorative Line */}
-        <div style={{ width: "60%", height: "1px", background: theme.colors.cardBorderLine, position: "absolute", top: "70px", opacity: 0.6 }} />
-
-        {/* Avatar */}
-        <div style={{ width: "88px", height: "88px", borderRadius: "50%", background: theme.colors.avatarBg, border: `3px solid ${theme.colors.avatarBorder}`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px", zIndex: 2, position: "relative", overflow: 'hidden', boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
-          {getCardImage(card) !== "https://via.placeholder.com/150" ? (
-            <img src={getCardImage(card)} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-          ) : (
-            <span style={{ fontFamily: theme.font, fontWeight: '700', fontSize: "32px", color: '#FFFFFF' }}>{initials}</span>
-          )}
-        </div>
-
-        {/* Name */}
-        <h3 style={{ fontFamily: theme.font, fontWeight: '700', fontSize: "24px", lineHeight: "1.2", marginBottom: "8px", textShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
-          {card.fullName || card.name || "Your Name"}
-        </h3>
-
-        {/* Title & Company */}
-        {(card.title || card.company) && (
-          <div style={{ fontSize: "14px", opacity: 0.95, marginBottom: "12px", fontWeight: "500", letterSpacing: "0.3px" }}>
-            {card.title && <span>{card.title}</span>}
-            {card.title && card.company && <span style={{ margin: '0 6px' }}>|</span>}
-            {card.company && <span>{card.company}</span>}
-          </div>
-        )}
-
-        {/* Location */}
-        {card.location && (
-          <div style={{ fontSize: "12px", opacity: 0.8, marginBottom: "20px", display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,255,255,0.1)', padding: '4px 12px', borderRadius: '20px' }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            {card.location}
-          </div>
-        )}
-
-        {/* Contact Icons Row */}
-        <div style={{ display: "flex", gap: "16px", marginBottom: "24px" }}>
-          {card.phone && (
-            <div style={{ width: "42px", height: "42px", borderRadius: "14px", background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-            </div>
-          )}
-          {card.email && (
-            <div style={{ width: "42px", height: "42px", borderRadius: "14px", background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-            </div>
-          )}
-        </div>
-
-        {/* Action Buttons */}
-        {/* <div className="flex gap-2 mt-2 w-full justify-center">
-          <button
-            onClick={(e) => { e.stopPropagation(); router.push(`/dashboard/edit?id=${card.id}`); }}
-            style={{ background: '#FFFFFF', color: theme.colors.primaryBlue, border: 'none', padding: '10px 16px', borderRadius: '12px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
-          >
-            <FiEdit3 size={14} /> Edit
-          </button>
-          <button
-            onClick={(e) => handleToggleStatus(e, card)}
-            style={{ background: card.cardActive ? '#FFE4E6' : '#DCFCE7', color: card.cardActive ? '#E11D48' : '#166534', border: 'none', padding: '10px 16px', borderRadius: '12px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
-          >
-            {card.cardActive ? <><FiPauseCircle size={14} /> Pause</> : <><FiPlay size={14} /> Active</>}
-          </button>
-        </div> */}
-      </div>
-    );
-  };
-
-  // ----------------- 4. EFFECTS -----------------
+  // ----------------- 3. EFFECTS -----------------
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
       fetchCards();
@@ -385,10 +232,9 @@ const Dashboard = () => {
       if (data.success) {
         setCardsData(data.cards);
         if (data.cards.length > 0) {
-          if (!activeCardId) {
-            const defaultActive = data.cards.find((c: Card) => c.cardActive) || data.cards[0];
-            setActiveCardId(defaultActive.id);
-          }
+          const defaultActive =
+            data.cards.find((c: Card) => c.cardActive) || data.cards[0];
+          setActiveCardId(defaultActive.id);
         }
       } else {
         toast.error(data.error || "Failed to fetch cards");
@@ -401,63 +247,38 @@ const Dashboard = () => {
     }
   };
 
-  // ----------------- REAL TIME CONNECTION FETCHING -----------------
-  // This fetches the actual 'friends/connections' count using the correct endpoint
-  const fetchActiveCardConnections = useCallback(async () => {
-    try {
-      const res = await fetch("/api/users/connections?type=accepted", { credentials: "include" });
-      if (!res.ok) return;
-      const data = await res.json();
-
-      // Calculate length from the requests/connections array
-      const connections = data.requests || [];
-      setActiveCardContacts(connections.length);
-    } catch (error) {
-      console.error("Error fetching connections", error);
-    }
-  }, []);
-
-  // Fetch View Analytics (Refreshes card views)
-  const fetchAnalytics = useCallback(async () => {
+  // Fetch Contacts for the Active Card
+  const fetchActiveCardContacts = useCallback(async () => {
     if (!activeCardId) return;
     try {
-      // Re-fetch card data to get updated views/growth
-      const response = await fetch("/api/card", { method: "GET", credentials: "include" });
-      const data = await response.json();
-      if (data.success) {
-        setCardsData(data.cards);
-      }
+      const res = await fetch("/api/contacts", { credentials: "include" });
+      if (!res.ok) return;
+      const data = await res.json();
+      const allContacts = (data.contacts || []) as any[];
+
+      const filtered = allContacts.filter(
+        (c: any) => c.card && c.card.id === activeCardId
+      );
+      setActiveCardContacts(filtered.length);
     } catch (error) {
-      console.error("Error fetching analytics", error);
+      console.error("Error fetching contacts", error);
     }
   }, [activeCardId]);
 
-  // Polling for real-time updates
   useEffect(() => {
-    fetchActiveCardConnections();
-    fetchAnalytics();
-
-    const intervalId = setInterval(() => {
-      fetchActiveCardConnections();
-      fetchAnalytics();
-    }, 30000); // 30 seconds
-
-    return () => clearInterval(intervalId);
-  }, [fetchActiveCardConnections, fetchAnalytics]);
-
+    fetchActiveCardContacts();
+  }, [fetchActiveCardContacts]);
 
   // ----------------- HANDLERS -----------------
 
-  // 1. Move to Top (Double Click)
-  const handleCardActivate = (id: string | number) => {
-    if (activeCardId === id) return;
-    setActiveCardId(id);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    toast.success("Profile switched to top!");
-  };
+  // 1. COMBINED HANDLER: Expands the list item AND Updates Top View
+  const handleCardInteraction = (id: string | number) => {
+    // A. Update the Top Active Profile immediately
+    if (activeCardId !== id) {
+      setActiveCardId(id);
+    }
 
-  // 2. Expand/Collapse List Item (Single Click)
-  const handleCardExpand = (id: string | number) => {
+    // B. Handle the Accordion Expansion
     if (expandedCardId === id) {
       setExpandedCardId(null); // Collapse if already open
     } else {
@@ -465,8 +286,47 @@ const Dashboard = () => {
     }
   };
 
-  // 3. Toggle Active/Paused Status (Button inside list)
-  // (Moved inside renderMobileCard for proper access, this is kept for legacy ref)
+  // 2. Toggle Active/Paused Status
+  const handleToggleStatus = async (e: React.MouseEvent, card: Card) => {
+    e.stopPropagation();
+
+    const newStatus = !card.cardActive;
+    const statusText = newStatus ? "Active" : "Paused";
+
+    // Optimistic UI Update
+    setCardsData(prevCards =>
+      prevCards.map(c =>
+        c.id === card.id ? { ...c, cardActive: newStatus } : c
+      )
+    );
+
+    try {
+      // Correct API Endpoint
+      const response = await fetch(`/api/card/${card.id}/toggle-active`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success(`Card is now ${statusText}`);
+      } else {
+        throw new Error(data.error || "Failed to update status");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update status");
+      // Revert UI on error
+      setCardsData(prevCards =>
+        prevCards.map(c =>
+          c.id === card.id ? { ...c, cardActive: !newStatus } : c
+        )
+      );
+    }
+  };
 
   // ----------------- SHARE HANDLER -----------------
   const handleShare = async (card: Card) => {
@@ -505,31 +365,6 @@ const Dashboard = () => {
       console.error("Clipboard failed", err);
       toast.error("Failed to share. Please copy the URL manually.");
     }
-  };
-
-  // ----------------- HELPER FOR PERCENTAGE BADGE -----------------
-  const renderPercentageBadge = (value: number | undefined) => {
-    // If value is undefined or null, we default to 0 for display
-    const val = value || 0;
-
-    if (val > 0) {
-      return (
-        <div className="bg-[#dcfce7] text-[#166534] text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1">
-          <ArrowUpRight size={10} /> + {val}%
-        </div>
-      );
-    } else if (val < 0) {
-      return (
-        <div className="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1">
-          <ArrowDownRight size={10} /> {val}%
-        </div>
-      );
-    }
-    return (
-      <div className="bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1">
-        <Minus size={10} /> 0%
-      </div>
-    );
   };
 
   if (isLoading) {
@@ -676,17 +511,31 @@ const Dashboard = () => {
             className="grid grid-cols-2 gap-4 mb-4"
             style={{ marginBottom: "1rem" }}
           >
-            {/* CONNECTIONS BOX - UPDATED FOR REAL DATA */}
             <div className="bg-white p-5 rounded-[0.5rem] border-1 border-blue-500 shadow-[0_2px_8px_rgba(0,0,0,0.04)] relative flex flex-col justify-between h-24 transition-all duration-200 hover:border-[#4A90E2] hover:bg-[#4A90E2]/10 cursor-pointer">
               <div
                 className="flex justify-between items-start"
                 style={{ padding: "0.5rem", paddingBottom: "0" }}
               >
                 <div className="w-9 h-9 bg-blue-50 rounded-sm flex items-center justify-center text-[#0B6BCB]">
-                  <Users size={20} />
+                  {/* Restored Connection Icon */}
+                  <svg
+                    width="20"
+                    height="18"
+                    viewBox="0 0 24 21"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M19.6966 18.9C19.0581 18.9 18.5379 18.4285 18.5379 17.85C18.5379 17.2715 19.0581 16.8 19.6966 16.8C20.3349 16.8 20.8552 17.2715 20.8552 17.85C20.8552 18.4285 20.3349 18.9 19.6966 18.9ZM8.3942 11.9081C6.57053 9.14242 10.0476 5.93262 13.1399 7.60737C14.2476 8.20797 14.8454 9.28201 14.8454 10.3026C14.8454 13.4211 10.2271 14.6864 8.3942 11.9081ZM3.47586 18.9C2.83746 18.9 2.31724 18.4285 2.31724 17.85C2.31724 17.2715 2.83746 16.8 3.47586 16.8C4.11426 16.8 4.63448 17.2715 4.63448 17.85C4.63448 18.4285 4.11426 18.9 3.47586 18.9ZM3.47586 4.2C2.83746 4.2 2.31724 3.72855 2.31724 3.15C2.31724 2.57145 2.83746 2.1 3.47586 2.1C4.11426 2.1 4.63448 2.57145 4.63448 3.15C4.63448 3.72855 4.11426 4.2 3.47586 4.2ZM19.6966 2.1C20.3349 2.1 20.8552 2.57145 20.8552 3.15C20.8552 3.72855 20.3349 4.2 19.6966 4.2C19.0581 4.2 18.5379 3.72855 18.5379 3.15C18.5379 2.57145 19.0581 2.1 19.6966 2.1ZM19.6966 14.7C19.1613 14.7 18.6596 14.8187 18.2066 15.0151L16.1987 13.1952C17.3457 11.6244 17.5554 9.52983 16.3516 7.66608L18.2066 5.98495C18.6596 6.1813 19.1613 6.3 19.6966 6.3C21.6164 6.3 23.1724 4.88985 23.1724 3.15C23.1724 1.41015 21.6164 0 19.6966 0C17.7767 0 16.2207 1.41015 16.2207 3.15C16.2207 3.6351 16.3516 4.08963 16.5683 4.50018L14.806 6.09723C12.7564 4.71963 10.1414 4.74815 8.17754 5.92624L6.60413 4.50018C6.8208 4.08963 6.95172 3.6351 6.95172 3.15C6.95172 1.41015 5.3957 0 3.47586 0C1.55603 0 0 1.41015 0 3.15C0 4.88985 1.55603 6.3 3.47586 6.3C4.01114 6.3 4.51282 6.1813 4.96584 5.98495L6.53925 7.41101C5.23928 9.18971 5.20685 11.5606 6.72812 13.418L4.96584 15.0151C4.51282 14.8187 4.01114 14.7 3.47586 14.7C1.55603 14.7 0 16.1101 0 17.85C0 19.5898 1.55603 21 3.47586 21C5.3957 21 6.95172 19.5898 6.95172 17.85C6.95172 17.3649 6.8208 16.9104 6.60413 16.4998L8.45908 14.8187C10.5075 15.9054 12.8201 15.7237 14.5604 14.68L16.5683 16.4998C16.3516 16.9104 16.2207 17.3649 16.2207 17.85C16.2207 19.5898 17.7767 21 19.6966 21C21.6164 21 23.1724 19.5898 23.1724 17.85C23.1724 16.1101 21.6164 14.7 19.6966 14.7Z"
+                      fill="#1279E2"
+                    />
+                  </svg>
                 </div>
-                {/* Dynamic Growth Badge: Uses contactsGrowth if available, else 0% */}
-                {renderPercentageBadge(activeCard?.contactsGrowth)}
+                <div className="bg-[#dcfce7] text-[#166534] text-[10px] font-bold px-2 py-1 rounded-full">
+                  + 12%
+                </div>
               </div>
               <div>
                 <h3
@@ -704,7 +553,6 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* VIEWS BOX */}
             <div className="bg-white p-5 rounded-[0.5rem] border-1 border-blue-500 shadow-[0_2px_8px_rgba(0,0,0,0.04)] relative flex flex-col justify-between h-24 transition-all duration-200 hover:border-[#4A90E2] hover:bg-[#4A90E2]/10 cursor-pointer">
               <div
                 className="flex justify-between items-start"
@@ -713,8 +561,9 @@ const Dashboard = () => {
                 <div className="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center text-[#0B6BCB]">
                   <Eye size={20} />
                 </div>
-                {/* Dynamic Growth Badge: Uses viewsGrowth if available, else 0% */}
-                {renderPercentageBadge(activeCard?.viewsGrowth)}
+                <div className="bg-[#dcfce7] text-[#166534] text-[10px] font-bold px-2 py-1 rounded-full">
+                  + 12%
+                </div>
               </div>
               <div>
                 <h3
@@ -804,7 +653,134 @@ const Dashboard = () => {
             ) : cardsToDisplay.length > 0 ? (
               <AnimatePresence initial={false}>
                 {cardsToDisplay.map((card) => {
-                  return renderMobileCard(card);
+                  // Determine status for this specific card in the list
+                  const isTopProfile = card.id === activeCardId; // Is it the one in the blue box?
+                  const isExpanded = card.id === expandedCardId; // Is the accordion open?
+
+                  return (
+                    <motion.div
+                      key={card.id}
+                      layout
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      // CLICK: Expand AND Activate (Replaced Double Click)
+                      onClick={() => handleCardInteraction(card.id)}
+                      className={`
+                          rounded-[0.5rem] p-4 border transition-all duration-200 select-none cursor-pointer
+                          ${isTopProfile
+                          ? "bg-[#eff6ff] border-blue-200 shadow-sm"
+                          : "bg-white border-gray-100 shadow-sm hover:border-blue-100"
+                        }
+                        `}
+                    >
+                      <div
+                        className="flex items-start gap-3"
+                        style={{
+                          fontFamily:
+                            'Poppins, sans-serif, "Plus Jakarta Sans"',
+                          fontWeight: "500",
+                          padding: "0.5rem",
+                        }}
+                      >
+                        <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 shrink-0 border border-gray-100 relative">
+                          <img
+                            src={getCardImage(card)}
+                            alt={card.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              if (target.src !== "https://via.placeholder.com/150") {
+                                target.src = "https://via.placeholder.com/150";
+                              }
+                            }}
+                          />
+                        </div>
+
+                        <div className="flex-1 min-w-0 pt-0.5">
+                          <div className="flex justify-between items-center">
+                            <h4 className="font-bold text-gray-900 truncate text-sm">
+                              {card.fullName || card.name}
+                            </h4>
+                            <span
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-[0.5rem] ml-2 ${isTopProfile
+                                ? "bg-[#0B6BCB] text-white"
+                                : "bg-gray-100 text-gray-500"
+                                }`}
+                              style={{
+                                padding: "0.2rem",
+                                paddingRight: "0.5rem",
+                              }}
+                            >
+                              {card.cardType
+                                ? `${card.cardType.slice(0, 4)}.`
+                                : "Card"}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <p className="text-xs text-gray-500 truncate">
+                              {card.title}
+                            </p>
+                            {/* Visual indicator of status in list */}
+                            <div className={`w-1.5 h-1.5 rounded-full ${card.cardActive ? "bg-green-500" : "bg-red-400"}`}></div>
+                          </div>
+                          <p className="text-xs text-gray-400 truncate mt-0.5">
+                            {card.company}
+                          </p>
+
+                          {/* ACCORDION CONTENT: Edit and Status Buttons */}
+                          {isExpanded && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              className="flex gap-3 mt-4 overflow-hidden"
+                              style={{ paddingTop: "0.5rem" }}
+                            >
+                              {/* EDIT BUTTON */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  router.push(`/dashboard/edit?id=${card.id}`);
+                                }}
+                                className="flex items-center justify-center gap-1.5 bg-[#1e3a8a] text-white text-xs font-semibold py-2 px-4 rounded-lg shadow-sm hover:bg-[#172554] transition-colors"
+                                style={{
+                                  padding: "0.4rem 0.8rem",
+                                  fontFamily: "Poppins, sans-serif,Plus Jakarta Sans",
+                                }}
+                              >
+                                <FiEdit3 size={12} /> Edit
+                              </button>
+
+                              {/* TOGGLE STATUS BUTTON */}
+                              <button
+                                onClick={(e) => handleToggleStatus(e, card)}
+                                className={`flex items-center justify-center gap-1.5 border text-xs font-semibold py-2 px-4 rounded-lg shadow-sm transition-colors ${card.cardActive
+                                  ? "bg-red-50 border-red-200 text-red-600 hover:bg-red-100"
+                                  : "bg-green-50 border-green-200 text-green-600 hover:bg-green-100"
+                                  }`}
+                                style={{
+                                  padding: "0.4rem 0.8rem",
+                                  fontFamily: "Poppins, sans-serif,Plus Jakarta Sans",
+                                }}
+                              >
+                                {card.cardActive ? (
+                                  <>
+                                    <FiPauseCircle size={12} /> Pause
+                                  </>
+                                ) : (
+                                  <>
+                                    <FiPlay size={12} /> Activate
+                                  </>
+                                )}
+                              </button>
+                            </motion.div>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
                 })}
               </AnimatePresence>
             ) : (
@@ -836,8 +812,6 @@ const Dashboard = () => {
               display: "flex",
               alignItems: "center",
               gap: "8px",
-              fontFamily: "Poppins, sans-serif,Plus Jakarta Sans",
-              marginBottom: "1rem"
             }}
           >
             <FiPlus size={16} />
@@ -845,7 +819,7 @@ const Dashboard = () => {
           </motion.button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 place-items-stretch mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 place-items-stretch mt-4">
           {isLoadingCards ? (
             <div className="col-span-full text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-green mx-auto mb-4"></div>
@@ -871,8 +845,7 @@ const Dashboard = () => {
                     onClick={() => router.push(`/cards/${card.id}`)}
                     className="cursor-pointer"
                   >
-                    {/* UPDATED: Uses the Onboarding-style render function for desktop */}
-                    {renderDesktopCard(card)}
+                    {renderCardPreview(card)}
                   </div>
                 </motion.div>
               );

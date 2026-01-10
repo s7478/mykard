@@ -378,11 +378,11 @@ const CreatePage = () => {
       case 'Display':
         return (
           <>
-            <div>
+            <div className={styles.inputGroup}>
               <h3 className={styles.sectionTitle}>Design</h3>
               <div className={styles.designGrid}>
                 {['Classic', 'Flat', 'Modern', 'Sleek'].map((design) => (
-                  <div key={design} onClick={() => setSelectedDesign(design)} className={styles.designOption} style={{ border: design === selectedDesign ? `2px solid ${selectedColor1}` : '1px solid #ddd' }}>
+                  <div key={design} onClick={() => setSelectedDesign(design)} className={styles.designOption} style={{ border: design === selectedDesign ? `2px solid ${selectedColor1}` : '1px solid #888888' }}>
                     <div className={styles.designVisual} style={{
                       background: design === 'Classic' ? `linear-gradient(135deg, ${selectedColor1} 0%, ${selectedColor2} 100%)` : design === 'Flat' ? 'white' : design === 'Modern' ? `linear-gradient(145deg, ${selectedColor1}15, ${selectedColor2}15)` : design === 'Sleek' ? `linear-gradient(135deg, ${selectedColor1}, ${selectedColor2})` : '#dcdcdc',
                       border: design === 'Flat' ? `2px solid ${selectedColor1}` : '1px solid #eee'
@@ -395,7 +395,7 @@ const CreatePage = () => {
               </div>
             </div>
 
-            <div className={styles.inputGroup}>
+            <div>
               <h3 className={styles.subTitle}>Cover Image</h3>
               <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
                 <input type="file" accept="image/*" style={{ display: 'none' }} id="banner-upload" onChange={(e) => { if (e.target.files?.[0]) setBannerImage(URL.createObjectURL(e.target.files[0])) }} />
@@ -403,20 +403,20 @@ const CreatePage = () => {
               </div>
             </div>
 
-            <div className={styles.inputGroup}>
+            <div className={styles.inputGroup1} style={{ marginTop: '20px' }}>
               <h3 className={styles.subTitle}>Profile Photo</h3>
               <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '15px' }}>
-                <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#eee', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+                {/* <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#eee', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
                   {profileImage ? <img src={profileImage} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span>📷</span>}
-                </div>
+                </div> */}
                 <input type="file" accept="image/*" style={{ display: 'none' }} id="profile-media-upload" onChange={(e) => { if (e.target.files?.[0]) { setProfileImage(URL.createObjectURL(e.target.files[0])); setProfileImageFile(e.target.files[0]); } }} />
                 <button onClick={() => document.getElementById('profile-media-upload')?.click()} className={styles.btnIcon}>Add Photo</button>
               </div>
             </div>
 
-            <div className={styles.inputGroup}>
+            <div >
               <h3 className={styles.subTitle}>Color</h3>
-              <div className={styles.inputGroup}>
+              <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                   <input type="color" value={hexValue1} onChange={handleColorInputChange1} style={{ width: '50px', height: '30px', border: 'none', padding: '0' }} />
                   <span>Color 1</span>
@@ -427,56 +427,11 @@ const CreatePage = () => {
                   <div className={styles.rgbInputGroup}><label className={styles.label}>B:</label><input type="number" value={bValue1} onChange={handleBChange1} className={styles.inputField} /></div>
                 </div>
               </div>
-              <div className={styles.inputGroup}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                  <input type="color" value={hexValue2} onChange={handleColorInputChange2} style={{ width: '50px', height: '30px', border: 'none', padding: '0' }} />
-                  <span>Color 2</span>
-                </div>
-                <div className={styles.rgbInputsWrapper}>
-                  <div className={styles.rgbInputGroup}><label className={styles.label}>R:</label><input type="number" value={rValue2} onChange={handleRChange2} className={styles.inputField} /></div>
-                  <div className={styles.rgbInputGroup}><label className={styles.label}>G:</label><input type="number" value={gValue2} onChange={handleGChange2} className={styles.inputField} /></div>
-                  <div className={styles.rgbInputGroup}><label className={styles.label}>B:</label><input type="number" value={bValue2} onChange={handleBChange2} className={styles.inputField} /></div>
-                </div>
+              <div className={styles.rgbInputsWrapper}>
+                <div className={styles.rgbInputGroup}><label className={styles.label}>R:</label><input type="number" value={rValue2} onChange={handleRChange2} className={styles.inputField} /></div>
+                <div className={styles.rgbInputGroup}><label className={styles.label}>G:</label><input type="number" value={gValue2} onChange={handleGChange2} className={styles.inputField} /></div>
+                <div className={styles.rgbInputGroup}><label className={styles.label}>B:</label><input type="number" value={bValue2} onChange={handleBChange2} className={styles.inputField} /></div>
               </div>
-            </div>
-
-
-
-            <div className={styles.inputGroup}>
-              <label className={styles.label}>Text Color</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <input
-                  type="color"
-                  value={textColor}
-                  onChange={(e) => setTextColor(e.target.value)}
-                  style={{ width: '40px', height: '40px', border: 'none', padding: '0', cursor: 'pointer', borderRadius: '4px' }}
-                />
-                <input
-                  type="text"
-                  value={textColor}
-                  onChange={(e) => setTextColor(e.target.value)}
-                  className={styles.inputField}
-                  style={{ maxWidth: '100px' }}
-                />
-              </div>
-            </div>
-
-
-
-            <div className={styles.inputGroup}>
-              <h3 className={styles.subTitle}>Typography</h3>
-              <label className={styles.label}>Font Style</label>
-              <select
-                value={selectedFont}
-                onChange={(e) => setSelectedFont(e.target.value)}
-                className={styles.selectField}
-              >
-                {FONT_OPTIONS.map((font) => (
-                  <option key={font.value} value={font.value}>
-                    {font.label}
-                  </option>
-                ))}
-              </select>
             </div>
           </>
         );

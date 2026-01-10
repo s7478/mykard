@@ -73,7 +73,6 @@ export default function CardsLayout({
         <main
           className="flex-1 overflow-y-auto"
           style={{
-            padding: "24px",
             background: "transparent",
           }}
         >
