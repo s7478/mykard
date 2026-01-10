@@ -493,13 +493,13 @@ export default function Homepage() {
                     background: 'linear-gradient(93.85deg, #82D2EF 11.38%, #1986A4 62.78%)',
                     borderRadius: '30px',
                     color: '#F0FCFF',
-                    fontSize: 'clamp(14px, 4vw, 16px)', // Font size bhi responsive ho gaya
-                    fontWeight: 800,
+                    fontSize: 'clamp(12px, 4vw, 16px)', // Font size bhi responsive ho gaya
+                    fontWeight: 700,
                     textDecoration: 'none',
                   }}
                 >
                   Get Started
-                  <span style={{ fontSize: '18px' }}>→</span>
+                  <span style={{ fontSize: '15px' }}>→</span>
                 </Link>
 
                 <Link
@@ -511,8 +511,8 @@ export default function Homepage() {
                     background: 'linear-gradient(107.27deg, #82D2EF 0%, #1986A4 60.66%)',
                     borderRadius: '30px',
                     color: '#F0FCFF',
-                    fontSize: 'clamp(14px, 4vw, 18px)',
-                    fontWeight: 800,
+                    fontSize: 'clamp(12px, 4vw, 18px)',
+                    fontWeight: 700,
                     textDecoration: 'none',
                   }}
                 >
@@ -893,7 +893,7 @@ export default function Homepage() {
       <section
         className="relative px-4 md:px-6 flex flex-col w-full items-center justify-center min-h-fit md:min-h-[600px] overflow-hidden"
         style={{
-          background: "linear-gradient(180deg, #030b25 0%, #0a1941 45%, #bce1ff 100%)",
+          background: "radial-gradient( 110% 110% at 50% 120%, #FFFFFF 0%, #B1E4FF 25%, #1070FF 50%, #071337 90%)",
           paddingTop: "4rem",
           paddingBottom: "4rem"
         }}
@@ -957,12 +957,12 @@ export default function Homepage() {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true, amount: 0.1 }}
             transition={{ duration: 0.8 }}
-            className="relative text-center w-[90%] max-w-[1000px] bg-[#c1dcff] shadow-xl mx-auto pt-16 pb-10 md:pt-[100px] md:pb-[75px]"
+            className="relative text-center w-[90%] max-w-[1000px] bg-[#c1dcff] shadow-xl mx-auto md:pt-[150px] md:pb-[75px]"
             style={{
               zIndex: 10,
               borderRadius: "42px",
-              paddingTop: "90px",
-              paddingBottom: "65px",
+              paddingTop: "80px",
+              paddingBottom: "45px",
             }}
           >
             <p
@@ -983,33 +983,55 @@ export default function Homepage() {
               potential clients and business partners in your <br className="hidden md:block" /> 
               network.
             </p>
+          </motion.div>
 
-            {/* 3. Animated Arrow pointing to message */}
-            <div className="absolute right-[11%] bottom-[65%] hidden lg:block w-[70px] h-[70px]">
+            <div className="absolute bottom-0 w-[90%] max-w-[1000px] h-full pointer-events-none z-30 ">
+              {/* 3. Animated Arrow pointing to message */}
+            {/* <div className="absolute right-[12%] top-[31%]  w-[90px] h-[90px] md:w-[120px] md:h-[100px] ">   */}
+
+            <div className="absolute 
+            /* 1. SMALL MOBILE (Gradual scaling starts here) */
+              right-[0%] top-[26%] w-[50px] h-[50px] 
+              
+              /* 2. LARGE MOBILE / TABLETS */
+              sm:right-[2%] sm:top-[28%] sm:w-[75px] sm:h-[75px]
+              
+              /* 3. LAPTOPS / SMALL DESKTOPS */
+              md:right-[6%] md:top-[30%] md:w-[100px] md:h-[90px]
+              
+              /* 4. LARGE DESKTOPS (Maintaining your 'Large' look) */
+              lg:right-[10%] lg:top-[30%] lg:w-[130px] lg:h-[110px]
+              
+              /* 5. EXTRA LARGE SCREENS */
+              xl:right-[12%] xl:top-[28%] xl:w-[100px] xl:h-[100px]"
+            >
+
               <svg viewBox="0 0 100 100" fill="none" className="w-full h-full">
-                {/* Main Curve Line */}
+
                 <motion.path
-                  d="M75 20C78 35 65 45 55 45C45 45 42 35 50 30C60 25 68 38 62 55C55 75 35 85 15 92"
+                  //d="M75 20C78 35 65 45 55 45C45 45 42 35 50 30C60 25 68 38 62 55C55 75 35 85 15 92"
+                  d="M80 15C85 35 70 45 60 45C50 45 47 35 55 30C65 25 73 38 67 55C60 75 40 85 20 92"
                   stroke="#4b5563"
-                  strokeWidth="6"
+                  strokeWidth="8"
                   strokeLinecap="round"
                   initial={{ pathLength: 0, opacity: 0 }}
-                  whileInView={{ pathLength: 1, opacity: 0.5 }}
+                  whileInView={{ pathLength: 1, opacity: 0.7 }}
                   transition={{ delay: 0.8, duration: 0.8, ease: "easeInOut" }}
                 />
                 {/* Arrow Head */}
                 <motion.path
                   d="M28 82L15 92L25 98"
                   stroke="#4b5563"
-                  strokeWidth="6"
+                  strokeWidth="8"
                   strokeLinecap="round"
                   initial={{ opacity: 0, x: 10, y: -10 }}
-                  whileInView={{ opacity: 0.5, x: 0, y: 0 }}
+                  whileInView={{ opacity: 0.7, x: 0, y: 0 }}
                   transition={{ delay: 1.5, duration: 0.3 }}
                 />
               </svg>
             </div>
-          </motion.div>
+
+            </div>
         </div>
       </section>
     </div>
@@ -1559,7 +1581,7 @@ export default function Homepage() {
         </div>
       </section>*/}
 
-      <section id="faq" className="section py-12 lg:py-20 px-4 sm:px-6 lg:px-12" style={{ background: "white" }}>
+      <section id="faq" className="section py-12 lg:py-20 px-4 sm:px-4 lg:px-12" style={{ background: "white" }}>
         <div className="container mx-auto max-w-4xl">
           {/* Header Animation */}
           <motion.div
