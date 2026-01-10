@@ -1,6 +1,15 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
 /* --- Main Layout --- */
 .pageWrapper {
   display: flex;
+  height: 100dvh;
+  flex: 1;
+  margin: 0;
   flex-direction: column;
   min-height: 100vh;
   background-color: #f0f2f5;
@@ -8,15 +17,19 @@
   box-sizing: border-box;
   gap: 15px;
   padding-bottom: 110px;
+  background: linear-gradient(180deg, white 40%, #3b78d5 60%);
+  border-radius: 16px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
 }
 
 .container {
   display: flex;
   flex-direction: column;
-  gap: 15px;
   max-width: 1200px;
-  margin: 0 auto;
   width: 100%;
+  padding: 10px 2px 2px 2%;
 }
 
 .cardPreviewWrapper {
@@ -34,14 +47,47 @@
   border-radius: 15px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   padding: 20px;
+  border: 1px solid #4A90E2;
   font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  position: relative;
+  max-width: 100% !important;
 }
 
 /* --- Tabs --- */
+
+@media (min-width: 768px) and (max-width: 1024px) {
+
+  .infoPageWrapper {
+    width: 100%;
+    padding: 0 16px;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+
+  .iconGrid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    justify-items: center;
+  }
+
+  .iconCard,
+  .iconCardActive {
+    width: 100%;
+    max-width: 71px;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+}
+
 .tabContainer {
   display: flex;
   border-bottom: 1px solid #eee;
-  margin-bottom: 20px;
   overflow-x: auto;
 }
 
@@ -60,46 +106,73 @@
   transition: all 0.2s;
 }
 
+.scrollContent {
+  overflow-x: hidden;
+  /* SCROLL HERE */
+  -webkit-overflow-scrolling: touch;
+}
+
 /* --- Typography & Headings --- */
 .sectionTitle {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 20px;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 0px;
   color: #333;
+  display: flex;
+  padding: 2px 2px 10px 2px;
+  text-align: left;
+  align-self: flex-start;
+
 }
 
 .subTitle {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
   margin-bottom: 15px;
   color: #333;
+  display: flex;
+  font-weight: 700;
 }
 
 .label {
   display: block;
-  font-size: 13px;
-  color: #555;
+  font-size: 16px;
+  color: black;
   margin-bottom: 5px;
+  font-weight: 700;
+  margin-top: -5px;
 }
 
 /* --- Form Inputs --- */
 .inputGroup {
   margin-bottom: 15px;
+  border: 1px solid black;
+  padding: 12px 20px 20px 20px;
+  border-radius: 15px;
+  background-color: #f8f8f8;
 }
 
-.inputField, .selectField, .textareaField {
+.inputGroup1 {
+  margin-bottom: 15px;
+}
+
+.inputField,
+.selectField,
+.textareaField {
   width: 100%;
   padding: 10px;
-  font-size: 14px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  font-size: 12px;
+  border: 1px solid #A3D4FF;
+  border-radius: 5px;
   box-sizing: border-box;
-  background-color: white; /* Default white, overrides inline sometimes */
-  color: #555;
+  background-color: white;
+  color: #646464;
   outline: none;
 }
 
-.inputField:focus, .selectField:focus, .textareaField:focus {
+.inputField:focus,
+.selectField:focus,
+.textareaField:focus {
   border-color: #145dfd;
 }
 
@@ -132,76 +205,76 @@
 
 /* --- Design Selector Grid --- */
 .designGrid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 30px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  justify-items: center;
+  padding: 10px 2px 2px 2px;
 }
 
 .designOption {
-  border-radius: 10px;
-  padding: 10px;
-  width: calc(50% - 5px);
-  min-width: 80px;
-  text-align: center;
+  width: 130px;
+  height: 120px;
+  border-radius: 14px;
+  border: 1.5px solid #d1d5db;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  background-color: white;
+  transition: all 0.25s ease;
 }
 
 .designVisual {
-  width: 100%;
-  max-width: 80px;
-  height: 50px;
-  border-radius: 5px;
-  margin: 0 auto 10px auto;
-  position: relative;
-  overflow: hidden;
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
 }
 
 /* --- Buttons --- */
 .buttonGroup {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
-  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 45px;
+  margin: 45px;
 }
 
 .baseButton {
-  border-radius: 8px;
-  padding: 10px 20px;
-  font-size: 14px;
+  border-radius: 5px;
+  font-size: 10px;
   font-weight: bold;
   cursor: pointer;
   outline: none;
   flex: 1;
-  min-width: 100px;
-  display: flex;
+  min-width: 47px;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  width: 107px;
+  height: 27px;
 }
 
 .btnPrimary {
   border: none;
   color: white;
-  /* Bg color usually handled inline for dynamic selection */
 }
 
 .btnSecondary {
   background-color: transparent;
-  border: 1px solid #ddd;
+  border: 1px solid #646464;
   color: #555;
 }
 
 .btnOutline {
   background-color: transparent;
-  border-style: dashed; 
+  border-style: dashed;
   border-width: 1px;
   border-radius: 8px;
-  padding: 12px 15px; 
+  padding: 12px 15px;
   font-size: 14px;
   font-weight: bold;
   cursor: pointer;
@@ -216,7 +289,7 @@
 
 .btnIcon {
   background-color: transparent;
-  border: 1px solid #ddd;
+  border: 1px solid #A3D4FF;
   padding: 10px 15px;
   font-size: 14px;
   color: #555;
@@ -253,15 +326,16 @@
     flex-direction: row;
     align-items: flex-start;
   }
-  
+
   .cardPreviewWrapper {
     position: sticky;
     top: 20px;
-    width: 400px; /* Fixed width for preview */
+    width: 400px;
+    /* Fixed width for preview */
     max-width: 400px;
     flex-shrink: 0;
   }
-  
+
   .editPanel {
     flex: 1;
     min-width: 0;
@@ -277,20 +351,444 @@
 
 .documentUploadBtn {
   display: flex;
-  align-items: center;      
-  justify-content: center;  
-  gap: 10px;              
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   width: 100%;
-  padding: 12px;           
+  padding: 12px;
   border-radius: 8px;
   background-color: transparent;
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
   transition: all 0.2s ease;
-  border: 1px solid #ddd;   
+  border: 1px solid #ddd;
 }
 
 .documentUploadBtn:hover {
   background-color: #f8f9fa;
+}
+
+.designOption {
+  width: 118px;
+  height: 96px;
+  border-radius: 14px;
+  border: 1.5px solid #d0d0d0;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  background: #fff;
+  transition: all 0.2s ease;
+}
+
+.designOption:hover {
+  border-color: #3b82f6;
+}
+
+.designVisual {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- Color Theme Picker --- */
+.colorGrid {
+  display: flex;
+  gap: 8.5px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.colorBox {
+  width: 24px;
+  height: 24px;
+  border-radius: 0px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.colorBox:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+}
+
+.style {
+  width: 43px;
+  height: 47px;
+  position: relative;
+}
+
+@media (min-width: 1024px) {
+  .designGrid {
+    grid-template-columns: repeat(2, 1fr);
+    /* tight 2x2 grid */
+    justify-content: center;
+    gap: 25px;
+    max-width: 500px;
+    margin: 0 auto;
+
+    .designOption {
+      width: 500px;
+      max-width: 160px;
+    }
+  }
+}
+
+@media (min-width: 1024px) {
+  .colorBox {
+    width: 35px;
+    height: 35px;
+    gap: 25;
+  }
+}
+
+/* ============================= */
+/* TABLET VIEW FIX (768px–1024px) */
+/* ============================= */
+@media (min-width: 768px) and (max-width: 1024px) {
+
+  /* Layout container */
+  .container {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  /* LEFT: Card preview → smaller */
+  .cardPreviewWrapper {
+    width: 310px !important;
+    max-width: 310px !important;
+    transform: scale(0.8) !important;
+    transform-origin: top center;
+    flex-shrink: 0;
+  }
+
+  /* RIGHT: White panel → bigger */
+  .editPanel {
+    flex: 1 !important;
+    max-width: 100% !important;
+  }
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 10px;
+}
+
+.infoIcon {
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  padding: 14px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #fff;
+}
+
+.infoIcon:hover {
+  border-color: #2563eb;
+  background: #f8fbff;
+}
+
+.infoIcon span {
+  font-size: 20px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.infoIcon p {
+  font-size: 12px;
+  margin: 0;
+  font-weight: 500;
+  color: #111;
+}
+
+/* POPUP */
+.popupOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.popupBox {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  width: 90%;
+  max-width: 360px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.closeBtn {
+  margin-top: 12px;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.iconImg {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+/* ===== ICON CARD GRID ===== */
+.iconGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-bottom: 10px;
+  justify-items: center;
+}
+
+/* ===== INDIVIDUAL ICON BOX ===== */
+.iconCard {
+  width: 75px;
+  height: 70px;
+  border-radius: 8px;
+  background: #dfefff;
+  /* Light blue background */
+  border: 2px solid #4a90e2;
+  /* Blue border */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.iconCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(74, 144, 226, 0.2);
+}
+
+/* ===== ACTIVE / SELECTED ===== */
+.iconCardActive {
+  background: #d0e7ff;
+  border-color: #2563eb;
+}
+
+/* ===== ICON IMAGE / SVG ===== */
+.iconImage {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  filter: brightness(0);
+}
+
+/* ===== LABEL ===== */
+.iconLabel {
+  font-size: 12px;
+  font-weight: 500;
+  color: #4b5563;
+  text-align: center;
+}
+
+/* ===== Mobile Only: Center Section Headings ===== */
+@media (max-width: 768px) {
+  .mobileSectionTitle {
+    text-align: center;
+    width: 100%;
+    margin: 12px 140px;
+    font-weight: 700;
+  }
+}
+
+/* ===================== INFORMATION PAGE MOBILE FIX ===================== */
+@media (max-width: 768px) {
+  .infoPageWrapper .mobileCenterTitle {
+    text-align: center !important;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+  }
+}
+
+/* ===================== TABLET FIX (768px–1024px) ===================== */
+@media (min-width: 768px) and (max-width: 1024px) {
+
+ @media (min-width: 768px) and (max-width: 1024px) {
+
+  .create-module__infoPageWrapper {
+    max-width: 100%;
+    width: 100%;
+    padding: 0 16px;
+    overflow-x: hidden !important;
+    box-sizing: border-box;
+  }
+
+  
+  .create-module__iconGrid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    justify-items: center;
+    box-sizing: border-box;
+  }
+
+  .create-module__iconCardActive,
+  .create-module__iconCard {
+    width: 100% !important;
+    max-width: 85px;     
+    min-width: 0;
+    box-sizing: border-box;
+  }
+}
+
+  .infoPageWrapper .iconCard {
+    width: 90px !important;
+    height: 90px !important;
+    padding: 8px !important;
+  }
+  
+  .infoPageWrapper .iconImg {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  .infoPageWrapper .iconLabel {
+    font-size: 11px !important;
+    text-align: center;
+  }
+}
+@media (min-width: 768px) and (max-width: 1024px) {
+  body, html {
+    overflow-x: hidden;
+  }
+}
+
+/* FORM ABOVE WHITE PANEL */
+/* .topInlineForm {
+    margin-bottom: 12px;
+    padding: 14px 16px;
+    border: 1.5px solid #4A90E2;
+    border-radius: 18px;
+    background: #ffffff;
+  } */
+
+/* Mobile / Tab */
+@media (max-width: 768px) {
+  .topInlineForm {
+    /* padding: 5px; */
+    /* margin: 10px 0; */
+  }
+}
+
+/* .topInlineForm {
+    margin-bottom: 16px;
+    padding: 12px;
+    border-radius: 14px;
+    background: #ffffff;
+    border: 1.5px solid #4A90E2;
+  } */
+
+.dropdownWrapper {
+  position: relative;
+}
+
+.dropdownBox {
+  border: 1px solid #A3D4FF;
+  border-radius: 6px;
+  padding: 10px;
+  cursor: pointer;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.selectedIcon {
+  width: 26px;
+  height: 26px;
+}
+
+/* 🔽 5×2 GRID */
+.dropdownGrid {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  margin-top: 6px;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  z-index: 100;
+}
+
+.gridItem {
+  aspect-ratio: 1/1;
+  border-radius: 8px;
+  background: #f4f8ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.gridItem:hover {
+  background: #dbe9ff;
+}
+
+.gridItem img {
+  width: 26px;
+  height: 26px;
+}
+
+.platformGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  /* 4 columns */
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.platformItem {
+  background: #f4f6fb;
+  border-radius: 10px;
+  padding: 10px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.platformItem:hover {
+  background: #e7efff;
+  transform: translateY(-2px);
+}
+
+.platformIcon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
 }

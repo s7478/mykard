@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 interface FirebaseConfig {
   apiKey: string;
@@ -18,15 +18,33 @@ interface FirebaseConfigProviderProps {
 }
 
 export default function FirebaseConfigProvider({ children, config }: FirebaseConfigProviderProps) {
+  const [isConfigLoaded, setIsConfigLoaded] = useState(false);
+
   useEffect(() => {
-    // Set Firebase config on window object for client-side access
-    (window as any).__FIREBASE_CONFIG__ = config;
-    
-    console.log("🔧 Firebase config injected into window:", {
-      hasApiKey: !!config.apiKey,
-      hasAuthDomain: !!config.authDomain,
-      hasProjectId: !!config.projectId,
-    });
+    const loadConfig = async () => {
+      // Check if provided config has valid values
+      const hasValidConfig = config.apiKey && config.apiKey !== '';
+      
+      if (hasValidConfig) {
+        // Use the provided config
+        (window as any).__FIREBASE_CONFIG__ = config;
+        setIsConfigLoaded(true);
+      } else {
+        // Fetch config from API (runtime environment variables)
+        try {
+          const response = await fetch('/api/config/firebase');
+          if (response.ok) {
+            const fetchedConfig = await response.json();
+            (window as any).__FIREBASE_CONFIG__ = fetchedConfig;
+          }
+        } catch (error) {
+          // Silently fail - Firebase will handle missing config
+        }
+        setIsConfigLoaded(true);
+      }
+    };
+
+    loadConfig();
   }, [config]);
 
   return <>{children}</>;

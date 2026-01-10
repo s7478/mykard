@@ -1106,6 +1106,7 @@
   min-width: 0;
 }
 
+
 .requestAvatar {
   width: 44px;
   height: 44px;
@@ -1121,6 +1122,7 @@
   flex-shrink: 0;
 }
 
+
 .requestName {
   font-weight: 600; font-size: 15px;
   color: #0f172a; margin-bottom: 2px;
@@ -1128,11 +1130,13 @@
 
 .requestDetails { font-size: 1rem; color: #475569; }
 
+
 .requestActions {
   display: flex; gap: 8px;
   align-items: center;
   flex-shrink: 0;
 }
+
 
 .requestApproveButton {
   padding: 0.5rem 1rem;

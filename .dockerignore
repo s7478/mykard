@@ -1,18 +1,57 @@
-Dockerfile
-.dockerignore
+# Dependencies
 node_modules
 npm-debug.log
-README.md
+yarn-error.log
+
+# Build outputs
+.next
+out
+build
+
+# Development
 .env
 .env.local
-.env.production.local
 .env.development.local
+.env.test.local
+*.log
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
 .git
 .gitignore
-.next
-.vercel
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Documentation
+README.md
+DEPLOY.md
+CLOUD_RUN_DEPLOY.md
+README-DEPLOYMENT.md
+*.md
+
+# Testing
 coverage
 .nyc_output
-.DS_Store
+
+# Misc
 *.tgz
 *.tar.gz
+.vercel
+.github
+infrastructure
+my-next-app
+CredLink
+scripts/*.sh
+*.sql

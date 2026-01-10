@@ -1,27 +1,44 @@
-// Firebase configuration with hardcoded values for client-side
-// These values will be replaced during the build process
+// Firebase configuration - fetched dynamically from API at runtime
+// This file is kept for backwards compatibility but the actual config
+// should be fetched from /api/config/firebase or accessed via window.__FIREBASE_CONFIG__
 
-export const firebaseConfig = {
-  apiKey: '__FIREBASE_API_KEY__',
-  authDomain: '__FIREBASE_AUTH_DOMAIN__', 
-  projectId: '__FIREBASE_PROJECT_ID__',
-  storageBucket: '__FIREBASE_STORAGE_BUCKET__',
-  messagingSenderId: '__FIREBASE_MESSAGING_SENDER_ID__',
-  appId: '__FIREBASE_APP_ID__',
-  measurementId: '__FIREBASE_MEASUREMENT_ID__',
+export interface FirebaseConfig {
+  apiKey: string;
+  authDomain: string;
+  projectId: string;
+  storageBucket: string;
+  messagingSenderId: string;
+  appId: string;
+  measurementId: string;
+}
+
+// Fetch config from API (for client-side runtime)
+export const fetchFirebaseConfig = async (): Promise<FirebaseConfig | null> => {
+  if (typeof window === 'undefined') return null;
+  
+  // Check if already cached in window
+  if ((window as any).__FIREBASE_CONFIG__?.apiKey) {
+    return (window as any).__FIREBASE_CONFIG__;
+  }
+  
+  try {
+    const response = await fetch('/api/config/firebase');
+    if (!response.ok) throw new Error('Failed to fetch config');
+    const config = await response.json();
+    (window as any).__FIREBASE_CONFIG__ = config;
+    return config;
+  } catch (error) {
+    return null;
+  }
 };
 
-// Debug function to check configuration
-export const checkFirebaseConfig = () => {
-  if (typeof window !== 'undefined') {
-    console.log("🔧 Firebase Config Check:", {
-      hasApiKey: !!firebaseConfig.apiKey && firebaseConfig.apiKey !== '__FIREBASE_API_KEY__',
-      hasAuthDomain: !!firebaseConfig.authDomain && firebaseConfig.authDomain !== '__FIREBASE_AUTH_DOMAIN__',
-      hasProjectId: !!firebaseConfig.projectId && firebaseConfig.projectId !== '__FIREBASE_PROJECT_ID__',
-      apiKeyPreview: firebaseConfig.apiKey && firebaseConfig.apiKey !== '__FIREBASE_API_KEY__' ? `${firebaseConfig.apiKey.substring(0, 10)}...` : 'undefined',
-      authDomain: firebaseConfig.authDomain && firebaseConfig.authDomain !== '__FIREBASE_AUTH_DOMAIN__' ? firebaseConfig.authDomain : 'undefined',
-      projectId: firebaseConfig.projectId && firebaseConfig.projectId !== '__FIREBASE_PROJECT_ID__' ? firebaseConfig.projectId : 'undefined',
-    });
-  }
-  return firebaseConfig;
+// For backwards compatibility - returns empty config (use fetchFirebaseConfig instead)
+export const firebaseConfig: FirebaseConfig = {
+  apiKey: '',
+  authDomain: '',
+  projectId: '',
+  storageBucket: '',
+  messagingSenderId: '',
+  appId: '',
+  measurementId: '',
 };
