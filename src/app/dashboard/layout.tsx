@@ -31,7 +31,7 @@ export default function DashboardLayout({
       // @ts-ignore
       (mql.removeEventListener ? mql.removeEventListener("change", onChange) : mql.removeListener(onChange));
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -57,24 +57,24 @@ export default function DashboardLayout({
   const mainStyle: React.CSSProperties = shouldSkipPadding
     ? { background: "transparent" }
     : {
-        padding: "24px",
-        background: "transparent",
-      };
+      padding: "5px",
+      background: "transparent",
+    };
 
   return (
     <div className="h-screen overflow-hidden" style={{ backgroundColor: '#f8fafc' }}>
       {/* Sidebar - default closed on small screens, open on lg+ */}
-      <Sidebar 
-        isOpen={isLgUp ? isSidebarOpen : false} 
-        setIsOpen={setIsSidebarOpen} 
+      <Sidebar
+        isOpen={isLgUp ? isSidebarOpen : false}
+        setIsOpen={setIsSidebarOpen}
       />
 
       {/* Main Content */}
       <div
         className="h-full flex flex-col"
-        style={{ 
-          marginLeft: isLgUp 
-            ? (isSidebarOpen ? '18rem' : '5rem') 
+        style={{
+          marginLeft: isLgUp
+            ? (isSidebarOpen ? '18rem' : '5rem')
             : '0',
           background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
           transition: 'margin-left 0.3s ease-in-out'
@@ -87,12 +87,12 @@ export default function DashboardLayout({
         </div>
 
         {/* Main Page Area */}
-        <main 
+        <main
           className="flex-1 overflow-y-auto"
           style={{
             ...mainStyle,
-            background: pathname === "/dashboard/search" 
-              ? "linear-gradient(180deg,#f6fafb,#eef5f7)" 
+            background: pathname === "/dashboard/search"
+              ? "linear-gradient(180deg,#f6fafb,#eef5f7)"
               : mainStyle.background
           }}
         >

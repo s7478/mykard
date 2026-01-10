@@ -6,12 +6,114 @@ import { Linkedin, Mail, MapPin } from "lucide-react";
 export default function Footer() {
   return (
     <footer style={{
-      background: '#3B82F6',
-      color: '#000',
-      padding: 'clamp(1rem, 2vw, 2rem) 0.6rem',
+      background: '#01071E',
+      color: '#000000',
       position: 'relative',
       overflow: 'hidden'
     }}>
+
+      {/* ---------- RESPONSIVE CSS ----------- */}
+      <style>
+        {`
+          /* Grid responsive */
+          div[role="footer-grid"] {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2.2rem;
+            margin-bottom: 4rem;
+          }
+
+          @media (min-width: 640px) {
+            div[role="footer-grid"] {
+              grid-template-columns: 1.4fr 1fr;
+            }
+          }
+
+          @media (min-width: 1024px) {
+            div[role="footer-grid"] {
+              grid-template-columns: 1.5fr 1fr 1fr 1fr;
+            }
+          }
+
+          .footer-desc {
+            text-align: left;
+          }
+
+          @media (max-width: 640px) {
+            .footer-desc {
+              text-align: center;
+              margin-inline: auto;
+              font-size: 1rem;
+            }
+          }
+
+          @media (max-width: 640px) {
+            .footer-social {
+              justify-content: center;
+            }
+          }
+
+          @media (max-width: 640px) {
+            .footer-column {
+              text-align: center;
+            }
+            .footer-column ul {
+              align-items: center;
+            }
+          }
+
+          @media (max-width: 1024px) {
+            .contact-row {
+              margin-left: 30px;
+            }
+          }
+
+          @media (max-width: 640px) {
+            .contact-row {
+              margin-left: 0px;
+              justify-content: center;
+              text-align: center;
+            }
+          }
+
+          /* Hover Effect */
+          .footer-link {
+            transition: color .25s ease;
+            color: #fff;
+          }
+
+          .footer-link:hover {
+            color: #fff;
+          }
+
+        `}
+      </style>
+
+      {/* ------------------------------------ */}
+
+      {/* Background Watermark */}
+      <div style={{
+        position: 'absolute',
+        bottom: '25%',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        fontSize: '22vw',
+        fontWeight: '900',
+        whiteSpace: 'nowrap',
+        pointerEvents: 'none',
+        zIndex: 0,
+        fontFamily: '"Plus Jakarta Sans", sans-serif',
+        lineHeight: '1',
+        userSelect: 'none',
+        opacity: 0.35,
+        background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 100%)',
+        WebkitBackgroundClip: 'text',
+        backgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        color: 'transparent',
+      }}>
+        MyKard
+      </div>
 
       <div style={{
         maxWidth: '1200px',
@@ -28,7 +130,7 @@ export default function Footer() {
         {/* Column 1: Brand */}
         <div style={{ 
           gridColumn: '1 / -1', 
-          textAlign: 'center' 
+          textAlign: 'center' ,
         }} className="desktop-col-1">
           <div style={{ display: 'flex', justifyContent: 'center' }} className="desktop-justify-start">
             <Image src="/assets/MyKard_Logo.png" alt="Logo" width={140} height={40} />
@@ -75,15 +177,12 @@ export default function Footer() {
           textAlign: 'center' 
         }} className="desktop-col-4">
           <h4 className="footer-header">Contact Us</h4>
-          
+          {/* Added 'contact-item' class to handle responsive centering */}
           <ul className="footer-links desktop-items-start" style={{ alignItems: 'center' }}>
-            {/* FIX: Added width: '100%' and justifyContent: 'center' directly here.
-               This forces the item to span the screen and center the content on mobile.
-            */}
-            <li className="contact-item" style={{ display: 'flex', alignItems: 'center', gap: '6px', width: '100%', justifyContent: 'center' }}>
+            <li className="contact-item" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Mail size={12} /> support@mykard.in
             </li>
-            <li className="contact-item" style={{ display: 'flex', alignItems: 'center', gap: '6px', width: '100%', justifyContent: 'center' }}>
+            <li className="contact-item" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <MapPin size={12} /> India
             </li>
           </ul>
@@ -107,7 +206,7 @@ export default function Footer() {
         .footer-header { font-weight: 800; margin-bottom: 0.9rem; font-size: 1rem; }
         .footer-links { list-style: none; padding: 0; display: grid; gap: 0.4rem; font-size: 0.75rem; font-weight: 500; }
         
-        /* HOVER EFFECT */
+        /* HOVER EFFECT ADDED HERE */
         .footer-links li {
           transition: color 0.2s ease;
           cursor: pointer;
@@ -116,13 +215,16 @@ export default function Footer() {
           color: #ffffff;
         }
 
+        /* Mobile: Center the contact items */
+        .contact-item { justify-content: center; }
+
         .desktop-watermark { display: none; }
 
         /* DESKTOP VIEW OVERRIDES */
         @media (min-width: 768px) {
           .footer-grid { 
             grid-template-columns: 1fr 0.8fr 1fr 1.2fr !important;
-            gap: 2.5rem !important;
+            gap: 2.5rem !important; /* Restore larger gap for desktop */
             align-items: start;
           }
           .desktop-col-1, .desktop-col-4 { 
@@ -134,13 +236,8 @@ export default function Footer() {
           .desktop-items-start { align-items: flex-start !important; }
           .desktop-mx-0 { margin-left: 0 !important; margin-right: 0 !important; }
           
-          /* IMPORTANT: Override the inline style on desktop to align left again.
-             !important is required here to override the inline styles we added above.
-          */
-          .contact-item { 
-            justify-content: flex-start !important; 
-            width: auto !important; /* Let it shrink back to content width on desktop */
-          }
+          /* Restore left alignment for contact items on desktop */
+          .contact-item { justify-content: flex-start !important; }
 
           .desktop-watermark {
             display: block;

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState, useEffect, Suspense } from "react";
-import { Search } from "lucide-react";
+import { Search, ChevronDown } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { Modal } from "@/components/ui/modal";
 
@@ -45,6 +45,9 @@ const getInitials = (name: string) =>
 
 function SearchPageContent() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [activeCardId, setActiveCardId] = useState<string | null>(null);
+
+
   const dummyProfiles: Profile[] = [
     { id: "1", username: "arnav_wasnik", name: "Arnav Wasnik", designation: "Frontend Developer", company: "BoostNow Solutions", city: "Nagpur", category: "Technology", verified: true, views: 245, email: "arnav@example.com", phone: "+91 1234567890" },
     { id: "2", username: "sarthak_patil", name: "Sarthak Patil", designation: "Backend Engineer", company: "CredLink", city: "Pune", category: "Engineering", verified: true, views: 189, email: "sarthak@example.com", phone: "+91 9876543210" },
@@ -58,7 +61,8 @@ function SearchPageContent() {
   const [activeCategory, setActiveCategory] = useState<
     "All" | "Developer" | "Designer" | "Data" | "Management" | "Healthcare" | "Other"
   >("All");
-
+  const [showFilter, setShowFilter] = useState(false);
+  const [tempCategory, setTempCategory] = useState(activeCategory);
   const CATEGORY_MAP: Record<string, string[]> = {
     // Technology & IT
     Developer: ["developer", "engineer", "frontend", "backend", "full stack", "fullstack", "software", "programmer", "dev", "web dev", "webdev"],
@@ -296,43 +300,50 @@ function SearchPageContent() {
 
   const hasQuery = query.trim().length > 0 || activeCategory !== "All";
   const filtered = useMemo(() => {
-    const raw = query.trim().toLowerCase();
-    if (!raw) return [];
-    let keywordsPart = raw;
-    let locationPart = "";
-    const inIdx = raw.lastIndexOf(" in ");
-    if (inIdx > -1) {
-      keywordsPart = raw.slice(0, inIdx).trim();
-      locationPart = raw.slice(inIdx + 4).trim();
-    }
-    if (!locationPart) {
-      const parts = raw.split(",").map(s => s.trim()).filter(Boolean);
-      if (parts.length >= 2) {
-        keywordsPart = parts[0];
-        locationPart = parts.slice(1).join(", ");
-      }
-    }
-    const keywords = keywordsPart.split(/\s+/).filter(Boolean);
+  const raw = query.trim().toLowerCase();
 
-    // If no search query and no category filter, return empty array or all profiles based on your preference
-    if (keywords.length === 0 && !locationPart && activeCategory === "All") {
-      return []; // or return [...profiles] if you want to show all profiles by default
+  // 🔹 CASE 1: NO SEARCH, BUT CATEGORY SELECTED
+  if (!raw && activeCategory !== "All") {
+    return profiles.filter(p => getMainCategory(p) === activeCategory);
+  }
+
+  // CASE 2: NO SEARCH + ALL → show all
+if (!raw && activeCategory === "All") {
+  return profiles.slice(0, 50);
+}
+
+
+  // 🔹 SEARCH LOGIC (UNCHANGED)
+  let keywordsPart = raw;
+  let locationPart = "";
+
+  const inIdx = raw.lastIndexOf(" in ");
+  if (inIdx > -1) {
+    keywordsPart = raw.slice(0, inIdx).trim();
+    locationPart = raw.slice(inIdx + 4).trim();
+  }
+
+  const keywords = keywordsPart.split(/\s+/).filter(Boolean);
+
+  return profiles.filter((p) => {
+    // Category filter
+    if (activeCategory !== "All") {
+      const mainCategory = getMainCategory(p);
+      if (mainCategory !== activeCategory) return false;
     }
 
-    return profiles.filter((p) => {
-      // Category filter
-      if (activeCategory !== "All") {
-        const mainCategory = getMainCategory(p);
-        if (mainCategory !== activeCategory) return false;
-      }
+    const hay = `${p.name} ${p.designation ?? ""} ${p.company ?? ""} ${p.category ?? ""} ${p.city ?? ""}`.toLowerCase();
+    const city = (p.city || "").toLowerCase();
 
-      const hay = `${p.name} ${p.designation ?? ""} ${p.company ?? ""} ${p.category ?? ""} ${p.city ?? ""}`.toLowerCase();
-      const city = (p.city || "").toLowerCase();
-      const keywordsMatch = keywords.length === 0 || keywords.every(k => hay.includes(k));
-      const locationMatch = !locationPart || city.includes(locationPart);
-      return keywordsMatch && locationMatch;
-    }).slice(0, 50);
-  }, [query, profiles, activeCategory]);
+    const keywordsMatch =
+      keywords.length === 0 || keywords.every(k => hay.includes(k));
+    const locationMatch =
+      !locationPart || city.includes(locationPart);
+
+    return keywordsMatch && locationMatch;
+  }).slice(0, 50);
+}, [query, profiles, activeCategory]);
+
 
 
   const suggestedProfiles = useMemo(() => {
@@ -420,12 +431,11 @@ function SearchPageContent() {
         .city { font-size: 0.9rem; color: #94a3b8; margin-top: 1px; }
 
         .connect { 
-          padding: 8px 16px; 
-          border-radius: 8px; 
+          padding: 5px 10px; 
+          border-radius: 4px; 
           font-weight: 500; 
           font-size: 0.9rem; 
-          border: 1px solid #e2e8f0; 
-          background: #f8fafc; 
+           
           color: #334155; 
           cursor: pointer; 
           transition: all 0.2s ease;
@@ -579,236 +589,430 @@ function SearchPageContent() {
   align-items: center;
 }
 
+/* ================= FIGMA-ACCURATE CONNECT & PLUS BUTTON ================= */
+
+/* + button (23x23 exactly like Figma) */
+.plusBtn {
+  width: 15px;
+  height: 15px;
+
+  background: #225BE4 !important;
+  color: #ffffff !important;
+  border: none !important;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Connect + button (compact pill) */
+.connect.expand {
+  height: 23px;
+  padding: 0 8px;
+
+  background: #225BE4 !important;
+  color: #ffffff !important;
+  border: none !important;
+
+  border-radius: 6px;
+
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hover (desktop) */
+.plusBtn:hover,
+.connect.expand:hover {
+  background: #1d4ed8 ;
+}
+
+/* Tap / active (mobile) */
+.plusBtn:active,
+.connect.expand:active {
+  transform: scale(0.95);
+}
+/* ===== FILTER DROPDOWN (VERTICAL) ===== */
+
+.filterDropdown {
+  position: absolute;
+  top: 56px;              /* filter button ke neeche */
+  right: 0;
+  width: 220px;
+
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px;
+
+  box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+  border: 1px solid #E2E8F0;
+  z-index: 1000;
+}
+
+/* vertical list */
+.filterList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+/* single item */
+.filterItem {
+  text-align: left;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+
+  background: transparent;
+  font-size: 14px;
+  color: #1E293B;
+  cursor: pointer;
+}
+
+.filterItem:hover {
+  background: #F1F5F9;
+}
+
+.filterItem.active {
+  background: #225BE4;
+  color: #ffffff;
+}
+
+/* footer buttons */
+.filterActions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  border-top: 1px solid #E2E8F0;
+  padding-top: 8px;
+}
+
+.clearFilterBtn {
+  background: none;
+  border: none;
+  color: #475569;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.applyFilterBtn {
+  background: #225BE4;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+
+
+
         /* utility spinner keyframes */
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
       `}</style>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 pb-6">
-        {/* Header Section */}
-        <header className="relative text-center pt-16 pb-3">
-          <div
-            className="absolute top-6 left-0 right-0 h-28 -z-10"
-
-          />
-
-          <h1 className="text-lg sm:text-xl md:text-2xl font-extrabold text-slate-900 whitespace-nowrap">
-            Build Real{" "}
-            <span className="text-[#225BE4]">Connections</span>
-          </h1>
-
-          <p className="mt-1 text-sm text-gray-500 max-w-xs mx-auto">
-            Discover professionals and connect instantly
-          </p>
-        </header>
+      <div style={{ minHeight: "100vh", background: "linear-gradient(180deg, #ffffffff 0%, #7d9fdaff 40%, #2562a8ff 100%)", }}>
 
 
 
 
 
 
-        {/* Search Container */}
-        <div className="search-container" style={{
-          backgroundColor: '#fff',
-          borderRadius: '8px',
-          border: '1px solid #e2e8f0',
-          padding: '12px',
-          margin: '6px 0 2px 0',
-          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
-        }}>
-
-          {/* <div className="header">
-            <div>
-              <div className="title">Search Professionals</div>
-              <div className="subtitle">Discover and connect with top professionals — quick, safe, and effortless.</div>
-            </div>
-          </div> */}
-
-
-          <div className="left relative">
-            <div className="icon"><Search style={{ width: 16, height: 16, color: "#94A3B8" }} /></div>
-            <input
-              value={query} onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by name, skills, company, or city..." aria-label="Search"
-            />
-          </div>
-
-
-          <div
-            style={{
-              display: "flex", gap: 8, flexWrap: "nowrap", margin: "14px 0 0", alignItems: "center",
-              overflowX: "auto", whiteSpace: "nowrap", paddingBottom: "6px", scrollbarWidth: "none", msOverflowStyle: "none",
-            }}
-            className="hide-scrollbar"
-          >
-            {["All", "Developer", "Designer", "Data", "Management", "Healthcare", "Other"].map(cat => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat as any)}
+        <div className="figmaContainer">
+          {/* Search Container */}
+          <div className="search-container" style={{ background: "transparent", borderRadius: 0, padding: "0", margin: "6px 0 8px 0", boxShadow: "none", border: "none" }}>
+            <div className="left relative">
+              <div
                 style={{
-                  padding: '4px 10px',
-                  borderRadius: 6,
-                  fontSize: '0.7rem',
-                  fontWeight: 500,
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0,
-                  border: `1px solid ${activeCategory === cat ? '#225BE4' : '#E5E7EB'}`,
-                  background: activeCategory === cat ? '#225BE4' : '#fff',
-                  color: activeCategory === cat ? '#fff' : '#4B5563',
-                  cursor: 'pointer',
+                  display: "flex",
+                  gap: 8,
+                  alignItems: "center",
+                  position: "relative"   // ⭐ VERY IMPORTANT
                 }}
               >
-                {cat}
-              </button>
-            ))}
-          </div>
+                {/* Search Input */}
+                <div className="left relative" style={{ flex: 1 }}>
+                  <div className="icon">
+                    <Search style={{ width: 16, height: 16, color: "#94A3B8" }} />
+                  </div>
+                  <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search for Connections..."
+                    aria-label="Search"
+                  />
+                </div>
 
-          {hasQuery && (
-            <div className="meta">
-              Showing {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+                {/* Filter Button */}{/*
+                <button
+               
+                onClick={() => setShowFilter(prev => !prev)}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: "44px",
+                    minWidth: "72px",
+                    padding: "0 14px",
+                    gap: "6px",
+                    background: "#ffffff",
+                    border: "1.5px solid #CBD5E1",
+                    borderRadius: "8px",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    cursor: "pointer"
+                  }}
+                >
+                  Filter
+                  <ChevronDown size={16} />
+                </button>*/}~
+
+                {/* 🔽 FILTER DROPDOWN – PASTE HERE */}
+                {showFilter && (
+                  <div className="filterDropdown">
+                    <div className="filterList">
+                      {["All", "Developer", "Designer", "Data", "Management", "Healthcare", "Other"].map(cat => (
+                        <button
+                          key={cat}
+                          className={`filterItem ${tempCategory === cat ? "active" : ""}`}
+                          onClick={() => setTempCategory(cat as any)}
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="filterActions">
+                      <button
+                        className="clearFilterBtn"
+                        onClick={() => {
+                          setTempCategory("All");
+                          setActiveCategory("All");
+                          setShowFilter(false);
+                        }}
+                      >
+                        Clear
+                      </button>
+
+                      <button
+                        className="applyFilterBtn"
+                        onClick={() => {
+                          setActiveCategory(tempCategory);
+                          setShowFilter(false);
+                        }}
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
             </div>
-          )}
 
-          <div className="grid" style={{ marginTop: 12 }}>
 
-            {/* 🔹 Suggestions Heading */}
-            {!hasQuery && suggestedProfiles.length > 0 && (
-              <div style={{ gridColumn: "1 / -1", fontSize: 14, fontWeight: 600, color: "#475569", marginBottom: 6 }} >
-                Suggestions based on profession
+            {hasQuery && (
+              <div className="meta">
+                Showing {filtered.length} result{filtered.length !== 1 ? "s" : ""}
               </div>
             )}
 
-            {/* 🔹 Suggested Profiles */}
-            {!hasQuery &&
-              suggestedProfiles.map((p, i) => (
-                <div key={`suggested-${p.username}-${i}`} className="card" role="button" tabIndex={0} onClick={() => setSelectedProfile(p)}>
-                  <div className="card-info">
-                    <div className="avatar">
-                      {p.profileImage ? (
-                        <img src={p.profileImage} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
-                      ) : (getInitials(p.name || "User"))
-                      }
-                    </div>
-                    <div className="text-block">
-                      <div className="name truncate-1">{p.name}</div>
-                      {p.designation && (<div className="designation truncate-1">{p.designation}</div>)}
-                      {p.company && (<div className="company truncate-1">{p.company}</div>)}
-                      <div className="city truncate-1">{p.city}</div>
-                    </div>
-                  </div>
+          </div>
+          {/* RESULTS CONTAINER – FIGMA STYLE */}
+          <div className="resultsContainer" style={{  margin: "", background: "#ffffff", borderRadius: "30px", padding: "12px", boxShadow: "0 8px 20px rgba(103,141,223,0.18)", border: "1px solid #E6EDFF", }}>
 
-                  <div className="card-action">
-                    <button className="connect" onClick={(e) => { e.stopPropagation(); handleConnect(p.id, p.name); }}
-                      disabled={connectingUserId === p.id || sentRequests.has(p.id) || acceptedConnections.has(p.id)}
-                      style={
-                        acceptedConnections.has(p.id)
-                          ? { background: "#04c74cff", color: "#fff", cursor: "not-allowed" }
-                          : sentRequests.has(p.id)
-                            ? { background: "#0f48e4ff", color: "#fff", cursor: "not-allowed" }
-                            : { background: "#225BE4", color: "#fff" }
-                      }
-                    >
-                      {acceptedConnections.has(p.id)
-                        ? "Connected"
-                        : connectingUserId === p.id
-                          ? "Connecting..."
-                          : sentRequests.has(p.id)
-                            ? "Sent"
-                            : "Connect"}
-                    </button>
-                  </div>
-                </div>
-              )
-              )
-            }
+            <div className="grid" style={{ marginTop: 12 }}>
 
-            {loading ? (
-              <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", padding: 28 }}>
-                <div style={{ width: 52, height: 52, borderRadius: "50%", border: "4px solid rgba(99,102,241,0.12)", borderTopColor: "rgba(99,102,241,0.95)", animation: "spin 1s linear infinite" }} />
-              </div>
-            ) : (
-              filtered.map((p, i) => (
-                <div key={`${p.username}-${i}`} className="card" role="button" aria-label={p.name} onClick={() => setSelectedProfile(p)}>
-                  <div className="card-info">
-                    <div className="avatar">
-                      {p.profileImage ? (
-                        <img
-                          src={p.profileImage}
-                          alt={p.name}
-                          style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }}
-                        />
-                      ) : (
-                        getInitials(p.name || "User")
+
+              {/* 🔹 Suggested Profiles */}
+              {!hasQuery &&
+                suggestedProfiles.map((p, i) => (
+                  <div
+                    key={`suggested-${p.username}-${i}`}
+                    className={`card ${activeCardId === p.id ? "active" : ""}`}
+                    onMouseEnter={() => setActiveCardId(p.id)}
+                    onMouseLeave={() => setActiveCardId(null)}
+                    onClick={() => setActiveCardId(p.id)}
+                  >
+                    <div className="card-info">
+                      <div className="avatar">
+                        {p.profileImage ? (
+                          <img src={p.profileImage} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
+                        ) : (getInitials(p.name || "User"))
+                        }
+                      </div>
+                      <div className="text-block">
+                        <div className="name truncate-1">{p.name}</div>
+                        {p.designation && (<div className="designation truncate-1">{p.designation}</div>)}
+                        {p.company && (<div className="company truncate-1">{p.company}</div>)}
+                        <div className="city truncate-1">{p.city}</div>
+                      </div>
+                    </div>
+
+                    <div className="card-action">
+                      {/* DEFAULT: SHOW + */}
+                      {!acceptedConnections.has(p.id) &&
+                        !sentRequests.has(p.id) &&
+                        activeCardId !== p.id && (
+                          <button className="plusBtn">+</button>
+                        )}
+
+                      {/* HOVER / TAP: CONNECT + */}
+                      {!acceptedConnections.has(p.id) &&
+                        !sentRequests.has(p.id) &&
+                        activeCardId === p.id && (
+                          <button
+                            className="connect expand"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleConnect(p.id, p.name);
+                            }}
+                            disabled={connectingUserId === p.id}
+                          >
+                            Connect +
+                          </button>
+                        )}
+
+                      {/* SENT */}
+                      {sentRequests.has(p.id) && (
+                        <button className="connect sent" disabled>
+                          Sent
+                        </button>
                       )}
+
+                      {/* CONNECTED */}
+                      {acceptedConnections.has(p.id) && null}
                     </div>
 
-                    {/* <div className="text-block">
+                  </div>
+                )
+                )
+              }
+
+              {loading ? (
+                <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", padding: 28 }}>
+                  <div style={{ width: 52, height: 52, borderRadius: "50%", border: "4px solid rgba(99,102,241,0.12)", borderTopColor: "rgba(99,102,241,0.95)", animation: "spin 1s linear infinite" }} />
+                </div>
+              ) : (
+                filtered.map((p, i) => (
+                  <div
+                    key={`${p.username}-${i}`}
+                    className={`card ${activeCardId === p.id ? "active" : ""}`}
+                    onMouseEnter={() => setActiveCardId(p.id)}
+                    onMouseLeave={() => setActiveCardId(null)}
+                    onClick={() => setActiveCardId(p.id)}
+                  >
+                    <div className="card-info">
+                      <div className="avatar">
+                        {p.profileImage ? (
+                          <img
+                            src={p.profileImage}
+                            alt={p.name}
+                            style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }}
+                          />
+                        ) : (
+                          getInitials(p.name || "User")
+                        )}
+                      </div>
+
+                      {/* <div className="text-block">
                       <div className="name">{p.name}</div>
                       {p.designation && <div className="designation">{p.designation}</div>}
                       {p.company && <div className="company">{p.company}</div>}
                       <div className="city">{p.city}</div>
                     </div> */}
 
-                    <div className="text-block">
-                      <div className="name truncate-1">{p.name}</div>
-                      {p.designation && (
-                        <div className="designation truncate-1">{p.designation}</div>
+                      <div className="text-block">
+                        <div className="name truncate-1">{p.name}</div>
+                        {p.designation && (
+                          <div className="designation truncate-1">{p.designation}</div>
+                        )}
+                        {p.company && (
+                          <div className="company truncate-1">{p.company}</div>
+                        )}
+                        <div className="city truncate-1">{p.city}</div>
+                      </div>
+
+                    </div>
+
+                    <div className="card-action">
+                      {/* DEFAULT: + */}
+                      {!acceptedConnections.has(p.id) &&
+                        !sentRequests.has(p.id) &&
+                        activeCardId !== p.id && (
+                          <button className="plusBtn">+</button>
+                        )}
+
+                      {/* HOVER / TAP: CONNECT + */}
+                      {!acceptedConnections.has(p.id) &&
+                        !sentRequests.has(p.id) &&
+                        activeCardId === p.id && (
+                          <button
+                            className="connect expand"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleConnect(p.id, p.name);
+                            }}
+                          >
+                            Connect +
+                          </button>
+                        )}
+
+                      {/* SENT */}
+                      {sentRequests.has(p.id) && (
+                        <button className="connect sent" disabled>
+                          Sent
+                        </button>
                       )}
-                      {p.company && (
-                        <div className="company truncate-1">{p.company}</div>
-                      )}
-                      <div className="city truncate-1">{p.city}</div>
+
+                      {/* CONNECTED */}
+                     {acceptedConnections.has(p.id) && null}
                     </div>
 
                   </div>
+                ))
+              )}
 
-                  <div className="card-action">
-                    <button
-                      className="connect"
-                      onClick={(e) => { e.stopPropagation(); handleConnect(p.id, p.name); }}
-                      disabled={connectingUserId === p.id || sentRequests.has(p.id) || acceptedConnections.has(p.id)}
-                      style={
-                        acceptedConnections.has(p.id)
-                          ? { background: "#04c74cff", color: "#fff", cursor: "not-allowed", boxShadow: "none" }
-                          : sentRequests.has(p.id)
-                            ? { background: "#0f48e4ff", color: "#fff", cursor: "not-allowed", boxShadow: "none" }
-                            : { background: "#225BE4", color: "#fff" }
-                      }
-                    >
-                      {acceptedConnections.has(p.id)
-                        ? "Connected"
-                        : connectingUserId === p.id
-                          ? "Connecting..."
-                          : sentRequests.has(p.id)
-                            ? "Sent"
-                            : "Connect"}
-                    </button>
-                  </div>
+              {!loading && hasQuery && filtered.length === 0 && (
+                <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: 22, color: "#64748B" }}>
+                  No results found. Try different keywords.
                 </div>
-              ))
-            )}
+              )}
+            </div>
+          </div> {/* End of Search Container */}
 
-            {!loading && hasQuery && filtered.length === 0 && (
-              <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: 22, color: "#64748B" }}>
-                No results found. Try different keywords.
-              </div>
-            )}
+          {/* Decorative svg filter */}
+          <div style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none" }}>
+            <svg width="0" height="0" style={{ position: "absolute" }}>
+              <defs>
+                <filter id="softGlow">
+                  <feGaussianBlur stdDeviation="12" result="coloredBlur" />
+                  <feMerge><feMergeNode in="coloredBlur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                </filter>
+              </defs>
+            </svg>
           </div>
-        </div> {/* End of Search Container */}
-
-        {/* Decorative svg filter */}
-        <div style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none" }}>
-          <svg width="0" height="0" style={{ position: "absolute" }}>
-            <defs>
-              <filter id="softGlow">
-                <feGaussianBlur stdDeviation="12" result="coloredBlur" />
-                <feMerge><feMergeNode in="coloredBlur" /><feMergeNode in="SourceGraphic" /></feMerge>
-              </filter>
-            </defs>
-          </svg>
-        </div>
 
 
-        {/* {selectedProfile && (
+          {/* {selectedProfile && (
           <Modal
     isOpen={true}
     onClose={() => setSelectedProfile(null)}
@@ -837,7 +1041,7 @@ function SearchPageContent() {
           </div>
         )} */}
 
-        {/* Services (from DigitalCardPreview → services)
+          {/* Services (from DigitalCardPreview → services)
         {selectedProfile.services && (
           <div>
             <strong>Services</strong>
@@ -858,33 +1062,33 @@ function SearchPageContent() {
   /> 
 )} */}
 
-        {selectedProfile && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center"
-          >
-            {/* 🔹 Backdrop */}
+          {selectedProfile && (
             <div
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-              onClick={() => setSelectedProfile(null)}
-            />
+              className="fixed inset-0 z-50 flex items-center justify-center"
+            >
+              {/* 🔹 Backdrop */}
+              <div
+                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                onClick={() => setSelectedProfile(null)}
+              />
 
-            {/* 🔹 Popup */}
-            <div className="relative z-50">
-              <Modal
-                isOpen={true}
-                onClose={() => setSelectedProfile(null)}
-              >
-                {/* popup content */}
-              </Modal>
+              {/* 🔹 Popup */}
+              <div className="relative z-50">
+                <Modal
+                  isOpen={true}
+                  onClose={() => setSelectedProfile(null)}
+                >
+                  {/* popup content */}
+                </Modal>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
 
 
 
-        {/* /* Modal unchanged (logic intact) */}
-        {/* <Modal
+          {/* /* Modal unchanged (logic intact) */}
+          {/* <Modal
           isOpen={showModal}
           onClose={() => setShowModal(false)}
           title="Connection Request Sent"
@@ -894,46 +1098,48 @@ function SearchPageContent() {
 
 
 
-        {selectedProfile && (
-          <Modal 
-          isOpen={!!selectedProfile} onClose={() => setSelectedProfile(null)}>
+          {selectedProfile && (
+            <Modal
+              isOpen={!!selectedProfile} onClose={() => setSelectedProfile(null)}>
 
-            <div className="p-6 space-y-3">
-              {/* Full Name */}
-              <h2 className="text-xl font-semibold"> {selectedProfile.name} </h2>
+              <div className="p-6 space-y-3">
+                {/* Full Name */}
+                <h2 className="text-xl font-semibold"> {selectedProfile.name} </h2>
 
-              {/* Location */}
-              {selectedProfile.city && (
-                <p className="text-sm text-gray-600"> {selectedProfile.city} </p>
-              )}
+                {/* Location */}
+                {selectedProfile.city && (
+                  <p className="text-sm text-gray-600"> {selectedProfile.city} </p>
+                )}
 
-              {/* Company & Designation */}
-              {(selectedProfile.company || selectedProfile.designation) && (
-                <p className="text-sm">
-                  {selectedProfile.designation}
-                  {selectedProfile.company && ` ${selectedProfile.company}`}
-                </p>
-              )}
+                {/* Company & Designation */}
+                {(selectedProfile.company || selectedProfile.designation) && (
+                  <p className="text-sm">
+                    {selectedProfile.designation}
+                    {selectedProfile.company && ` ${selectedProfile.company}`}
+                  </p>
+                )}
 
-              {/* Description */}
-              {selectedProfile.description && (
-                <div>
-                  <h4 className="font-medium mt-3">Description</h4>
-                  <p className="text-sm text-gray-700"> {selectedProfile.description} </p>
-                </div>
-              )}
+                {/* Description */}
+                {selectedProfile.description && (
+                  <div>
+                    <h4 className="font-medium mt-3">Description</h4>
+                    <p className="text-sm text-gray-700"> {selectedProfile.description} </p>
+                  </div>
+                )}
 
-              {/* Services */}
-              {selectedProfile.services && (
-                <div>
-                  <h4 className="font-medium mt-3">Services</h4>
-                  <p className="text-sm text-gray-700"> {selectedProfile.services} </p>
-                </div>
-              )}
-            </div>
-          </Modal>
-        )}
+                {/* Services */}
+                {selectedProfile.services && (
+                  <div>
+                    <h4 className="font-medium mt-3">Services</h4>
+                    <p className="text-sm text-gray-700"> {selectedProfile.services} </p>
+                  </div>
+                )}
+              </div>
+            </Modal>
+          )}
+        </div>
       </div>
     </div >
+
   )
 }

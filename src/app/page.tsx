@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/hooks/use-auth"
 import Header from "@/components/Header"
 import Homepage from "@/components/Homepage"
-import TopFooter from "@/components/TopFooter"
+//import TopFooter from "@/components/TopFooter"
 import Footer from "@/components/Footer"
 
 export default function Home() {
@@ -63,7 +63,6 @@ export default function Home() {
       <main className="flex-1">
         <Homepage />
       </main>
-      <TopFooter />
       <Footer />
     </div>
   )
