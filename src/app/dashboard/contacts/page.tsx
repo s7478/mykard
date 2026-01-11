@@ -323,7 +323,7 @@ export default function ContactsPage() {
             ) : (
               <div className={styles.contactsList}>
                 {filteredContacts.map((contact) => (
-                  <div key={contact.id} className={`${styles.contactCard} ${ expandedContactId === contact.id ? styles.expanded : "" }`}style={{ background: "linear-gradient(180deg, #9CE1FF 0%, #F0FCFF 100%)",  border: "1px solid #4A90E2",  borderRadius: "16px",  }} onClick={() => setExpandedContactId( expandedContactId === contact.id ? null : contact.id ) } >
+                  <div key={contact.id} className={`${styles.contactCard} ${ expandedContactId === contact.id ? styles.expanded : "" }`} onClick={() => setExpandedContactId( expandedContactId === contact.id ? null : contact.id ) } >
                     <div className={styles.contactHeader}>
                       <div className={styles.contactInfo}>
                         <div className={styles.avatar}>

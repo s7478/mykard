@@ -783,7 +783,7 @@ if (!raw && activeCategory === "All") {
                 >
                   Filter
                   <ChevronDown size={16} />
-                </button>*/}~
+                </button>*/}
 
                 {/* 🔽 FILTER DROPDOWN – PASTE HERE */}
                 {showFilter && (
