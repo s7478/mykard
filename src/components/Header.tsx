@@ -70,7 +70,7 @@ export default function Header() {
         {/* LEFT: LOGO */}
         <Link href="/" className="flex-shrink-0">
           <Image
-            src="/assets/MyKard_Logo.png"
+            src="/assets/mykard.png"
             alt="MyKard Logo"
             width={120}
             height={36}

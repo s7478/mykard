@@ -548,7 +548,7 @@ export default function Homepage() {
             }}
           >
             <Image
-              src="/assets/worldmap.png"
+              src="/assets/shape.png"
               alt="World Map"
               width={600}
               height={503}
