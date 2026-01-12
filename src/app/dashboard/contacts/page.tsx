@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Search, Users, Mail, Phone, Calendar, ExternalLink, MoreHorizontal, Download } from "lucide-react";
 import { toast } from "react-hot-toast";
 import styles from "./contacts.module.css";
+import { useRouter } from "next/navigation";
 
 // Types
 interface ContactConnection {
@@ -37,6 +38,8 @@ export default function ContactsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [expandedContactId, setExpandedContactId] = useState<string | null>(null);
+
+  const router = useRouter();
 
 
   // Force scroll to top on mount to fix refresh scroll offset and ensure header stays fixed
@@ -271,11 +274,14 @@ export default function ContactsPage() {
 
   {/* Tabs */}
   <div className={styles.tabs}>
-    <button className={styles.tab}>Connections</button>
-    <button className={styles.tab}>Requests</button>
-    <button className={styles.tab}>Messages</button>
-    <button className={`${styles.tab} ${styles.activeTab}`}>Leads</button>
-  </div>
+          <button onClick={() => router.push('/dashboard/messages')} className={styles.tab}>Messages</button>
+          
+          {/* Current Page */}
+          <button className={`${styles.tab} ${styles.activeTab}`}>Leads</button>
+          
+          <button onClick={() => router.push('/dashboard/connections')} className={styles.tab}>Connections</button>
+          <button onClick={() => router.push('/dashboard/connections?view=requests')} className={styles.tab}>Requests</button>
+        </div>
   
 
       {/* Results */}
