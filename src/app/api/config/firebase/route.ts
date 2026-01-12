@@ -16,6 +16,14 @@ export async function GET() {
     measurementId: process.env.FIREBASE_MEASUREMENT_ID || process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || '',
   };
 
+  console.log('🔥 [Firebase Config API] Serving config:', {
+    hasApiKey: !!firebaseConfig.apiKey,
+    hasAuthDomain: !!firebaseConfig.authDomain,
+    hasProjectId: !!firebaseConfig.projectId,
+    projectId: firebaseConfig.projectId,
+    authDomain: firebaseConfig.authDomain,
+  });
+
   return NextResponse.json(firebaseConfig, {
     headers: {
       'Cache-Control': 'public, max-age=3600, s-maxage=3600',

@@ -74,8 +74,10 @@
       try {
         setLoading(true)
         setError('')
+        console.log('🔐 [Login] Starting Google login...')
         const provider = new GoogleAuthProvider()
         const auth = await getFirebaseAuth()
+        console.log('🔐 [Login] Auth instance:', auth ? 'Available' : 'NULL')
         if (!auth) throw new Error('Authentication is not configured. Please try again.')
         
         const result = await signInWithPopup(auth, provider)
