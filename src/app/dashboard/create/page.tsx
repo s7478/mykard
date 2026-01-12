@@ -501,7 +501,7 @@ const CreatePage = () => {
               Personal
             </h3>
 
-            <div className={styles.iconGrid}>
+            <div className={styles.iconGrid} style={{ }}>
               {[
                 { key: "name", label: "Name", img: "/assets/name.png" },
                 { key: "title", label: "Title", img: "/assets/title.png" },
@@ -1042,7 +1042,7 @@ const CreatePage = () => {
           )}
 
           {/* ===== WHITE PANEL (TABS + ICONS) ===== */}
-          <div className={styles.editPanel} style={{ height: activeTab === 'Information' ? '50dvh' : 'auto'}}>
+          <div className={styles.editPanel} style={{ height: activeTab === 'Information' ? '45dvh' : 'auto'}}>
             <div className={styles.tabContainer}>
               {['Display', 'Information'].map(tab => (
                 <button
