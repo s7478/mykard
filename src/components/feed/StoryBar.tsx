@@ -28,8 +28,8 @@ const styles = {
     overflowY: "hidden" as const, 
     whiteSpace: "nowrap" as const,
 
-    scrollbarWidth: "none",
-    msOverflowStyle: "none",
+    scrollbarWidth: "none" as const,
+    msOverflowStyle: "none" as const,
   },
   storyItem: { width: "85px" }, // do changes here
   myStoryAvatarWrapper: { width: "60px", height: "60px", borderRadius: "9999px", padding: "2px", position: "relative" as const },
