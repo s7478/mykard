@@ -104,6 +104,8 @@ model Message {
   receiver   User          @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
   sender     User          @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
 
+  storyId    String?
+
   @@index([senderId])
   @@index([receiverId])
   @@index([createdAt])
@@ -326,6 +328,7 @@ model SavedPost {
 
 model Story {
   id        String   @id @default(cuid())
+  content   String?  @db.Text
   imageUrl  String   @db.VarChar(1000) // Image or Video URL
   videoUrl  String?  @db.VarChar(1000) // Optional separate field if needed
   authorId  String

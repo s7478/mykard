@@ -25,10 +25,11 @@ import {
   Users,
   ChevronDown,
   UploadCloud,
-  Flag, // For Report
-  UserPlus, // For Connect
-  UserMinus, // For Disconnect
+  Flag,
+  UserPlus,
+  UserMinus,
   Trash2,
+  Clock, // Added for Pending status
 } from "lucide-react";
 
 // --- Utilities ---
@@ -118,10 +119,11 @@ const styles: Record<string, CSSProperties> = {
     transition: "background-color 0.2s",
     whiteSpace: "nowrap",
   },
+  // 🟢 KEPT EXACTLY AS REQUESTED (8px padding, no radius change)
   postCard: {
     backgroundColor: "#ffffff",
     border: "1px solid #f1f5f9",
-    padding: "8px", // ⬅ was 6px, balances mobile
+    padding: "8px", 
     width: "100%",
     textAlign: "left",
     position: "relative",
@@ -386,7 +388,7 @@ const styles: Record<string, CSSProperties> = {
     padding: "4px 10px",
     borderRadius: "9999px",
     border: "1px solid #6b7280",
-    fontSize: "11px",
+    fontSize: "10px",
     fontWeight: "600",
     color: "#6b7280",
     background: "transparent",
@@ -414,7 +416,7 @@ const styles: Record<string, CSSProperties> = {
     gap: "8px",
     width: "100%",
     padding: "8px 10px",
-    fontSize: "12px",
+    fontSize: "10px",
     fontWeight: "500",
     color: "#374151",
     background: "transparent",
@@ -443,7 +445,7 @@ const VisibilitySelector = ({
 }) => {
   const [showMenu, setShowMenu] = useState(false);
   return (
-    <div style={{ position: "relative", width: "130px" }}>
+    <div style={{ position: "relative", width: "200px" }}>
       <button
         onClick={() => setShowMenu(!showMenu)}
         style={styles.visibilityBtn}
@@ -456,7 +458,7 @@ const VisibilitySelector = ({
           e.currentTarget.style.backgroundColor = "transparent";
         }}
       >
-        {visibility === "public" ? <Globe size={16} /> : <Users size={16} />}
+        {visibility === "public" ? <Globe size={14} /> : <Users size={14} />}
         <span>{visibility === "public" ? "Anyone" : "Connections only"}</span>
         <ChevronDown size={12} />
       </button>
@@ -973,7 +975,9 @@ export const CreatePostWidget = ({ currentUser }: { currentUser?: any }) => {
             alignItems: isMobile ? "stretch" : "center",
           }}
         >
+          {/* ✅ CLICKING HERE NOW OPENS THE MODAL */}
           <div
+            onClick={() => openPostModal(null)}
             style={{
               ...styles.fakeInput,
               whiteSpace: "nowrap",
@@ -1037,9 +1041,27 @@ export const PostCard = ({
 }) => {
   const isOwnPost = currentUser?.id === postData?.authorId;
 
-  const [isConnected, setIsConnected] = useState(
-    postData?.isConnected || false
-  );
+  // 🟢 NEW: Initialize status by checking multiple common properties.
+  const [connectionStatus, setConnectionStatus] = useState<
+    "none" | "pending" | "connected"
+  >(() => {
+    if (
+      postData?.connectionStatus === "ACCEPTED" ||
+      postData?.isConnected === true
+    ) {
+      return "connected";
+    }
+    // Check various flags for pending status
+    if (
+      postData?.connectionStatus === "PENDING" ||
+      postData?.isPending === true ||
+      postData?.hasPendingRequest === true
+    ) {
+      return "pending";
+    }
+    return "none";
+  });
+
   const [isLiked, setIsLiked] = useState(postData?.isLiked || false);
   const [likesCount, setLikesCount] = useState(postData?.likesCount || 0);
   const [isSaved, setIsSaved] = useState(postData?.isSaved || false);
@@ -1067,7 +1089,6 @@ export const PostCard = ({
     const newState = !showComments;
     setShowComments(newState);
 
-    // Fetch comments only if opening and not loaded yet
     if (newState && !commentsLoaded) {
       try {
         const res = await fetch(`/api/posts/comments?postId=${postData.id}`);
@@ -1101,8 +1122,6 @@ export const PostCard = ({
 
         // 🟢 Add new comment to list immediately
         if (data.comment) {
-          // If the backend returns the full comment with user, use it.
-          // Otherwise, construct a temp one for immediate display.
           const newComment = data.comment.user
             ? data.comment
             : {
@@ -1126,6 +1145,7 @@ export const PostCard = ({
   };
 
   const handleConnect = async () => {
+    setIsLoadingConnection(true);
     try {
       const res = await fetch("/api/users/connections", {
         method: "POST",
@@ -1133,14 +1153,24 @@ export const PostCard = ({
         body: JSON.stringify({ receiverId: postData.authorId }),
       });
       if (res.ok) {
-        setIsConnected(true);
+        // 🟢 FIX: Immediately set to 'pending' so button disappears
+        setConnectionStatus("pending"); 
         toast.success("Connection request sent!");
         setShowMenu(false);
       } else {
-        toast.error("Failed to connect");
+        const data = await res.json();
+        // If API says request already exists, treat as pending
+        if (data.error?.includes("already")) {
+             setConnectionStatus("pending");
+             toast.error("Request already pending");
+        } else {
+             toast.error("Failed to connect");
+        }
       }
     } catch (e) {
       toast.error("Error connecting");
+    } finally {
+      setIsLoadingConnection(false);
     }
   };
 
@@ -1166,8 +1196,6 @@ export const PostCard = ({
   // ... (Other handlers: Report, Disconnect, Like, Save, Share... keep same as before)
   const handleDisconnect = async () => {
     // 1. Determine the ID to send.
-    // Ideally use connectionId if available, otherwise fallback to authorId.
-    // (Ensure your Backend DELETE route can handle a userId if connectionId is missing)
     const contactId = postData.connectionId || postData.authorId;
 
     if (!contactId) {
@@ -1190,7 +1218,7 @@ export const PostCard = ({
       }
 
       // 3. Update Local State
-      setIsConnected(false);
+      setConnectionStatus("none"); // ✅ Change to None
       setShowMenu(false);
 
       // 4. Success Message & Sync Events (Copied from Dashboard)
@@ -1351,24 +1379,39 @@ export const PostCard = ({
           </div>
         </div>
         <div style={styles.headerActions}>
-          {!isConnected && !isOwnPost && (
+          {!isOwnPost && connectionStatus !== "connected" && (
             <button
-              onClick={handleConnect}
+              onClick={
+                connectionStatus === "none" ? handleConnect : undefined
+              }
+              disabled={
+                connectionStatus === "pending" || isLoadingConnection
+              }
               style={{
-                backgroundColor: "#2563eb",
-                color: "white",
+                backgroundColor:
+                  connectionStatus === "pending" ? "#e2e8f0" : "#2563eb",
+                color: connectionStatus === "pending" ? "#64748b" : "white",
                 padding: "6px 14px",
                 borderRadius: "9999px",
                 fontSize: "11px",
                 fontWeight: "700",
                 border: "none",
-                cursor: "pointer",
+                cursor:
+                  connectionStatus === "pending" || isLoadingConnection
+                    ? "default"
+                    : "pointer",
                 transition: "background 0.2s",
+                opacity: isLoadingConnection ? 0.7 : 1,
               }}
             >
-              Connect
+              {connectionStatus === "pending"
+                ? "Sent"
+                : isLoadingConnection
+                ? "Connecting..."
+                : "Connect"}
             </button>
           )}
+
           <button
             onClick={() => setShowMenu(!showMenu)}
             style={{
@@ -1397,15 +1440,12 @@ export const PostCard = ({
                 </button>
               ) : (
                 <>
-                  <button
-                    style={{ ...styles.menuItem, color: "#ef4444" }}
-                    onClick={handleReport}
-                  >
-                    <Flag size={16} /> Report
-                  </button>
+                  {/* Report Button Removed */}
 
-                  {/* Toggle between Connect and Disconnect */}
-                  {!isConnected ? (
+                  {/* MORE OPTIONS LOGIC */}
+                  
+                  {/* 1. NOT CONNECTED: Show Connect */}
+                  {connectionStatus === "none" && (
                     <button
                       style={{
                         ...styles.menuItem,
@@ -1418,12 +1458,28 @@ export const PostCard = ({
                       <UserPlus size={16} />{" "}
                       {isLoadingConnection ? "Connecting..." : "Connect"}
                     </button>
-                  ) : (
+                  )}
+
+                  {/* 2. PENDING: Show Pending Text (Disabled) */}
+                  {connectionStatus === "pending" && (
+                    <button
+                      style={{
+                        ...styles.menuItem,
+                        color: "#64748b",
+                        cursor: "default",
+                      }}
+                      disabled
+                    >
+                      <Clock size={16} /> Pending
+                    </button>
+                  )}
+
+                  {/* 3. CONNECTED: Show Disconnect */}
+                  {connectionStatus === "connected" && (
                     <button
                       style={{
                         ...styles.menuItem,
                         color: "#ef4444",
-                        opacity: isLoadingConnection ? 0.5 : 1,
                       }}
                       onClick={handleDisconnect}
                     >
