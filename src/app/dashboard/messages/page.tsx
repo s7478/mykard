@@ -10,7 +10,7 @@ import { px } from "framer-motion";
 
 // --- Types ---
 type MessageStatus = "New" | "Read" | "Replied" | "Pending" | "Archived" | "Deleted";
-type MessageTag = "Lead" | "Support" | "Pricing" | "Feedback" | null;
+type MessageTag = "Lead" | "Support" | "Pricing" | "Feedback" | "STORY_REPLY" | null;
 
 interface MessageItem {
   id: string;
@@ -300,12 +300,14 @@ function MessagesPageContent() {
               text: m.text || m.message || '',
               date: m.createdAt || m.date || new Date().toISOString(),
               direction: 'in' as const,
+              tag: m.tag,
             })),
             ...sentForParty.map((m: any) => ({
               id: m.id,
               text: m.text || m.message || '',
               date: m.createdAt || m.date || new Date().toISOString(),
               direction: 'out' as const,
+              tag: m.tag,
             })),
           ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
@@ -340,7 +342,7 @@ function MessagesPageContent() {
               status: conversationStatus,
               read: conversationRead,
               starred: false,
-              tag: null,
+              tag: latest.tag || null,
               senderId: partyId,
               thread: combined,
               replies,
@@ -1052,6 +1054,18 @@ sortSelectMobile: {
                         {[m.title, m.company].filter(Boolean).join(" • ")}
                       </p>
                     )} */}
+
+                    {m.tag === "STORY_REPLY" && (
+                      <p style={{ 
+                        fontSize: "11px", 
+                        color: "#2563EB", 
+                        fontWeight: 600, 
+                        marginBottom: "2px",
+                        marginTop: "0px" 
+                      }}>
+                        Replied to your story
+                      </p>
+                    )}
 
                       <p
                         className="message-text-left"

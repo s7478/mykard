@@ -750,40 +750,42 @@ export const CreateStoryModal = ({
   };
 
   const handleCreateStory = async () => {
-    if (!content.trim() && !mediaFile) return; // Allow text only or media
-    setLoading(true);
-    try {
-      let uploadedUrl = undefined;
-      if (mediaFile) {
-        const folder =
-          mediaType === "video" ? "stories/videos" : "stories/images";
-        uploadedUrl = await uploadToFirebase(mediaFile, folder);
-        if (!uploadedUrl) throw new Error("Upload failed");
-      }
-      const res = await fetch("/api/posts/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          content: content || "New Story",
-          imageUrl: uploadedUrl,
-          visibility,
-          isStory: true,
-        }),
-      });
-      if (res.ok) {
-        toast.success("Story created!");
-        window.location.reload();
-        onClose();
-      } else {
-        throw new Error("Failed");
-      }
-    } catch (e) {
-      console.error(e);
-      toast.error("Failed to create story.");
-    } finally {
-      setLoading(false);
+  if (!content.trim() && !mediaFile) return;
+  setLoading(true);
+  try {
+    let uploadedUrl = undefined;
+    if (mediaFile) {
+      const folder = mediaType === "video" ? "stories/videos" : "stories/images";
+      uploadedUrl = await uploadToFirebase(mediaFile, folder);
+      if (!uploadedUrl) throw new Error("Upload failed");
     }
-  };
+
+    // 🟢 CHANGE 1: Use the correct endpoint (/api/stories)
+    const res = await fetch("/api/stories", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      // 🟢 CHANGE 2: Structure body to match your stories/route.ts POST expectation
+      body: JSON.stringify({
+        content: content, // Matches the 'content' field in Prisma
+        imageUrl: mediaType === 'image' ? uploadedUrl : null,
+        videoUrl: mediaType === 'video' ? uploadedUrl : null,
+      }),
+    });
+
+    if (res.ok) {
+      toast.success("Story created!");
+      window.location.reload();
+      onClose();
+    } else {
+      throw new Error("Failed");
+    }
+  } catch (e) {
+    console.error(e);
+    toast.error("Failed to create story.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (!isOpen) return null;
 
