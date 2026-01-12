@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await req.json().catch(() => ({}));
-    const { message, receiverId, status, tag, read } = data ?? {};
+    const { message, receiverId, status, tag, read, storyId } = data ?? {};
 
     if (!message || typeof message !== "string" || !message.trim()) {
         return NextResponse.json(
@@ -65,6 +65,7 @@ export async function POST(req: NextRequest) {
                 status: (typeof status === 'string' ? status : 'PENDING') as any,
                 read: typeof read === 'boolean' ? read : false,
                tag: (typeof tag === 'string' ? (tag as string).toUpperCase() : 'SUPPORT') as any,
+               storyId: typeof storyId === 'string' ? storyId : undefined,
             },
         });
 

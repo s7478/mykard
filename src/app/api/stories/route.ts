@@ -79,3 +79,43 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+
+export async function POST(req: NextRequest) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("user_token")?.value;
+    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const decoded = verify(token, process.env.JWT_SECRET!) as { userId: string };
+    const userId = decoded.userId;
+
+    const body = await req.json();
+    
+    // 🟢 EXTRACT CONTENT ALONG WITH MEDIA
+    const { imageUrl, videoUrl, content } = body; 
+
+    // Validate: Must have at least one (Media OR Text)
+    if (!imageUrl && !videoUrl && !content) {
+       return NextResponse.json({ error: "Story must have content or media" }, { status: 400 });
+    }
+
+    const story = await prisma.story.create({
+      data: {
+        authorId: userId,
+        imageUrl: imageUrl || null,
+        videoUrl: videoUrl || null,
+        
+        // 🟢 CRITICAL: Save the text content to the DB
+        content: content || null,   
+        
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+      },
+    });
+
+    return NextResponse.json({ success: true, story });
+  } catch (error: any) {
+    console.error("Story create error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

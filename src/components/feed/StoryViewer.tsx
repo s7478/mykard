@@ -242,7 +242,7 @@ export default function StoryViewer({
           ) : (
             // CASE 2: TEXT ONLY (Centered)
             <div className="w-full h-full flex items-center justify-center p-8 bg-gradient-to-br from-blue-900 to-slate-900 text-center">
-               <p className="text-white text-2xl font-bold font-serif leading-relaxed drop-shadow-xl">
+               <p className=" text-2xl font-bold font-serif leading-relaxed drop-shadow-xl" style={{ color: "#ffffff" }}>
                  {activeStory.content || "..."}
                </p>
             </div>
