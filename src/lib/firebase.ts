@@ -47,27 +47,22 @@ const getFirebaseConfig = async (): Promise<FirebaseConfig | null> => {
   // First, check if config is already in window (set by FirebaseConfigProvider)
   const windowConfig = (window as any).__FIREBASE_CONFIG__;
   if (windowConfig && windowConfig.apiKey) {
-    console.log('🔥 [Firebase Config] Using cached window config');
     return windowConfig;
   }
 
   // Fallback: fetch from API endpoint
   try {
-    console.log('🔥 [Firebase Config] Fetching from API...');
     const response = await fetch('/api/config/firebase');
     if (!response.ok) {
-      console.error(`❌ [Firebase Config] API fetch failed: ${response.status}`);
       throw new Error(`Failed to fetch config: ${response.status}`);
     }
     const config = await response.json();
-    console.log('🔥 [Firebase Config] Config fetched successfully');
     
     // Store in window for future use
     (window as any).__FIREBASE_CONFIG__ = config;
     
     return config;
   } catch (error) {
-    console.error('❌ [Firebase Config] Error:', error);
     return null;
   }
 };
@@ -91,24 +86,14 @@ const initializeFirebase = async (): Promise<Auth | null> => {
 
   // Start initialization
   initializationPromise = (async () => {
-    console.log('🔥 [Firebase Init] Starting initialization...');
     const config = await getFirebaseConfig();
     
     if (!config) {
-      console.error("❌ [Firebase Init] Config not available");
       return null;
     }
 
-    console.log('🔥 [Firebase Init] Config received:', {
-      hasApiKey: !!config.apiKey,
-      hasAuthDomain: !!config.authDomain,
-      hasProjectId: !!config.projectId,
-      projectId: config.projectId,
-    });
-
     // Validate required config
     if (!config.apiKey || !config.authDomain || !config.projectId) {
-      console.error('❌ [Firebase Init] Missing required config fields');
       return null;
     }
 
