@@ -25,7 +25,7 @@ const styles = {
     padding: '5px',
     alignItems: "center",
     overflowX: "auto" as const,        
-    overflowY: "hidden"as const, 
+    overflowY: "hidden" as const, 
     whiteSpace: "nowrap" as const,
 
     scrollbarWidth: "none",

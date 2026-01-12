@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { X, Send, Share2, Loader2 } from "lucide-react";
+import { X, Send, Loader2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 interface StoryViewerProps {
@@ -72,6 +72,7 @@ export default function StoryViewer({
     const activeStory = stories[currentIndex];
     if (!activeStory) return;
 
+    // Mark as viewed
     fetch("/api/stories/view", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -79,14 +80,17 @@ export default function StoryViewer({
     }).catch(console.error);
 
     const hasMedia = !!activeStory.imageUrl;
-    const isVideo = activeStory.imageUrl?.match(/\.(mp4|webm|ogg)$/i);
+    const isVideo = activeStory.imageUrl?.match(/\.(mp4|webm|ogg)(\?|$)/i) || activeStory.videoUrl;
 
     if (isVideo) return;
+
+    // Determine duration based on content type
+    const durationStep = hasMedia ? 2 : 1.5; // Text stories read faster, adjust as needed
 
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) return 100;
-        return prev + (hasMedia ? 2 : 3.5);
+        return prev + durationStep;
       });
     }, 100);
 
@@ -107,12 +111,13 @@ export default function StoryViewer({
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
+        // 🟢 INSTAGRAM STYLE REPLY PAYLOAD
         body: JSON.stringify({
-          message: replyText,
+          message: replyText, // Clean text
           receiverId: user.id || user.userId,
           status: "PENDING",
-          tag: "STORY_REPLY",
-          storyId: activeStory.id,
+          tag: "STORY_REPLY", // Special tag
+          storyId: activeStory.id, // Link to story
         }),
       });
 
@@ -130,34 +135,16 @@ export default function StoryViewer({
     }
   };
 
-  const handleShare = async () => {
-    const activeStory = stories[currentIndex];
-    const shareUrl = `${window.location.origin}/story/${activeStory.id}`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `${user.fullName}'s Story`,
-          text: "Check out this story on MyKard",
-          url: shareUrl,
-        });
-      } catch (err) {
-        console.log("Share cancelled");
-      }
-    } else {
-      navigator.clipboard.writeText(shareUrl);
-      toast.success("Link copied to clipboard!");
-    }
-  };
-
   if (!isOpen || !stories.length) return null;
   const activeStory = stories[currentIndex];
   if (!activeStory) return null;
 
-  const isVideo = activeStory.imageUrl?.match(/\.(mp4|webm|ogg)$/i);
+  const isVideo = activeStory.imageUrl?.match(/\.(mp4|webm|ogg)(\?|$)/i) || activeStory.videoUrl;
+  const hasMedia = !!activeStory.imageUrl;
+  const hasText = !!activeStory.content;
 
   return (
-    <div className="fixed inset-0 z-100 bg-black/95 backdrop-blur-sm flex items-center justify-center">
+    <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm flex items-center justify-center">
       {/* Close Button */}
       <button
         onClick={onClose}
@@ -168,6 +155,7 @@ export default function StoryViewer({
 
       {/* MAIN CONTAINER */}
       <div className="relative w-full h-full md:w-[400px] md:h-[85vh] md:max-h-[850px] overflow-hidden bg-black shadow-2xl border border-white/10 flex flex-col">
+        
         {/* Progress Bars */}
         <div className="absolute top-3 left-0 right-0 z-20 flex gap-1 px-2 pointer-events-none">
           {stories.map((_, idx) => (
@@ -211,36 +199,67 @@ export default function StoryViewer({
           </span>
         </div>
 
-        {/* Content Area */}
-        <div className="story-media-wrapper">
-          {!activeStory.imageUrl ? (
-            <div className="text-white text-center p-6">
-              {activeStory.content || "Content unavailable"}
-            </div>
-          ) : isVideo ? (
-            <video
-              src={activeStory.imageUrl}
-              autoPlay
-              playsInline
-              muted={false}
-              onEnded={handleNext}
-              onTimeUpdate={(e) => {
-                if (replyText.length > 0) return;
-                const duration = e.currentTarget.duration;
-                const currentTime = e.currentTarget.currentTime;
-                if (duration > 0) {
-                  setProgress((currentTime / duration) * 100);
-                }
-              }}
-              className="story-media"
-            />
+        {/* 🟢 Content Area - Centered Flex Container */}
+        <div className="relative flex-1 bg-zinc-900 flex flex-col items-center justify-center overflow-hidden">
+          
+          {hasMedia ? (
+            // CASE 1: MEDIA EXISTS (Image or Video)
+            <>
+              {isVideo ? (
+                <video
+                  src={activeStory.imageUrl}
+                  autoPlay
+                  playsInline
+                  muted={false} // Note: Browsers may block unmuted autoplay
+                  onEnded={handleNext}
+                  onTimeUpdate={(e) => {
+                    if (replyText.length > 0) return;
+                    const duration = e.currentTarget.duration;
+                    const currentTime = e.currentTarget.currentTime;
+                    if (duration > 0) {
+                      setProgress((currentTime / duration) * 100);
+                    }
+                  }}
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <img
+                  src={activeStory.imageUrl}
+                  alt="Story"
+                  className="w-full h-full object-contain"
+                />
+              )}
+              
+              {/* Overlay Text at Bottom if Media exists */}
+              {hasText && (
+                <div className="absolute bottom-32 left-4 right-4 z-10 text-center">
+                   <p className="text-white text-lg font-medium drop-shadow-md bg-black/30 p-2 rounded-lg inline-block">
+                     {activeStory.content}
+                   </p>
+                </div>
+              )}
+            </>
           ) : (
-            <img
-              src={activeStory.imageUrl}
-              alt="Story"
-              className="story-media"
-            />
+            // CASE 2: TEXT ONLY (Centered)
+            <div className="w-full h-full flex items-center justify-center p-8 bg-gradient-to-br from-blue-900 to-slate-900 text-center">
+               <p className="text-white text-2xl font-bold font-serif leading-relaxed drop-shadow-xl">
+                 {activeStory.content || "..."}
+               </p>
+            </div>
           )}
+
+          {/* Navigation Click Zones */}
+          <div 
+            className="absolute inset-y-0 left-0 w-1/3 z-20 cursor-pointer" 
+            onClick={handlePrev} 
+          />
+          <div 
+            className="absolute inset-y-0 right-0 w-1/3 z-20 cursor-pointer" 
+            onClick={(e) => { e.stopPropagation(); handleNext(); }} 
+          />
+
+          {/* Gradient Overlay for Footer Visibility */}
+          <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none z-0" />
         </div>
 
         {/* FOOTER */}
@@ -255,7 +274,9 @@ export default function StoryViewer({
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
               placeholder="Send a message..."
-              className="w-full h-10 bg-transparent border border-white/40 rounded-full pl-6 pr-14 text-white placeholder-white/70 focus:outline-none focus:border-white focus:bg-black/40 transition-all text-base backdrop-blur-sm shadow-lg"
+              // 🟢 Using inline style for guaranteed spacing (24px from left)
+              style={{ paddingLeft: "24px" }}
+              className="w-full h-12 bg-transparent border border-white/40 rounded-full pr-14 text-white placeholder-white/70 focus:outline-none focus:border-white focus:bg-black/40 transition-all text-base backdrop-blur-sm shadow-lg"
             />
 
             {/* Send Button inside Input */}
@@ -269,21 +290,13 @@ export default function StoryViewer({
               }`}
             >
               {sendingReply ? (
-                <Loader2 size={16} className="animate-spin" />
+                <Loader2 size={18} className="animate-spin" />
               ) : (
-                <Send size={16} />
+                <Send size={18} />
               )}
             </button>
           </form>
 
-          {/* Share Button */}
-          <button
-            onClick={handleShare}
-            className="h-10 w-10 flex items-center justify-center bg-transparent border border-white/40 rounded-full text-white hover:bg-white/10 hover:border-white transition backdrop-blur-sm shadow-lg"
-            title="Share Story"
-          >
-            <Share2 size={24} />
-          </button>
         </div>
       </div>
     </div>

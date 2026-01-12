@@ -223,8 +223,8 @@ export default function Sidebar({ isOpen = false, setIsOpen }: SidebarProps) {
     { name: "Feed", path: "/dashboard/feed", icon: <Newspaper /> },
     { name: "Dashboard", path: "/dashboard", icon: <LayoutDashboard /> },
     { name: "Messages", path: "/dashboard/messages", icon: <MessageSquare /> },
-    { name: "Connections", path: "/dashboard/connections", icon: <ContactRound /> },
-    { name: "Lead", path: "/dashboard/contacts", icon: <PersonNetworkIcon /> },
+    // { name: "Connections", path: "/dashboard/connections", icon: <ContactRound /> },
+    // { name: "Lead", path: "/dashboard/contacts", icon: <PersonNetworkIcon /> },
     { name: "Search", path: "/dashboard/search", icon: <Search /> },
   ];
 
@@ -335,7 +335,7 @@ export default function Sidebar({ isOpen = false, setIsOpen }: SidebarProps) {
         <Link href="/dashboard/search" className={`bottomNavItem ${pathname === "/dashboard/search" ? "bottomNavItemActive" : ""}`}>
           <span className="bottomNavIcon"><Search /></span>
         </Link>
-        <Link href="/dashboard/connections" className={`bottomNavItem ${pathname === "/dashboard/connections" ? "bottomNavItemActive" : ""}`}>
+        {/* <Link href="/dashboard/connections" className={`bottomNavItem ${pathname === "/dashboard/connections" ? "bottomNavItemActive" : ""}`}>
           <span className="bottomNavIcon">
             <ContactRound />
             {pendingConnections > 0 && pathname !== "/dashboard/connections" && <span className="bottomNavBadge">{pendingConnections}</span>}
@@ -346,7 +346,7 @@ export default function Sidebar({ isOpen = false, setIsOpen }: SidebarProps) {
             <span className="connectionSvg"><PersonNetworkIcon /></span>
             {contactsCount > 0 && pathname !== "/dashboard/contacts" && <span className="bottomNavBadge">{contactsCount}</span>}
           </span>
-        </Link>
+        </Link> */}
       </nav>
     </>
   );

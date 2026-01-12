@@ -57,7 +57,7 @@ export default function DashboardLayout({
   const mainStyle: React.CSSProperties = shouldSkipPadding
     ? { background: "transparent" }
     : {
-      padding: "5px",
+      //padding: "5px",
       background: "transparent",
     };
 
@@ -88,7 +88,7 @@ export default function DashboardLayout({
 
         {/* Main Page Area */}
         <main
-          className="flex-1 overflow-y-auto"
+          className="flex-1 overflow-y-auto no-scrollbar"
           style={{
             ...mainStyle,
             background: pathname === "/dashboard/search"

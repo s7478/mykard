@@ -379,10 +379,10 @@ function MessagesPageContent() {
       );
     }
     switch (activeFilter) {
-      case "Connections": filtered = filtered.filter(m => !m.read && m.status !== "Archived" && m.status !== "Deleted"); break;
-      case "Requests": filtered = filtered.filter(m => m.status === "Replied"); break;
-      case "Messages": filtered = filtered.filter(m => m.status === "Replied"); break;
-      case "Leads": filtered = filtered.filter(m => m.status === "Replied"); break;
+      case "Connections": filtered = filtered.filter(m => m.status !== "Archived" && m.status !== "Deleted"); break;
+      case "Requests": filtered = filtered.filter(m => m.status === "Pending" || m.status === "New"); break;
+      case "Messages": filtered = filtered.filter(m => m.status !== "Archived" && m.status !== "Deleted"); break;
+      case "Leads": filtered = filtered.filter(m => m.tag === "Lead"); break;
       default: filtered = filtered.filter(m => m.status !== "Archived" && m.status !== "Deleted");
     }
 
@@ -944,10 +944,22 @@ function MessagesPageContent() {
             flexWrap: "nowrap",
           }}>
 
-            {(["Connections", "Requests", "Messages", "Leads"] as const).map((tab) => (
+            {(["Messages", "Leads", "Connections", "Requests"] as const).map((tab) => (
               <button
                 key={tab}
-                onClick={() => setActiveFilter(tab)}
+                onClick={() => {
+                  // 3. Navigation Logic
+                  if (tab === "Messages") {
+                    setActiveFilter("Messages");
+                  } else if (tab === "Leads") {
+                    router.push("/dashboard/contacts");
+                  } else if (tab === "Connections") {
+                    router.push("/dashboard/connections");
+                  } else if (tab === "Requests") {
+                    // Pass a query param to open the requests tab directly
+                    router.push("/dashboard/connections?view=requests");
+                  }
+                }}
                 style={{
                   padding: "6px 4px",
                   fontSize: "12px",
@@ -955,8 +967,8 @@ function MessagesPageContent() {
                   border: "none",
                   background: "transparent",
                   cursor: "pointer",
-                  color: activeFilter === tab ? "#2563EB" : "#64748B",
-                  borderBottom: activeFilter === tab ? "3px solid #2563EB" : "3px solid transparent",
+                  color: tab === "Messages" ? "#2563EB" : "#64748B",
+                  borderBottom: tab === "Messages" ? "3px solid #2563EB" : "3px solid transparent",
                   transition: "all 0.2s ease",
                 }}
               >
