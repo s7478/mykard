@@ -1502,9 +1502,8 @@
   font-size: 12px;
   font-weight: 500;
   color: #64748B;
-
-  /* 🔥 ellipsis magic */
-  max-width: 160px;        /* adjust if needed */
+  margin-top: -16px;
+  max-width: 160px;       
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1551,16 +1550,17 @@
 }
 .nameRow {
   display: flex;
-  align-items: center;        /* vertical center */
+  align-items: center;       
   gap: 6px;
-  min-width: 0;               /* required for ellipsis */
+  min-width: 0;        
+   flex-wrap: nowrap;      
 }
 .contactName {
   font-size: 16px;
   font-weight: 700;
   color: #0F172A;
 
-  max-width: 140px;           /* adjust if needed */
+  max-width: 80px;           /* adjust if needed */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1574,8 +1574,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-
-  display: inline-block;
 }
 .contactMeta {
   display: flex;
@@ -1705,8 +1703,8 @@
 
 .quickActions {
   position: absolute;
-  top: 55px;       
-  left: 65px;      
+  top: 48px;       
+  left: 78px;      
 
   display: flex;
   gap: 8px;
@@ -1773,7 +1771,10 @@
     gap: 0.4rem;  /* mobile tighter */
   }
 }
-
+.contactName {
+  position: relative;
+  top: -9px; 
+}
 
 
 
