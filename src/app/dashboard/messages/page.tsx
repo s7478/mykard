@@ -569,12 +569,12 @@ function MessagesPageContent() {
       minHeight: "100vh",
       backgroundColor: "#f0f2f5",
       padding: " 10px",
-      boxSizing: "border-box",
+      boxSizing: "border-box" as const,
       gap: " 15px",
       paddingBottom: "110px",
       background: "linear-gradient(135deg, white 0%, #4A90E2 100%)",
       borderRadius: " 16px",
-      position: "relative",
+      position: "relative" as const,
     },
 
     container1: {
@@ -599,7 +599,7 @@ function MessagesPageContent() {
       backdropFilter: "blur(8px)",
       zIndex: 10,
       display: "flex",
-      flexDirection: "column",
+      flexDirection: "column" as const,
     },
 
     tabsContainer: {

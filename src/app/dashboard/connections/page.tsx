@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import styles from "./connections.module.css"; // Import CSS Module
 import { Check, Trash2 } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
@@ -190,7 +190,7 @@ const connectionRequestsData: Contact[] = [
     },
 ];
 
-export default function DashboardContactPage() {
+function DashboardContactPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [sortBy, setSortBy] = useState("a-z");
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -976,5 +976,13 @@ export default function DashboardContactPage() {
                 )}
             </div>
         </main>
+    );
+}
+
+export default function DashboardContactPageWrapper() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <DashboardContactPage />
+        </Suspense>
     );
 }
