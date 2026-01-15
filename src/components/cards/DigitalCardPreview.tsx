@@ -213,7 +213,7 @@ const DigitalCardPreview: React.FC<DigitalCardProps> = ({
           background: styles.gradient,
           position: "relative",
           color: "#FFFFFF",
-          padding: "24px",
+          padding: "15px",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -224,7 +224,7 @@ const DigitalCardPreview: React.FC<DigitalCardProps> = ({
       >
 
         {/* --- HORIZONTAL LINE BEHIND PROFILE --- */}
-        <div style={{
+        {/*  <div style={{
           position: "absolute",
           top: "94px",
           left: "50%",
@@ -233,7 +233,7 @@ const DigitalCardPreview: React.FC<DigitalCardProps> = ({
           height: "1px",
           background: theme.colors.cardBorderLine,
           zIndex: 0
-        }} />
+        }} />  *}
 
         {/* --- CARD NAME & TYPE --- */}
         {(cardName || cardType) && (
@@ -261,6 +261,33 @@ const DigitalCardPreview: React.FC<DigitalCardProps> = ({
 
         {/* --- CONTENT WRAPPER --- */}
         <div style={{ position: "relative", zIndex: 10, width: "100%", display: "flex", flexDirection: "column", alignItems: "center", marginTop: "20px" }}>
+
+          {/* --- COVER IMAGE --- */}
+          <div
+            style={{
+              width: "100%",
+              height: "115px",
+              borderRadius: "14px",
+              background: cover ? "transparent" : "rgba(255,255,255,0.15)",
+              border: "1.5px solid rgba(255,255,255,0.6)",
+              overflow: "hidden",
+              marginBottom: "-55px",
+              marginTop: "-5px",
+            }}
+          >
+            {cover && (
+              <img
+                src={cover}
+                alt="Cover"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  display: "block",
+                }}
+              />
+            )}
+          </div>
 
           {/* 1. PROFILE IMAGE */}
           <div style={{
@@ -338,7 +365,7 @@ const DigitalCardPreview: React.FC<DigitalCardProps> = ({
           )}
 
           {/* 5. CONTACT ICONS */}
-          <div style={{ display: "flex", gap: "12px", marginBottom: "30px", flexWrap: "wrap", justifyContent: "center" }}>
+          <div style={{ display: "flex", gap: "12px", marginBottom: "-10px", flexWrap: "wrap", justifyContent: "center" }}>
             {email && (
               <a onClick={(e) => e.stopPropagation()} href={`mailto:${email}`} style={iconButtonStyle}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>

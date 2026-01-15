@@ -7,6 +7,7 @@ import FlatCardPreviewComponent from '@/components/cards/FlatCardPreview';
 import ModernCardPreviewComponent from '@/components/cards/ModernCardPreview';
 import SleekCardPreviewComponent from '@/components/cards/SleekCardPreview';
 import LocationSelect from "@/components/LocationSelect";
+import { usePathname, useSearchParams } from "next/navigation";
 
 // Import Shared CSS
 import styles from './create.module.css';
@@ -50,10 +51,11 @@ const CreatePage = () => {
   const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
   const [openSection, setOpenSection] = useState<string | null>(null);
+  
 
   const toggleSection = (key: string) => {
-  setOpenSection(prev => (prev === key ? null : key));
-};
+    setOpenSection(prev => (prev === key ? null : key));
+  };
 
   // Phone State Logic
   const [phone, setPhone] = useState('');
@@ -177,6 +179,7 @@ const CreatePage = () => {
       </div>
     )}
   </div>
+  
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -326,7 +329,12 @@ const CreatePage = () => {
         setIsSaving(false);
         return;
       }
-
+      if (!title || title.trim() === '') {
+        setPopupMessage('Title is mandatory to save the card.');
+        setIsPopupOpen(true);
+        setIsSaving(false);
+        return;
+      }
 
       if (includePhone && !phone.trim()) {
         setPopupMessage('You enabled "Show on Card" but the phone number is empty. Please enter a number or disable the toggle.');
@@ -501,7 +509,7 @@ const CreatePage = () => {
               Personal
             </h3>
 
-            <div className={styles.iconGrid} style={{ }}>
+            <div className={styles.iconGrid} style={{}}>
               {[
                 { key: "name", label: "Name", img: "/assets/name.png" },
                 { key: "title", label: "Title", img: "/assets/title.png" },
@@ -618,10 +626,10 @@ const CreatePage = () => {
   if (isLoadingUser) return <div className={styles.pageWrapper} style={{ justifyContent: 'center', alignItems: 'center' }}>Loading...</div>;
 
   return (
-    <div className={styles.pageWrapper} style={{ overflowY: activeTab === 'Information' ? 'hidden' : 'auto' }}>
-      <div className={styles.container} style={{}}>
+   <div className={styles.pageWrapper} style={{ overflowY: 'auto' }}>
 
 
+      <div className={styles.container}>
         {/* ===== LEFT: CARD PREVIEW ===== */}
         <div className={styles.cardPreviewWrapper}>
           {renderTemplatePreview()}
@@ -915,6 +923,7 @@ const CreatePage = () => {
                 </div>
               </div>
 
+
               {/* ===== LIST OF ADDED FIELDS ===== */}
               {/* {extraFields.map((field) => (
                 <div
@@ -1011,8 +1020,8 @@ const CreatePage = () => {
                   />
                   <button
                     onClick={handleAddCustomType}
-                    className={`${styles.baseButton} ${styles.btnPrimary}`}
-                    style={{ backgroundColor: selectedColor1 }}
+                    className={`${styles.baseButton}`}
+                    style={{ backgroundColor: selectedColor1, color: '#fff' }}
                   >
                     Save
                   </button>
@@ -1021,7 +1030,8 @@ const CreatePage = () => {
                       setShowCustomTypeInput(false);
                       setCustomTypeInput("");
                     }}
-                    className={`${styles.baseButton} ${styles.btnSecondary}`}
+                    className={`${styles.baseButton}`}
+                    style={{ backgroundColor: '#fff', border: '1px solid #646464' }}
                   >
                     Cancel
                   </button>
@@ -1041,8 +1051,9 @@ const CreatePage = () => {
             </div>
           )}
 
+
           {/* ===== WHITE PANEL (TABS + ICONS) ===== */}
-          <div className={styles.editPanel} style={{ height: activeTab === 'Information' ? '45dvh' : 'auto'}}>
+          <div className={styles.editPanel} style={{ height: activeTab === 'Information' ? '55dvh' : 'auto' }}>
             <div className={styles.tabContainer}>
               {['Display', 'Information'].map(tab => (
                 <button
@@ -1078,8 +1089,26 @@ const CreatePage = () => {
               </button>
             </div>
           </div>
-
+          {isPopupOpen && (
+            <div className={styles.popupOverlay}>
+              <div className={styles.popupBox}>
+                <p>{popupMessage}</p>
+                <button
+                  onClick={() => {
+                    setIsPopupOpen(false);
+                    if (popupMessage === "Card created successfully!") {
+                      router.push("/dashboard");
+                    }
+                  }}
+                  className={styles.popupBtn}
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          )}
         </div>
+
       </div>
     </div>
   );
