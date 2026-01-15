@@ -239,7 +239,6 @@
   margin-bottom: 0.1rem;
   display: flex;
   justify-content: center;
-  animation: slideInUp 0.7s ease-out;
   padding: 0;
   width: 100%;
   box-sizing: border-box;
@@ -360,7 +359,6 @@
   margin-bottom: 1.5rem;
   text-align: center;
   background: transparent;
-  animation: fadeIn 0.4s ease-out;
 }
 
 .resultsCount {
@@ -396,7 +394,6 @@
   border: 3px solid #e6e9ee;
   border-top: 3px solid #1e67f4;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
 }
 
 .loadingText {
@@ -466,7 +463,6 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.2rem;
-  animation: slideInUp 0.8s ease-out;
 }
 
 /* --- Contact Card --- */
@@ -484,18 +480,6 @@
   transition: all 0.25s ease;
   cursor: pointer;
 }
-
-
-
-
-
-/* Subtle hover animation - lift effect */
-.contactCard:hover {
-  transform: translateY(-4px);
-  border-color: #1e67f4;
-  box-shadow: 0 8px 20px rgba(30, 103, 244, 0.15);
-}
-
 /* --- Contact Header (Avatar + Name + Timestamp) --- */
 .contactHeader {
   display: flex;
@@ -1413,7 +1397,6 @@
   background: none;
   border: none;
   padding: 0.5rem 0;
-  font-size: 12px;
   font-weight: 500;
   color: #64748B;
   cursor: pointer;
@@ -1445,9 +1428,10 @@
    TABS + RESULTS CONTAINER (WHITE)
    ================================ */
 .tabsContainer {
-  background: #ffffff;
-  border: 1px solid #E6E9EE;
-  border-radius: 16px;
+  background: transparent;   /* 🔥 KEY */
+  border: none;              /* 🔥 KEY */
+  box-shadow: none;          /* 🔥 KEY */
+
 
   padding: 0.25rem 0.75rem; /* tighter like Figma */
   margin: 0 auto 0.75rem;
@@ -1678,10 +1662,6 @@
 .contactCard.expanded .mobileTimeStamp {
   display: flex;
 }
-.contactActions,
-.mobileTimeStamp {
-  animation: fadeIn 0.25s ease-out;
-}
 
 .contactHeader {
   margin-bottom: 10px;          /* more breathing space */
@@ -1774,6 +1754,46 @@
 .contactName {
   position: relative;
   top: -9px; 
+}
+@media (hover: hover) {
+  .contactsList > .contactCard:first-child:hover {
+    margin-top: 10px;
+  }
+}
+.contactsList > .contactCard:first-child.expanded {
+  margin-top: 10px;
+}
+.pageRoot {
+  height: 100vh;
+  overflow: hidden;
+}
+.fixedHeader {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.scrollArea {
+  height: calc(100vh - 170px); 
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.whitePanel {
+  background: #ffffff;   
+  border-radius: 16px;
+  border: 1px solid #E6E9EE;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+
+  margin: 0 auto;
+  padding: 0.5rem 0.5rem 0.75rem;
+}
+.scrollArea {
+  scrollbar-width: none;        
+  -ms-overflow-style: none;     
+}
+
+.scrollArea::-webkit-scrollbar {
+  display: none;                
 }
 
 

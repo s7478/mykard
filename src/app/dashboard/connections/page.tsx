@@ -198,20 +198,22 @@ function DashboardContactPage() {
     const [viewMode, setViewMode] = useState<"table" | "cards">("table");
     const [hoveredCard, setHoveredCard] = useState<string | null>(null);
     const [showContactInfo, setShowContactInfo] = useState<{
-        [key: string]: { type: "phone" | "email" | null }; }>({});
+        [key: string]: { type: "phone" | "email" | null };
+    }>({});
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
     const [contactsList, setContactsList] = useState<Contact[]>([]);
     const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [messageModal, setMessageModal] = useState<{
-        isOpen: boolean;contact: Contact | null; }>({ isOpen: false, contact: null });
+        isOpen: boolean; contact: Contact | null;
+    }>({ isOpen: false, contact: null });
     const [messageText, setMessageText] = useState("");
     const [connectionRequests, setConnectionRequests] = useState<Contact[]>([]);
     const [activeTab, setActiveTab] = useState<"connections" | "requests">("connections");
     const [previewContact, setPreviewContact] = useState<Contact | null>(null);
     const [loading, setLoading] = useState(false);
     const [requestsLoading, setRequestsLoading] = useState(false);
-    const [approveModal, setApproveModal] = useState<{ isOpen: boolean; request: Contact | null;}>({ isOpen: false, request: null });
+    const [approveModal, setApproveModal] = useState<{ isOpen: boolean; request: Contact | null; }>({ isOpen: false, request: null });
     const filterRef = useRef<HTMLDivElement>(null);
     const [hasUnreadRequests, setHasUnreadRequests] = useState(false);
     const [isSmallScreen, setIsSmallScreen] = useState(false);
@@ -227,7 +229,7 @@ function DashboardContactPage() {
     }, [searchParams]);
 
     // Force scroll to top on mount to fix refresh scroll offset and ensure header stays fixed
-    useEffect(() => { window.scrollTo(0, 0);}, []);
+    useEffect(() => { window.scrollTo(0, 0); }, []);
 
     useEffect(() => {
         setHasUnreadRequests(connectionRequests.length > 0 && activeTab !== "requests");
@@ -398,7 +400,7 @@ function DashboardContactPage() {
         const fetchConnectionRequests = async () => {
             try {
                 setRequestsLoading(true);
-                const response = await fetch("/api/users/connections?type=received", { credentials: "include",});
+                const response = await fetch("/api/users/connections?type=received", { credentials: "include", });
 
                 if (!response.ok) { throw new Error("Failed to fetch connection requests"); }
 
@@ -500,9 +502,9 @@ function DashboardContactPage() {
             case "z-a":
                 return b.name.localeCompare(a.name);
             case "recent":
-                return ( new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime());
+                return (new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime());
             case "oldest":
-                return ( new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime());
+                return (new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime());
             default:
                 return a.name.localeCompare(b.name);
         }
@@ -682,14 +684,14 @@ function DashboardContactPage() {
 
                 {/* Hero Section */}
                 <div className={styles.heroSection}>
-                        {/* Search Bar & Filter Section */}
+                    {/* Search Bar & Filter Section */}
                     <div className={styles.searchBarSection}>
                         <div className={styles.searchRow}>
                             {/* Search Input Container */}
                             <div className={styles.searchWrapper}>
-                            <span className={styles.searchIcon}> <Search size={20} /></span>
-                            <input type="text"  placeholder="Search Connections..." value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}  className={styles.searchInput}/>
+                                <span className={styles.searchIcon}> <Search size={20} /></span>
+                                <input type="text" placeholder="Search Connections..." value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)} className={styles.searchInput} />
                             </div>
 
                             {/* Filter Button Container */}
@@ -715,247 +717,251 @@ function DashboardContactPage() {
                 {/* Smart Insights Panel (desktop only) */}
                 <div className={`${styles.insightsPanel} ${styles.desktopOnly}`}> <div className={styles.insightsContent}></div> </div>
 
-                    {/* Content Area */}
+                {/* Content Area */}
+                <div className={styles.tabsContainer}>
+                    {/* Navigation Tabs */}
                     <div className={styles.tabsContainer}>
-                        {/* Navigation Tabs */}
-                        <div className={styles.tabsContainer}>
-                            <div className={styles.tabs}>
-                                {/* Messages Link */}
-                                <button onClick={() => router.push('/dashboard/messages')} className={styles.tabButton}>Messages</button>
-                                
-                                {/* Leads Link */}
-                                <button onClick={() => router.push('/dashboard/contacts')} className={styles.tabButton}>Leads</button>
+                        <div className={styles.tabs}>
+                            {/* Messages Link */}
+                            <button onClick={() => router.push('/dashboard/messages')} className={styles.tabButton}>Messages</button>
 
-                                {/* Active Page Tabs */}
-                                <button onClick={() => handleTabClick('connections')} className={`${styles.tabButton} ${activeTab === 'connections' ? styles.tabButtonActive : ''}`}>
-                                    Connections 
-                                </button>
+                            {/* Leads Link */}
+                            <button onClick={() => router.push('/dashboard/contacts')} className={styles.tabButton}>Leads</button>
 
-                                <button onClick={() => handleTabClick('requests')} className={`${styles.tabButton} ${activeTab === 'requests' ? styles.tabButtonActive : ''}`} >
-                                    Requests
-                                    {hasUnreadRequests && <span className={styles.notificationDot}></span>}
-                                </button>
-                            </div>
-                        </div>
-
-                {/* View Toggle Row - Positioned Below Tabs */}
-                <div className={styles.viewToggleRow}>
-                    <div className={styles.viewTogglePill}>
-                        <button onClick={() => setViewMode('table')} className={`${styles.viewIconBtn} ${viewMode === 'table' ? styles.viewIconActive : ''}`}>
-                            {/* Table Icon */}
-                            {/* <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <rect x="3" y="3" width="18" height="18" rx="2" />
-                                <path d="M3 9h18M9 3v18" />
-                            </svg> */}
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <line x1="8" y1="6" x2="21" y2="6"></line>
-                                <line x1="8" y1="12" x2="21" y2="12"></line>
-                                <line x1="8" y1="18" x2="21" y2="18"></line>
-                                <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                                <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                                <line x1="3" y1="18" x2="3.01" y2="18"></line>
-                            </svg>
-                        </button>
-                            <button onClick={() => setViewMode('cards')}  className={`${styles.viewIconBtn} ${viewMode === 'cards' ? styles.viewIconActive : ''}`} >
-                                {/* Cards/Grid Icon */}
-                                {/* <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <rect x="3" y="3" width="18" height="18" rx="2" />
-                                    <rect x="7" y="7" width="10" height="10" rx="1" />
-                                </svg> */}
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <rect x="3" y="3" width="7" height="7"></rect>
-                                    <rect x="14" y="3" width="7" height="7"></rect>
-                                    <rect x="14" y="14" width="7" height="7"></rect>
-                                    <rect x="3" y="14" width="7" height="7"></rect>
-                                </svg>
+                            {/* Active Page Tabs */}
+                            <button onClick={() => handleTabClick('connections')} className={`${styles.tabButton} ${activeTab === 'connections' ? styles.tabButtonActive : ''}`}>
+                                Connections
                             </button>
-                    </div>
-                </div>
 
-                {activeTab === "connections" ? ( viewMode === "table" ? (
-                    /* Table View */
-                    <div className={styles.tableViewContainer}>
-                        <div className={styles.tableViewContainer}>
-                            <div className={styles.cardListWrapper}> 
-                              {sortedContacts.map((contact) => (
-                                <div key={contact.id} className={styles.connectionCard}>
-                                    {/* Left: Avatar with Glow Effect */}
-                                    <div className={styles.avatarContainer}> 
-                                        <div className={styles.avatarGlow}>{contact.avatar ? (
-                                        <img src={contact.avatar} alt={contact.name} className={styles.cardAvatarImage}/>
-                                        ) : (<span className={styles.avatarText}> {getInitials(contact.name)} </span> )}
-                                        </div>
-                                    </div>
-
-                                    {/* Middle: Name, Title, and Company */}
-                                    <div className={styles.cardInfo}>
-                                        <button onClick={() => setPreviewContact(contact)} className={styles.contactNameLink}>
-                                            {contact.name}
-                                        </button>
-                                        <p className={styles.contactTitle}> {contact.title || "Full Stack Developer"} </p>
-                                        <p className={styles.contactCompany}> {contact.company || "Boostnow solutions"} </p>
-                                    </div>
-
-                                    {/* Right: Actions (More and Message) */}
-                                    <div className={styles.cardActions}>
-                                        <div className={styles.relativeContainer}>
-                                            <button onClick={() => setOpenDropdown(openDropdown === contact.id ? null : contact.id)}
-                                            className={styles.moreButton} >
-                                            <MoreHorizontal size={20} />
-                                            </button>
-                                            
-                                            {openDropdown === contact.id && (
-                                            <div className={styles.dropdownMenu}>
-                                                <button onClick={() => handleDeleteConnection(contact.id)} className={styles.dropdownItemDelete} >
-                                                Delete Connection
-                                                </button>
-                                            </div>)}
-                                        </div>
-
-                                        <button onClick={() => handleDirectMessage(contact)} className={styles.messageIconButton} 
-                                            aria-label="Message">
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
-                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>))}
-                            </div>
+                            <button onClick={() => handleTabClick('requests')} className={`${styles.tabButton} ${activeTab === 'requests' ? styles.tabButtonActive : ''}`} >
+                                Requests
+                                {hasUnreadRequests && <span className={styles.notificationDot}></span>}
+                            </button>
                         </div>
                     </div>
+
+                    {/* View Toggle Row - Positioned Below Tabs */}
+                    {activeTab === "connections" && (
+                        <div className={styles.viewToggleRow}>
+                            <div className={styles.viewTogglePill}>
+                                <button
+                                    onClick={() => setViewMode("table")}
+                                    className={`${styles.viewIconBtn} ${viewMode === "table" ? styles.viewIconActive : ""
+                                        }`}
+                                >
+                                    {/* table icon */}
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <line x1="8" y1="6" x2="21" y2="6" />
+                                        <line x1="8" y1="12" x2="21" y2="12" />
+                                        <line x1="8" y1="18" x2="21" y2="18" />
+                                        <line x1="3" y1="6" x2="3.01" y2="6" />
+                                        <line x1="3" y1="12" x2="3.01" y2="12" />
+                                        <line x1="3" y1="18" x2="3.01" y2="18" />
+                                    </svg>
+                                </button>
+
+                                <button
+                                    onClick={() => setViewMode("cards")}
+                                    className={`${styles.viewIconBtn} ${viewMode === "cards" ? styles.viewIconActive : ""
+                                        }`}
+                                >
+                                    {/* grid icon */}
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <rect x="3" y="3" width="7" height="7" />
+                                        <rect x="14" y="3" width="7" height="7" />
+                                        <rect x="14" y="14" width="7" height="7" />
+                                        <rect x="3" y="14" width="7" height="7" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+
+                    {activeTab === "connections" ? (viewMode === "table" ? (
+                        /* Table View */
+                        <div className={styles.tableViewContainer}>
+                            <div className={styles.tableViewContainer}>
+                                <div className={styles.cardListWrapper}>
+                                    {sortedContacts.map((contact) => (
+                                        <div key={contact.id} className={styles.connectionCard}>
+                                            {/* Left: Avatar with Glow Effect */}
+                                            <div className={styles.avatarContainer}>
+                                                <div className={styles.avatarGlow}>{contact.avatar ? (
+                                                    <img src={contact.avatar} alt={contact.name} className={styles.cardAvatarImage} />
+                                                ) : (<span className={styles.avatarText}> {getInitials(contact.name)} </span>)}
+                                                </div>
+                                            </div>
+
+                                            {/* Middle: Name, Title, and Company */}
+                                            <div className={styles.cardInfo}>
+                                                <button onClick={() => setPreviewContact(contact)} className={styles.contactNameLink}>
+                                                    {contact.name}
+                                                </button>
+                                                <p className={styles.contactTitle}> {contact.title || "Full Stack Developer"} </p>
+                                                <p className={styles.contactCompany}> {contact.company || "Boostnow solutions"} </p>
+                                            </div>
+
+                                            {/* Right: Actions (More and Message) */}
+                                            <div className={styles.cardActions}>
+                                                <div className={styles.relativeContainer}>
+                                                    <button onClick={() => setOpenDropdown(openDropdown === contact.id ? null : contact.id)}
+                                                        className={styles.moreButton} >
+                                                        <MoreHorizontal size={20} />
+                                                    </button>
+
+                                                    {openDropdown === contact.id && (
+                                                        <div className={styles.dropdownMenu}>
+                                                            <button onClick={() => handleDeleteConnection(contact.id)} className={styles.dropdownItemDelete} >
+                                                                Delete Connection
+                                                            </button>
+                                                        </div>)}
+                                                </div>
+
+                                                <button onClick={() => handleDirectMessage(contact)} className={styles.messageIconButton}
+                                                    aria-label="Message">
+                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>))}
+                                </div>
+                            </div>
+                        </div>
                     ) : (
-                        
+
                         /* Cards View */
-                    <div className={styles.cardsViewContainer}>
-                        <div className={styles.cardsWrapper}>
-                            <div className={styles.cardsGrid}>
-                                {sortedContacts.map((contact, index) => (
-                                <div key={contact.id} className={styles.modernCard}>
-                                    {/* 1. Top Banner - Color rotates based on index */}
-                                    <div className={`${styles.cardBanner} ${styles[`bannerColor${(index % 4) + 1}`]}`}>
-                                        {/* Avatar with Glow - Positioned to overlap the banner and body */}
-                                        <div className={styles.avatarGlowContainer}>
-                                        <div className={styles.avatarGlow}>
-                                            {contact.avatar ? (
-                                            <img src={contact.avatar} alt={contact.name} className={styles.cardAvatarImage} />
-                                            ) : (
-                                            <span className={styles.avatarText}>{getInitials(contact.name)}</span>
-                                            )}
-                                        </div>
-                                        </div>
-                                    </div>
+                        <div className={styles.cardsViewContainer}>
+                            <div className={styles.cardsWrapper}>
+                                <div className={styles.cardsGrid}>
+                                    {sortedContacts.map((contact, index) => (
+                                        <div key={contact.id} className={styles.modernCard}>
+                                            {/* 1. Top Banner - Color rotates based on index */}
+                                            <div className={`${styles.cardBanner} ${styles[`bannerColor${(index % 4) + 1}`]}`}>
+                                                {/* Avatar with Glow - Positioned to overlap the banner and body */}
+                                                <div className={styles.avatarGlowContainer}>
+                                                    <div className={styles.avatarGlow}>
+                                                        {contact.avatar ? (
+                                                            <img src={contact.avatar} alt={contact.name} className={styles.cardAvatarImage} />
+                                                        ) : (
+                                                            <span className={styles.avatarText}>{getInitials(contact.name)}</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                                    {/* 2. Professional Badge - Matches the green label in image_0bf90a.jpg */}
-                                    <div className={styles.badgeWrapper}> <span className={styles.professionalBadge}>Professional</span> </div>
+                                            {/* 2. Professional Badge - Matches the green label in image_0bf90a.jpg */}
+                                            <div className={styles.badgeWrapper}> <span className={styles.professionalBadge}>Professional</span> </div>
 
-                                    {/* 3. Action Icons - Phone, Email, Message */}
-                                    <div className={styles.quickActionsRow}>
-                                        <button className={styles.actionCircleBtn} title="Call" aria-label="Call"> <Phone size={16} /> </button>
-                                        <button className={styles.actionCircleBtn} title="Email" aria-label="Email" onClick={() => window.location.href = `mailto:${contact.email}`}>
-                                        <Mail size={16} />
-                                        </button>
-                                        <button  className={styles.actionCircleBtn} title="Message"  aria-label="Message" onClick={() => handleDirectMessage(contact)} >
-                                        <Send size={16} />
-                                        </button>
-                                    </div>
+                                            {/* 3. Action Icons - Phone, Email, Message */}
+                                            <div className={styles.quickActionsRow}>
+                                                <button className={styles.actionCircleBtn} title="Call" aria-label="Call"> <Phone size={16} /> </button>
+                                                <button className={styles.actionCircleBtn} title="Email" aria-label="Email" onClick={() => window.location.href = `mailto:${contact.email}`}>
+                                                    <Mail size={16} />
+                                                </button>
+                                                <button className={styles.actionCircleBtn} title="Message" aria-label="Message" onClick={() => handleDirectMessage(contact)} >
+                                                    <Send size={16} />
+                                                </button>
+                                            </div>
 
-                                    {/* 4. Card Info Box - Centered text as per image_1c46c2.png */}
-                                    <div className={styles.cardInfoBox}>
-                                        <h3 className={styles.contactNameLink}>{contact.name}</h3>
-                                        <p className={styles.contactTitle}>{contact.title}</p>
-                                        <p className={styles.contactCompany}>{contact.company}</p>
-                                        
-                                        {/* Optional Tags for context */}
-                                        {/* <div className={styles.tagRow}>
+                                            {/* 4. Card Info Box - Centered text as per image_1c46c2.png */}
+                                            <div className={styles.cardInfoBox}>
+                                                <h3 className={styles.contactNameLink}>{contact.name}</h3>
+                                                <p className={styles.contactTitle}>{contact.title}</p>
+                                                <p className={styles.contactCompany}>{contact.company}</p>
+
+                                                {/* Optional Tags for context */}
+                                                {/* <div className={styles.tagRow}>
                                         {contact.tags?.slice(0, 2).map((tag, i) => (
                                             <span key={i} className={`${styles.cardTag} ${getTagClass(tag)}`}>{tag}</span>
                                         ))}
                                         </div> */}
-                                    </div>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                                ))}
                             </div>
                         </div>
-                    </div>
-                )
-                ) : (
-            
-                /* Requests View */
-                <div className={styles.requestsViewContainer}>
-                      {/* Requests list */}
-                      {connectionRequests.length > 0 ? (
-                        <div className={`${styles.requestsList}  flex flex-col gap-1 sm:gap-4 lg:max-w-4xl lg:mx-auto`}>
-                            {connectionRequests.map((request) => (
-                                <div key={request.id} className={`${styles.requestCard} flex items-center justify-between  sm:p-4 lg:p-5  bg-white`}>
-                                 {/* Left user info */}
-                                <div className="flex items-center gap-3 sm:gap-4">
-                                <div className={styles.requestAvatar}> {request.avatar ? (
-                                    <img src={request.avatar} alt={request.name} className={styles.avatarImage} />
-                                ) : (<span className={styles.avatarText}>{getInitials(request.name)} </span>)}
-                                </div>
+                    )
+                    ) : (
 
-                                <div className="flex flex-col">
-                                    <h4 className={styles.requestName}>{request.name}</h4>
-                                    <p className={styles.requestDetails}> {request.title} at {request.company} </p>
+                        /* Requests View */
+                        <div className={styles.requestsViewContainer}>
+                            {/* Requests list */}
+                            {connectionRequests.length > 0 ? (
+                                <div className={`${styles.requestsList}  flex flex-col gap-1 sm:gap-4 lg:max-w-4xl lg:mx-auto`}>
+                                    {connectionRequests.map((request) => (
+                                        <div key={request.id} className={`${styles.requestCard} flex items-center justify-between  sm:p-4 lg:p-5  bg-white`}>
+                                            {/* Left user info */}
+                                            <div className="flex items-center gap-3 sm:gap-4">
+                                                <div className={styles.requestAvatar}> {request.avatar ? (
+                                                    <img src={request.avatar} alt={request.name} className={styles.avatarImage} />
+                                                ) : (<span className={styles.avatarText}>{getInitials(request.name)} </span>)}
+                                                </div>
+
+                                                <div className="flex flex-col">
+                                                    <h4 className={styles.requestName}>{request.name}</h4>
+                                                    <p className={styles.requestDetails}> {request.title} at {request.company} </p>
+                                                </div>
+                                            </div>
+                                            {/* Actions */}
+                                            <div className={`${styles.requestActions}flex gap-2 sm:gap-3`}>
+                                                {/* Accept */}
+                                                <button onClick={() => openApproveModal(request)} className={`${styles.requestApproveButton} flex items-center justify-center`}>
+                                                    {/* Mobile icon */}
+                                                    <span className="sm:hidden">  <Check size={18} /> </span>
+                                                    {/* Desktop text */}
+                                                    <span className="hidden sm:inline">Accept</span>
+                                                </button>
+                                                {/* Delete */}
+                                                <button onClick={() => handleRejectRequest(request.id)} className={`${styles.requestRejectButton} flex items-center justify-center`}>
+                                                    {/* Mobile icon */}
+                                                    <span className="sm:hidden"> <Trash2 size={18} /> </span>
+                                                    {/* Desktop text */}
+                                                    <span className="hidden sm:inline">Delete</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
+                            ) : (
+                                <p className={styles.noRequestsText}>  No pending connection requests </p>)}
+                        </div>
+                    )}
+                </div>
+
+                {/* Message Modal */}
+                {messageModal.isOpen && messageModal.contact && (
+                    <div className={styles.modalOverlay}>
+                        <div className={styles.modalContent}>
+                            <div className={styles.modalHeader}>
+                                <h3 className={styles.modalTitle}> New Message to {messageModal.contact.name} </h3>
+                                <button onClick={handleCloseMessageModal} className={styles.modalCloseButton}>
+                                    <X className={styles.modalCloseIcon} />
+                                </button>
                             </div>
-                            {/* Actions */}
-                            <div className={`${styles.requestActions}flex gap-2 sm:gap-3`}>
-                                {/* Accept */}
-                                <button onClick={() => openApproveModal(request)} className={`${styles.requestApproveButton} flex items-center justify-center`}>
-                                    {/* Mobile icon */}
-                                    <span className="sm:hidden">  <Check size={18} /> </span>
-                                    {/* Desktop text */}
-                                    <span className="hidden sm:inline">Accept</span>
-                                </button>                                       
-                                {/* Delete */}
-                                <button onClick={() => handleRejectRequest(request.id)} className={`${styles.requestRejectButton} flex items-center justify-center`}>                                             
-                                    {/* Mobile icon */}
-                                    <span className="sm:hidden"> <Trash2 size={18} /> </span>
-                                    {/* Desktop text */}
-                                    <span className="hidden sm:inline">Delete</span>
+                            <div className={styles.modalBody}>
+                                <textarea value={messageText} onChange={(e) => setMessageText(e.target.value)}
+                                    placeholder={`Type your message to ${messageModal.contact.name}...`} className={styles.modalTextarea} />
+                            </div>
+                            <div className={styles.modalFooter}>
+                                <button onClick={handleCloseMessageModal} className={styles.modalCancelButton}>
+                                    Cancel
+                                </button>
+
+                                <button onClick={handleSendMessage} disabled={!messageText.trim()} className={styles.modalSendButton}>
+                                    <Send className={styles.modalSendIcon} /> Send
                                 </button>
                             </div>
                         </div>
-                    ))}
                     </div>
-                    ) : (
-                    <p className={styles.noRequestsText}>  No pending connection requests </p>)}
-                </div>
                 )}
-            </div>
 
-            {/* Message Modal */}
-            {messageModal.isOpen && messageModal.contact && (
-            <div className={styles.modalOverlay}>
-                <div className={styles.modalContent}>
-                    <div className={styles.modalHeader}>
-                        <h3 className={styles.modalTitle}> New Message to {messageModal.contact.name} </h3>
-                        <button onClick={handleCloseMessageModal} className={styles.modalCloseButton}>
-                            <X className={styles.modalCloseIcon} />
-                        </button>
-                    </div>
-                    <div className={styles.modalBody}>
-                        <textarea value={messageText}  onChange={(e) => setMessageText(e.target.value)}
-                            placeholder={`Type your message to ${messageModal.contact.name}...`} className={styles.modalTextarea} />
-                    </div>
-                    <div className={styles.modalFooter}>
-                        <button onClick={handleCloseMessageModal} className={styles.modalCancelButton}>
-                            Cancel
-                        </button>
-
-                        <button onClick={handleSendMessage} disabled={!messageText.trim()} className={styles.modalSendButton}>
-                            <Send className={styles.modalSendIcon} /> Send
-                        </button>
-                    </div>
-                </div>
-            </div>
-            )}
-
-               {/* Approve Confirmation Modal */}
+                {/* Approve Confirmation Modal */}
                 {approveModal.isOpen && approveModal.request && (
                     <Modal isOpen={approveModal.isOpen} onClose={closeApproveModal} title={`Approve connection with ${approveModal.request.name}?`}
-                    showActions={false} >
+                        showActions={false} >
                         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                             <p className={styles.modalBody}>
                                 Approving will allow this person to connect with you and see
@@ -967,7 +973,7 @@ function DashboardContactPage() {
                                     Cancel
                                 </button>
                                 <button onClick={() => { const id = approveModal.request!.id; closeApproveModal(); handleApproveRequest(id); }}
-                                        className={styles.modalSendButton} style={{ flex: 1 }}>
+                                    className={styles.modalSendButton} style={{ flex: 1 }}>
                                     Approve
                                 </button>
                             </div>

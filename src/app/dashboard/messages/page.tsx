@@ -106,6 +106,18 @@ function MessagesPageContent() {
       (mql.removeEventListener ? mql.removeEventListener("change", onChange) : mql.removeListener(onChange));
     };
   }, []);
+  useEffect(() => {
+  if (isMobile) {
+    document.body.style.overflow = "hidden";
+  } else {
+    document.body.style.overflow = "";
+  }
+
+  return () => {
+    document.body.style.overflow = "";
+  };
+}, [isMobile]);
+
 
   useEffect(() => {
     fetchMessages();
@@ -554,30 +566,28 @@ function MessagesPageContent() {
     hoverBg: "#F1F5F9",
   };
   const styles = {
-    container: {
-      height: "100vh",
-      padding: "2px",
-      backgroundColor: "#ffffff",
-      BorderStyle: "1px solid #E2E8F0",
-      marginTop: "5px",
-      borderRadius: "30px",
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-      color: colors.textMain,
-    },
+  container: {
+  flex: 1,
+  display: "flex",
+  flexDirection: "column" as const,
+  overflow: "hidden",
+   minHeight: 0,
+  padding: "2px",
+  backgroundColor: "#ffffff",
+  borderRadius: "30px",
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+  color: colors.textMain,
+},
 
-    pageWrapper: {
-      display: "flex",
-      flexDirection: "column" as const,
-      minHeight: "100vh",
-      backgroundColor: "#f0f2f5",
-      padding: " 10px",
-      boxSizing: "border-box" as const,
-      gap: " 15px",
-      paddingBottom: "110px",
-      background: "linear-gradient(135deg, white 0%, #4A90E2 100%)",
-      borderRadius: " 16px",
-      position: "relative" as const,
-    },
+ pageWrapper: {
+  display: "flex",
+  flexDirection: "column" as const,
+  height: "100vh",
+  overflow: "hidden",
+  background: "linear-gradient(135deg, white 0%, #4A90E2 100%)",
+  padding: "10px",
+  gap: "15px",
+},
 
     container1: {
       backgroundColor: "transparent",
@@ -597,13 +607,15 @@ function MessagesPageContent() {
       border: isMobile ? "none" : `1px solid ${colors.border}`,
       position: "relative" as const,
     },
-    header: {
-      backdropFilter: "blur(8px)",
-      zIndex: 10,
-      display: "flex",
-      flexDirection: "column" as const,
-    },
-
+header: {
+  position: "sticky" as const,
+  top: 0,
+  zIndex: 20,
+  backgroundColor: "transparent",
+  backdropFilter: "blur(8px)",
+  display: "flex",
+  flexDirection: "column" as const,
+},
     tabsContainer: {
       display: "flex",
       alignItems: "center",
@@ -703,6 +715,7 @@ sortSelectMobile: {
     listContainer: {
       flex: 1,
       overflowY: "auto" as const,
+      overscrollBehavior: "contain",
       //backgroundColor: "#FAFAFA",
     },
     messageRow: (messageId: string, isRead: boolean) => ({
@@ -932,6 +945,7 @@ sortSelectMobile: {
 
 
         <div style={styles.container}>
+          <div style={{ flexShrink: 0 }}>
           {/* --- Message List --- */}
           <div style={{
             display: "flex",
@@ -940,6 +954,7 @@ sortSelectMobile: {
             marginTop: "4px",   // ⬅️ reduce space (was 12px)
             paddingLeft: "10px",
             flexWrap: "nowrap",
+            minHeight: 0,
           }}>
 
             {(["Messages", "Leads", "Connections", "Requests"] as const).map((tab) => (
@@ -974,13 +989,13 @@ sortSelectMobile: {
               </button>
             ))}
           </div>
-
-          <div style={styles.listContainer}>
+          </div>
+           <div style={styles.listContainer}className="no-scrollbar">
             {filteredMessages.length === 0 ? (
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", opacity: 0.5 }}>
                 <Search style={{ width: "40px", height: "40px", marginBottom: "16px", color: colors.textLight }} />
                 <p style={{ fontSize: "14px", color: colors.textSec }}>No messages found</p>
-              </div>
+              </div> 
             ) : (
               <div>
                 {filteredMessages.map(m => (
@@ -1115,6 +1130,7 @@ sortSelectMobile: {
               </div>
             )}
           </div>
+          
 
         </div>
 
@@ -1170,7 +1186,7 @@ sortSelectMobile: {
               </div>
 
               {/* Conversation */}
-              <div ref={conversationRef} style={styles.chatBody} onScroll={handleConversationScroll}>
+              <div ref={conversationRef} style={styles.chatBody} onScroll={handleConversationScroll}className="no-scrollbar">
                 {(() => {
                   const threadItems = (activeMessage.thread && activeMessage.thread.length > 0
                     ? activeMessage.thread
