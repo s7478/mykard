@@ -48,7 +48,8 @@ function MessagesPageContent() {
   const [replyText, setReplyText] = useState("");
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const conversationRef = useRef<HTMLDivElement | null>(null);
-  const composerInputRef = useRef<HTMLInputElement | null>(null);
+  //const composerInputRef = useRef<HTMLInputElement | null>(null);
+  const composerInputRef = useRef<HTMLTextAreaElement | null>(null);
 
   const [activeFilter, setActiveFilter] = useState<"Connections" | "Requests" | "Messages" | "Leads">("Connections");
   const [searchQuery, setSearchQuery] = useState("");
@@ -56,7 +57,23 @@ function MessagesPageContent() {
   const [chatUpdateTrigger, setChatUpdateTrigger] = useState(0);
   const [isNearBottom, setIsNearBottom] = useState(true);
   const [showReplyLabel, setShowReplyLabel] = useState(true);
+  const renderMessageText = (text: string) => {
+    const lines = text.split(/\n|\d+\.\s/).filter(Boolean);
 
+    if (lines.length > 1) {
+      return (
+        <ol style={{ paddingLeft: "18px", margin: 0 }}>
+          {lines.map((line, i) => (
+            <li key={i} style={{ marginBottom: "6px" }}>
+              {line.trim()}
+            </li>
+          ))}
+        </ol>
+      );
+    }
+
+    return <span>{text}</span>;
+  };
   const router = useRouter();
   const searchParams = useSearchParams();
   const chatFromUrl = searchParams.get("chat");
@@ -1227,7 +1244,7 @@ sortSelectMobile: {
 
                         <div style={{ display: "flex", width: "100%", justifyContent: isIncoming ? "flex-start" : "flex-end" }}>
                           <div style={{ display: "flex", flexDirection: "column", alignItems: isIncoming ? "flex-start" : "flex-end", width: "100%" }}>
-                            <div style={isIncoming ? styles.bubbleIn : styles.bubbleOut}>{item.text}</div>
+                            <div style={isIncoming ? styles.bubbleIn : styles.bubbleOut}> {renderMessageText(item.text)}</div>
                             <span style={{ fontSize: "10px", marginTop: "6px", color: "#94A3B8", fontWeight: 500 }}>
                               {isIncoming ? activeMessage.name.split(' ')[0] : 'You'} • {formatDate(item.date).split(',')[1].trim()}
                             </span>
@@ -1256,28 +1273,34 @@ sortSelectMobile: {
                         Type your reply
                       </span>
                     )}
-                    <input
-                      ref={composerInputRef}
-                      type="text"
-                      value={replyText}
-                      onChange={e => setReplyText(e.target.value)}
-                      onFocus={() => setShowReplyLabel(false)}
-                      onBlur={() => {
-                        if (!replyText.trim()) {
-                          setShowReplyLabel(true);
-                        }
-                      }}
-                      onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (replyText.trim()) sendReply(); } }}
-                      style={{
-                        flex: 1,
-                        backgroundColor: "transparent",
-                        border: "none",
-                        outline: "none",
-                        fontSize: "14px",
-                        color: colors.textMain,
-                        fontFamily: "inherit"
-                      }}
-                    />
+                    <textarea
+  ref={composerInputRef}
+  value={replyText}
+  onChange={(e) => setReplyText(e.target.value)}
+  rows={1}
+  onKeyDown={(e) => {
+    // Ctrl + Enter OR Cmd + Enter → Send
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      e.preventDefault();
+      if (replyText.trim()) sendReply();
+    }
+    // Normal Enter → new line (ALLOW)
+  }}
+  style={{
+    flex: 1,
+    backgroundColor: "transparent",
+    border: "none",
+    outline: "none",
+    fontSize: "14px",
+    color: colors.textMain,
+    fontFamily: "inherit",
+    resize: "none",
+    minHeight: "40px",
+    maxHeight: "120px",
+    lineHeight: "1.5",
+  }}
+/>
+
                     <button
                       onClick={sendReply}
                       disabled={!replyText.trim()}
