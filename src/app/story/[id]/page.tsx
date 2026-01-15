@@ -57,13 +57,20 @@ export default function SingleStoryPage() {
     );
   }
 
+  const formattedGroup = [
+    {
+      user: story.author,
+      stories: [story], // Wrap the single story in an array
+    },
+  ];
+
   return (
     <div className="bg-black h-screen w-full">
       <StoryViewer 
         isOpen={true} 
         onClose={() => router.push("/dashboard")} 
-        stories={[story]} // Pass as array of 1
-        user={story.author} 
+        userGroups={formattedGroup} 
+        initialUserIndex={0}
       />
     </div>
   );
