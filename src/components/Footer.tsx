@@ -133,7 +133,7 @@ export default function Footer() {
           textAlign: 'center' ,
         }} className="desktop-col-1">
           <div style={{ display: 'flex', justifyContent: 'center' }} className="desktop-justify-start">
-            <Image src="/assets/MyKard_Logo.png" alt="Logo" width={140} height={40} />
+            <Image src="/assets/mykard.png" alt="Logo" width={140} height={40} />
           </div>
           <p style={{ 
             marginTop: '1rem', 

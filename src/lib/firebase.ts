@@ -89,7 +89,6 @@ const initializeFirebase = async (): Promise<Auth | null> => {
     const config = await getFirebaseConfig();
     
     if (!config) {
-      console.error("❌ Firebase config not available");
       return null;
     }
 

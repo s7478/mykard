@@ -21,7 +21,7 @@ export default function Home() {
   useEffect(() => {
     if (isLoading) return
     if (isAuthenticated) {
-      router.replace("/dashboard")
+      router.replace("/dashboard/feed")
     }
   }, [isAuthenticated, isLoading, router])
 

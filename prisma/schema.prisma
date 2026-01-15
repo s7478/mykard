@@ -104,6 +104,8 @@ model Message {
   receiver   User          @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
   sender     User          @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
 
+  storyId    String?
+
   @@index([senderId])
   @@index([receiverId])
   @@index([createdAt])
@@ -258,6 +260,7 @@ enum MessageTag {
   SUPPORT
   PRICING
   FEEDBACK
+  STORY_REPLY
 }
 
 
@@ -326,7 +329,8 @@ model SavedPost {
 
 model Story {
   id        String   @id @default(cuid())
-  imageUrl  String   @db.VarChar(1000) // Image or Video URL
+  content   String?  @db.Text
+  imageUrl  String?   @db.VarChar(1000) // Image or Video URL
   videoUrl  String?  @db.VarChar(1000) // Optional separate field if needed
   authorId  String
   createdAt DateTime @default(now())
@@ -334,6 +338,8 @@ model Story {
 
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   views     StoryView[]
+
+  visibility String  @default("connections")
 
   @@index([authorId])
   @@index([expiresAt]) // Important for cleanup queries

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import styles from "./connections.module.css"; // Import CSS Module
 import { Check, Trash2 } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import DigitalCardPreview from "@/components/cards/DigitalCardPreview";
+import { useRouter, useSearchParams } from "next/navigation";
 
 // Remove the inline style injection logic
 /*
@@ -189,7 +190,7 @@ const connectionRequestsData: Contact[] = [
     },
 ];
 
-export default function DashboardContactPage() {
+function DashboardContactPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [sortBy, setSortBy] = useState("a-z");
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -215,6 +216,16 @@ export default function DashboardContactPage() {
     const [hasUnreadRequests, setHasUnreadRequests] = useState(false);
     const [isSmallScreen, setIsSmallScreen] = useState(false);
 
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        const view = searchParams.get('view');
+        if (view === 'requests') {
+            setActiveTab('requests');
+        }
+    }, [searchParams]);
+
     // Force scroll to top on mount to fix refresh scroll offset and ensure header stays fixed
     useEffect(() => { window.scrollTo(0, 0);}, []);
 
@@ -238,6 +249,8 @@ export default function DashboardContactPage() {
 
     const handleTabClick = (tab: "connections" | "requests") => {
         setActiveTab(tab);
+        // Optional: Update URL shallowly so refresh stays on tab
+        router.push(`/dashboard/connections${tab === 'requests' ? '?view=requests' : ''}`);
         if (tab === "requests") {
             setHasUnreadRequests(false);
         }
@@ -707,17 +720,23 @@ export default function DashboardContactPage() {
                         {/* Navigation Tabs */}
                         <div className={styles.tabsContainer}>
                             <div className={styles.tabs}>
-                                <button onClick={() => handleTabClick('connections')} className={`${styles.tabButton} ${activeTab === 'connections' ? styles.tabButtonActive : ''}`}>
-                                    Connections </button>
+                                {/* Messages Link */}
+                                <button onClick={() => router.push('/dashboard/messages')} className={styles.tabButton}>Messages</button>
+                                
+                                {/* Leads Link */}
+                                <button onClick={() => router.push('/dashboard/contacts')} className={styles.tabButton}>Leads</button>
 
-                        <button onClick={() => handleTabClick('requests')} className={`${styles.tabButton} ${activeTab === 'requests' ? styles.tabButtonActive : ''}`} >
-                            Requests
-                            {hasUnreadRequests && <span className={styles.notificationDot}></span>}
-                        </button>
-                        <button className={styles.tabButton}>Messages</button>
-                        <button className={styles.tabButton}>Leads</button>
-                    </div>
-                </div>
+                                {/* Active Page Tabs */}
+                                <button onClick={() => handleTabClick('connections')} className={`${styles.tabButton} ${activeTab === 'connections' ? styles.tabButtonActive : ''}`}>
+                                    Connections 
+                                </button>
+
+                                <button onClick={() => handleTabClick('requests')} className={`${styles.tabButton} ${activeTab === 'requests' ? styles.tabButtonActive : ''}`} >
+                                    Requests
+                                    {hasUnreadRequests && <span className={styles.notificationDot}></span>}
+                                </button>
+                            </div>
+                        </div>
 
                 {/* View Toggle Row - Positioned Below Tabs */}
                 <div className={styles.viewToggleRow}>
@@ -728,7 +747,7 @@ export default function DashboardContactPage() {
                                 <rect x="3" y="3" width="18" height="18" rx="2" />
                                 <path d="M3 9h18M9 3v18" />
                             </svg> */}
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <line x1="8" y1="6" x2="21" y2="6"></line>
                                 <line x1="8" y1="12" x2="21" y2="12"></line>
                                 <line x1="8" y1="18" x2="21" y2="18"></line>
@@ -743,7 +762,7 @@ export default function DashboardContactPage() {
                                     <rect x="3" y="3" width="18" height="18" rx="2" />
                                     <rect x="7" y="7" width="10" height="10" rx="1" />
                                 </svg> */}
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <rect x="3" y="3" width="7" height="7"></rect>
                                     <rect x="14" y="3" width="7" height="7"></rect>
                                     <rect x="14" y="14" width="7" height="7"></rect>
@@ -957,5 +976,13 @@ export default function DashboardContactPage() {
                 )}
             </div>
         </main>
+    );
+}
+
+export default function DashboardContactPageWrapper() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <DashboardContactPage />
+        </Suspense>
     );
 }

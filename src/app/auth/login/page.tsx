@@ -61,7 +61,7 @@
         if (data?.needsOnboarding) {
           window.location.href = '/onboarding'
         } else {
-          window.location.href = '/dashboard'
+          window.location.href = '/dashboard/feed'
         }
       } catch {
         setError('Login failed. Please try again.')

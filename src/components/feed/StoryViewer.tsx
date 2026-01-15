@@ -2,55 +2,88 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { X, Send, Share2, Loader2 } from "lucide-react";
+import { X, Send, Loader2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 interface StoryViewerProps {
   isOpen: boolean;
   onClose: () => void;
-  stories: any[];
-  user: any;
+  userGroups: any[]; // 🟢 Changed: Accepts the full list of users
+  initialUserIndex: number; // 🟢 Changed: Knows where to start in that list
 }
 
 export default function StoryViewer({
   isOpen,
   onClose,
-  stories,
-  user,
+  userGroups,
+  initialUserIndex,
 }: StoryViewerProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // Navigation State
+  const [currentUserIdx, setCurrentUserIdx] = useState(initialUserIndex);
+  const [currentStoryIdx, setCurrentStoryIdx] = useState(0);
   const [progress, setProgress] = useState(0);
 
   const [replyText, setReplyText] = useState("");
   const [sendingReply, setSendingReply] = useState(false);
 
+  // Derived Data (The current user and their stories)
+  const currentUserGroup = userGroups[currentUserIdx];
+  const user = currentUserGroup?.user;
+  const stories = currentUserGroup?.stories || [];
+  const activeStory = stories[currentStoryIdx];
+
   // 1. RESET LOGIC
   useEffect(() => {
     if (isOpen) {
-      setCurrentIndex(0);
+      setCurrentUserIdx(initialUserIndex);
+      setCurrentStoryIdx(0);
       setProgress(0);
       setReplyText("");
     }
-  }, [isOpen, user]);
+  }, [isOpen, initialUserIndex]);
 
-  // 2. NEXT STORY LOGIC
+  // 2. 🟢 NEXT LOGIC (Navigate Story -> Then Navigate User)
   const handleNext = useCallback(() => {
-    if (currentIndex < stories.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
+    // A. Go to next story of CURRENT user
+    if (currentStoryIdx < stories.length - 1) {
+      setCurrentStoryIdx((prev) => prev + 1);
       setProgress(0);
       setReplyText("");
-    } else {
+    } 
+    // B. If finished, go to NEXT USER (Automatic Navigation)
+    else if (currentUserIdx < userGroups.length - 1) {
+      setCurrentUserIdx((prev) => prev + 1);
+      setCurrentStoryIdx(0); // Start from their first story
+      setProgress(0);
+      setReplyText("");
+    } 
+    // C. No more users, close viewer
+    else {
       onClose();
     }
-  }, [currentIndex, stories.length, onClose]);
+  }, [currentStoryIdx, stories.length, currentUserIdx, userGroups.length, onClose]);
 
-  // 3. PREV STORY LOGIC
+  // 3. 🟢 PREV LOGIC (Navigate Story <- Then Navigate User)
   const handlePrev = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (currentIndex > 0) {
-      setCurrentIndex((prev) => prev - 1);
+    // A. Prev story of CURRENT user
+    if (currentStoryIdx > 0) {
+      setCurrentStoryIdx((prev) => prev - 1);
       setProgress(0);
       setReplyText("");
+    } 
+    // B. Go to PREV USER (Start at their LAST story)
+    else if (currentUserIdx > 0) {
+      const prevUserIdx = currentUserIdx - 1;
+      const prevStories = userGroups[prevUserIdx].stories;
+      setCurrentUserIdx(prevUserIdx);
+      setCurrentStoryIdx(prevStories.length - 1); // Jump to last story
+      setProgress(0);
+      setReplyText("");
+    }
+    // C. Start of everything
+    else {
+      setProgress(0);
     }
   };
 
@@ -64,40 +97,40 @@ export default function StoryViewer({
 
   // 5. TIMER LOGIC
   useEffect(() => {
-    if (!isOpen || !stories.length) return;
+    if (!isOpen || !stories.length || !activeStory) return;
     if (replyText.length > 0) return;
 
-    setProgress(0);
+    // Don't reset progress if it's already moving (prevents jitter on re-renders)
+    // setProgress(0); // Removed this to prevent loop resets
 
-    const activeStory = stories[currentIndex];
-    if (!activeStory) return;
-
-    fetch("/api/stories/view", {
+    // Mark as viewed
+    fetch("/api/stories/view", { // Ensure route matches your folder name 
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ storyId: activeStory.id }),
     }).catch(console.error);
 
     const hasMedia = !!activeStory.imageUrl;
-    const isVideo = activeStory.imageUrl?.match(/\.(mp4|webm|ogg)$/i);
+    const isVideo = activeStory.imageUrl?.match(/\.(mp4|webm|ogg)(\?|$)/i) || activeStory.videoUrl;
 
     if (isVideo) return;
+
+    const durationStep = hasMedia ? 2 : 1.5; 
 
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) return 100;
-        return prev + (hasMedia ? 2 : 3.5);
+        return prev + durationStep;
       });
     }, 100);
 
     return () => clearInterval(interval);
-  }, [currentIndex, isOpen, stories, replyText]);
+  }, [currentStoryIdx, currentUserIdx, isOpen, replyText]); // Updated dependencies
 
   const handleSendReply = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!replyText.trim()) return;
 
-    const activeStory = stories[currentIndex];
     setSendingReply(true);
 
     try {
@@ -130,34 +163,14 @@ export default function StoryViewer({
     }
   };
 
-  const handleShare = async () => {
-    const activeStory = stories[currentIndex];
-    const shareUrl = `${window.location.origin}/story/${activeStory.id}`;
+  if (!isOpen || !activeStory) return null;
 
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `${user.fullName}'s Story`,
-          text: "Check out this story on MyKard",
-          url: shareUrl,
-        });
-      } catch (err) {
-        console.log("Share cancelled");
-      }
-    } else {
-      navigator.clipboard.writeText(shareUrl);
-      toast.success("Link copied to clipboard!");
-    }
-  };
-
-  if (!isOpen || !stories.length) return null;
-  const activeStory = stories[currentIndex];
-  if (!activeStory) return null;
-
-  const isVideo = activeStory.imageUrl?.match(/\.(mp4|webm|ogg)$/i);
+  const isVideo = activeStory.imageUrl?.match(/\.(mp4|webm|ogg)(\?|$)/i) || activeStory.videoUrl;
+  const hasMedia = !!activeStory.imageUrl || !!activeStory.videoUrl;
+  const hasText = !!activeStory.content;
 
   return (
-    <div className="fixed inset-0 z-100 bg-black/95 backdrop-blur-sm flex items-center justify-center">
+    <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm flex items-center justify-center">
       {/* Close Button */}
       <button
         onClick={onClose}
@@ -168,6 +181,7 @@ export default function StoryViewer({
 
       {/* MAIN CONTAINER */}
       <div className="relative w-full h-full md:w-[400px] md:h-[85vh] md:max-h-[850px] overflow-hidden bg-black shadow-2xl border border-white/10 flex flex-col">
+        
         {/* Progress Bars */}
         <div className="absolute top-3 left-0 right-0 z-20 flex gap-1 px-2 pointer-events-none">
           {stories.map((_, idx) => (
@@ -179,9 +193,9 @@ export default function StoryViewer({
                 className={`h-full bg-white transition-all duration-100 ease-linear shadow-[0_0_8px_rgba(255,255,255,0.8)]`}
                 style={{
                   width:
-                    idx === currentIndex
+                    idx === currentStoryIdx
                       ? `${progress}%`
-                      : idx < currentIndex
+                      : idx < currentStoryIdx
                       ? "100%"
                       : "0%",
                 }}
@@ -212,35 +226,62 @@ export default function StoryViewer({
         </div>
 
         {/* Content Area */}
-        <div className="story-media-wrapper">
-          {!activeStory.imageUrl ? (
-            <div className="text-white text-center p-6">
-              {activeStory.content || "Content unavailable"}
-            </div>
-          ) : isVideo ? (
-            <video
-              src={activeStory.imageUrl}
-              autoPlay
-              playsInline
-              muted={false}
-              onEnded={handleNext}
-              onTimeUpdate={(e) => {
-                if (replyText.length > 0) return;
-                const duration = e.currentTarget.duration;
-                const currentTime = e.currentTarget.currentTime;
-                if (duration > 0) {
-                  setProgress((currentTime / duration) * 100);
-                }
-              }}
-              className="story-media"
-            />
+        <div className="relative flex-1 bg-zinc-900 flex flex-col items-center justify-center overflow-hidden">
+          
+          {hasMedia ? (
+            <>
+              {isVideo ? (
+                <video
+                  src={activeStory.imageUrl || activeStory.videoUrl}
+                  autoPlay
+                  playsInline
+                  muted={false} 
+                  onEnded={handleNext}
+                  onTimeUpdate={(e) => {
+                    if (replyText.length > 0) return;
+                    const duration = e.currentTarget.duration;
+                    const currentTime = e.currentTarget.currentTime;
+                    if (duration > 0) {
+                      setProgress((currentTime / duration) * 100);
+                    }
+                  }}
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <img
+                  src={activeStory.imageUrl}
+                  alt="Story"
+                  className="w-full h-full object-contain"
+                />
+              )}
+              
+              {hasText && (
+                <div className="absolute bottom-32 left-4 right-4 z-10 text-center">
+                   <p className="text-white text-lg font-medium drop-shadow-md bg-black/30 p-2 rounded-lg inline-block">
+                     {activeStory.content}
+                   </p>
+                </div>
+              )}
+            </>
           ) : (
-            <img
-              src={activeStory.imageUrl}
-              alt="Story"
-              className="story-media"
-            />
+            <div className="w-full h-full flex items-center justify-center p-8 bg-gradient-to-br from-blue-900 to-slate-900 text-center">
+               <p className=" text-2xl font-bold font-serif leading-relaxed drop-shadow-xl" style={{ color: "#ffffff" }}>
+                 {activeStory.content || "..."}
+               </p>
+            </div>
           )}
+
+          {/* Navigation Click Zones */}
+          <div 
+            className="absolute inset-y-0 left-0 w-1/3 z-20 cursor-pointer" 
+            onClick={handlePrev} 
+          />
+          <div 
+            className="absolute inset-y-0 right-0 w-1/3 z-20 cursor-pointer" 
+            onClick={(e) => { e.stopPropagation(); handleNext(); }} 
+          />
+
+          <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none z-0" />
         </div>
 
         {/* FOOTER */}
@@ -248,17 +289,15 @@ export default function StoryViewer({
           className="absolute bottom-6 left-4 right-4 z-30 flex items-center gap-3"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Reply Form */}
           <form onSubmit={handleSendReply} className="flex-1 relative group">
             <input
               type="text"
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
               placeholder="Send a message..."
-              className="w-full h-10 bg-transparent border border-white/40 rounded-full pl-6 pr-14 text-white placeholder-white/70 focus:outline-none focus:border-white focus:bg-black/40 transition-all text-base backdrop-blur-sm shadow-lg"
+              style={{ paddingLeft: "24px" }}
+              className="w-full h-12 bg-transparent border border-white/40 rounded-full pr-14 text-white placeholder-white/70 focus:outline-none focus:border-white focus:bg-black/40 transition-all text-base backdrop-blur-sm shadow-lg"
             />
-
-            {/* Send Button inside Input */}
             <button
               type="submit"
               disabled={!replyText.trim() || sendingReply}
@@ -269,21 +308,12 @@ export default function StoryViewer({
               }`}
             >
               {sendingReply ? (
-                <Loader2 size={16} className="animate-spin" />
+                <Loader2 size={18} className="animate-spin" />
               ) : (
-                <Send size={16} />
+                <Send size={18} />
               )}
             </button>
           </form>
-
-          {/* Share Button */}
-          <button
-            onClick={handleShare}
-            className="h-10 w-10 flex items-center justify-center bg-transparent border border-white/40 rounded-full text-white hover:bg-white/10 hover:border-white transition backdrop-blur-sm shadow-lg"
-            title="Share Story"
-          >
-            <Share2 size={24} />
-          </button>
         </div>
       </div>
     </div>

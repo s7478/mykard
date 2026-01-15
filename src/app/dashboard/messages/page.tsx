@@ -10,7 +10,7 @@ import { px } from "framer-motion";
 
 // --- Types ---
 type MessageStatus = "New" | "Read" | "Replied" | "Pending" | "Archived" | "Deleted";
-type MessageTag = "Lead" | "Support" | "Pricing" | "Feedback" | null;
+type MessageTag = "Lead" | "Support" | "Pricing" | "Feedback" | "STORY_REPLY" | null;
 
 interface MessageItem {
   id: string;
@@ -300,12 +300,14 @@ function MessagesPageContent() {
               text: m.text || m.message || '',
               date: m.createdAt || m.date || new Date().toISOString(),
               direction: 'in' as const,
+              tag: m.tag,
             })),
             ...sentForParty.map((m: any) => ({
               id: m.id,
               text: m.text || m.message || '',
               date: m.createdAt || m.date || new Date().toISOString(),
               direction: 'out' as const,
+              tag: m.tag,
             })),
           ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
@@ -340,7 +342,7 @@ function MessagesPageContent() {
               status: conversationStatus,
               read: conversationRead,
               starred: false,
-              tag: null,
+              tag: latest.tag || null,
               senderId: partyId,
               thread: combined,
               replies,
@@ -379,10 +381,10 @@ function MessagesPageContent() {
       );
     }
     switch (activeFilter) {
-      case "Connections": filtered = filtered.filter(m => !m.read && m.status !== "Archived" && m.status !== "Deleted"); break;
-      case "Requests": filtered = filtered.filter(m => m.status === "Replied"); break;
-      case "Messages": filtered = filtered.filter(m => m.status === "Replied"); break;
-      case "Leads": filtered = filtered.filter(m => m.status === "Replied"); break;
+      case "Connections": filtered = filtered.filter(m => m.status !== "Archived" && m.status !== "Deleted"); break;
+      case "Requests": filtered = filtered.filter(m => m.status === "Pending" || m.status === "New"); break;
+      case "Messages": filtered = filtered.filter(m => m.status !== "Archived" && m.status !== "Deleted"); break;
+      case "Leads": filtered = filtered.filter(m => m.tag === "Lead"); break;
       default: filtered = filtered.filter(m => m.status !== "Archived" && m.status !== "Deleted");
     }
 
@@ -569,13 +571,12 @@ function MessagesPageContent() {
       minHeight: "100vh",
       backgroundColor: "#f0f2f5",
       padding: " 10px",
-      boxSizing: "border-box",
+      boxSizing: "border-box" as const,
       gap: " 15px",
       paddingBottom: "110px",
       background: "linear-gradient(135deg, white 0%, #4A90E2 100%)",
       borderRadius: " 16px",
-      //padding: "20px",
-      position: "relative",
+      position: "relative" as const,
     },
 
     container1: {
@@ -585,7 +586,6 @@ function MessagesPageContent() {
     },
 
     mainCard: {
-      //backgroundColor: colors.cardBg,
       maxWidth: "1200px",
       height: "auto",
       margin: isMobile ? "0" : "20px auto",
@@ -601,27 +601,9 @@ function MessagesPageContent() {
       backdropFilter: "blur(8px)",
       zIndex: 10,
       display: "flex",
-      flexDirection: "column",
+      flexDirection: "column" as const,
     },
 
-    searchContainer: {
-      position: "relative" as const,
-      maxWidth: "100%",
-      display: "flex"
-    },
-    searchInput: {
-      width: "329px",
-      padding: "12px 16px 10px 40px",
-      borderRadius: "15px",
-      border: `2px solid #4a90e2`,
-      backgroundColor: "#FFFFFF",
-      fontSize: "14px",
-      color: colors.textMain,
-      outline: "none",
-      transition: "all 0.2s ease",
-      maxWidth: isMobile ? "100%" : "329px"
-
-    },
     tabsContainer: {
       display: "flex",
       alignItems: "center",
@@ -630,6 +612,7 @@ function MessagesPageContent() {
       marginTop: "12px",
       width: "100%",
     },
+
     tabsList: {
       // display: "flex",
       gap: "15px",
@@ -669,38 +652,54 @@ function MessagesPageContent() {
       whiteSpace: "nowrap" as const,
       transition: "all 0.15s",
     }),
-    sortSelect: {
-      padding: "4px 8px",
-      fontSize: "11px",
-      fontWeight: 600,
-      color: colors.textSec,
-      border: `1px solid ${colors.border}`,
-      backgroundColor: "#FFFFFF",
-      cursor: "pointer",
-      outline: "none",
-      flexShrink: 0,
-      marginLeft: "8px",
-      borderRadius: "10px",
-      height: "32px",
-    },
-    sortSelectMobile: {
-      //padding: "2px 8px",
-      fontSize: "14px",
-      //lineHeight: 1.1,
-      height: "45px",
-      fontWeight: 500,
-      color: colors.textSec,
-      border: `1px solid #4A90E2}`,
-      //backgroundColor: "#FFFFFF",
-      borderRadius: "5px",
-      outline: "none",
-      //width: "auto",
-      //maxWidth: "100px",
-      //WebkitAppearance: "none" as const,
-      //appearance: "none" as const,
-      AlignCenter: "center",
-      //marginLeft: "6px"
-    },
+
+  searchContainer: {
+  position: "relative" as const,
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+  width: "100%",
+},
+
+searchInput: {
+  flex: 1,                 
+  height: "44px",
+  padding: "0 16px 0 30px",
+  borderRadius: "16px",
+  border: "2px solid #8ab4f8",
+  backgroundColor: "#FFFFFF",
+  fontSize: "14px",
+  outline: "none",
+  minWidth: 0,             
+},
+
+
+sortSelect: {
+  height: "44px",
+  padding: "0 14px",
+  fontSize: "14px",
+  fontWeight: 500,
+  color: colors.textSec,
+  border: "2px solid #8ab4f8",
+  backgroundColor: "#FFFFFF",
+  borderRadius: "12px",
+  cursor: "pointer",
+  whiteSpace: "nowrap" as const,
+},
+
+sortSelectMobile: {
+  height: "44px",
+  padding: "0 12px",
+  fontSize: "14px",
+  fontWeight: 500,
+  color: colors.textSec,
+  border: "2px solid #8ab4f8",
+  backgroundColor: "#FFFFFF",
+  borderRadius: "12px",
+  cursor: "pointer",
+  width: "90px",
+},
+
     listContainer: {
       flex: 1,
       overflowY: "auto" as const,
@@ -878,60 +877,59 @@ function MessagesPageContent() {
   return (
     <>
       <div style={styles.pageWrapper}>
+
         <div style={styles.header}>
+          <div style={styles.searchContainer}>
+            {/* Search Icon */}
+            <Search style={{
+                position: "absolute",
+                left: "14px", top: "50%",
+                transform: "translateY(-50%)",
+                color: colors.textLight,
+                width: "18px",
+                height: "18px",
+                pointerEvents: "none",
+              }}
+            />
 
-        </div>
-        <div style={styles.container1}>
-          <style>{globalStyles}</style>
+            {/* Search Input */}
+            <input type="text"
+              placeholder="Search Connections..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={styles.searchInput}
+            />
 
-          <div style={styles.mainCard}>
-            {/* --- Header --- */}
-            <div style={styles.header}>
-              <div style={styles.searchContainer}>
-                <Search style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: colors.textLight, width: "18px", height: "18px" }} />
-                <input
-                  type="text"
-                  placeholder="Search messages..."
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  style={styles.searchInput}
-                />
-                {!isMobile && (
-                  <select
-                    value={sortOrder}
-                    onChange={e => setSortOrder(e.target.value as any)}
-                    style={styles.sortSelect}
-                  >
-                    <option value="newest">Filter</option>
-                    <option value="oldest">Sort by A-Z</option>
-                    <option value="oldest">Sort by Z-A</option>
-                    <option value="newest">Recent</option>
-                    <option value="oldest">Oldest</option>
+            {/* Desktop Filter */}
+            {!isMobile && (
+              <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value as any)} 
+              style={styles.sortSelect} >
+                <option value="newest">Filter</option>
+                <option value="az">Sort by A–Z</option>
+                <option value="za">Sort by Z–A</option>
+                <option value="recent">Recent</option>
+                <option value="oldest">Oldest</option>
+              </select>
+            )}
 
-                 </select>
-                )}
-                {isMobile && (
-                  <div style={styles.filter}>
-
-                    <select
-                      value={sortOrder}   //put the name as filter
-                      onChange={e => setSortOrder(e.target.value as any)}
-                      style={styles.sortSelectMobile}
-                    >
-                      <option value="newest">Filter</option>
-                      <option value="oldest">Sort by A-Z</option>
-                      <option value="oldest">Sort by Z-A</option>
-                      <option value="newest">Recent</option>
-                      <option value="oldest">Oldest</option>
-                      {/* <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option> */}
-                    </select>
-                  </div>
-                )}
-              </div>
-            </div>
+            {/* Mobile Filter */}
+            {isMobile && (
+              <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value as any)}
+                style={styles.sortSelectMobile}
+              >
+                <option value="newest">Filter</option>
+                <option value="az">A–Z</option>
+                <option value="za">Z–A</option>
+                <option value="recent">Recent</option>
+                <option value="oldest">Oldest</option>
+              </select>
+            )}
           </div>
         </div>
+
+
+
+
 
         <div style={styles.container}>
           {/* --- Message List --- */}
@@ -944,10 +942,22 @@ function MessagesPageContent() {
             flexWrap: "nowrap",
           }}>
 
-            {(["Connections", "Requests", "Messages", "Leads"] as const).map((tab) => (
+            {(["Messages", "Leads", "Connections", "Requests"] as const).map((tab) => (
               <button
                 key={tab}
-                onClick={() => setActiveFilter(tab)}
+                onClick={() => {
+                  // 3. Navigation Logic
+                  if (tab === "Messages") {
+                    setActiveFilter("Messages");
+                  } else if (tab === "Leads") {
+                    router.push("/dashboard/contacts");
+                  } else if (tab === "Connections") {
+                    router.push("/dashboard/connections");
+                  } else if (tab === "Requests") {
+                    // Pass a query param to open the requests tab directly
+                    router.push("/dashboard/connections?view=requests");
+                  }
+                }}
                 style={{
                   padding: "6px 4px",
                   fontSize: "12px",
@@ -955,8 +965,8 @@ function MessagesPageContent() {
                   border: "none",
                   background: "transparent",
                   cursor: "pointer",
-                  color: activeFilter === tab ? "#2563EB" : "#64748B",
-                  borderBottom: activeFilter === tab ? "3px solid #2563EB" : "3px solid transparent",
+                  color: tab === "Messages" ? "#2563EB" : "#64748B",
+                  borderBottom: tab === "Messages" ? "3px solid #2563EB" : "3px solid transparent",
                   transition: "all 0.2s ease",
                 }}
               >
@@ -1044,6 +1054,18 @@ function MessagesPageContent() {
                         {[m.title, m.company].filter(Boolean).join(" • ")}
                       </p>
                     )} */}
+
+                    {m.tag === "STORY_REPLY" && (
+                      <p style={{ 
+                        fontSize: "11px", 
+                        color: "#2563EB", 
+                        fontWeight: 600, 
+                        marginBottom: "2px",
+                        marginTop: "0px" 
+                      }}>
+                        Replied to your story
+                      </p>
+                    )}
 
                       <p
                         className="message-text-left"

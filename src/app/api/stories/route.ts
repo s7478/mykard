@@ -13,8 +13,6 @@ export async function GET(req: NextRequest) {
     const userId = decoded.userId;
 
     // 1. Get IDs of connections
-    // FIX: Changed 'requesterId' to 'senderId' to match your schema
-    // FIX: Changed status "accepted" to "ACCEPTED" to match Prisma Enum
     const connections = await prisma.connection.findMany({
       where: {
         OR: [{ senderId: userId }, { receiverId: userId }],
@@ -33,19 +31,22 @@ export async function GET(req: NextRequest) {
     // 2. Fetch Active Stories (expiresAt > now)
     const activeStories = await prisma.story.findMany({
       where: {
-        authorId: { in: friendIds },
-        expiresAt: { gt: new Date() }, // 24hr logic works here
+        expiresAt: { gt: new Date() }, // 1. Must be active
+        OR: [
+          { authorId: { in: friendIds } }, // 2a. Author is my friend or me
+          { visibility: "public" },        // 2b. Story is Public (Visible to everyone)
+        ],
       },
       include: {
         author: {
-          select: { id: true, fullName: true, profileImage: true },
+          select: { id: true, fullName: true, profileImage: true, username: true },
         },
         views: {
-          where: { viewerId: userId }, // Check if viewed by current user
+          where: { viewerId: userId },
           select: { id: true },
         },
       },
-      orderBy: { createdAt: "asc" },
+      orderBy: { createdAt: "desc" }, // Newest first
     });
 
     // 3. Group stories by User
@@ -76,6 +77,47 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ success: true, stories: storyFeed });
   } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+
+export async function POST(req: NextRequest) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("user_token")?.value;
+    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const decoded = verify(token, process.env.JWT_SECRET!) as { userId: string };
+    const userId = decoded.userId;
+
+    const body = await req.json();
+    
+    // 🟢 EXTRACT CONTENT ALONG WITH MEDIA
+    const { imageUrl, videoUrl, content, visibility } = body;
+
+    // Validate: Must have at least one (Media OR Text)
+    if (!imageUrl && !videoUrl && !content) {
+       return NextResponse.json({ error: "Story must have content or media" }, { status: 400 });
+    }
+
+    const story = await prisma.story.create({
+      data: {
+        authorId: userId,
+        imageUrl: imageUrl || null,
+        videoUrl: videoUrl || null,
+        
+        // 🟢 CRITICAL: Save the text content to the DB
+        content: content || null,  
+        visibility: visibility || "connections", 
+        
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+      },
+    });
+
+    return NextResponse.json({ success: true, story });
+  } catch (error: any) {
+    console.error("Story create error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
