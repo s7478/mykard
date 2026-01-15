@@ -356,7 +356,7 @@ const OnboardingContent = () => {
     }
   };
 
-  const handlePopupClose = () => { setShowPartyPopup(false); router.push("/dashboard"); };
+  const handlePopupClose = () => { setShowPartyPopup(false); router.push("/dashboard/feed"); };
 
   const labelStyle: React.CSSProperties = { fontFamily: 'Plus Jakarta Sans', fontWeight: '700', fontSize: isLargeScreen ? "28px" : "36px", lineHeight: isLargeScreen ? "1.2" : "45px", textAlign: "left", color: theme.colors.primaryBlue, marginBottom: "30px", marginTop: "0px" };
   const inputStyle: React.CSSProperties = { width: "100%", border: "none", padding: "12px 0", fontFamily: 'Plus Jakarta Sans', fontWeight: '700', fontSize: "18px", lineHeight: "23px", color: theme.colors.inputText, background: "transparent", outline: "none", textAlign: 'left' };
