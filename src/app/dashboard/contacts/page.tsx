@@ -203,6 +203,7 @@ export default function ContactsPage() {
     `
   }}
 >
+  <div className={styles.fixedHeader}>
       {/* Search Bar (Mobile) */}
 <div className={styles.searchSection}>
   <div className={styles.searchRow}>
@@ -272,20 +273,31 @@ export default function ContactsPage() {
       {/* Tabs + Results Container (FIGMA STYLE) */}
 <div className={styles.tabsContainer}>
 
-  {/* Tabs */}
-  <div className={styles.tabs}>
-          <button onClick={() => router.push('/dashboard/messages')} className={styles.tab}>Messages</button>
-          
-          {/* Current Page */}
-          <button className={`${styles.tab} ${styles.activeTab}`}>Leads</button>
-          
-          <button onClick={() => router.push('/dashboard/connections')} className={styles.tab}>Connections</button>
-          <button onClick={() => router.push('/dashboard/connections?view=requests')} className={styles.tab}>Requests</button>
-        </div>
-  
+  <div className={styles.whitePanel}>
 
-      {/* Results */}
+    {/* Tabs */}
+    <div className={styles.tabs}>
+      <button onClick={() => router.push('/dashboard/messages')} className={styles.tab}>
+        Messages
+      </button>
+
+      <button className={`${styles.tab} ${styles.activeTab}`}>
+        Leads
+      </button>
+
+      <button onClick={() => router.push('/dashboard/connections')} className={styles.tab}>
+        Connections
+      </button>
+
+      <button onClick={() => router.push('/dashboard/connections?view=requests')} className={styles.tab}>
+        Requests
+      </button>
+    </div>
+
+    {/* Cards (Scrollable) */}
+    <div className={styles.scrollArea}>
       <div className={styles.resultsSection}>
+
         {loading ? (
           <div className={styles.loadingContainer}>
             <div className={styles.spinner}></div>
@@ -408,6 +420,9 @@ export default function ContactsPage() {
         )}
       </div>
       </div>
+    </div>
+    </div>
+    </div>
     </div>
   );
 }
