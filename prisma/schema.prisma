@@ -339,6 +339,8 @@ model Story {
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   views     StoryView[]
 
+  visibility String  @default("connections")
+
   @@index([authorId])
   @@index([expiresAt]) // Important for cleanup queries
 }

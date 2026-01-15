@@ -8,49 +8,82 @@ import { toast } from "react-hot-toast";
 interface StoryViewerProps {
   isOpen: boolean;
   onClose: () => void;
-  stories: any[];
-  user: any;
+  userGroups: any[]; // 🟢 Changed: Accepts the full list of users
+  initialUserIndex: number; // 🟢 Changed: Knows where to start in that list
 }
 
 export default function StoryViewer({
   isOpen,
   onClose,
-  stories,
-  user,
+  userGroups,
+  initialUserIndex,
 }: StoryViewerProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // Navigation State
+  const [currentUserIdx, setCurrentUserIdx] = useState(initialUserIndex);
+  const [currentStoryIdx, setCurrentStoryIdx] = useState(0);
   const [progress, setProgress] = useState(0);
 
   const [replyText, setReplyText] = useState("");
   const [sendingReply, setSendingReply] = useState(false);
 
+  // Derived Data (The current user and their stories)
+  const currentUserGroup = userGroups[currentUserIdx];
+  const user = currentUserGroup?.user;
+  const stories = currentUserGroup?.stories || [];
+  const activeStory = stories[currentStoryIdx];
+
   // 1. RESET LOGIC
   useEffect(() => {
     if (isOpen) {
-      setCurrentIndex(0);
+      setCurrentUserIdx(initialUserIndex);
+      setCurrentStoryIdx(0);
       setProgress(0);
       setReplyText("");
     }
-  }, [isOpen, user]);
+  }, [isOpen, initialUserIndex]);
 
-  // 2. NEXT STORY LOGIC
+  // 2. 🟢 NEXT LOGIC (Navigate Story -> Then Navigate User)
   const handleNext = useCallback(() => {
-    if (currentIndex < stories.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
+    // A. Go to next story of CURRENT user
+    if (currentStoryIdx < stories.length - 1) {
+      setCurrentStoryIdx((prev) => prev + 1);
       setProgress(0);
       setReplyText("");
-    } else {
+    } 
+    // B. If finished, go to NEXT USER (Automatic Navigation)
+    else if (currentUserIdx < userGroups.length - 1) {
+      setCurrentUserIdx((prev) => prev + 1);
+      setCurrentStoryIdx(0); // Start from their first story
+      setProgress(0);
+      setReplyText("");
+    } 
+    // C. No more users, close viewer
+    else {
       onClose();
     }
-  }, [currentIndex, stories.length, onClose]);
+  }, [currentStoryIdx, stories.length, currentUserIdx, userGroups.length, onClose]);
 
-  // 3. PREV STORY LOGIC
+  // 3. 🟢 PREV LOGIC (Navigate Story <- Then Navigate User)
   const handlePrev = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (currentIndex > 0) {
-      setCurrentIndex((prev) => prev - 1);
+    // A. Prev story of CURRENT user
+    if (currentStoryIdx > 0) {
+      setCurrentStoryIdx((prev) => prev - 1);
       setProgress(0);
       setReplyText("");
+    } 
+    // B. Go to PREV USER (Start at their LAST story)
+    else if (currentUserIdx > 0) {
+      const prevUserIdx = currentUserIdx - 1;
+      const prevStories = userGroups[prevUserIdx].stories;
+      setCurrentUserIdx(prevUserIdx);
+      setCurrentStoryIdx(prevStories.length - 1); // Jump to last story
+      setProgress(0);
+      setReplyText("");
+    }
+    // C. Start of everything
+    else {
+      setProgress(0);
     }
   };
 
@@ -64,16 +97,14 @@ export default function StoryViewer({
 
   // 5. TIMER LOGIC
   useEffect(() => {
-    if (!isOpen || !stories.length) return;
+    if (!isOpen || !stories.length || !activeStory) return;
     if (replyText.length > 0) return;
 
-    setProgress(0);
-
-    const activeStory = stories[currentIndex];
-    if (!activeStory) return;
+    // Don't reset progress if it's already moving (prevents jitter on re-renders)
+    // setProgress(0); // Removed this to prevent loop resets
 
     // Mark as viewed
-    fetch("/api/stories/view", {
+    fetch("/api/stories/view", { // Ensure route matches your folder name 
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ storyId: activeStory.id }),
@@ -84,8 +115,7 @@ export default function StoryViewer({
 
     if (isVideo) return;
 
-    // Determine duration based on content type
-    const durationStep = hasMedia ? 2 : 1.5; // Text stories read faster, adjust as needed
+    const durationStep = hasMedia ? 2 : 1.5; 
 
     const interval = setInterval(() => {
       setProgress((prev) => {
@@ -95,13 +125,12 @@ export default function StoryViewer({
     }, 100);
 
     return () => clearInterval(interval);
-  }, [currentIndex, isOpen, stories, replyText]);
+  }, [currentStoryIdx, currentUserIdx, isOpen, replyText]); // Updated dependencies
 
   const handleSendReply = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!replyText.trim()) return;
 
-    const activeStory = stories[currentIndex];
     setSendingReply(true);
 
     try {
@@ -111,13 +140,12 @@ export default function StoryViewer({
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        // 🟢 INSTAGRAM STYLE REPLY PAYLOAD
         body: JSON.stringify({
-          message: replyText, // Clean text
+          message: replyText,
           receiverId: user.id || user.userId,
           status: "PENDING",
-          tag: "STORY_REPLY", // Special tag
-          storyId: activeStory.id, // Link to story
+          tag: "STORY_REPLY",
+          storyId: activeStory.id,
         }),
       });
 
@@ -135,12 +163,10 @@ export default function StoryViewer({
     }
   };
 
-  if (!isOpen || !stories.length) return null;
-  const activeStory = stories[currentIndex];
-  if (!activeStory) return null;
+  if (!isOpen || !activeStory) return null;
 
   const isVideo = activeStory.imageUrl?.match(/\.(mp4|webm|ogg)(\?|$)/i) || activeStory.videoUrl;
-  const hasMedia = !!activeStory.imageUrl;
+  const hasMedia = !!activeStory.imageUrl || !!activeStory.videoUrl;
   const hasText = !!activeStory.content;
 
   return (
@@ -167,9 +193,9 @@ export default function StoryViewer({
                 className={`h-full bg-white transition-all duration-100 ease-linear shadow-[0_0_8px_rgba(255,255,255,0.8)]`}
                 style={{
                   width:
-                    idx === currentIndex
+                    idx === currentStoryIdx
                       ? `${progress}%`
-                      : idx < currentIndex
+                      : idx < currentStoryIdx
                       ? "100%"
                       : "0%",
                 }}
@@ -199,18 +225,17 @@ export default function StoryViewer({
           </span>
         </div>
 
-        {/* 🟢 Content Area - Centered Flex Container */}
+        {/* Content Area */}
         <div className="relative flex-1 bg-zinc-900 flex flex-col items-center justify-center overflow-hidden">
           
           {hasMedia ? (
-            // CASE 1: MEDIA EXISTS (Image or Video)
             <>
               {isVideo ? (
                 <video
-                  src={activeStory.imageUrl}
+                  src={activeStory.imageUrl || activeStory.videoUrl}
                   autoPlay
                   playsInline
-                  muted={false} // Note: Browsers may block unmuted autoplay
+                  muted={false} 
                   onEnded={handleNext}
                   onTimeUpdate={(e) => {
                     if (replyText.length > 0) return;
@@ -230,7 +255,6 @@ export default function StoryViewer({
                 />
               )}
               
-              {/* Overlay Text at Bottom if Media exists */}
               {hasText && (
                 <div className="absolute bottom-32 left-4 right-4 z-10 text-center">
                    <p className="text-white text-lg font-medium drop-shadow-md bg-black/30 p-2 rounded-lg inline-block">
@@ -240,7 +264,6 @@ export default function StoryViewer({
               )}
             </>
           ) : (
-            // CASE 2: TEXT ONLY (Centered)
             <div className="w-full h-full flex items-center justify-center p-8 bg-gradient-to-br from-blue-900 to-slate-900 text-center">
                <p className=" text-2xl font-bold font-serif leading-relaxed drop-shadow-xl" style={{ color: "#ffffff" }}>
                  {activeStory.content || "..."}
@@ -258,7 +281,6 @@ export default function StoryViewer({
             onClick={(e) => { e.stopPropagation(); handleNext(); }} 
           />
 
-          {/* Gradient Overlay for Footer Visibility */}
           <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none z-0" />
         </div>
 
@@ -267,19 +289,15 @@ export default function StoryViewer({
           className="absolute bottom-6 left-4 right-4 z-30 flex items-center gap-3"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Reply Form */}
           <form onSubmit={handleSendReply} className="flex-1 relative group">
             <input
               type="text"
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
               placeholder="Send a message..."
-              // 🟢 Using inline style for guaranteed spacing (24px from left)
               style={{ paddingLeft: "24px" }}
               className="w-full h-12 bg-transparent border border-white/40 rounded-full pr-14 text-white placeholder-white/70 focus:outline-none focus:border-white focus:bg-black/40 transition-all text-base backdrop-blur-sm shadow-lg"
             />
-
-            {/* Send Button inside Input */}
             <button
               type="submit"
               disabled={!replyText.trim() || sendingReply}
@@ -296,7 +314,6 @@ export default function StoryViewer({
               )}
             </button>
           </form>
-
         </div>
       </div>
     </div>

@@ -117,7 +117,7 @@ export default function SignupPage() {
       } else if (data?.needsOnboarding) {
         window.location.href = '/onboarding'
       } else {
-        window.location.href = '/dashboard'
+        window.location.href = '/dashboard/feed'
       }
     } catch (e: any) {
       console.error('❌ Google auth error:', e)

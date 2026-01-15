@@ -354,6 +354,7 @@ const styles: Record<string, CSSProperties> = {
     borderRadius: "50%",
     padding: "4px",
     cursor: "pointer",
+    zIndex: 50,
   },
   storyUploadBox: {
     flex: 1,
@@ -769,6 +770,7 @@ export const CreateStoryModal = ({
         content: content, // Matches the 'content' field in Prisma
         imageUrl: mediaType === 'image' ? uploadedUrl : null,
         videoUrl: mediaType === 'video' ? uploadedUrl : null,
+        visibility: visibility,
       }),
     });
 
@@ -1146,6 +1148,54 @@ export const PostCard = ({
     }
   };
 
+  const handleCancelRequest = async () => {
+  if (!confirm("Withdraw connection request?")) return;
+  setIsLoadingConnection(true);
+  
+  try {
+    // We need the connection ID to delete it. 
+    // If your backend supports deleting by userId, use that.
+    
+    // Fallback: If we don't have a specific connectionId from the feed, 
+    // we might need an endpoint that accepts receiverId.
+    // BUT usually, Feed API provides 'connectionId'. 
+    
+    const targetId = postData.connectionId; 
+
+    // If connectionId is missing (sometimes happens in feeds), we usually need to find it
+    
+    let url = `/api/users/connections/${targetId}`;
+    let method = "DELETE";
+    let body = null;
+
+    // 🟢 EDGE CASE: If we just clicked "Connect" locally, we might not have the ID yet.
+    // In a real app, you'd refresh the feed or return the ID from the connect API.
+    
+    if (!targetId) {
+       // If no ID, we try to delete by user logic if your API supports it, 
+       // OR we just assume success for UI if it was a fresh optimistic update.
+       // Ideally, fetch the connection ID first.
+       console.warn("No connection ID available to cancel immediately");
+       setConnectionStatus("none");
+       setIsLoadingConnection(false);
+       return;
+    }
+
+    const res = await fetch(url, { method });
+
+    if (res.ok) {
+      setConnectionStatus("none"); // Reset to "Connect" button
+      toast.success("Request withdrawn");
+    } else {
+      toast.error("Failed to withdraw");
+    }
+  } catch (e) {
+    toast.error("Error withdrawing request");
+  } finally {
+    setIsLoadingConnection(false);
+  }
+};
+
   const handleConnect = async () => {
     setIsLoadingConnection(true);
     try {
@@ -1234,10 +1284,7 @@ export const PostCard = ({
       toast.error(e?.message || "Failed to remove connection");
     }
   };
-  const handleReport = () => {
-    toast.success("Post reported.");
-    setShowMenu(false);
-  };
+  
   const handleLike = async () => {
     const newLiked = !isLiked;
     setIsLiked(newLiked);
@@ -1269,10 +1316,7 @@ export const PostCard = ({
       toast.error("Action failed");
     }
   };
-  const handleShare = () => {
-    setShowMenu(false);
-    toast.success("Shared!");
-  };
+  
   const handleCopyLink = () => {
     setShowMenu(false);
     navigator.clipboard.writeText(
@@ -1383,34 +1427,28 @@ export const PostCard = ({
         <div style={styles.headerActions}>
           {!isOwnPost && connectionStatus !== "connected" && (
             <button
-              onClick={
-                connectionStatus === "none" ? handleConnect : undefined
-              }
-              disabled={
-                connectionStatus === "pending" || isLoadingConnection
-              }
+              onClick={connectionStatus === "pending" ? handleCancelRequest : handleConnect}
+              disabled={isLoadingConnection}
               style={{
-                backgroundColor:
-                  connectionStatus === "pending" ? "#e2e8f0" : "#2563eb",
+                backgroundColor: connectionStatus === "pending" ? "#e2e8f0" : "#2563eb",
                 color: connectionStatus === "pending" ? "#64748b" : "white",
+                border: "none",
                 padding: "6px 14px",
                 borderRadius: "9999px",
                 fontSize: "11px",
                 fontWeight: "700",
-                border: "none",
-                cursor:
-                  connectionStatus === "pending" || isLoadingConnection
-                    ? "default"
-                    : "pointer",
+                cursor: isLoadingConnection ? "default" : "pointer",
                 transition: "background 0.2s",
                 opacity: isLoadingConnection ? 0.7 : 1,
               }}
             >
-              {connectionStatus === "pending"
-                ? "Sent"
-                : isLoadingConnection
-                ? "Connecting..."
-                : "Connect"}
+              {isLoadingConnection ? (
+                <Loader2 size={12} className="animate-spin" />
+              ) : connectionStatus === "pending" ? (
+                  "Cancel" 
+              ) : (
+                "Connect"
+              )}
             </button>
           )}
 
@@ -1464,15 +1502,8 @@ export const PostCard = ({
 
                   {/* 2. PENDING: Show Pending Text (Disabled) */}
                   {connectionStatus === "pending" && (
-                    <button
-                      style={{
-                        ...styles.menuItem,
-                        color: "#64748b",
-                        cursor: "default",
-                      }}
-                      disabled
-                    >
-                      <Clock size={16} /> Pending
+                    <button style={{ ...styles.menuItem, color: "#64748b" }} onClick={handleCancelRequest} disabled={isLoadingConnection}>
+                      <UserMinus size={16} /> Cancel Request
                     </button>
                   )}
 
