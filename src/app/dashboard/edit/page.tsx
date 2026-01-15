@@ -1,5 +1,6 @@
 'use client'
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from "next/navigation";
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import DigitalCardPreviewComponent from '@/components/cards/DigitalCardPreview';
@@ -42,6 +43,8 @@ const FONT_OPTIONS = [
 ];
 
 const CreatePage = () => {
+  const searchParams = useSearchParams();
+  const cardId = searchParams.get("id");   // /edit?id=abc123
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('Display');
   const [selectedColor1, setSelectedColor1] = useState('#145dfd');
@@ -52,8 +55,8 @@ const CreatePage = () => {
   const [openSection, setOpenSection] = useState<string | null>(null);
 
   const toggleSection = (key: string) => {
-  setOpenSection(prev => (prev === key ? null : key));
-};
+    setOpenSection(prev => (prev === key ? null : key));
+  };
 
   // Phone State Logic
   const [phone, setPhone] = useState('');
@@ -200,6 +203,7 @@ const CreatePage = () => {
     fetchUserData();
   }, []);
 
+
   useEffect(() => {
     const loadProfessions = async () => {
       try {
@@ -260,6 +264,72 @@ const CreatePage = () => {
     const newRgb2 = hexToRgb(selectedColor2);
     if (newRgb2) { setRValue2(newRgb2.r); setGValue2(newRgb2.g); setBValue2(newRgb2.b); setHexValue2(selectedColor2); }
   }, [selectedColor2]);
+
+  // ===============================
+  // ✅ FETCH EXISTING CARD DATA
+  // ===============================
+  useEffect(() => {
+    const fetchCardData = async () => {
+      if (!cardId) return;
+
+      try {
+        const res = await fetch(`/api/card/${cardId}`, { credentials: 'include' });
+        if (!res.ok) throw new Error("Failed to fetch card");
+
+        const data = await res.json();
+        const card = data.card;
+
+        setCardName(card.cardName || "");
+        setFirstName(card.fullName?.split(" ")[0] || "");
+        setTitle(card.title || "");
+        setCompany(card.company || "");
+        setDepartment(card.department || "");
+        setAffiliation(card.affiliation || "");
+        setHeadline(card.headline || "");
+
+        setEmail(card.email || "");
+        setPhone(card.phone || "");
+        setCardLocation(card.location || "");
+
+        setLinkedin(card.linkedinUrl || "");
+        setWebsite(card.websiteUrl || "");
+
+        setCardType(card.cardType || "Personal");
+        setSelectedDesign(card.selectedDesign || "Classic");
+
+        setSelectedColor1(card.selectedColor || "#145dfd");
+        setSelectedColor2(card.selectedColor2 || "#00c0fd");
+        setTextColor(card.textColor || "#ffffff");
+
+        setSelectedFont(card.selectedFont || "Arial, sans-serif");
+
+        setAbout(card.bio || "");
+        setSkills(card.skills || "");
+        setPortfolio(card.portfolio || "");
+        setExperience(card.experience || "");
+        setServices(card.services || "");
+        setReviews(card.review || "");
+
+        setProfileImage(card.profileImage || null);
+        setBannerImage(card.bannerImage || null);
+
+        if (card.customFields) {
+          try {
+            setExtraFields(JSON.parse(card.customFields));
+          } catch {
+            setExtraFields([]);
+          }
+        }
+
+      } catch (err) {
+        console.error("Error fetching card data:", err);
+        setPopupMessage("Failed to load card data");
+        setIsPopupOpen(true);
+      }
+    };
+
+    fetchCardData();
+  }, [cardId]);
 
 
   // Handle Phone Validation and Editing Toggle
@@ -501,7 +571,7 @@ const CreatePage = () => {
               Personal
             </h3>
 
-            <div className={styles.iconGrid} style={{ }}>
+            <div className={styles.iconGrid} style={{}}>
               {[
                 { key: "name", label: "Name", img: "/assets/name.png" },
                 { key: "title", label: "Title", img: "/assets/title.png" },
@@ -618,7 +688,7 @@ const CreatePage = () => {
   if (isLoadingUser) return <div className={styles.pageWrapper} style={{ justifyContent: 'center', alignItems: 'center' }}>Loading...</div>;
 
   return (
-    <div className={styles.pageWrapper} style={{ overflowY: activeTab === 'Information' ? 'hidden' : 'auto' }}>
+    <div className={styles.pageWrapper} style={{ overflowY: 'auto' }}>
       <div className={styles.container} style={{}}>
 
 
@@ -906,8 +976,11 @@ const CreatePage = () => {
 
                   <button
                     onClick={handleAddField}
-                    className={`${styles.baseButton} ${styles.btnPrimary}`}
-                    style={{ backgroundColor: selectedColor1 }}
+                    className={`${styles.baseButton} `}
+                    style={{
+                      backgroundColor: selectedColor1
+
+                    }}
                     disabled={!newFieldName.trim()}
                   >
                     Add
@@ -1011,8 +1084,10 @@ const CreatePage = () => {
                   />
                   <button
                     onClick={handleAddCustomType}
-                    className={`${styles.baseButton} ${styles.btnPrimary}`}
-                    style={{ backgroundColor: selectedColor1 }}
+                    className={`${styles.baseButton} `}
+                    style={{
+                      backgroundColor: selectedColor1, color: '#fff'
+                    }}
                   >
                     Save
                   </button>
@@ -1021,7 +1096,8 @@ const CreatePage = () => {
                       setShowCustomTypeInput(false);
                       setCustomTypeInput("");
                     }}
-                    className={`${styles.baseButton} ${styles.btnSecondary}`}
+                    className={`${styles.baseButton}`}
+                    style={{ backgroundColor: "#fff", border: "1px solid #646464", }}
                   >
                     Cancel
                   </button>
@@ -1042,7 +1118,7 @@ const CreatePage = () => {
           )}
 
           {/* ===== WHITE PANEL (TABS + ICONS) ===== */}
-          <div className={styles.editPanel} style={{ height: activeTab === 'Information' ? '45dvh' : 'auto'}}>
+          <div className={styles.editPanel} style={{ height: activeTab === 'Information' ? '50dvh' : 'auto' }}>
             <div className={styles.tabContainer}>
               {['Display', 'Information'].map(tab => (
                 <button
@@ -1078,6 +1154,24 @@ const CreatePage = () => {
               </button>
             </div>
           </div>
+          {isPopupOpen && (
+            <div className={styles.popupOverlay}>
+              <div className={styles.popupBox}>
+                <p>{popupMessage}</p>
+                <button
+                  onClick={() => {
+                    setIsPopupOpen(false);
+                    if (popupMessage === "Card created successfully!") {
+                      router.push("/dashboard");
+                    }
+                  }}
+                  className={styles.popupBtn}
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          )}
 
         </div>
       </div>

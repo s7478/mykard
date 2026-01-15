@@ -771,7 +771,11 @@ const Dashboard = () => {
           {/* 2. Analytics */}
           <div className="grid grid-cols-2 gap-3 mb-4" style={{ marginBottom: '1rem' }}>
             {/* CONNECTIONS BOX */}
-            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:border-blue-400 hover:shadow-md hover:bg-blue-50/30 transition-all duration-200 cursor-pointer flex flex-col justify-center">
+            <div
+              onClick={() => router.push("/dashboard/connections")}
+              className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:border-blue-400 hover:shadow-md hover:bg-blue-50/30 transition-all duration-200 cursor-pointer flex flex-col justify-center"
+            >
+
               {/* Header: Icon + Label */}
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-blue-50 rounded-sm flex items-center justify-center text-[#0B6BCB] shrink-0">

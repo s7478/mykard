@@ -6,19 +6,32 @@ import StarBulletModal from "./StarBulletModal";
 import { useRouter } from "next/navigation";
 
 // Import Brand Icons
-import { 
-  FaWhatsapp, 
-  FaGithub, 
-  FaTwitter, 
-  FaXTwitter, 
-  FaInstagram, 
-  FaFacebook, 
-  FaLinkedin, 
-  FaYoutube, 
+import {
+  FaWhatsapp,
+  FaGithub,
+  FaTwitter,
+  FaXTwitter,
+  FaInstagram,
+  FaFacebook,
+  FaLinkedin,
+  FaYoutube,
   FaDiscord,
   FaTelegram,
-  FaGlobe 
+  FaGlobe
 } from "react-icons/fa6";
+const theme = {
+  colors: {
+    bg: "#FFFFFF",
+    primaryBlue: "#2152E5",
+    cardGradient: "linear-gradient(109.79deg, rgba(79, 117, 230, 0.98) 16.59%, #1237A1 76.33%)",
+    cardBorderLine: "#6AD2FF",
+    avatarBg: "#1279E1",
+    avatarBorder: "#A3D4FF",
+    inputText: "#646464",
+    inputBorder: "#767676",
+  },
+  font: "'Plus Jakarta Sans', sans-serif",
+};
 
 export interface ExtraField {
   id: number;
@@ -55,12 +68,15 @@ export interface DigitalCardProps {
   cardType?: string;
   documentUrl?: string;
   onDocumentClick?: (url: string) => void;
+  // Added onClick prop for navigation
+  onClick?: () => void;
   customFields?: ExtraField[];
 }
 
 const DigitalCardPreview: React.FC<DigitalCardProps> = ({
   firstName = "",
   onDocumentClick,
+  onClick, // Destructure onClick
   middleName = "",
   lastName = "",
   cardName = "",
@@ -80,15 +96,17 @@ const DigitalCardPreview: React.FC<DigitalCardProps> = ({
   phone = "",
   linkedin = "",
   website = "",
+  // Default fallbacks 
   themeColor1 = "#3b82f6",
   themeColor2 = "#2563eb",
   textColor = "#ffffff",
-  fontFamily = "Arial, sans-serif",
+  fontFamily = "'Plus Jakarta Sans', sans-serif",
   cardType = "",
   documentUrl,
   customFields = [],
 }) => {
 
+  // --- DATA PROCESSING LOGIC ---
   const capitalizedFirstName = capitalizeFirstLetter(firstName);
   const capitalizedMiddleName = capitalizeFirstLetter(middleName);
   const capitalizedLastName = capitalizeFirstLetter(lastName);
@@ -122,21 +140,20 @@ const DigitalCardPreview: React.FC<DigitalCardProps> = ({
     Review: review || "",
   };
 
-  // --- LOGIC: Split Fields into Socials vs Others ---
+  // --- SOCIAL ICONS LOGIC ---
   const knownPlatforms = ['whatsapp', 'github', 'twitter', 'instagram', 'facebook', 'linkedin', 'youtube', 'discord', 'telegram', 'x'];
-  
-  const socialFields = customFields.filter(field => 
+
+  const socialFields = customFields.filter(field =>
     knownPlatforms.some(platform => field.name.toLowerCase().includes(platform))
   );
 
-  const otherFields = customFields.filter(field => 
+  const otherFields = customFields.filter(field =>
     !knownPlatforms.some(platform => field.name.toLowerCase().includes(platform))
   );
 
-  // Helper to get icon
   const getIconForField = (name: string) => {
     const lowerName = name.toLowerCase().trim();
-    const style = { fontSize: '20px', color: textColor }; 
+    const style = { fontSize: '18px', color: '#FFFFFF' };
 
     if (lowerName.includes('whatsapp')) return <FaWhatsapp style={style} />;
     if (lowerName.includes('github')) return <FaGithub style={style} />;
@@ -148,15 +165,26 @@ const DigitalCardPreview: React.FC<DigitalCardProps> = ({
     if (lowerName.includes('discord')) return <FaDiscord style={style} />;
     if (lowerName.includes('telegram')) return <FaTelegram style={style} />;
     if (lowerName === 'x') return <FaXTwitter style={style} />;
-    
-    return <FaGlobe style={style} />; 
+
+    return <FaGlobe style={style} />;
+  };
+
+  // --- DESIGN CONSTANTS ---
+  const styles = {
+    gradient: "linear-gradient(109.79deg, rgba(79, 117, 230, 0.98) 16.59%, #1237A1 76.33%)",
+    avatarBg: "#1279E1",
+    avatarBorder: "2px solid #A3D4FF",
+    iconBg: "rgba(54, 183, 248, 0.45)",
+    buttonBg: "rgba(255, 255, 255, 0.2)",
+    buttonBorder: "0.5px solid #FFFFFF",
+    font: "'Plus Jakarta Sans', sans-serif"
   };
 
   const iconButtonStyle = {
-    width: "40px",
-    height: "40px",
-    borderRadius: "9999px",
-    background: "rgba(255, 255, 255, 0.2)",
+    width: "42px",
+    height: "42px",
+    borderRadius: "50%",
+    background: styles.iconBg,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -164,214 +192,321 @@ const DigitalCardPreview: React.FC<DigitalCardProps> = ({
     border: "none",
     cursor: "pointer",
     transition: "transform 0.2s, background 0.2s",
-    flexShrink: 0 
+    flexShrink: 0,
+    boxShadow: "0 4px 10px rgba(0,0,0,0.1)"
   };
 
   return (
-    <div className="w-full h-full" style={{ position: 'relative' }}>
-      <div className="w-full max-w-[360px]"
-  style={{ borderRadius: "28px",
-        overflow: "hidden", 
-        boxShadow: "0 25px 50px rgba(0, 0, 0, 0.15)",
-        fontFamily: fontFamily,
-        position: "relative",
-        background: `linear-gradient(135deg, ${themeColor1} 0%, ${themeColor2} 100%)`,
-        color: textColor
-      }}>
+    <div className="w-full h-full flex items-center justify-center" style={{ fontFamily: styles.font }}>
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700&display=swap');
+      `}</style>
 
-      {/* Card Name + Type */}
-      {(cardName || cardType) && (
-        <div style={{ position: "absolute", top: "16px", right: "16px", display: "flex", gap: "8px", zIndex: 20 }}>
-          {cardName && (
-            <div style={{ background: "rgba(255, 255, 255, 0.85)", color: themeColor1, padding: "6px 14px", borderRadius: "20px", fontSize: "12px", fontWeight: 700, border: `1px solid ${themeColor1}`, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
-              {cardName}
-            </div>
-          )}
-          {cardType && (
-            <div style={{ background: "rgba(255,255,255,0.85)", color: themeColor1, padding: "6px 12px", borderRadius: "14px", fontSize: "11px", fontWeight: 700, border: `1px solid ${themeColor1}`, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
-              {cardType}
-            </div>
-          )}
-        </div>
-      )}
+      {/* --- MAIN CARD CONTAINER --- */}
+      {/* ADDED onClick HERE + cursor: pointer */}
+      <div
+        onClick={onClick}
+        style={{
+          width: "100%",
+          maxWidth: "340px",
+          borderRadius: "20px",
+          background: styles.gradient,
+          position: "relative",
+          color: "#FFFFFF",
+          padding: "15px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          boxShadow: "0 25px 50px -12px rgba(33, 82, 229, 0.35)",
+          overflow: "hidden",
+          cursor: "pointer" // Make it clickable
+        }}
+      >
 
-      {/* Header */}
-      <div style={{ padding: "22px", color: "white", position: "relative" }}>
-        <div style={{ width: "100%", height: "92px", borderRadius: "14px", background: cover ? "transparent" : "rgba(255,255,255,0.15)", border: `2px solid #ffffff`, overflow: "hidden" }}>
-          {cover && (
-            <img src={cover} alt="Cover" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-          )}
-        </div>
+        {/* --- HORIZONTAL LINE BEHIND PROFILE --- */}
+        {/*  <div style={{
+          position: "absolute",
+          top: "94px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: "70%",
+          height: "1px",
+          background: theme.colors.cardBorderLine,
+          zIndex: 0
+        }} />  *}
 
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "-44px" }}>
-          <div style={{ width: "104px", height: "104px", borderRadius: "50%", overflow: "hidden", border: `5px solid #ffffff`, boxShadow: "0 8px 20px rgba(0,0,0,0.25)", background: photo ? "transparent" : "#60A5FA", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            {photo ? (
-              <img src={photo} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            ) : (
-              <span style={{ fontSize: "36px", fontWeight: 800, color: "#ffffff" }}>{firstLetter}</span>
+        {/* --- CARD NAME & TYPE --- */}
+        {(cardName || cardType) && (
+          <div style={{ position: "absolute", top: "20px", right: "28px", display: "flex", gap: "6px", zIndex: 20 }}>
+            {cardName && (
+              <span style={{
+                fontSize: "10px", fontWeight: 700,
+                background: "rgba(255,255,255,0.2)", padding: "2px 8px", borderRadius: "8px",
+                border: "0.5px solid rgba(255,255,255,0.4)"
+              }}>
+                {cardName}
+              </span>
+            )}
+            {cardType && (
+              <span style={{
+                fontSize: "10px", fontWeight: 700, textTransform: "uppercase",
+                background: "rgba(255,255,255,0.2)", padding: "2px 8px", borderRadius: "8px",
+                border: "0.5px solid rgba(255,255,255,0.4)"
+              }}>
+                {cardType}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* --- CONTENT WRAPPER --- */}
+        <div style={{ position: "relative", zIndex: 10, width: "100%", display: "flex", flexDirection: "column", alignItems: "center", marginTop: "20px" }}>
+
+          {/* --- COVER IMAGE --- */}
+          <div
+            style={{
+              width: "100%",
+              height: "115px",
+              borderRadius: "14px",
+              background: cover ? "transparent" : "rgba(255,255,255,0.15)",
+              border: "1.5px solid rgba(255,255,255,0.6)",
+              overflow: "hidden",
+              marginBottom: "-55px",
+              marginTop: "-5px",
+            }}
+          >
+            {cover && (
+              <img
+                src={cover}
+                alt="Cover"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  display: "block",
+                }}
+              />
             )}
           </div>
 
-          <h3 style={{ margin: "14px 0 8px", fontSize: "26px", fontWeight: 800, color: textColor, textAlign: "center" }}>
+          {/* 1. PROFILE IMAGE */}
+          <div style={{
+            width: "100px",
+            height: "100px",
+            borderRadius: "50%",
+            background: styles.avatarBg,
+            border: styles.avatarBorder,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: "16px",
+            overflow: 'hidden',
+            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            zIndex: 10
+          }}>
+            {photo ? (
+              <img src={photo} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            ) : (
+              <span style={{ fontFamily: styles.font, fontWeight: '700', fontSize: "32px", color: '#FFFFFF' }}>{firstLetter}</span>
+            )}
+          </div>
+
+          {/* 2. NAME */}
+          <h3 style={{
+            fontFamily: styles.font,
+            fontWeight: '700',
+            fontSize: "24px",
+            lineHeight: "1.2",
+            marginBottom: "8px",
+            textAlign: "center",
+            textShadow: "0 2px 4px rgba(0,0,0,0.1)"
+          }}>
             {fullName}
           </h3>
 
+          {/* 3. TITLE & COMPANY */}
           {(title || companyFinal) && (
-            <div style={{ display: "flex", gap: "12px", alignItems: "center", color: textColor, opacity: 0.95, textAlign: "center", justifyContent: "center" }}>
-              {title && <span style={{ fontSize: "14px", fontWeight: 700 }}>{title}</span>}
-              {title && companyFinal && <span style={{ width: 1, height: 16, background: "rgba(255,255,255,0.8)" }} />}
-              {companyFinal && <span style={{ fontSize: "14px", fontWeight: 700 }}>{companyFinal}</span>}
+            <div style={{
+              fontSize: "14px",
+              opacity: 0.95,
+              marginBottom: "12px",
+              fontWeight: "400",
+              textAlign: "center",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px"
+            }}>
+              {title && <span>{title}</span>}
+              {title && companyFinal && (
+                <span style={{ width: "1.5px", height: "14px", background: "#FFFFFF", opacity: 0.8 }} />
+              )}
+              {companyFinal && <span>{companyFinal}</span>}
             </div>
           )}
 
-          {location && <p style={{ margin: "10px 0 0", fontSize: "14px", color: textColor }}>{location}</p>}
-
-          {/* ====================================================
-             ICONS SECTION
-             ====================================================
-          */}
-          {(email || phone || linkedin || website || (customFields && customFields.length > 0)) && (
-            <div style={{ 
-              display: "flex", 
-              gap: "10px", 
-              marginTop: "20px", 
-              flexWrap: "wrap", 
-              justifyContent: "center" 
+          {/* 4. LOCATION */}
+          {location && (
+            <div style={{
+              fontSize: "12px",
+              fontWeight: "500",
+              marginBottom: "24px",
+              opacity: 0.9,
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              background: "rgba(255,255,255,0.15)",
+              padding: "4px 12px",
+              borderRadius: "20px"
             }}>
-              
-              {/* Standard Icons */}
-              {email && (
-                <a href={`mailto:${email}`} style={iconButtonStyle}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={textColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16v16H4z" opacity="0"/><path d="M4 8l8 5 8-5"/><rect x="4" y="6" width="16" height="12" rx="2" ry="2"/></svg>
-                </a>
-              )}
-              {phone && (
-                <a href={`tel:${phone}`} style={iconButtonStyle}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={textColor} strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
-                </a>
-              )}
-              {linkedin && (
-                <a href={linkedin} target="_blank" rel="noopener noreferrer" style={iconButtonStyle}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill={textColor}><path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8.5h4V23h-4zM8.5 8.5h3.8v1.98h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.77 2.65 4.77 6.1V23h-4v-6.3c0-1.5-.03-3.44-2.1-3.44-2.1 0-2.42 1.64-2.42 3.34V23h-4z"/></svg>
-                </a>
-              )}
-              {website && (
-                <a href={website} target="_blank" rel="noopener noreferrer" style={iconButtonStyle}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={textColor} strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20a15.3 15.3 0 010-20z"/></svg>
-                </a>
-              )}
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              {location}
+            </div>
+          )}
 
-              {/* Custom Social Fields */}
-              {socialFields.map((field) => (
-                <a 
-                  key={field.id}
-                  href={field.link.startsWith('http') ? field.link : `https://${field.link}`} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  style={iconButtonStyle}
-                  title={field.name}
-                >
-                  {getIconForField(field.name)}
-                </a>
-              ))}
+          {/* 5. CONTACT ICONS */}
+          <div style={{ display: "flex", gap: "12px", marginBottom: "-10px", flexWrap: "wrap", justifyContent: "center" }}>
+            {email && (
+              <a onClick={(e) => e.stopPropagation()} href={`mailto:${email}`} style={iconButtonStyle}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              </a>
+            )}
+            {phone && (
+              <a onClick={(e) => e.stopPropagation()} href={`tel:${phone}`} style={iconButtonStyle}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              </a>
+            )}
+            {linkedin && (
+              <a onClick={(e) => e.stopPropagation()} href={linkedin} target="_blank" rel="noopener noreferrer" style={iconButtonStyle}>
+                <FaLinkedin style={{ fontSize: '20px', color: '#FFFFFF' }} />
+              </a>
+            )}
+            {website && (
+              <a onClick={(e) => e.stopPropagation()} href={website} target="_blank" rel="noopener noreferrer" style={iconButtonStyle}>
+                <FaGlobe style={{ fontSize: '20px', color: '#FFFFFF' }} />
+              </a>
+            )}
+            {socialFields.map((field) => (
+              <a
+                key={field.id}
+                onClick={(e) => e.stopPropagation()}
+                href={field.link.startsWith('http') ? field.link : `https://${field.link}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={iconButtonStyle}
+                title={field.name}
+              >
+                {getIconForField(field.name)}
+              </a>
+            ))}
+          </div>
 
-              {/* Other Fields Modal Trigger */}
-              {otherFields.length > 0 && (
+          {/* 6. ABOUT TEXT */}
+          <div style={{ width: "100%", marginBottom: "24px", padding: "0 10px", textAlign: "center" }}>
+            <p style={{ fontSize: "14px", fontWeight: "500", lineHeight: "1.4", color: "#FFFFFF" }}>
+              {about}
+            </p>
+          </div>
+
+          {/* 7. ACTION BUTTONS */}
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", justifyContent: "center", width: "100%" }}>
+            {[
+              { text: "Services", value: services },
+              { text: "Portfolio", value: portfolio },
+              { text: "Skills", value: skills },
+              { text: "Experience", value: experience },
+              { text: "Review", value: review },
+            ]
+              .filter((b) => b.value && b.value.trim() !== "")
+              .map((b) => (
                 <button
+                  key={b.text}
                   onClick={(e) => {
                     e.stopPropagation();
-                    setActivePanel('Links');
+                    if (b.text === 'Portfolio') {
+                      openPortfolio();
+                    } else {
+                      setActivePanel(b.text as Section);
+                    }
                   }}
-                  style={iconButtonStyle}
-                  title="More Links"
+                  style={{
+                    padding: "6px 16px",
+                    background: styles.buttonBg,
+                    border: styles.buttonBorder,
+                    borderRadius: "6px",
+                    color: "#FFFFFF",
+                    fontFamily: styles.font,
+                    fontWeight: "500",
+                    fontSize: "12px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backdropFilter: "blur(4px)"
+                  }}
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={textColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                  </svg>
+                  {b.text}
                 </button>
-              )}
-            </div>
-          )}
-        </div> {/* Closes flex-column div */}
-      </div> {/* Closes Header padding div */}
+              ))}
 
-      {/* Body Buttons (Services, Skills etc) */}
-      <div style={{ padding: "20px 20px 16px", color: textColor, textAlign: "center" }}>
-        <p style={{ fontSize: "13px", lineHeight: 1.6, margin: 0, color: textColor, opacity: 1 }}>
-          {about}
-        </p>
-
-        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", justifyContent: "center", marginTop: "16px" }}>
-          {[
-            { text: "Services", value: services },
-            { text: "Portfolio", value: portfolio },
-            { text: "Skills", value: skills },
-            { text: "Experience", value: experience },
-            { text: "Review", value: review },
-          ]
-            .filter((b) => b.value && b.value.trim() !== "")
-            .map((b) => (
-              <button
-                key={b.text}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (b.text === 'Portfolio') {
-                    openPortfolio();
-                  } else {
-                    setActivePanel(b.text as Section);
-                  }
-                }}
-                style={{
-                  padding: "8px 14px",
-                  background: "rgba(255, 255, 255, 0.2)",
-                  color: textColor,
-                  border: "1px solid rgba(255, 255, 255, 0.3)",
-                  borderRadius: "12px",
-                  fontSize: "13px",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  boxShadow: "0 2px 4px rgba(0,0,0,0.04)",
-                }}
-              >
-                {b.text}
-              </button>
-            ))}
-            
             {documentUrl && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (documentUrl) onDocumentClick?.(documentUrl);
+                  onDocumentClick?.(documentUrl);
                 }}
                 style={{
-                  padding: "8px 14px",
-                  background: "rgba(255, 255, 255, 0.2)",
-                  color: textColor,
-                  border: "1px solid rgba(255, 255, 255, 0.3)",
-                  borderRadius: "12px",
-                  fontSize: "13px",
-                  fontWeight: 600,
+                  padding: "6px 16px",
+                  background: styles.buttonBg,
+                  border: styles.buttonBorder,
+                  borderRadius: "6px",
+                  color: "#FFFFFF",
+                  fontFamily: styles.font,
+                  fontWeight: "500",
+                  fontSize: "12px",
                   cursor: "pointer",
-                  boxShadow: "0 2px 4px rgba(0,0,0,0.04)",
                 }}
               >
                 Docs
               </button>
             )}
+
+            {otherFields.length > 0 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActivePanel('Links');
+                }}
+                style={{
+                  padding: "6px 12px",
+                  background: styles.buttonBg,
+                  border: styles.buttonBorder,
+                  borderRadius: "6px",
+                  color: "#FFFFFF",
+                  fontFamily: styles.font,
+                  fontWeight: "500",
+                  fontSize: "12px",
+                  cursor: "pointer",
+                  display: 'flex', alignItems: 'center'
+                }}
+              >
+                More...
+              </button>
+            )}
+          </div>
+
         </div>
+
       </div>
 
       <StarBulletModal
         activePanel={activePanel}
         isMobile={false}
-        themeColor1={themeColor1}
+        themeColor1="#3b82f6"
         panelText={sectionText}
         onClose={() => setActivePanel(null)}
-        customFields={otherFields} 
+        customFields={otherFields}
       />
-
-      </div>
     </div>
   );
 };
