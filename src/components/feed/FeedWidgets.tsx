@@ -30,6 +30,9 @@ import {
   UserMinus,
   Trash2,
   Clock, // Added for Pending status
+  Camera, 
+  StopCircle, 
+  RefreshCw
 } from "lucide-react";
 
 // --- Utilities ---
@@ -152,7 +155,7 @@ const styles: Record<string, CSSProperties> = {
     boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
     padding: "8px",
     zIndex: 50,
-    minWidth: "160px",
+    minWidth: "180px",
     display: "flex",
     flexDirection: "column",
     gap: "4px",
@@ -437,6 +440,188 @@ const styles: Record<string, CSSProperties> = {
   visibilityDesc: { fontSize: "11px", color: "#6b7280", marginLeft: "28px" },
 };
 
+
+
+interface CameraCaptureProps {
+  onCapture: (file: File, type: "image" | "video") => void;
+  onClose: () => void;
+}
+
+const CameraCapture = ({ onCapture, onClose }: CameraCaptureProps) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [mode, setMode] = useState<"photo" | "video">("photo");
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+
+  // 1. Initialize Camera
+  useEffect(() => {
+    let currentStream: MediaStream | null = null;
+
+    const startCamera = async () => {
+      try {
+        currentStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" }, // 'user' = selfie, 'environment' = back
+          audio: mode === "video", // Only ask for audio if in video mode
+        });
+
+        streamRef.current = currentStream;
+        
+        if (videoRef.current) {
+          videoRef.current.srcObject = currentStream;
+        }
+        
+      } catch (err) {
+        setError("Camera access denied or unavailable.");
+        console.error(err);
+      }
+    };
+
+    startCamera();
+
+    // Cleanup on unmount
+    return () => {
+      if (currentStream) {
+        currentStream.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, [mode]);
+
+  // 2. Take Photo
+  const takePhoto = () => {
+    if (!videoRef.current) return;
+    const video = videoRef.current;
+    
+    // Create a canvas to draw the frame
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // Flip horizontally if it's selfie mode (optional, mirrors feel more natural)
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const file = new File([blob], `photo_${Date.now()}.jpg`, { type: "image/jpeg" });
+      onCapture(file, "image");
+    }, "image/jpeg", 0.9);
+  };
+
+  // 3. Record Video
+  const startRecording = () => {
+    if (!videoRef.current || !videoRef.current.srcObject) return;
+    const stream = videoRef.current.srcObject as MediaStream;
+    
+    const mediaRecorder = new MediaRecorder(stream);
+    mediaRecorderRef.current = mediaRecorder;
+    chunksRef.current = [];
+
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data.size > 0) chunksRef.current.push(e.data);
+    };
+
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(chunksRef.current, { type: "video/webm" });
+      const file = new File([blob], `video_${Date.now()}.webm`, { type: "video/webm" });
+      onCapture(file, "video");
+    };
+
+    mediaRecorder.start();
+    setIsRecording(true);
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 bg-black text-white rounded-lg p-4">
+        <p className="mb-4">{error}</p>
+        <button onClick={onClose} className="px-4 py-2 bg-gray-700 rounded-full">Close</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative w-full h-[400px] bg-black rounded-lg overflow-hidden flex flex-col">
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        muted // Muted in preview to prevent feedback loop
+        className="w-full h-full object-cover transform -scale-x-100" // Mirror effect
+      />
+      
+      {/* Overlay Controls */}
+      <div className="absolute bottom-0 inset-x-0 pb-8 pt-12 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col items-center gap-6">
+        
+        {/* Mode Switcher */}
+        {!isRecording && (
+          <div className="flex bg-black/50 backdrop-blur-md rounded-sm p-1.5 gap-2 border border-white/10">
+             <button 
+               onClick={() => setMode("photo")}
+               className={`px-6 py-2 text-sm font-semibold rounded-sm transition-all duration-200 ${
+                mode === "photo"
+                  ? "bg-white text-black shadow-md"
+                  : "text-white/80 hover:text-white hover:bg-white/10"
+              }`}
+             >
+               Photo
+             </button>
+             <button
+              onClick={() => setMode("video")}
+              className={`px-6 py-2 text-sm font-semibold rounded-sm transition-all duration-200 ${
+                mode === "video"
+                  ? "bg-white text-black shadow-md"
+                  : "text-white/80 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              Video
+            </button>
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-8">
+           <button onClick={onClose} className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20">
+             <X size={20} />
+           </button>
+
+           {mode === "photo" ? (
+             <button 
+               onClick={takePhoto}
+               className="w-16 h-16 rounded-full border-4 border-white flex items-center justify-center bg-white/20 hover:bg-white transition-all active:scale-95"
+             />
+           ) : (
+             <button 
+               onClick={isRecording ? stopRecording : startRecording}
+               className={`w-16 h-16 rounded-full border-4 flex items-center justify-center transition-all ${isRecording ? "border-red-500 bg-red-500" : "border-white bg-transparent"}`}
+             >
+               {isRecording && <div className="w-6 h-6 bg-white rounded-sm" />}
+             </button>
+           )}
+
+           {/* Placeholder for symmetry or toggle camera */}
+           <div className="w-9" /> 
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+
 const VisibilitySelector = ({
   visibility,
   setVisibility,
@@ -523,6 +708,7 @@ const CreatePostModal = ({
     "public"
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
 
   useEffect(() => {
     if (isOpen && initialMediaType && fileInputRef.current) {
@@ -530,6 +716,18 @@ const CreatePostModal = ({
       setTimeout(() => fileInputRef.current?.click(), 100);
     }
   }, [isOpen, initialMediaType]);
+
+  const handleCameraCapture = (file: File, type: "image" | "video") => {
+    setMediaFile(file);
+    setMediaType(type);
+    
+    // Create preview URL locally
+    const reader = new FileReader();
+    reader.onloadend = () => setMediaPreview(reader.result as string);
+    reader.readAsDataURL(file);
+    
+    setIsCameraOpen(false);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -637,40 +835,31 @@ const CreatePostModal = ({
               />
             </div>
           </div>
-          <textarea
-            style={styles.modalTextarea}
-            placeholder="What do you want to talk about?"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
-          {mediaPreview && (
-            <div style={styles.previewArea}>
-              <button onClick={removeMedia} style={styles.removeMediaBtn}>
-                <X size={16} />
-              </button>
-              {mediaType === "video" ? (
-                <video
-                  src={mediaPreview}
-                  controls
-                  style={{
-                    width: "100%",
-                    maxHeight: "300px",
-                    display: "block",
-                  }}
-                />
-              ) : (
-                <img
-                  src={mediaPreview}
-                  alt="Preview"
-                  style={{
-                    width: "100%",
-                    maxHeight: "300px",
-                    objectFit: "contain",
-                    display: "block",
-                  }}
-                />
+          {isCameraOpen ? (
+            <CameraCapture 
+              onCapture={handleCameraCapture} 
+              onClose={() => setIsCameraOpen(false)} 
+            />
+          ) : (
+            <>
+              <textarea
+                style={styles.modalTextarea}
+                placeholder="What do you want to talk about?"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+              />
+              {mediaPreview && (
+                 /* ... Existing Preview Logic ... */
+                 <div style={styles.previewArea}>
+                   <button onClick={removeMedia} style={styles.removeMediaBtn}><X size={16} /></button>
+                   {mediaType === "video" ? (
+                     <video src={mediaPreview} controls style={{ width: "100%", maxHeight: "300px" }} />
+                   ) : (
+                     <img src={mediaPreview} alt="Preview" style={{ width: "100%", maxHeight: "300px", objectFit: "contain" }} />
+                   )}
+                 </div>
               )}
-            </div>
+            </>
           )}
         </div>
         <div style={styles.modalFooter}>
@@ -689,13 +878,17 @@ const CreatePostModal = ({
             >
               <Video size={20} className="text-green-600" />
             </button>
-            <input
-              type="file"
-              ref={fileInputRef}
-              style={{ display: "none" }}
-              accept={mediaType === "video" ? "video/*" : "image/*,video/*"}
-              onChange={handleFileChange}
-            />
+
+            <button 
+              onClick={() => setIsCameraOpen(true)} 
+              style={{ ...styles.mediaBtn, padding: "8px" }} 
+              title="Use Camera"
+              disabled={isCameraOpen} // Disable if already open
+            >
+              <Camera size={20} className="text-purple-600" />
+            </button>
+
+            <input type="file" ref={fileInputRef} style={{ display: "none" }} accept={mediaType === "video" ? "video/*" : "image/*,video/*"} onChange={handleFileChange} />
           </div>
           <button
             onClick={handlePost}
@@ -732,6 +925,18 @@ export const CreateStoryModal = ({
     "public"
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+
+  const handleCameraCapture = (file: File, type: "image" | "video") => {
+    setMediaFile(file);
+    setMediaType(type);
+    
+    const reader = new FileReader();
+    reader.onloadend = () => setMediaPreview(reader.result as string);
+    reader.readAsDataURL(file);
+    
+    setIsCameraOpen(false);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -853,56 +1058,51 @@ export const CreateStoryModal = ({
               />
             </div>
           </div>
-          {/* 🟢 Text Input */}
-          <textarea
-            style={{
-              ...styles.modalTextarea,
-              minHeight: "80px",
-              fontSize: "18px",
-              textAlign: "center",
-            }}
-            placeholder="Type something..."
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
-          {mediaPreview && (
-            <div style={styles.previewArea}>
-              <button onClick={removeMedia} style={styles.removeMediaBtn}>
-                <X size={16} />
-              </button>
-              {mediaType === "video" ? (
-                <video
-                  src={mediaPreview}
-                  controls
-                  style={{
-                    width: "100%",
-                    maxHeight: "300px",
-                    display: "block",
-                  }}
-                />
-              ) : (
-                <img
-                  src={mediaPreview}
-                  alt="Preview"
-                  style={{
-                    width: "100%",
-                    maxHeight: "300px",
-                    objectFit: "contain",
-                    display: "block",
-                  }}
-                />
+          {isCameraOpen ? (
+             <CameraCapture 
+               onCapture={handleCameraCapture} 
+               onClose={() => setIsCameraOpen(false)} 
+             />
+          ) : (
+            <>
+              <textarea 
+                style={{ ...styles.modalTextarea, minHeight: "80px", fontSize: "18px", textAlign: "center" }}
+                placeholder="Type something..." 
+                value={content} 
+                onChange={(e) => setContent(e.target.value)} 
+              />
+              
+              {mediaPreview && (
+                /* ... Existing Preview Logic ... */
+                <div style={styles.previewArea}>
+                   <button onClick={removeMedia} style={styles.removeMediaBtn}><X size={16} /></button>
+                   {mediaType === "video" ? (
+                      <video src={mediaPreview} controls style={{ width: "100%", maxHeight: "300px" }} />
+                   ) : (
+                      <img src={mediaPreview} alt="Preview" style={{ width: "100%", maxHeight: "300px", objectFit: "contain" }} />
+                   )}
+                </div>
               )}
-            </div>
+            </>
           )}
         </div>
         <div style={styles.modalFooter}>
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            style={{ ...styles.mediaBtn, padding: "8px" }}
-            title="Add Media"
-          >
-            <ImageIcon size={20} className="text-blue-500" /> Add Media
-          </button>
+          <div style={{ display: "flex", gap: "10px" }}>
+              <button 
+                onClick={() => fileInputRef.current?.click()} 
+                style={{ ...styles.mediaBtn, padding: "8px" }}
+              >
+                <ImageIcon size={20} className="text-blue-500" /> Gallery
+              </button>
+
+              {/* 🟢 NEW CAMERA BUTTON */}
+              <button 
+                onClick={() => setIsCameraOpen(true)} 
+                style={{ ...styles.mediaBtn, padding: "8px" }}
+              >
+                <Camera size={20} className="text-purple-600" /> Camera
+              </button>
+           </div>
           <input
             type="file"
             ref={fileInputRef}
@@ -1067,16 +1267,17 @@ export const PostCard = ({
   });
 
   const [isLiked, setIsLiked] = useState(postData?.isLiked || false);
-  const [likesCount, setLikesCount] = useState(postData?.likesCount || 0);
+  const [likesCount, setLikesCount] = useState<number>(postData?.likesCount || 0);
+  const [sharesCount, setSharesCount] = useState<number>(postData?.sharesCount || 0);
+  const [savesCount, setSavesCount] = useState<number>(postData?.savesCount || 0);
+  const [commentsCount, setCommentsCount] = useState<number>(postData?.commentsCount || 0);
+
   const [isSaved, setIsSaved] = useState(postData?.isSaved || false);
   const [showMenu, setShowMenu] = useState(false);
 
   // 🟢 Comment States
   const [showComments, setShowComments] = useState(false);
-  const [comments, setComments] = useState<any[]>([]); // Store the list
-  const [commentsCount, setCommentsCount] = useState(
-    postData?.commentsCount || 0
-  );
+  const [comments, setComments] = useState<any[]>([]);
   const [commentText, setCommentText] = useState("");
   const [loadingComment, setLoadingComment] = useState(false);
   const [commentsLoaded, setCommentsLoaded] = useState(false); // To avoid re-fetching
@@ -1303,6 +1504,7 @@ export const PostCard = ({
   const handleSave = async () => {
     const newSaved = !isSaved;
     setIsSaved(newSaved);
+    setSavesCount((prev) => (newSaved ? prev + 1 : prev - 1));
     setShowMenu(false);
     try {
       await fetch("/api/posts/save", {
@@ -1313,7 +1515,26 @@ export const PostCard = ({
       toast.success(newSaved ? "Post saved!" : "Removed from saved");
     } catch (e) {
       setIsSaved(!newSaved);
+      setSavesCount((prev) => (newSaved ? prev - 1 : prev + 1));
       toast.error("Action failed");
+    }
+  };
+
+  const trackShare = async () => {
+    // Optimistic UI Update (Instant +1)
+    setSharesCount((prev) => prev + 1);
+
+    try {
+      // Call Database
+      await fetch("/api/posts/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId: postData.id }),
+      });
+    } catch (e) {
+      console.error("Failed to record share");
+      // Optional: Revert count if failed
+      setSharesCount((prev) => prev - 1);
     }
   };
   
@@ -1323,6 +1544,9 @@ export const PostCard = ({
       `${window.location.origin}/post/${postData.id}`
     );
     toast.success("Copied!");
+    
+    // Track it!
+    trackShare();
   };
 
   const handleShareClick = () => {
@@ -1430,22 +1654,29 @@ export const PostCard = ({
               onClick={connectionStatus === "pending" ? handleCancelRequest : handleConnect}
               disabled={isLoadingConnection}
               style={{
-                backgroundColor: connectionStatus === "pending" ? "#e2e8f0" : "#2563eb",
+                backgroundColor: connectionStatus === "pending" ? "#f1f5f9" : "#2563eb",
                 color: connectionStatus === "pending" ? "#64748b" : "white",
-                border: "none",
+                border: connectionStatus === "pending" ? "1px solid #e2e8f0" : "none",
                 padding: "6px 14px",
                 borderRadius: "9999px",
-                fontSize: "11px",
+                fontSize: "12px", // Slightly larger for icon alignment
                 fontWeight: "700",
-                cursor: isLoadingConnection ? "default" : "pointer",
+                cursor: connectionStatus === "pending" ? "default" : "pointer",
                 transition: "background 0.2s",
                 opacity: isLoadingConnection ? 0.7 : 1,
+                display: "flex",
+                alignItems: "center",
+                gap: "6px", // Space between clock and text
               }}
             >
               {isLoadingConnection ? (
                 <Loader2 size={12} className="animate-spin" />
               ) : connectionStatus === "pending" ? (
-                  "Cancel" 
+                // 🟢 NEW PENDING STATE WITH CLOCK
+                <>
+                  <Clock size={14} />
+                  <span>Pending</span>
+                </>
               ) : (
                 "Connect"
               )}
@@ -1502,7 +1733,7 @@ export const PostCard = ({
 
                   {/* 2. PENDING: Show Pending Text (Disabled) */}
                   {connectionStatus === "pending" && (
-                    <button style={{ ...styles.menuItem, color: "#64748b" }} onClick={handleCancelRequest} disabled={isLoadingConnection}>
+                    <button style={{ ...styles.menuItem, color: "#64748b", whiteSpace: "nowrap" }} onClick={handleCancelRequest} disabled={isLoadingConnection}>
                       <UserMinus size={16} /> Cancel Request
                     </button>
                   )}
@@ -1586,7 +1817,7 @@ export const PostCard = ({
             />{" "}
             {likesCount.toLocaleString()}
           </button>
-          {/* 🟢 Toggle Comments on Click */}
+          {/* Toggle Comments on Click */}
           <button
             onClick={toggleComments}
             style={{
@@ -1607,18 +1838,28 @@ export const PostCard = ({
           <button
             onClick={handleShareClick}
             style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "4px", // Added gap for text
+              fontSize: "12px", // Consistent font size
               background: "none",
               border: "none",
               cursor: "pointer",
               padding: 0,
+              color: "#64748b",
             }}
           >
             <Send size={18} color="#94a3b8" />
+            {sharesCount.toLocaleString()}
           </button>
         </div>
         <button
           onClick={handleSave}
           style={{
+            display: "flex", // Enable flex to align text
+            alignItems: "center",
+            gap: "4px",
+            fontSize: "12px",
             background: "none",
             border: "none",
             cursor: "pointer",
@@ -1627,6 +1868,7 @@ export const PostCard = ({
           }}
         >
           <Bookmark size={20} fill={isSaved ? "currentColor" : "none"} />
+          {savesCount.toLocaleString()}
         </button>
       </div>
 
@@ -1769,6 +2011,7 @@ export const PostCard = ({
         onClose={() => setIsShareModalOpen(false)}
         postId={postData.id}
         currentUserId={currentUser?.id}
+        onShareSuccess={trackShare}
       />
     </div>
   );

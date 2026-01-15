@@ -35,7 +35,7 @@ export default function FeedPage() {
           {/* 3. Feed Stream */}
           <FeedStream filter="all" currentUser={currentUser} />
 
-          <div className="h-15 md:h-0 w-full flex-shrink-0" />
+          <div className="h-15 lg:h-0 w-full flex-shrink-0" />
           
         </main>
     </div>

@@ -184,7 +184,7 @@ export default function StoryViewer({
         
         {/* Progress Bars */}
         <div className="absolute top-3 left-0 right-0 z-20 flex gap-1 px-2 pointer-events-none">
-          {stories.map((_, idx) => (
+          {stories.map((_: any, idx: number) => (
             <div
               key={idx}
               className="h-0.5 flex-1 bg-white/30 rounded-full overflow-hidden"

@@ -94,9 +94,10 @@ export async function GET(req: NextRequest) {
         author: {
           select: { id: true, fullName: true, username: true, profileImage: true, title: true },
         },
-        _count: { select: { likes: true, comments: true } },
+        _count: { select: { likes: true, comments: true,savedBy: true, shares: true } },
         likes: { where: { userId: userId }, select: { userId: true } },
         savedBy: { where: { userId: userId }, select: { userId: true } },
+        shares: { where: { userId: userId }, select: { userId: true } },
       },
     });
 
@@ -114,6 +115,9 @@ export async function GET(req: NextRequest) {
         isSaved: post.savedBy.length > 0,
         likesCount: post._count.likes,
         commentsCount: post._count.comments,
+        isShared: post.shares.length > 0,
+        savesCount: post._count.savedBy, 
+        sharesCount: post._count.shares,
         
         connectionStatus, 
         connectionId: conn?.id || null,

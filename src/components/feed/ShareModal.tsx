@@ -10,6 +10,7 @@ interface ShareModalProps {
   onClose: () => void;
   postId: string;
   currentUserId: string;
+  onShareSuccess?: () => void;
 }
 
 // --- Styles Object (Matching FeedWidgets) ---
@@ -198,7 +199,7 @@ const styles: Record<string, CSSProperties> = {
   }
 };
 
-export default function ShareModal({ isOpen, onClose, postId, currentUserId }: ShareModalProps) {
+export default function ShareModal({ isOpen, onClose, postId, currentUserId, onShareSuccess }: ShareModalProps) {
   const [connections, setConnections] = useState<any[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -251,6 +252,7 @@ export default function ShareModal({ isOpen, onClose, postId, currentUserId }: S
 
       if (res.ok) {
         toast.success(`Sent to ${selectedIds.size} connections!`);
+        if (onShareSuccess) onShareSuccess();
         onClose();
         setSelectedIds(new Set());
       } else {
@@ -281,6 +283,7 @@ export default function ShareModal({ isOpen, onClose, postId, currentUserId }: S
 
       setCopied(true);
       toast.success("Link copied!");
+      if (onShareSuccess) onShareSuccess();
       setTimeout(() => setCopied(false), 1500);
     } catch (err) {
       console.error("Copy failed:", err);
