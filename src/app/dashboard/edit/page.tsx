@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from "next/navigation";
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
@@ -42,7 +42,7 @@ const FONT_OPTIONS = [
   { label: 'Fantasy (Copperplate)', value: 'Copperplate, Papyrus, fantasy' },
 ];
 
-const CreatePage = () => {
+const CreatePageContent = () => {
   const searchParams = useSearchParams();
   const cardId = searchParams.get("id");   // /edit?id=abc123
   const router = useRouter();
@@ -1180,4 +1180,10 @@ const CreatePage = () => {
 
 };
 
-export default CreatePage;
+export default function CreatePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CreatePageContent />
+    </Suspense>
+  );
+}
