@@ -402,8 +402,8 @@ const DigitalCardPreview: React.FC<DigitalCardProps> = ({
           </div>
 
           {/* 6. ABOUT TEXT */}
-          <div style={{ width: "100%", marginBottom: "24px", padding: "0 10px", textAlign: "center" }}>
-            <p style={{ fontSize: "14px", fontWeight: "500", lineHeight: "1.4", color: "#FFFFFF" }}>
+          <div style={{ width: "100%", textAlign: "center" }}>
+            <p style={{ fontSize: "14px", fontWeight: "500", lineHeight: "1.4", color: "#FFFFFF", marginTop: "30px", marginBottom: "10px" }}>
               {about}
             </p>
           </div>
