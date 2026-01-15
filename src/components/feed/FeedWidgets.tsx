@@ -544,14 +544,22 @@ const CameraCapture = ({ onCapture, onClose }: CameraCaptureProps) => {
     }
   };
 
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64 bg-black text-white rounded-lg p-4">
-        <p className="mb-4">{error}</p>
-        <button onClick={onClose} className="px-4 py-2 bg-gray-700 rounded-full">Close</button>
-      </div>
-    );
-  }
+ if (error) {
+  return (
+    <div className="relative flex flex-col items-center justify-center h-64 bg-black text-white rounded-lg p-4">
+      <button
+        onClick={onClose}
+        className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center 
+                   bg-gray-700 hover:bg-gray-600 
+                   rounded-full text-white font-bold transition"
+        aria-label="Close"
+      >
+        X
+      </button>
+      <p className="mb-4">{error}</p>
+    </div>
+  );
+}
 
   return (
     <div className="relative w-full h-[400px] bg-black rounded-lg overflow-hidden flex flex-col">
