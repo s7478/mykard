@@ -1277,7 +1277,6 @@ sortSelectMobile: {
   ref={composerInputRef}
   value={replyText}
   onChange={(e) => setReplyText(e.target.value)}
-  placeholder="Type your reply..."
   rows={1}
   onKeyDown={(e) => {
     // Ctrl + Enter OR Cmd + Enter → Send
