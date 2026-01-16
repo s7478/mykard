@@ -1,9 +1,12 @@
-/* --- Animations --- */
+/* =========================================
+   1. ANIMATIONS
+   ========================================= */
 @keyframes slideInUp {
   from {
     opacity: 0;
     transform: translateY(16px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -14,6 +17,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -23,279 +27,164 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
 }
 
-/* Global padding fix - 16-20px on both sides for all widths */
-/*.container {
+/* =========================================
+        2. LAYOUT ENGINE (FIXED STICKY BEHAVIOR)
+        ========================================= */
+
+/* Locks page height to screen - Prevents double scrollbars */
+.container {
+  height: 100dvh;
+  /* Dynamic Viewport Height */
+  width: 100%;
+  overflow: hidden;
+  /* Main body doesn't scroll, inner areas do */
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Header stays at top, doesn't shrink, doesn't scroll */
+.fixedHeader {
+  flex-shrink: 0;
+  z-index: 50;
+  padding-top: 1.5rem;
+  /* Increased top spacing for desktop look */
+  background: transparent;
+  width: 100%;
+}
+
+/* NEW: Centering Wrapper for Header Content 
+     This ensures the search bar aligns perfectly with the white panel below
+     and doesn't stick to the sidebar.
+  */
+.headerContentWrapper {
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 1.5rem 1.125rem;
-  min-height: 100vh;
-  background: #f4f7fc;
-  animation: fadeIn 0.5s ease-out;
-}*/
-
-@media (min-width: 768px) {
-  /* -------- Full-width container on mobile -------- */
-  /*.container {
-    max-width: 100%;
-    padding: 1rem 1rem 5.5rem; 
-  }*/
-
-   /* --------Reduce header height & spacing -------- */
-  /*.header {
-    margin-bottom: 1.25rem;
-  }*/
-
-  /*.title {
-    font-size: 22px; 
-  }*/
-
-  .subtitle {
-    font-size: 0.8rem;
-  }
-
-  /* --------Show ONLY mobile search -------- */
-  .desktopSearchBar {
-    display: none;
-  }
-
-  .searchSection {
-    display: flex;
-    margin-bottom: 1.25rem;
-  }
-
-  .searchRow {
-    max-width: 100%;
-  }
-
-  /* --------Edge-to-edge search input -------- */
-  .searchInput {
-    font-size: 0.9rem;
-    padding: 0.75rem 0.9rem 0.75rem 2.4rem;
-  }
-
-  
-  /* -------- Improve empty state on mobile -------- */
-  .emptyState {
-    padding: 2.5rem 1.25rem;
-    border-radius: 14px;
-  }
-
-  .emptyIcon {
-    width: 3rem;
-    height: 3rem;
-  }
-
-  .emptyTitle {
-    font-size: 1.1rem;
-  }
-
-  .emptyMessage {
-    font-size: 0.85rem;
-  }
-
-  /* -------- Mobile export button alignment -------- */
-  .mobileExportButton {
-    margin-top: 0.75rem;
-    padding: 0.55rem 1.1rem;
-    font-size: 0.8rem;
-  }
-
+  padding: 0 1rem;
+  box-sizing: border-box;
 }
 
-/* -------- Desktop-only search visibility -------- */
-@media (min-width: 769px) {
-  .searchSection {
-    display: none;
-  }
-
-  .desktopSearchBar {
-    display: block;
-  }
-}
-
-/* @media (min-width: 1024px) {
-  .container {
-    padding: 2rem 3rem;
-  }
-} */
-
-/* --- Header Section (Premium, Compact, Centered) --- */
-/* Center all header elements perfectly, reduce empty space */
-/*.header {
-  margin-bottom: 1.75rem;
-  text-align: center;
-  animation: slideInUp 0.6s ease-out;
+/* Container for tabs and list - Grows to fill space */
+.tabsContainer {
+  flex: 1;
+  /* Takes all remaining height */
   display: flex;
   flex-direction: column;
-  align-items: center;
-}*/
-
-/*.headerContent {
-  display: flex;
-  flex-direction: column;
-  gap: 0.875rem;
-  align-items: center;
+  min-height: 0;
+  /* Critical for flex scroll */
+  background: transparent;
+  padding: 0 1rem 0.5rem 1rem;
+  margin: 0 auto;
   width: 100%;
-}*/
-
-/*.titleSection {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}*/
-
-/* Slightly larger, perfectly centered, responsive */
-/*.title {
-  font-family: "Plus Jakarta Sans", Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-  font-size: 32px;
-  font-weight: 700;
-  line-height: 1; 
-  letter-spacing: 0;
-  color: #2152E5;
-  text-align: center;
-  margin: 0;
-}*/
-
-
-.titleIcon {
-  width: 2.5rem;
-  height: 2.5rem;
-  color: #1e67f4;
-  flex-shrink: 0;
+  box-sizing: border-box;
+  max-width: 1200px;
 }
 
-/* Centered subtitle, soft grey */
-/*.subtitle {
-  font-size: 0.875rem;
-  color: #9ca3af;
-  margin: 0;
-  line-height: 1.4;
-  letter-spacing: 0.3px;
-}*/
-
-/* Badge centered and properly styled */
-/*.statsSection {
+/* The White Card Panel - Grows to fill tabsContainer */
+.whitePanel {
+  flex: 1;
+  /* Fills height */
   display: flex;
-  gap: 1rem;
-  justify-content: center;
-  width: 100%;
-  flex-wrap: wrap;
-}
-
-.statCard {
-  background: linear-gradient(135deg, rgba(30, 103, 244, 0.08) 0%, rgba(30, 103, 244, 0.04) 100%);
-  border: 1px solid #e6e9ee;
-  border-radius: 32px;
-  padding: 0.625rem 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
+  flex-direction: column;
+  min-height: 0;
+  /* Critical for flex scroll */
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #E6E9EE;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0.5rem 0.5rem 0;
 }
 
-.statCard:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(30, 103, 244, 0.15);
-  border-color: #1e67f4;
+/* --- THE SCROLL AREA --- */
+/* Only this part scrolls. This keeps the header/search bar visually sticky. */
+.scrollArea {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 100px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-.statNumber {
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: #1e67f4;
+.scrollArea::-webkit-scrollbar {
+  display: none;
 }
 
-.statLabel {
-  font-size: 0.7rem;
-  color: #6b7280;
-  font-weight: 600;
-}*/
-
-.inlineStatCard {
-  flex: 1 1 0;
-  min-width: 130px;
+/* =========================================
+        3. TABS
+        ========================================= */
+.tabs {
+  flex-shrink: 0;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.85rem 1rem;
-  border: 1px solid rgba(30, 103, 244, 0.18);
-  border-radius: 28px;
-  background: #ffffff;
-  box-shadow: 0 1px 4px rgba(30, 103, 244, 0.06);
-  margin-left: auto;
-  gap: 0.5rem;
+  justify-content: flex-start;
+  gap: 1.75rem;
+  padding-left: 0.25rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid #f0f2f5;
 }
 
-/* --- Search Section --- */
-/* Centered, full-width search with proper margins and padding */
-.searchSection {
-  margin-bottom: 0.1rem;
+.tab {
+  position: relative;
+  background: none;
+  border: none;
+  padding: 0.75rem 0;
+  font-weight: 500;
+  color: #64748B;
+  cursor: pointer;
+  font-family: "Plus Jakarta Sans", Inter, system-ui;
+  font-size: 0.95rem;
+}
+
+.tab:hover {
+  color: #2152E5;
+}
+
+.activeTab {
+  color: #2152E5;
+  font-weight: 600;
+}
+
+.activeTab::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #2152E5;
+  border-radius: 2px;
+}
+
+/* =========================================
+        4. SEARCH BAR (Refined)
+        ========================================= */
+
+/* Mobile Search Container */
+.mobileSearchSection {
   display: flex;
   justify-content: center;
-  padding: 0;
+  padding: 0 1rem;
   width: 100%;
   box-sizing: border-box;
+  margin-bottom: 1rem;
 }
 
-.searchRow {
-  display: flex;
-  gap: 0.75rem;
-  width: 100%;
-  max-width: 900px;
-  align-items: stretch;
-  flex-wrap: nowrap;
+/* Desktop Search Bar (Hidden by default, shown in media query) */
+.desktopSearchBar {
+  display: none;
+  /* Controlled by media queries */
 }
 
-.searchContainer {
-  position: relative;
-  width: 100%;
-  max-width: none;
-  flex: 1 1 auto;
-  min-width: 0;
-  box-sizing: border-box;
-}
-
-.inlineStatCard {
-  flex: 0 0 20%;
-  min-width: 20%;
-  max-width: 20%;
-  margin-left: auto;
-  padding: 0.6rem 0.8rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border: 1px solid rgba(30, 103, 244, 0.18);
-  border-radius: 28px;
-  background: #ffffff;
-  box-shadow: 0 1px 4px rgba(30, 103, 244, 0.06);
-  gap: 0.25rem;
-}
-
-/* Mobile adjustments for inline stat card */
-@media (max-width: 768px) {
-  .inlineStatCard {
-    padding: 0.5rem 0.6rem;
-    gap: 0.2rem;
-  }
-  
-  .statNumber {
-    font-size: 1rem;
-  }
-  
-  .statLabel {
-    font-size: 0.65rem;
-  }
-}
-
-/* iOS-style search bar - 28-30px radius, curved, responsive */
-.searchInput {
+/* Common Input Styles */
+.searchInput,
+.desktopSearchInput {
   width: 100%;
   height: 48px;
   padding: 0 1rem 0 2.75rem;
@@ -303,19 +192,22 @@
   border: 1px solid #E2E8F0;
   font-size: 14px;
   background: #ffffff;
-}
-
-.searchInput:focus {
   outline: none;
+  transition: border-color 0.2s;
+}
+
+.desktopSearchInput {
+  padding-left: 44px;
+}
+
+.searchInput:focus,
+.desktopSearchInput:focus {
   border-color: #1e67f4;
-  box-shadow: 0 0 0 4px rgba(30, 103, 244, 0.08), 0 8px 20px rgba(30, 103, 244, 0.15);
+  box-shadow: 0 0 0 3px rgba(30, 103, 244, 0.1);
 }
 
-.searchInput::placeholder {
-  color: #9ca3af;
-}
-
-.searchIcon {
+.searchIcon,
+.desktopSearchIcon {
   position: absolute;
   left: 0.875rem;
   top: 50%;
@@ -323,11 +215,11 @@
   width: 1.25rem;
   height: 1.25rem;
   color: #9ca3af;
-  flex-shrink: 0;
   pointer-events: none;
 }
 
-.clearButton {
+.clearButton,
+.desktopClearButton {
   position: absolute;
   right: 0.75rem;
   top: 50%;
@@ -337,54 +229,403 @@
   font-size: 1.5rem;
   color: #9ca3af;
   cursor: pointer;
-  transition: all 0.2s ease-out;
   padding: 0.25rem;
+  line-height: 1;
 }
 
-.clearButton:hover {
-  color: #111827;
+/* Desktop Search Specifics */
+.desktopSearchRow {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  align-items: center;
+  margin-bottom: 1rem;
+  /* Space between search and white panel */
 }
 
-/* --- Results Section --- */
-.resultsSection {
-  background: transparent;
+.desktopSearchContainer {
+  position: relative;
+  flex: 1;
+  /* THIS MAKES IT EXPAND TO FILL WIDTH */
+}
+
+.exportButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 1.5rem;
+  height: 48px;
+  background-color: #1e67f4;
+  color: #ffffff;
+  border-radius: 12px;
   border: none;
-  box-shadow: none;
-  padding: 0;
-  margin: 0;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  white-space: nowrap;
 }
-/* Compact results header, centered, reduced spacing */
+
+.exportButton:hover {
+  background-color: #1652cc;
+}
+
+/* =========================================
+        5. CONTACT LIST & CARDS
+        ========================================= */
+.contactsList {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.8rem;
+  padding: 1rem 0.5rem;
+  /* Add side padding inside list */
+}
+
+.contactCard {
+  position: relative;
+  background: #F5F9FF;
+  border: 1px solid rgba(75, 133, 255, 0.22);
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(30, 103, 244, 0.05);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .contactCard:hover {
+    border-color: #4B85FF;
+    background: #F0F6FF;
+    box-shadow: 0 8px 20px rgba(75, 133, 255, 0.15);
+    transform: translateY(-1px);
+  }
+}
+
+.contactHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.contactInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.avatar {
+  width: 3.5rem;
+  height: 3.5rem;
+  background: linear-gradient(135deg, #1e67f4 0%, #1652cc 100%);
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.contactDetails {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.nameRow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.contactName {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.contactedViaInline {
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748B;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contactMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.moreButton {
+  background: none;
+  border: none;
+  padding: 0.375rem;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
+}
+
+/* Dropdown */
+.dropdownContainer {
+  position: relative;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #e6e9ee;
+  border-radius: 0.625rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 60;
+  min-width: 160px;
+}
+
+.dropdownItemDelete {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 0.875rem;
+  color: #dc2626;
+  cursor: pointer;
+}
+
+.dropdownItemDelete:hover {
+  background-color: #fee2e2;
+}
+
+/* Expanded State */
+.contactActions,
+.mobileTimeStamp {
+  display: none;
+}
+
+.contactCard.expanded {
+  background: linear-gradient(180deg, #EAF4FF 0%, #FFFFFF 100%);
+  border: 1px solid #4B85FF;
+}
+
+.contactCard.expanded .contactActions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  width: 100%;
+  margin-top: 10px;
+  padding-left: 42px;
+}
+
+.contactCard.expanded .mobileTimeStamp {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 0.5rem;
+}
+
+/* Quick Actions */
+.quickActions {
+  position: absolute;
+  top: 48px;
+  left: 78px;
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.quickIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #2152E5;
+  border: 1px solid #C7DBFF;
+  color: #EAF2FF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* Action Buttons */
+.actionButton {
+  height: 36px;
+  width: 100%;
+  background: #F5F9FF;
+  border: 1px solid #E3ECFF;
+  border-radius: 10px;
+  font-size: 11px;
+  color: #2152E5;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 12px;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.actionButton svg {
+  color: #4B85FF;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* Results Count */
 .resultsHeader {
-  padding: 0.75rem 0;
-  margin-bottom: 1.5rem;
-  text-align: center;
-  background: transparent;
+  padding: 0.5rem;
 }
 
 .resultsCount {
-  font-size: 0.9rem;
-  color: #6b7280;
-  margin: 0;
+  font-size: 13px;
+  color: #64748B;
   font-weight: 500;
+  margin: 0;
 }
 
 .countNumber {
+  color: #1e67f4;
   font-weight: 700;
-  color: #1e67f4;
 }
 
-.searchTerm {
-  font-weight: 600;
-  color: #1e67f4;
+/* =========================================
+        6. RESPONSIVE / MOBILE
+        ========================================= */
+
+/* Desktop View (Min 769px) */
+@media (min-width: 769px) {
+  .mobileSearchSection {
+    display: none;
+  }
+
+  .desktopSearchBar {
+    display: block;
+    /* Show desktop search */
+  }
+
+  /* Search Row styles handled in section 4 */
 }
 
-/* --- Loading State --- */
-.loadingContainer {
+/* Mobile View (Max 768px) */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 !important;
+  }
+
+  .fixedHeader {
+    padding-top: 10px;
+  }
+
+  .desktopSearchBar {
+    display: none;
+  }
+
+  .tabsContainer {
+    padding: 0 1rem 0.5rem 1rem;
+  }
+
+  .scrollArea {
+    padding-bottom: 130px;
+  }
+
+  .contactCard {
+    width: 100%;
+    background: linear-gradient(to bottom right, #ffffff, #fbfcff);
+    border: 1px solid rgba(30, 103, 244, 0.15);
+    border-radius: 18px;
+    padding: 1rem;
+  }
+
+  .contactName {
+    font-size: 15px;
+  }
+
+  .avatar {
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 1rem;
+  }
+
+  .contactCard.expanded .contactActions {
+    padding-left: 0;
+  }
+
+  .quickActions {
+    top: 42px;
+    left: 60px;
+  }
+
+  .quickIcon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .searchRow {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+    align-items: center;
+  }
+
+  .searchContainer {
+    position: relative;
+    width: 100%;
+    flex: 1 1 auto;
+  }
+
+  .mobileExportInline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    /* Match input height */
+    min-width: 48px;
+    background-color: #1e67f4;
+    color: #ffffff;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .tabsContainer {
+    padding: 0 0.75rem 0.5rem 0.75rem;
+  }
+
+  .contactCard {
+    padding: 0.8rem;
+  }
+}
+
+/* Loading/Empty */
+.loadingContainer,
+.emptyState {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 4rem 2rem;
+  text-align: center;
   gap: 1rem;
 }
 
@@ -394,27 +635,7 @@
   border: 3px solid #e6e9ee;
   border-top: 3px solid #1e67f4;
   border-radius: 50%;
-}
-
-.loadingText {
-  font-size: 1rem;
-  color: #6b7280;
-  margin: 0;
-}
-
-/* --- Empty State --- */
-.emptyState {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 2rem;
-  text-align: center;
-  gap: 1rem;
- /* border-radius: 16px;
-  background-color: #ffffff;
-  border: 1px solid #e6e9ee;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);**/
+  animation: spin 1s linear infinite;
 }
 
 .emptyIcon {
@@ -446,1353 +667,6 @@
   color: #ffffff;
   border: none;
   border-radius: 0.625rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease-out;
-}
-
-.clearSearchButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(30, 103, 244, 0.15);
-}
-
-/* --- Contacts List (Main Grid) --- */
-/* Better gaps, proper spacing between cards */
-.contactsList {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.2rem;
-}
-
-/* --- Contact Card --- */
-/* Increased radius (16-20px), better padding, responsive, no overflow */
-.contactCard {
-  background: #F5F9FF;
-  border: 1px solid rgba(75, 133, 255, 0.22);
-  border-radius: 16px;
-  padding: 1rem;
-
-  box-shadow:
-    0 3px 10px rgba(30, 103, 244, 0.12),
-    0 0 0 1px rgba(75, 133, 255, 0.12);
-
-  transition: all 0.25s ease;
-  cursor: pointer;
-}
-/* --- Contact Header (Avatar + Name + Timestamp) --- */
-.contactHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.75rem;
-  width: 100%;
-}
-
-/*.contactMeta {
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  flex-shrink: 0;
-  width: auto;
-  max-width: 50%;
-}*/
-
-.contactMetaTop {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  flex-shrink: 0;
-  width: 100%;
-  margin-bottom: 0.75rem;
-}
-
-.contactInfo {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-.contactDetails {
-  flex: 1 1 auto;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-}
-
-/* Avatar properly sized, aligned left */
-.avatar {
-  width: 3.5rem;
-  height: 3.5rem;
-  background: linear-gradient(135deg, #1e67f4 0%, #1652cc 100%);
-  color: #ffffff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.35rem;
-  font-weight: 800;
-  flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(30, 103, 244, 0.2);
-  order: -1;
-}
-
-/* Text wraps gracefully, no overflow */
-.contactName {
-  font-size: 16px;
-  font-weight: 700;
-  color: #0F172A;
-
-  margin: 0 0 0.4rem 0;
-  line-height: 1.4;
-
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  text-align: left !important;
-}
-
-
-/* Card source wraps properly */
-/*.contactCardText {
-  font-size: 0.85rem;
-  color: #6b7280;
-  margin: 0;
-  line-height: 1.5;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-}*/
-
-/* Remove container styling from contacted via on mobile */
-@media (max-width: 768px) {
-  /*.contactCardText {
-    background: none !important;
-    border: none !important;
-    padding: 0 !important;
-  }*/
-}
-
-.cardName {
-  font-weight: 700;
-  color: #1e67f4;
-}
-
-.cardType {
-  font-weight: 400;
-  color: #9ca3af;
-  font-size: 0.8rem;
-}
-
-/*.timeStamp {
-  background: rgba(30, 103, 244, 0.12);
-  color: #1E3A8A;
-  font-size: 12px;
-  font-weight: 600;
-  border-radius: 8px;
-  padding: 4px 10px;
-}*/
-
-
-.mobileTimeStamp {
-  display: none;
-  align-items: center;
-  gap: 0.375rem;
-  font-size: 0.75rem;
-  color: #9ca3af;
-  justify-content: flex-end;
-  margin-top: 0.5rem;
-}
-
-/* --- Dropdown Menu --- */
-.dropdownContainer {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.moreButton {
-  background: none;
-  border: none;
-  padding: 0.375rem;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  color: #9ca3af;
-  transition: all 0.2s ease-out;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.moreButton:hover {
-  background-color: #f3f4f6;
-  color: #6b7280;
-}
-
-.dropdownMenu {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  margin-top: 0.5rem;
-  background: #ffffff;
-  border: 1px solid #e6e9ee;
-  border-radius: 0.625rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 50;
-  min-width: 160px;
-  overflow: hidden;
-}
-
-.dropdownItemDelete {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: none;
-  border: none;
-  text-align: left;
-  font-size: 0.875rem;
-  color: #dc2626;
-  cursor: pointer;
-  transition: background-color 0.2s ease-out;
-  font-weight: 500;
-}
-
-.dropdownItemDelete:hover {
-  background-color: #fef2f2;
-}
-
-/* Hide desktop timestamp on mobile */
-@media (max-width: 768px) {
-  /*.timeStamp {
-    display: none;
-  }*/
-
-  .mobileTimeStamp {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    font-size: 0.75rem;
-    color: #9ca3af;
-    justify-content: flex-end;
-    margin-top: 0.5rem;
-  }
-}
-
-/* --- Contact Actions (Email/Phone/Source Buttons) --- */
-/* Buttons responsive, full-width on mobile, horizontal on desktop */
-.contactActions {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  align-items: stretch;
-}
-
-/* Button styling - interactive, smooth transitions */
-.actionButton {
-  height: 36px;
-
-  background: #F5F9FF;        /* Figma light blue */
-  border: 1px solid #E3ECFF;  /* soft blue border */
-
-  border-radius: 10px;
-
-  font-size: 11px;
-  font-weight: 400;
-  color: #2152E5;             /* Figma primary blue */
-
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-
-
-/* Smooth hover state with color transition */
-.actionButton:hover {
-  background: #1E67F4;
-  border-color: #1E67F4;
-  color: #ffffff;
-}
-
-.actionButton:active {
-  transform: translateY(0);
-}
-
-/* --- Desktop Inline Search Bar (matches search page) --- */
-.desktopSearchBar {
-  display: none;
-  margin-bottom: 2rem;
-  position: relative;
-  width: 100%;
-}
-
-.desktopSearchContainer {
-  position: relative;
-  width: 100%;
-}
-
-.desktopSearchIcon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 16px;
-  height: 16px;
-  color: #94A3B8;
-  opacity: 0.85;
-  pointer-events: none;
-}
-
-.desktopSearchInput {
-  width: 100%;
-  padding: 12px 16px 12px 44px;
-  border-radius: 12px;
-  border: 1px solid #E2E8F0;
-  background: #fff;
-  color: #0F172A;
-  font-size: 14px;
-  outline: none;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  font-family: inherit;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.desktopSearchInput:focus {
-  border-color: #1e67f4;
-  box-shadow: 0 0 0 4px rgba(30, 103, 244, 0.08), 0 8px 20px rgba(30, 103, 244, 0.15);
-}
-
-.desktopSearchInput::placeholder {
-  color: rgba(15, 23, 42, 0.4);
-}
-
-.desktopClearButton {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  color: #9ca3af;
-  cursor: pointer;
-  transition: all 0.2s ease-out;
-  padding: 0.25rem;
-}
-
-.desktopClearButton:hover {
-  color: #111827;
-}
-
-/* Show desktop search bar only on desktop screens */
-@media (min-width: 769px) {
-  .desktopSearchBar {
-    display: block;
-  }
-  
-  /* Hide original mobile search bar on desktop */
-  .searchSection {
-    display: none;
-  }
-}
-
-/* --- Mobile Responsiveness (CRITICAL) --- */
-/* Mobile fixes - 16-20px side padding, centered layout, full-width cards */
-@media (max-width: 768px) {
-  .container {
-    padding: 0.75rem 1rem 80px 1rem;
-  }
-
-  .header {
-    margin-bottom: 0.5rem;
-  }
-
- /* .title {
-    font-size: 28px;
-    font-weight: 700;
-    color: #111827;
-    line-height: 1.05;
-    margin: 0;
-    text-align: center;
-    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-  }*/
-
-  .titleIcon {
-    width: 2rem;
-    height: 2rem;
-  }
-
-  .subtitle {
-    font-size: 0.8rem;
-    margin-top: 0.25rem;
-  }
-
-  .statsSection {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .statCard {
-    padding: 0.5rem 1rem;
-  }
-
-  .statNumber {
-    font-size: 1.2rem;
-  }
-
-  .statLabel {
-    font-size: 0.75rem;
-  }
-
-  .searchSection {
-    margin-bottom: 1rem;
-  }
-
-  .searchRow {
-    flex-wrap: nowrap;
-    gap: 0.5rem;
-  }
-
-  .inlineStatCard {
-    flex: 1 1 0;
-    min-width: 120px;
-    margin-left: 0;
-    padding: 0.75rem 0.9rem;
-  }
-
-  /*.searchInput {
-    font-size: 12px;
-    padding: 0.5rem 1rem 0.5rem 2.75rem;
-  }*/
-
-  .searchInput::placeholder {
-    font-size: 12px;
-  }
-
-  /* Mobile - buttons in a single row */
-  .contactActions {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0.25rem;
-    align-items: stretch;
-    justify-content: flex-start;
-  }
-
-  /*.actionButton {
-    width: 100%;
-    flex: 0 1 auto;
-    justify-content: flex-start;
-    background-color: #f3f4f6;
-    border: 1px solid #e6e9ee;
-    padding: 0.375rem 0.5rem;
-    font-size: 0.75rem;
-    gap: 0.25rem;
-  }*/
-
-  .phoneButton {
-    justify-self: flex-start;
-    width: 100%;
-    min-width: auto;
-  }
-
-	/* Slightly wider message card left/right on mobile */
-	.messageButton {
-		width: 100%;
-		margin: 0;
-	}
-
-  .mobileTimeStamp {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    font-size: 0.75rem;
-    color: #9ca3af;
-    justify-content: flex-end;
-    margin-top: 0.5rem;
-  }
-
-  /* Mobile - reduce avatar size */
-  .avatar {
-    width: 2.5rem;
-    height: 2.5rem;
-    font-size: 0.875rem;
-    margin: 0 auto;
-  }
-
-  /* Mobile - header flexible layout */
-  .contactHeader {
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 0.375rem;
-    margin-bottom: 0.375rem;
-  }
-
- .contactMeta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: space-between; /* 🔥 key line */
-  flex-shrink: 0;
-  min-height: 100%;
-}
-
-  .contactMetaTop {
-    justify-content: flex-end;
-    margin-left: 0;
-    width: 100%;
-    margin-bottom: 0.75rem;
-  }
-
-  .contactInfo {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-
-  .contactDetails {
-    text-align: left;
-    align-items: flex-start;
-  }
-
-  .contactCard {
-    padding: 0.375rem;
-    border-radius: 16px;
-  }
-
- 
-
-  /*.contactName {
-    font-size: 0.875rem;
-    text-align: center;
-  }*/
-
-  /*.contactCardText {
-    font-size: 0.75rem;
-    grid-column: 1 / -1;
-  }*/
-
-  .resultsHeader {
-    padding: 0.5rem 0;
-    margin-bottom: 0.75rem;
-  }
-
-  .resultsCount {
-    font-size: 0.85rem;
-  }
-}
-
-/* Extra small screens - further reduce sizes */
-@media (max-width: 480px) {
-  .container {
-    padding: 0.5rem 0.75rem 80px 0.75rem;
-  }
-
-  .header {
-    margin-bottom: 0.5rem;
-  }
-
-  /*.title {
-    font-size: 1.5rem;
-  }*/
-
-  .titleIcon {
-    width: 1.65rem;
-    height: 1.65rem;
-  }
-
-  .subtitle {
-    font-size: 0.75rem;
-  }
-
-  .contactCard {
-    padding: 0.375rem;
-    border-radius: 16px;
-  }
-
-  .avatar {
-    width: 2.75rem;
-    height: 2.75rem;
-    font-size: 1rem;
-  }
-
-  /*.contactName {
-    font-size: 0.95rem;
-  }*/
-
-  .actionButton {
-    padding: 0.375rem 0.5rem;
-    font-size: 0.75rem;
-    gap: 0.25rem;
-  }
-
-  /*.searchInput {
-    font-size: 16px;
-    padding: 0.5rem 1rem 0.5rem 2.25rem;
-  }*/
-
-  .searchInput::placeholder {
-    font-size: 12px;
-  }
-
-  .searchIcon {
-    left: 0.75rem;
-    width: 1.1rem;
-    height: 1.1rem;
-  }
-
-  .contactHeader {
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .contactInfo {
-    gap: 0.75rem;
-  }
-
-  .resultsHeader {
-    padding: 0.375rem 0;
-  }
-}
-
-/* Tablet & Desktop - buttons horizontal, better spacing */
-@media (min-width: 769px) {
-  .contactActions {
-    flex-direction: row;
-    gap: 0.75rem;
-  }
-
-  /*.actionButton {
-    width: auto;
-  }*/
-
-  .contactHeader {
-    flex-direction: row;
-    align-items: flex-start;
-  }
-}/* --- Mobile Card Center Fix (DO NOT TOUCH ANYTHING ELSE) --- */
-@media (max-width: 768px) {
-  .contactsList {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    width: 100% !important;
-    margin: 0 auto !important;
-  }
-
-  /*.contactCard {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-  }*/
-
-  /* Prevent horizontal scroll issue */
-  .container,
-  .contactsList {
-    overflow-x: hidden !important;
-  }
-}
-
-
-@media (max-width: 768px) {
-
-  .contactCard {
-    background: linear-gradient(to bottom right, #ffffff, #fbfcff);
-    border: 1px solid rgba(30, 103, 244, 0.15);
-   
-    border-radius: 18px;
-    
-    box-shadow: 
-      0 2px 8px rgba(30, 103, 244, 0.08),
-      0 0 0 1px rgba(30, 103, 244, 0.06);
-  }
-
-
-
-  .actionButton:hover {
-    background: #1e67f4;
-    border-color: #1e67f4;
-    color: #ffffff;
-  }
-
- 
-}
-
-
-/* Spacing improvement for mobile */
-@media (max-width: 480px) {
-  .contactCard {
-    padding: 1.2rem;
-    border-radius: 18px;
-    margin-bottom: 10px;
-  }
-
-
-
-  .actionButton:hover {
-    background: #1e67f4;
-    border-color: #1e67f4;
-    color: #ffffff;
-  }
-}
-
-/* --- FIX #1: Time stamp more readable & highlighted --- */
-.timeStamp {
-  margin-top: auto;        /* 🔥 pushes it to bottom */
-  font-size: 11px;
-  font-weight: 500;
-  color: #64748B;
-  white-space: nowrap;
-}
-
-/* --- FIX #2: Space between Name → Contacted via text --- */
-.contactCardText {
-  margin-top: 0.80rem !important;  
-} 
-
-
-
-/* --- FIX #4: Wider search bar (desktop only) + soft border --- */
-@media (min-width: 1024px) {
-  .searchContainer {
-    max-width: 700px !important;  /* wider desktop search */
-  }
-}
-
-
-
-.mobileExportButton {
-  display: none; 
-  align-items: center;
-  margin-top: 1rem;
-  gap:0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: #1e67f4; 
-  color: #ffffff;
-  border: 1px solid rgba(30, 103, 244, 0.2);
-  border-radius: 20px;
-  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
 }
-
-@media (max-width: 768px) {
-  .mobileExportButton {
-    display: flex; 
-  }
-}
-
-@media (min-width: 769px) {
-  .desktopSearchContainer {
-    flex: 1; 
-  }
-}
-
-.desktopSearchRow {
-  display: flex;
-  gap: 1rem;       
-  width: 100%;
-  align-items: center;
-}
-
-
-.exportButton {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0 1rem;
-  height: 45px;        
-  background-color: #1e67f4; 
-  color: #ffffff;
-  border-radius: 12px;
-} 
-
-
-
-/* =========================================================
-   FINAL CLEAN MOBILE VISUAL STYLES
-   ========================================================= */
-
-@media (max-width: 768px) {
-
-  /* Card visual */
-  .contactCard {
-    background: linear-gradient(to bottom right, #ffffff, #fbfcff);
-    border: 1px solid rgba(30, 103, 244, 0.15);
-    padding: 1.25rem;
-    border-radius: 18px;
-    box-shadow: 
-      0 2px 8px rgba(30, 103, 244, 0.08),
-      0 0 0 1px rgba(30, 103, 244, 0.06);
-  }
-
- 
-
-}
-
-
-.mobileExportButton {
-  display: none; 
-  align-items: center;
-  margin-top: 1rem;
-  gap:0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: #1e67f4; 
-  color: #ffffff;
-  border: 1px solid rgba(30, 103, 244, 0.2);
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-@media (max-width: 768px) {
-  .mobileExportButton {
-    display: flex; 
-  }
-}
-
-@media (min-width: 769px) {
-  .desktopSearchContainer {
-    flex: 1; 
-  }
-}
-
-.desktopSearchRow {
-  display: flex;
-  gap: 1rem;       
-  width: 100%;
-  align-items: center;
-}
-
-
-.exportButton {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0 1rem;
-  height: 45px;        
-  background-color: #1e67f4; 
-  color: #ffffff;
-  border-radius: 12px;
-} 
-/* ================================
-   MOBILE: Export beside Search
-   ================================ */
-
-.mobileExportInline {
-  display: none;
-}
-
-@media (max-width: 768px) {
-  .searchRow {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-  }
-
-  .searchContainer {
-    flex: 1;
-  }
-
-  .mobileExportInline {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 44px;
-    min-width: 44px;
-    background-color: #1e67f4;
-    color: #ffffff;
-    border-radius: 12px;
-    border: none;
-    cursor: pointer;
-  }
-
-  .mobileExportInline:hover {
-    background-color: #1652cc;
-  }
-}
-  
-/* =====================================
-   HIDE TOP EXPORT BUTTON ON MOBILE ONLY
-   ===================================== */
-
-@media (max-width: 768px) {
-  .mobileExportButton {
-    display: none !important;
-  }
-}
-.contactCardText {
-  font-size: 13px;
-  color: #64748B;
-  margin-top: 6px;
-}
-
-/* =====================================
-   FINAL RESPONSIVE OVERRIDES (FIGMA)
-   ===================================== */
-
-/* Mobile title size */
-@media (max-width: 768px) {
-  .title {
-    font-size: 22px;
-  }
-}
-
-/* Mobile contact name */
-@media (max-width: 768px) {
-  .contactName {
-    font-size: 15px;
-  }
-}
-
-/* Mobile search input */
-@media (max-width: 768px) {
-  .searchInput {
-    height: 44px;
-    font-size: 13px;
-  }
-}
-
-/* Desktop card hover (smooth) */
-@media (min-width: 769px) {
-  .contactCard:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(30, 103, 244, 0.15);
-  }
-}
-
-.titleRow:hover + .infoText {
-  opacity: 1;
-  visibility: visible;
-}
-/* ================================
-   LEADS TABS (FIGMA STYLE)
-   ================================ */
-
-.tabs {
-  display: flex;
-  justify-content: flex-start;   /* ← LEFT ALIGN */
-  gap: 1.75rem;
-  margin-top: 0;
-  margin-bottom: 0.25rem;
-  padding-left: 0.25rem;        /* subtle inset like Figma */
-  border-bottom: none;
-}
-
-.tab {
-  position: relative;
-  background: none;
-  border: none;
-  padding: 0.5rem 0;
-  font-weight: 500;
-  color: #64748B;
-  cursor: pointer;
-  font-family: "Plus Jakarta Sans", Inter, system-ui;
-  margin-bottom: 0rem;
-}
-
-.tab:hover {
-  color: #2152E5;
-}
-
-/* Active tab (Leads) */
-.activeTab {
-  /* color: #2152E5; */
-  font-weight: 600;
-}
-
-.activeTab::after {
-  content: "";
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 1.5px;
-  background-color: #3b82f6;
-  border-radius: 2px;
-}
-/* ================================
-   TABS + RESULTS CONTAINER (WHITE)
-   ================================ */
-.tabsContainer {
-  background: transparent;   /* 🔥 KEY */
-  border: none;              /* 🔥 KEY */
-  box-shadow: none;          /* 🔥 KEY */
-
-
-  padding: 0.25rem 0.75rem; /* tighter like Figma */
-  margin: 0 auto 0.75rem;
-
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-}
-.searchSection {
-  margin-bottom: 6px !important;
-}
-@media (hover: hover) {
-  .contactCard:hover {
-    /*background: #F0F6FF;*/
-    border-color: #4B85FF;
-
-    box-shadow: 
-      0 8px 20px rgba(75, 133, 255, 0.25),
-      0 0 0 1px rgba(75, 133, 255, 0.35);
-
-    transform: translateY(-2px);
-  }
-}
-@media (max-width: 768px) {
-  .contactCard:hover {
-    transform: none;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-    background: #ffffff;
-  }
-}
-.contactedViaInline {
-  font-size: 12px;
-  font-weight: 500;
-  color: #64748B; /* soft gray like Figma */
-}
-.contactName {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-
-  font-size: 16px;
-  font-weight: 700;
-  color: #0F172A;
-
-  margin: 0;
-  line-height: 1.4;
-
-  /* allow truncation */
-  min-width: 0;
-}
-
-
-.contactedViaInline {
-  font-size: 12px;
-  font-weight: 500;
-  color: #64748B;
-  margin-top: -16px;
-  max-width: 160px;       
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  display: inline-block;
-}
-.contactRow {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: #334155;
-  margin-top: 4px;
-}
-.contactMeta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-  flex-shrink: 0;
-}
-.timeStamp {
-  font-size: 11px;
-  font-weight: 500;
-  color: #64748B;
-  white-space: nowrap;
-}
-@media (max-width: 768px) {
-  .contactMeta {
-    align-items: flex-end;
-  }
-
-  .contactRow {
-    font-size: 12px;
-  }
-
-  .timeStamp {
-    font-size: 10px;
-  }
-}
-.contactFooter {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 10px;
-}
-.nameRow {
-  display: flex;
-  align-items: center;       
-  gap: 6px;
-  min-width: 0;        
-   flex-wrap: nowrap;      
-}
-.contactName {
-  font-size: 16px;
-  font-weight: 700;
-  color: #0F172A;
-
-  max-width: 80px;           /* adjust if needed */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.contactedViaInline {
-  font-size: 12px;
-  font-weight: 500;
-  color: #64748B;
-
-  max-width: 140px;           /* 🔥 ellipsis control */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.contactMeta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-  flex-shrink: 0;
-}
-.contactHeader {
-  align-items: center;
-}
-/* ================================
-   FIX: Email & Phone Alignment
-   ================================ */
-
-.contactActions {
-  width: 100%;
-}
-
-.actionButton {
-  width: 100%;                 /* same width */
-  display: flex;
-  align-items: center;         /* vertical center */
-  justify-content: flex-start; /* LEFT align text */
-  gap: 10px;
-
-  padding-left: 12px;          /* Figma-like spacing */
-  text-align: left;
-}
-.actionButton svg {
-  color: #4B85FF;               /* lighter blue icon */
-  margin-right: 6px;
-  flex-shrink: 0;              /* prevent icon shift */
-  width: 16px;
-  height: 16px;
-}
-.actionButton {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-@media (max-width: 768px) {
-  .contactActions {
-    gap: 6px;
-  }
-
-  .actionButton {
-    height: 40px;              /* consistent height */
-    font-size: 13px;
-  }
-}
-/* ================================
-   FIGMA: COLLAPSED CARD STATE
-   ================================ */
-
-.contactActions,
-.mobileTimeStamp {
-  display: none;
-}
-/* ================================
-   FIGMA: EXPANDED CARD
-   ================================ */
-
-.contactCard.expanded {
-  background: linear-gradient(
-    180deg,
-    #EAF4FF 0%,
-    #FFFFFF 100%
-  );
-
-  border: 1px solid #4B85FF;
-
-  box-shadow:
-    0 8px 20px rgba(75, 133, 255, 0.25),
-    0 0 0 1px rgba(75, 133, 255, 0.35);
-}
-@media (hover: hover) {
-  .contactCard:hover {
-    background: linear-gradient(
-      180deg,
-      #EEF5FF 0%,
-      #FFFFFF 100%
-    );
-
-    border-color: #4B85FF;
-
-    box-shadow:
-      0 8px 20px rgba(75, 133, 255, 0.25),
-      0 0 0 1px rgba(75, 133, 255, 0.35);
-
-    transform: translateY(-2px);
-  }  
-}
-
-.contactCard.expanded .contactActions {
-  display: grid;
-  padding-left: 42px; 
-  grid-template-columns: 1fr;
-  gap: 6px;
-}
-
-.contactCard.expanded .mobileTimeStamp {
-  display: flex;
-}
-
-.contactHeader {
-  margin-bottom: 10px;          /* more breathing space */
-}
-
-@media (max-width: 768px) {
-  .actionButton {
-    font-size: 11.5px;
-    padding-left: 10px;
-  }
-
-  .contactCard.expanded .contactActions {
-    padding-left: 36px;
-  }
-}
-/* ================================
-   COLLAPSED QUICK ICON ACTIONS
-   ================================ */
-
-.quickActions {
-  position: absolute;
-  top: 48px;       
-  left: 78px;      
-
-  display: flex;
-  gap: 8px;
-  z-index: 10;
-}
-
-/* ================================
-   FIGMA STYLE ICON CIRCLE
-   ================================ */
-
-.quickIcon {
-  width: 32px;               /* Figma size */
-  height: 32px;
-
-  border-radius: 50%;        /* 🔥 perfect circle */
-
-  background: #2152E5;       /* light blue bg */
-  border: 1px solid #C7DBFF; /* soft border */
-
-  color: #EAF2FF;            /* icon blue */
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.quickIcon:hover {
-  background: #1E67F4;
-  border-color: #1E67F4;
-  color: #ffffff;
-}
-.contactCard {
-  position: relative; 
-  overflow: visible;   
- }
- .quickActions {
-  z-index: 5;         
-}
-.contactDetails {
-  position: relative;  
-}
-@media (max-width: 768px) {
-  .contactCard {
-    width: 100%;
-    max-width: 94%;  
-  }
-}
- /* DEFAULT (Desktop & Tablet) */
-.contactsList {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.8rem;   /* desktop breathing space */
-}
-
-/* MOBILE */
-@media (max-width: 768px) {
-  .contactsList {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.4rem;  /* mobile tighter */
-  }
-}
-.contactName {
-  position: relative;
-  top: -9px; 
-}
-@media (hover: hover) {
-  .contactsList > .contactCard:first-child:hover {
-    margin-top: 10px;
-  }
-}
-.contactsList > .contactCard:first-child.expanded {
-  margin-top: 10px;
-}
-.pageRoot {
-  height: 100vh;
-  overflow: hidden;
-}
-.fixedHeader {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-.scrollArea {
-  height: calc(100vh - 170px); 
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-.whitePanel {
-  background: #ffffff;   
-  border-radius: 16px;
-  border: 1px solid #E6E9EE;
-
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-
-  margin: 0 auto;
-  padding: 0.5rem 0.5rem 0.75rem;
-}
-.scrollArea {
-  scrollbar-width: none;        
-  -ms-overflow-style: none;     
-}
-
-.scrollArea::-webkit-scrollbar {
-  display: none;                
-}
-
-
-
