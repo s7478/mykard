@@ -207,7 +207,7 @@ const GrowthMetricsSection = () => {
                                         {/* ARROW */}
                                         <motion.div variants={contentVariants} className="shrink-0">
                                             <img
-                                                src="/assets/shape.png"
+                                                src="/assets/arroww.png"
                                                 alt="arrow"
                                                 // Responsive Arrow Size
                                                 className="w-14 xl:w-20 h-auto opacity-80"
