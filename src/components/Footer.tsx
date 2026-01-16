@@ -141,7 +141,8 @@ export default function Footer() {
             fontWeight: 500,
             maxWidth: '350px',
             marginInline: 'auto',
-            lineHeight: '1.2'
+            lineHeight: '1.2',
+            color: '#ffffff',
           }} className="desktop-mx-0">
             "MyKard enables users to turn static contact details into dynamic professional identities - making connections easier to share, save, and sustain."
           </p>
@@ -203,8 +204,8 @@ export default function Footer() {
       </div>
 
       <style jsx>{`
-        .footer-header { font-weight: 800; margin-bottom: 0.9rem; font-size: 1rem; }
-        .footer-links { list-style: none; padding: 0; display: grid; gap: 0.4rem; font-size: 0.75rem; font-weight: 500; }
+        .footer-header { font-weight: 800; margin-bottom: 0.9rem; font-size: 1rem; color: #ffffff; }
+        .footer-links { list-style: none; padding: 0; display: grid; gap: 0.4rem; font-size: 0.75rem; font-weight: 500; color: #ffffff;}
         
         /* HOVER EFFECT ADDED HERE */
         .footer-links li {
