@@ -1408,15 +1408,13 @@
   border-radius: 50%;      /* circle */
   overflow: hidden;        /* image ko mask karta hai */
   background: #759BFF;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   border: 3px solid white; /* optional glow */
   box-shadow: 0 8px 18px rgba(0,0,0,.25);
-
   flex-shrink: 0;          /* layout break na ho */
+  margin-right: 8px;
 }
 
 

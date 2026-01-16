@@ -1384,10 +1384,8 @@
   display: flex;
   justify-content: flex-start;   /* ← LEFT ALIGN */
   gap: 1.75rem;
-
   margin-top: 0;
   margin-bottom: 0.25rem;
-
   padding-left: 0.25rem;        /* subtle inset like Figma */
   border-bottom: none;
 }
@@ -1410,7 +1408,7 @@
 
 /* Active tab (Leads) */
 .activeTab {
-  color: #2152E5;
+  /* color: #2152E5; */
   font-weight: 600;
 }
 
@@ -1420,8 +1418,8 @@
   bottom: -1px;
   left: 0;
   right: 0;
-  height: 2px;
-  background-color: #2152E5;
+  height: 1.5px;
+  background-color: #3b82f6;
   border-radius: 2px;
 }
 /* ================================

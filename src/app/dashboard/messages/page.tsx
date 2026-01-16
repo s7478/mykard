@@ -671,8 +671,8 @@ header: {
       //borderRadius: "8px",
       fontSize: "12px",
       fontWeight: 500,
-      //border: isActive ? "none" : `1px solid ${colors.border}`,
-      //backgroundColor: isActive ? "#1E293B" : "transparent",
+      border: isActive ? "none" : `1px solid ${colors.border}`,
+      backgroundColor: isActive ? "#1E293B" : "transparent",
       textDecoration: isActive ? "underline" : "none",
       underlineColor: isActive ? "#2563EB" : "transparent",
       color: "#646464",
@@ -997,8 +997,8 @@ sortSelectMobile: {
                   border: "none",
                   background: "transparent",
                   cursor: "pointer",
-                  color: tab === "Messages" ? "#2563EB" : "#64748B",
-                  borderBottom: tab === "Messages" ? "3px solid #2563EB" : "3px solid transparent",
+                  //color: tab === "Messages" ? "#2563EB" : "#64748B",
+                  borderBottom: tab === "Messages" ? "2px solid #2563EB" : "2px solid transparent",
                   transition: "all 0.2s ease",
                 }}
               >
