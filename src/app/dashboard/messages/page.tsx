@@ -124,16 +124,16 @@ function MessagesPageContent() {
     };
   }, []);
   useEffect(() => {
-  if (isMobile) {
-    document.body.style.overflow = "hidden";
-  } else {
-    document.body.style.overflow = "";
-  }
+    if (isMobile) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
 
-  return () => {
-    document.body.style.overflow = "";
-  };
-}, [isMobile]);
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobile]);
 
 
   useEffect(() => {
@@ -583,28 +583,28 @@ function MessagesPageContent() {
     hoverBg: "#F1F5F9",
   };
   const styles = {
-  container: {
-  flex: 1,
-  display: "flex",
-  flexDirection: "column" as const,
-  overflow: "hidden",
-   minHeight: 0,
-  padding: "2px",
-  backgroundColor: "#ffffff",
-  borderRadius: "30px",
-  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-  color: colors.textMain,
-},
+    container: {
+      flex: 1,
+      display: "flex",
+      flexDirection: "column" as const,
+      overflow: "hidden",
+      minHeight: 0,
+      padding: "2px",
+      backgroundColor: "#ffffff",
+      borderRadius: "30px",
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+      color: colors.textMain,
+    },
 
- pageWrapper: {
-  display: "flex",
-  flexDirection: "column" as const,
-  height: "100vh",
-  overflow: "hidden",
-  background: "linear-gradient(135deg, white 0%, #4A90E2 100%)",
-  padding: "10px",
-  gap: "15px",
-},
+    pageWrapper: {
+      display: "flex",
+      flexDirection: "column" as const,
+      height: "100vh",
+      overflow: "hidden",
+      background: "linear-gradient(135deg, white 0%, #4A90E2 100%)",
+      padding: "10px",
+      gap: "15px",
+    },
 
     container1: {
       backgroundColor: "transparent",
@@ -624,15 +624,15 @@ function MessagesPageContent() {
       border: isMobile ? "none" : `1px solid ${colors.border}`,
       position: "relative" as const,
     },
-header: {
-  position: "sticky" as const,
-  top: 0,
-  zIndex: 20,
-  backgroundColor: "transparent",
-  backdropFilter: "blur(8px)",
-  display: "flex",
-  flexDirection: "column" as const,
-},
+    header: {
+      position: "sticky" as const,
+      top: 0,
+      zIndex: 20,
+      backgroundColor: "transparent",
+      backdropFilter: "blur(8px)",
+      display: "flex",
+      flexDirection: "column" as const,
+    },
     tabsContainer: {
       display: "flex",
       alignItems: "center",
@@ -682,52 +682,52 @@ header: {
       transition: "all 0.15s",
     }),
 
-  searchContainer: {
-  position: "relative" as const,
-  display: "flex",
-  alignItems: "center",
-  gap: "10px",
-  width: "100%",
-},
+    searchContainer: {
+      position: "relative" as const,
+      display: "flex",
+      alignItems: "center",
+      gap: "10px",
+      width: "100%",
+    },
 
-searchInput: {
-  flex: 1,                 
-  height: "44px",
-  padding: "0 16px 0 30px",
-  borderRadius: "16px",
-  border: "2px solid #8ab4f8",
-  backgroundColor: "#FFFFFF",
-  fontSize: "14px",
-  outline: "none",
-  minWidth: 0,             
-},
+    searchInput: {
+      flex: 1,
+      height: "44px",
+      padding: "0 16px 0 30px",
+      borderRadius: "16px",
+      border: "2px solid #8ab4f8",
+      backgroundColor: "#FFFFFF",
+      fontSize: "14px",
+      outline: "none",
+      minWidth: 0,
+    },
 
 
-sortSelect: {
-  height: "44px",
-  padding: "0 14px",
-  fontSize: "14px",
-  fontWeight: 500,
-  color: colors.textSec,
-  border: "2px solid #8ab4f8",
-  backgroundColor: "#FFFFFF",
-  borderRadius: "12px",
-  cursor: "pointer",
-  whiteSpace: "nowrap" as const,
-},
+    sortSelect: {
+      height: "44px",
+      padding: "0 14px",
+      fontSize: "14px",
+      fontWeight: 500,
+      color: colors.textSec,
+      border: "2px solid #8ab4f8",
+      backgroundColor: "#FFFFFF",
+      borderRadius: "12px",
+      cursor: "pointer",
+      whiteSpace: "nowrap" as const,
+    },
 
-sortSelectMobile: {
-  height: "44px",
-  padding: "0 12px",
-  fontSize: "14px",
-  fontWeight: 500,
-  color: colors.textSec,
-  border: "2px solid #8ab4f8",
-  backgroundColor: "#FFFFFF",
-  borderRadius: "12px",
-  cursor: "pointer",
-  width: "90px",
-},
+    sortSelectMobile: {
+      height: "44px",
+      padding: "0 12px",
+      fontSize: "14px",
+      fontWeight: 500,
+      color: colors.textSec,
+      border: "2px solid #8ab4f8",
+      backgroundColor: "#FFFFFF",
+      borderRadius: "12px",
+      cursor: "pointer",
+      width: "90px",
+    },
 
     listContainer: {
       flex: 1,
@@ -912,14 +912,14 @@ sortSelectMobile: {
           <div style={styles.searchContainer}>
             {/* Search Icon */}
             <Search style={{
-                position: "absolute",
-                left: "14px", top: "50%",
-                transform: "translateY(-50%)",
-                color: colors.textLight,
-                width: "18px",
-                height: "18px",
-                pointerEvents: "none",
-              }}
+              position: "absolute",
+              left: "14px", top: "50%",
+              transform: "translateY(-50%)",
+              color: colors.textLight,
+              width: "18px",
+              height: "18px",
+              pointerEvents: "none",
+            }}
             />
 
             {/* Search Input */}
@@ -932,8 +932,8 @@ sortSelectMobile: {
 
             {/* Desktop Filter */}
             {!isMobile && (
-              <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value as any)} 
-              style={styles.sortSelect} >
+              <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value as any)}
+                style={styles.sortSelect} >
                 <option value="newest">Filter</option>
                 <option value="az">Sort by A–Z</option>
                 <option value="za">Sort by Z–A</option>
@@ -963,56 +963,56 @@ sortSelectMobile: {
 
         <div style={styles.container}>
           <div style={{ flexShrink: 0 }}>
-          {/* --- Message List --- */}
-          <div style={{
-            display: "flex",
-            gap: "16px",
-            alignItems: "center",
-            marginTop: "4px",   // ⬅️ reduce space (was 12px)
-            paddingLeft: "10px",
-            flexWrap: "nowrap",
-            minHeight: 0,
-          }}>
+            {/* --- Message List --- */}
+            <div style={{
+              display: "flex",
+              gap: "16px",
+              alignItems: "center",
+              marginTop: "4px",   // ⬅️ reduce space (was 12px)
+              paddingLeft: "10px",
+              flexWrap: "nowrap",
+              minHeight: 0,
+            }}>
 
-            {(["Messages", "Leads", "Connections", "Requests"] as const).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => {
-                  // 3. Navigation Logic
-                  if (tab === "Messages") {
-                    setActiveFilter("Messages");
-                  } else if (tab === "Leads") {
-                    router.push("/dashboard/contacts");
-                  } else if (tab === "Connections") {
-                    router.push("/dashboard/connections");
-                  } else if (tab === "Requests") {
-                    // Pass a query param to open the requests tab directly
-                    router.push("/dashboard/connections?view=requests");
-                  }
-                }}
-                style={{
-                  padding: "6px 4px",
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  border: "none",
-                  background: "transparent",
-                  cursor: "pointer",
-                  color: tab === "Messages" ? "#2563EB" : "#64748B",
-                  borderBottom: tab === "Messages" ? "3px solid #2563EB" : "3px solid transparent",
-                  transition: "all 0.2s ease",
-                }}
-              >
-                {tab}
-              </button>
-            ))}
+              {(["Messages", "Leads", "Connections", "Requests"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => {
+                    // 3. Navigation Logic
+                    if (tab === "Messages") {
+                      setActiveFilter("Messages");
+                    } else if (tab === "Leads") {
+                      router.push("/dashboard/contacts");
+                    } else if (tab === "Connections") {
+                      router.push("/dashboard/connections");
+                    } else if (tab === "Requests") {
+                      // Pass a query param to open the requests tab directly
+                      router.push("/dashboard/connections?view=requests");
+                    }
+                  }}
+                  style={{
+                    padding: "6px 4px",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    border: "none",
+                    background: "transparent",
+                    cursor: "pointer",
+                    color: tab === "Messages" ? "#2563EB" : "#64748B",
+                    borderBottom: tab === "Messages" ? "3px solid #2563EB" : "3px solid transparent",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
           </div>
-          </div>
-           <div style={styles.listContainer}className="no-scrollbar">
+          <div style={styles.listContainer} className="no-scrollbar">
             {filteredMessages.length === 0 ? (
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", opacity: 0.5 }}>
                 <Search style={{ width: "40px", height: "40px", marginBottom: "16px", color: colors.textLight }} />
                 <p style={{ fontSize: "14px", color: colors.textSec }}>No messages found</p>
-              </div> 
+              </div>
             ) : (
               <div>
                 {filteredMessages.map(m => (
@@ -1087,17 +1087,17 @@ sortSelectMobile: {
                       </p>
                     )} */}
 
-                    {m.tag === "STORY_REPLY" && (
-                      <p style={{ 
-                        fontSize: "11px", 
-                        color: "#2563EB", 
-                        fontWeight: 600, 
-                        marginBottom: "2px",
-                        marginTop: "0px" 
-                      }}>
-                        Replied to your story
-                      </p>
-                    )}
+                      {m.tag === "STORY_REPLY" && (
+                        <p style={{
+                          fontSize: "11px",
+                          color: "#2563EB",
+                          fontWeight: 600,
+                          marginBottom: "2px",
+                          marginTop: "0px"
+                        }}>
+                          Replied to your story
+                        </p>
+                      )}
 
                       <p
                         className="message-text-left"
@@ -1147,7 +1147,7 @@ sortSelectMobile: {
               </div>
             )}
           </div>
-          
+
 
         </div>
 
@@ -1203,7 +1203,7 @@ sortSelectMobile: {
               </div>
 
               {/* Conversation */}
-              <div ref={conversationRef} style={styles.chatBody} onScroll={handleConversationScroll}className="no-scrollbar">
+              <div ref={conversationRef} style={styles.chatBody} onScroll={handleConversationScroll} className="no-scrollbar">
                 {(() => {
                   const threadItems = (activeMessage.thread && activeMessage.thread.length > 0
                     ? activeMessage.thread
@@ -1274,32 +1274,32 @@ sortSelectMobile: {
                       </span>
                     )}
                     <textarea
-  ref={composerInputRef}
-  value={replyText}
-  onChange={(e) => setReplyText(e.target.value)}
-  rows={1}
-  onKeyDown={(e) => {
-    // Ctrl + Enter OR Cmd + Enter → Send
-    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-      e.preventDefault();
-      if (replyText.trim()) sendReply();
-    }
-    // Normal Enter → new line (ALLOW)
-  }}
-  style={{
-    flex: 1,
-    backgroundColor: "transparent",
-    border: "none",
-    outline: "none",
-    fontSize: "14px",
-    color: colors.textMain,
-    fontFamily: "inherit",
-    resize: "none",
-    minHeight: "40px",
-    maxHeight: "120px",
-    lineHeight: "1.5",
-  }}
-/>
+                      ref={composerInputRef}
+                      value={replyText}
+                      onChange={(e) => setReplyText(e.target.value)}
+                      rows={1}
+                      onKeyDown={(e) => {
+                        // Ctrl + Enter OR Cmd + Enter → Send
+                        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+                          e.preventDefault();
+                          if (replyText.trim()) sendReply();
+                        }
+                        // Normal Enter → new line (ALLOW)
+                      }}
+                      style={{
+                        flex: 1,
+                        backgroundColor: "transparent",
+                        border: "none",
+                        outline: "none",
+                        fontSize: "14px",
+                        color: colors.textMain,
+                        fontFamily: "inherit",
+                        resize: "none",
+                        minHeight: "40px",
+                        maxHeight: "120px",
+                        lineHeight: "1.5",
+                      }}
+                    />
 
                     <button
                       onClick={sendReply}
