@@ -671,8 +671,8 @@ function MessagesPageContent() {
       //borderRadius: "8px",
       fontSize: "12px",
       fontWeight: 500,
-      //border: isActive ? "none" : `1px solid ${colors.border}`,
-      //backgroundColor: isActive ? "#1E293B" : "transparent",
+      border: isActive ? "none" : `1px solid ${colors.border}`,
+      backgroundColor: isActive ? "#1E293B" : "transparent",
       textDecoration: isActive ? "underline" : "none",
       underlineColor: isActive ? "#2563EB" : "transparent",
       color: "#646464",
@@ -907,7 +907,7 @@ function MessagesPageContent() {
   return (
     <>
       <div style={styles.pageWrapper}>
-
+        
         <div style={styles.header}>
           <div style={styles.searchContainer}>
             {/* Search Icon */}
