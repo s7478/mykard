@@ -14,7 +14,7 @@ interface ContactConnection {
   phone: string;
   sourceUrl?: string;
   createdAt: string;
-  card?: { // Made optional for safety
+  card?: {
     id: string;
     fullName: string;
     cardName?: string;
@@ -117,7 +117,6 @@ export default function ContactsPage() {
 
       const rows = contacts.map(contact => {
         const dateObj = new Date(contact.createdAt);
-        // Helper to safely escape CSV strings (handle commas and quotes)
         const safe = (str: string | undefined | null) => {
           if (!str) return '""';
           return `"${String(str).replace(/"/g, '""')}"`;
@@ -137,18 +136,14 @@ export default function ContactsPage() {
       const csvContent = [headers.join(","), ...rows].join("\n");
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
 
-      // Create download link
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
       link.setAttribute("download", `mykard_leads_${new Date().toISOString().split('T')[0]}.csv`);
       document.body.appendChild(link);
       link.click();
-
-      // Cleanup
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-
       toast.success("Export started");
     } catch (err) {
       console.error("Export failed", err);
@@ -164,10 +159,9 @@ export default function ContactsPage() {
                    linear-gradient(180deg, #F5F9FF 0%, #FFFFFF 55%)`
     }}>
 
-      {/* 1. Header Section (Fixed at top inside flex container) */}
+      {/* 1. Header Section */}
       <div className={styles.fixedHeader}>
-
-        {/* Mobile Search - Visible only on small screens */}
+        {/* Mobile Search */}
         <div className={styles.mobileSearchSection}>
           <div className={styles.searchRow}>
             <div className={styles.searchContainer}>
@@ -179,7 +173,7 @@ export default function ContactsPage() {
           </div>
         </div>
 
-        {/* Desktop Search - ALIGNED WITH CONTENT */}
+        {/* Desktop Search */}
         <div className={styles.headerContentWrapper}>
           <div className={styles.desktopSearchBar}>
             <div className={styles.desktopSearchRow}>
@@ -202,11 +196,9 @@ export default function ContactsPage() {
         </div>
       </div>
 
-      {/* 2. Content Section (Fills remaining height) */}
+      {/* 2. Content Section */}
       <div className={styles.tabsContainer}>
         <div className={styles.whitePanel}>
-
-          {/* Tabs */}
           <div className={styles.tabs}>
             <button onClick={() => router.push('/dashboard/messages')} className={styles.tab}>Messages</button>
             <button className={`${styles.tab} ${styles.activeTab}`}>Leads</button>
@@ -214,7 +206,6 @@ export default function ContactsPage() {
             <button onClick={() => router.push('/dashboard/connections?view=requests')} className={styles.tab}>Requests</button>
           </div>
 
-          {/* Scrollable Area */}
           <div className={styles.scrollArea}>
             <div className={styles.resultsSection}>
               {loading ? (
@@ -274,10 +265,14 @@ export default function ContactsPage() {
 
                           <div className={styles.contactActions}>
                             <button onClick={(e) => { e.stopPropagation(); handleEmailClick(contact.email); }} className={`${styles.actionButton} ${styles.messageButton}`} title="Send email">
-                              <Mail size={16} /> {contact.email}
+                              <Mail size={16} />
+                              {/* 👇 UPDATED: Wrapped text in span for safe layout */}
+                              <span className={styles.actionText}>{contact.email}</span>
                             </button>
                             <button onClick={(e) => { e.stopPropagation(); handlePhoneClick(contact.phone); }} className={`${styles.actionButton} ${styles.phoneButton}`} title="Call phone">
-                              <Phone size={16} /> {contact.phone}
+                              <Phone size={16} />
+                              {/* 👇 UPDATED: Wrapped text in span for safe layout */}
+                              <span className={styles.actionText}>{contact.phone}</span>
                             </button>
                             <div className={styles.mobileTimeStamp}>
                               <Calendar size={14} /> {formatRelativeTime(contact.createdAt)}
