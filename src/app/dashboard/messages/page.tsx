@@ -907,7 +907,7 @@ sortSelectMobile: {
   return (
     <>
       <div style={styles.pageWrapper}>
-
+        
         <div style={styles.header}>
           <div style={styles.searchContainer}>
             {/* Search Icon */}
