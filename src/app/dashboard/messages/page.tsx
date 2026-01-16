@@ -997,8 +997,8 @@ function MessagesPageContent() {
                     border: "none",
                     background: "transparent",
                     cursor: "pointer",
-                    color: tab === "Messages" ? "#2563EB" : "#64748B",
-                    borderBottom: tab === "Messages" ? "3px solid #2563EB" : "3px solid transparent",
+                    //color: tab === "Messages" ? "#2563EB" : "#64748B",
+                    borderBottom: tab === "Messages" ? "2px solid #2563EB" : "2px solid transparent",
                     transition: "all 0.2s ease",
                   }}
                 >
