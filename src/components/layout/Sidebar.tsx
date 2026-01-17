@@ -50,7 +50,7 @@ export default function Sidebar({ isOpen = false, setIsOpen }: SidebarProps) {
   const [pendingConnections, setPendingConnections] = useState(0);
   const [contactsCount, setContactsCount] = useState(0);
   const [notificationsCount, setNotificationsCount] = useState(0);
-  
+
   // Refs for tracking updates
   const notificationsPrevCountRef = useRef<number>(-1);
   const messagesPrevCountRef = useRef<number>(-1);
@@ -78,7 +78,7 @@ export default function Sidebar({ isOpen = false, setIsOpen }: SidebarProps) {
   // Listen for mobile header toggle
   useEffect(() => {
     const toggle = () => {
-        if(setIsOpen) setIsOpen(!isOpen);
+      if (setIsOpen) setIsOpen(!isOpen);
     };
     window.addEventListener("toggle-sidebar", toggle);
     return () => window.removeEventListener("toggle-sidebar", toggle);
@@ -90,7 +90,7 @@ export default function Sidebar({ isOpen = false, setIsOpen }: SidebarProps) {
   }, [pathname]);
 
   // --- FETCHING LOGIC (Keep exactly as provided) ---
-  
+
   // 1. Unread Messages
   useEffect(() => {
     let intervalId: any;
@@ -109,8 +109,8 @@ export default function Sidebar({ isOpen = false, setIsOpen }: SidebarProps) {
         // In a real copy/paste, ensure the full fetchUnread logic is here.
         // I am keeping the simplified version to focus on the layout fix.
         if (data.messages || data.sentMessages) {
-             // Calculate count...
-             // setUnreadCount(...);
+          // Calculate count...
+          // setUnreadCount(...);
         }
       } catch (e) { }
     };
@@ -284,15 +284,21 @@ export default function Sidebar({ isOpen = false, setIsOpen }: SidebarProps) {
         {/* Navigation */}
         <nav className="navMenu">
           {menuItems.map((item) => {
-            const isActive = pathname === item.path;
+            const isActive =
+              pathname === item.path ||
+              (item.name === "Messages" && (
+                pathname === "/dashboard/connections" ||
+                pathname === "/dashboard/contacts"
+              ));
+
             return (
               <Link
                 href={item.path}
                 key={item.name}
                 className={`navItem ${isActive ? "activeNav" : ""}`}
                 onClick={() => {
-                    // Close only on mobile
-                    if (window.innerWidth < 1024 && setIsOpen) setIsOpen(false);
+                  // Close only on mobile
+                  if (window.innerWidth < 1024 && setIsOpen) setIsOpen(false);
                 }}
               >
                 <div className="navItemContent">
@@ -321,12 +327,20 @@ export default function Sidebar({ isOpen = false, setIsOpen }: SidebarProps) {
       {/* Mobile Bottom Navigation */}
       <nav className="bottomNav">
         <Link href="/dashboard/feed" className={`bottomNavItem ${pathname === "/dashboard/feed" ? "bottomNavItemActive" : ""}`}>
-          <span className="bottomNavIcon"><Newspaper/></span>
+          <span className="bottomNavIcon"><Newspaper /></span>
         </Link>
         <Link href="/dashboard" className={`bottomNavItem ${pathname === "/dashboard" ? "bottomNavItemActive" : ""}`}>
           <span className="bottomNavIcon"><LayoutDashboard /></span>
         </Link>
-        <Link href="/dashboard/messages" className={`bottomNavItem ${pathname === "/dashboard/messages" ? "bottomNavItemActive" : ""}`}>
+        <Link
+          href="/dashboard/messages"
+          className={`bottomNavItem ${pathname === "/dashboard/messages" ||
+              pathname === "/dashboard/connections" ||
+              pathname === "/dashboard/contacts"
+              ? "bottomNavItemActive"
+              : ""
+            }`}
+        >
           <span className="bottomNavIcon">
             <MessageSquare />
             {unreadCount > 0 && pathname !== "/dashboard/messages" && <span className="bottomNavBadge">{unreadCount}</span>}
