@@ -1273,33 +1273,34 @@ function MessagesPageContent() {
                         Type your reply
                       </span>
                     )}
-                    <textarea
-                      ref={composerInputRef}
-                      value={replyText}
-                      onChange={(e) => setReplyText(e.target.value)}
-                      rows={1}
-                      onKeyDown={(e) => {
-                        // Ctrl + Enter OR Cmd + Enter → Send
-                        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-                          e.preventDefault();
-                          if (replyText.trim()) sendReply();
-                        }
-                        // Normal Enter → new line (ALLOW)
-                      }}
-                      style={{
-                        flex: 1,
-                        backgroundColor: "transparent",
-                        border: "none",
-                        outline: "none",
-                        fontSize: "14px",
-                        color: colors.textMain,
-                        fontFamily: "inherit",
-                        resize: "none",
-                        minHeight: "40px",
-                        maxHeight: "120px",
-                        lineHeight: "1.5",
-                      }}
-                    />
+      <textarea
+  ref={composerInputRef}
+  value={replyText}
+  onChange={(e) => setReplyText(e.target.value)}
+  placeholder="Type your reply..."
+  rows={1}
+  onKeyDown={(e) => {
+    // Ctrl + Enter OR Cmd + Enter → Send
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      e.preventDefault();
+      if (replyText.trim()) sendReply();
+    }
+    // Normal Enter → new line (ALLOW)
+  }}
+  style={{
+    flex: 1,
+    backgroundColor: "transparent",
+    border: "none",
+    outline: "none",
+    fontSize: "14px",
+    color: colors.textMain,
+    fontFamily: "inherit",
+    resize: "none",
+    minHeight: "40px",
+    maxHeight: "120px",
+    lineHeight: "1.5",
+  }}
+/>
 
                     <button
                       onClick={sendReply}
