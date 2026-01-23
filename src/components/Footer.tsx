@@ -3,11 +3,16 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Linkedin, Mail, MapPin } from "lucide-react";
 
+const scrollToSection = (id: string) => {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
 export default function Footer() {
   return (
     <footer style={{
       background: '#01071E',
-      color: '#000000',
+      color: '#ffffff',
       position: 'relative',
       overflow: 'hidden'
     }}>
@@ -105,7 +110,7 @@ export default function Footer() {
         fontFamily: '"Plus Jakarta Sans", sans-serif',
         lineHeight: '1',
         userSelect: 'none',
-        opacity: 0.35,
+        opacity: 0.15,
         background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 100%)',
         WebkitBackgroundClip: 'text',
         backgroundClip: 'text',
@@ -120,24 +125,24 @@ export default function Footer() {
         margin: '0 auto',
         display: 'grid',
         /* MOBILE VIEW: 2 Columns */
-        gridTemplateColumns: '1fr 1fr', 
+        gridTemplateColumns: '1fr 1fr',
         /* Reduced gap significantly to bring columns closer on mobile */
-        gap: '2rem 0.5rem', 
+        gap: '2rem 0.5rem',
         position: 'relative',
         zIndex: 1
       }} className="footer-grid">
-        
+
         {/* Column 1: Brand */}
-        <div style={{ 
-          gridColumn: '1 / -1', 
-          textAlign: 'center' ,
+        <div style={{
+          gridColumn: '1 / -1',
+          textAlign: 'center',
         }} className="desktop-col-1">
           <div style={{ display: 'flex', justifyContent: 'center' }} className="desktop-justify-start">
             <Image src="/assets/mykard.png" alt="Logo" width={140} height={40} />
           </div>
-          <p style={{ 
-            marginTop: '1rem', 
-            fontSize: '0.75rem', 
+          <p style={{
+            marginTop: '1rem',
+            fontSize: '0.75rem',
             fontWeight: 500,
             maxWidth: '350px',
             marginInline: 'auto',
@@ -153,18 +158,18 @@ export default function Footer() {
 
         {/* Column 2: Quick Links */}
         <div style={{ textAlign: 'center' }} className="desktop-text-left">
-          <h4 className="footer-header">Quick Links</h4>
+          <h4 className="footer-header" style={{ color: '#ffffff' }}>Quick Links</h4>
           <ul className="footer-links">
-            <li>Home</li>
-            <li>About us</li>
-            <li>Features</li>
-            <li>Search</li>
+            <li><Link href="/">Home</Link></li>
+            <li><button onClick={() => scrollToSection('about')} style={{ background: 'none', border: 'none', color: 'inherit', font: 'inherit', cursor: 'pointer' }}>About us</button></li>
+            <li><button onClick={() => scrollToSection('features')} style={{ background: 'none', border: 'none', color: 'inherit', font: 'inherit', cursor: 'pointer' }}>Features</button></li>
+            <li><button onClick={() => scrollToSection('search')} style={{ background: 'none', border: 'none', color: 'inherit', font: 'inherit', cursor: 'pointer' }}>Search</button></li>
           </ul>
         </div>
 
         {/* Column 3: Support */}
         <div style={{ textAlign: 'center' }} className="desktop-text-left">
-          <h4 className="footer-header">Support</h4>
+          <h4 className="footer-header" style={{ color: '#ffffff' }}>Support</h4>
           <ul className="footer-links">
             <li>FAQ</li>
             <li>Terms of Services</li>
@@ -173,17 +178,17 @@ export default function Footer() {
         </div>
 
         {/* Column 4: Contact Us */}
-        <div style={{ 
-          gridColumn: '1 / -1', 
-          textAlign: 'center' 
-        }} className="desktop-col-4">
-          <h4 className="footer-header">Contact Us</h4>
+        <div style={{
+          gridColumn: '1 / -1',
+          textAlign: 'center'
+        }} className="desktop-col-4-center">
+          <h4 className="footer-header" style={{ color: '#ffffff' }}>Contact Us</h4>
           {/* Added 'contact-item' class to handle responsive centering */}
-          <ul className="footer-links desktop-items-start" style={{ alignItems: 'center' }}>
-            <li className="contact-item" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <ul className="footer-links" style={{ alignItems: 'center', display: 'flex', flexDirection: 'column' }}>
+            <li className="contact-item" style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
               <Mail size={12} /> support@mykard.in
             </li>
-            <li className="contact-item" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <li className="contact-item" style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
               <MapPin size={12} /> India
             </li>
           </ul>
@@ -191,10 +196,10 @@ export default function Footer() {
       </div>
 
       {/* Bottom Copyright Section */}
-      <div style={{ 
-        marginTop: '1rem', 
-        paddingTop: '1rem', 
-        borderTop: '2px solid #000', 
+      <div style={{
+        marginTop: '1rem',
+        paddingTop: '1rem',
+        borderTop: '2px solid #000',
         textAlign: 'center',
         position: 'relative',
         zIndex: 1
@@ -228,17 +233,26 @@ export default function Footer() {
             gap: 2.5rem !important; /* Restore larger gap for desktop */
             align-items: start;
           }
-          .desktop-col-1, .desktop-col-4 { 
+          .desktop-col-1 { 
             grid-column: auto !important; 
             text-align: left !important; 
           }
+           /* Force Center for Contact Us on Desktop too if requested, or keep it consistent. 
+              User said "contact us ka center me karo". 
+              I'll style desktop-col-4-center to be centered or auto-column but centered text.
+           */
+          .desktop-col-4-center {
+             grid-column: auto !important;
+             text-align: center !important;
+          }
+
           .desktop-text-left { text-align: left !important; }
           .desktop-justify-start { justify-content: flex-start !important; }
           .desktop-items-start { align-items: flex-start !important; }
           .desktop-mx-0 { margin-left: 0 !important; margin-right: 0 !important; }
           
-          /* Restore left alignment for contact items on desktop */
-          .contact-item { justify-content: flex-start !important; }
+          /* Contact item centered always as per user request */
+          .contact-item { justify-content: center !important; }
 
           .desktop-watermark {
             display: block;

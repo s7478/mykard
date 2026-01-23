@@ -159,39 +159,32 @@ export default function ContactsPage() {
                    linear-gradient(180deg, #F5F9FF 0%, #FFFFFF 55%)`
     }}>
 
-      {/* 1. Header Section */}
-      <div className={styles.fixedHeader}>
-        {/* Mobile Search */}
-        <div className={styles.mobileSearchSection}>
+      <div className={styles.heroSection}>
+        <div className={styles.searchBarSection}>
           <div className={styles.searchRow}>
-            <div className={styles.searchContainer}>
-              <Search className={styles.searchIcon} />
-              <input type="text" placeholder="Search" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className={styles.searchInput} />
-              {searchQuery && <button onClick={() => setSearchQuery("")} className={styles.clearButton}>×</button>}
+            {/* Search Input Container */}
+            <div className={styles.searchWrapper}>
+              <span className={styles.searchIcon}>
+                <Search size={20} />
+              </span>
+              <input
+                type="text"
+                placeholder="Search Leads..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={styles.searchInput}
+              />
             </div>
-            <button onClick={exportToCSV} className={styles.mobileExportInline} title="Export CSV"><Download size={16} /></button>
-          </div>
-        </div>
 
-        {/* Desktop Search */}
-        <div className={styles.headerContentWrapper}>
-          <div className={styles.desktopSearchBar}>
-            <div className={styles.desktopSearchRow}>
-              <div className={styles.desktopSearchContainer}>
-                <Search className={styles.desktopSearchIcon} />
-                <input
-                  type="text"
-                  placeholder={`Search ${contacts.length} contact${contacts.length !== 1 ? 's' : ''}`}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className={styles.desktopSearchInput}
-                />
-                {searchQuery && <button onClick={() => setSearchQuery("")} className={styles.desktopClearButton}>×</button>}
-              </div>
-              <button onClick={exportToCSV} className={styles.exportButton} title="Download Leads">
-                <Download size={18} /><span>Export CSV</span>
-              </button>
-            </div>
+            {/* Export Button (Styled to match Filter button) */}
+            <button
+              onClick={exportToCSV}
+              className={styles.exportButtonLink}
+              title="Download Leads"
+            >
+              <Download size={18} />
+              <span className={styles.desktopOnly}>Export</span>
+            </button>
           </div>
         </div>
       </div>

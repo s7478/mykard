@@ -434,7 +434,10 @@ const Dashboard = () => {
               </div>
               <div className="mt-2 pl-1" style={{ color: 'black', textAlign: 'center' }}><h3 className="text-2xl font-bold !text-gray-900 leading-tight">{activeCardContacts}</h3></div>
             </div>
-            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:border-blue-400 hover:shadow-md hover:bg-blue-50/30 transition-all duration-200 cursor-pointer flex flex-col justify-center">
+            <div
+              onClick={() => activeCard && router.push(`/cards/${activeCard.id}?tab=analytics`)}
+              className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:border-blue-400 hover:shadow-md hover:bg-blue-50/30 transition-all duration-200 cursor-pointer flex flex-col justify-center"
+            >
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-blue-50 rounded-sm flex items-center justify-center text-[#0B6BCB] shrink-0"><Eye size={18} /></div>
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wide leading-none">Profile Views</p>

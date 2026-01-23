@@ -589,9 +589,9 @@ function MessagesPageContent() {
       flexDirection: "column" as const,
       overflow: "hidden",
       minHeight: 0,
-      padding: "2px",
-      backgroundColor: "#ffffff",
-      borderRadius: "30px",
+      padding: "0", // Removed padding
+      backgroundColor: "transparent", // Transparent to show page bg
+      borderRadius: "0", // Removed radius
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
       color: colors.textMain,
     },
@@ -599,11 +599,10 @@ function MessagesPageContent() {
     pageWrapper: {
       display: "flex",
       flexDirection: "column" as const,
-      height: "100vh",
+      height: "100dvh",
       overflow: "hidden",
-      background: "linear-gradient(135deg, white 0%, #4A90E2 100%)",
-      padding: "10px",
-      gap: "15px",
+      backgroundColor: "#f9fafb",
+      // Removed padding/gap to match connections exactly
     },
 
     container1: {
@@ -692,41 +691,45 @@ function MessagesPageContent() {
 
     searchInput: {
       flex: 1,
-      height: "44px",
-      padding: "0 16px 0 30px",
-      borderRadius: "16px",
-      border: "2px solid #8ab4f8",
+      height: "40px",
+      padding: "0 16px 0 40px",
+      borderRadius: "12px",
+      border: "1px solid #cbd5e1",
       backgroundColor: "#FFFFFF",
       fontSize: "14px",
       outline: "none",
       minWidth: 0,
+      color: "#334155",
+      boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
     },
 
 
     sortSelect: {
-      height: "44px",
-      padding: "0 14px",
+      height: "40px",
+      padding: "0 16px",
       fontSize: "14px",
       fontWeight: 500,
-      color: colors.textSec,
-      border: "2px solid #8ab4f8",
+      color: "#334155",
+      border: "1px solid #cbd5e1",
       backgroundColor: "#FFFFFF",
       borderRadius: "12px",
       cursor: "pointer",
       whiteSpace: "nowrap" as const,
+      boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
     },
 
     sortSelectMobile: {
-      height: "44px",
+      height: "40px",
       padding: "0 12px",
       fontSize: "14px",
       fontWeight: 500,
-      color: colors.textSec,
-      border: "2px solid #8ab4f8",
+      color: "#334155",
+      border: "1px solid #cbd5e1",
       backgroundColor: "#FFFFFF",
       borderRadius: "12px",
       cursor: "pointer",
       width: "90px",
+      boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
     },
 
     listContainer: {
@@ -907,17 +910,17 @@ function MessagesPageContent() {
   return (
     <>
       <div style={styles.pageWrapper}>
-        
+
         <div style={styles.header}>
           <div style={styles.searchContainer}>
             {/* Search Icon */}
             <Search style={{
               position: "absolute",
-              left: "14px", top: "50%",
+              left: "12px", top: "50%",
               transform: "translateY(-50%)",
-              color: colors.textLight,
-              width: "18px",
-              height: "18px",
+              color: "#94a3b8",
+              width: "20px",
+              height: "20px",
               pointerEvents: "none",
             }}
             />
@@ -1242,12 +1245,45 @@ function MessagesPageContent() {
                           </div>
                         )}
 
-                        <div style={{ display: "flex", width: "100%", justifyContent: isIncoming ? "flex-start" : "flex-end" }}>
-                          <div style={{ display: "flex", flexDirection: "column", alignItems: isIncoming ? "flex-start" : "flex-end", width: "100%" }}>
-                            <div style={isIncoming ? styles.bubbleIn : styles.bubbleOut}> {renderMessageText(item.text)}</div>
-                            <span style={{ fontSize: "10px", marginTop: "6px", color: "#94A3B8", fontWeight: 500 }}>
-                              {isIncoming ? activeMessage.name.split(' ')[0] : 'You'} • {formatDate(item.date).split(',')[1].trim()}
-                            </span>
+                        <div style={{ display: "flex", width: "100%", justifyContent: isIncoming ? "flex-start" : "flex-end", marginBottom: "8px" }}>
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: isIncoming ? "flex-start" : "flex-end", maxWidth: "80%" }}>
+                            <div style={isIncoming ? styles.bubbleIn : styles.bubbleOut}>
+                              {renderMessageText(item.text)}
+                              <div style={{
+                                fontSize: "10px",
+                                marginTop: "4px",
+                                color: isIncoming ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.8)",
+                                textAlign: "right",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "flex-end",
+                                gap: "4px"
+                              }}>
+                                <span>{formatDate(item.date).split(',')[1].trim()}</span>
+                                {/* Delete button for outgoing messages */}
+                                {!isIncoming && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (confirm("Delete this message?")) {
+                                        // Ideally call API to delete specific message. keeping simple for now or implement if API supports.
+                                        alert("Message missing delete implementation");
+                                      }
+                                    }}
+                                    style={{
+                                      background: "transparent",
+                                      border: "none",
+                                      color: "inherit",
+                                      cursor: "pointer",
+                                      padding: "0 2px",
+                                      display: "none" // Hidden by default, could show on hover if we had CSS hover state
+                                    }}
+                                  >
+                                    <Trash2 size={10} />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </React.Fragment>
@@ -1260,47 +1296,35 @@ function MessagesPageContent() {
               <div style={styles.composer}>
                 <div style={styles.composerInputContainer}>
                   <div style={{ display: "flex", alignItems: "center", padding: "8px 12px", gap: "8px", width: "100%", boxSizing: "border-box" }}>
-                    {showReplyLabel && (
-                      <span
-                        style={{ fontSize: "14px", color: colors.textLight, flexShrink: 0, cursor: "pointer" }}
-                        onClick={() => {
-                          setShowReplyLabel(false);
-                          if (composerInputRef.current) {
-                            composerInputRef.current.focus();
-                          }
-                        }}
-                      >
-                        Type your reply
-                      </span>
-                    )}
-      <textarea
-  ref={composerInputRef}
-  value={replyText}
-  onChange={(e) => setReplyText(e.target.value)}
-  placeholder="Type your reply..."
-  rows={1}
-  onKeyDown={(e) => {
-    // Ctrl + Enter OR Cmd + Enter → Send
-    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-      e.preventDefault();
-      if (replyText.trim()) sendReply();
-    }
-    // Normal Enter → new line (ALLOW)
-  }}
-  style={{
-    flex: 1,
-    backgroundColor: "transparent",
-    border: "none",
-    outline: "none",
-    fontSize: "14px",
-    color: colors.textMain,
-    fontFamily: "inherit",
-    resize: "none",
-    minHeight: "40px",
-    maxHeight: "120px",
-    lineHeight: "1.5",
-  }}
-/>
+                    {/* Label removed to fix double input issue */}
+                    <textarea
+                      ref={composerInputRef}
+                      value={replyText}
+                      onChange={(e) => setReplyText(e.target.value)}
+                      placeholder="Type your reply..."
+                      rows={1}
+                      onKeyDown={(e) => {
+                        // Ctrl + Enter OR Cmd + Enter → Send
+                        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+                          e.preventDefault();
+                          if (replyText.trim()) sendReply();
+                        }
+                        // Normal Enter → new line (ALLOW)
+                      }}
+                      style={{
+                        flex: 1,
+                        backgroundColor: "transparent",
+                        border: "none",
+                        outline: "none",
+                        fontSize: "14px",
+                        color: colors.textMain,
+                        fontFamily: "inherit",
+                        resize: "none",
+                        minHeight: "40px",
+                        maxHeight: "120px",
+                        lineHeight: "1.5",
+                      }}
+                    />
 
                     <button
                       onClick={sendReply}

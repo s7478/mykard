@@ -138,7 +138,7 @@ const DigitalCard = ({ data, step }: { data: any; step: number }) => {
     : [];
 
   return (
-    <div style={{
+    <div className="digital-card-preview" style={{
       width: "100%", maxWidth: "340px", background: theme.colors.cardGradient, borderRadius: "20px", padding: "24px",
       color: "white", boxShadow: "0 25px 50px -12px rgba(33, 82, 229, 0.35)", display: "flex", flexDirection: "column",
       alignItems: "center", textAlign: "center", position: "relative", margin: "0 auto", zIndex: 1, transition: "all 0.3s ease",
@@ -358,10 +358,10 @@ const OnboardingContent = () => {
 
   const handlePopupClose = () => { setShowPartyPopup(false); router.push("/dashboard/feed"); };
 
-  const labelStyle: React.CSSProperties = { fontFamily: 'Plus Jakarta Sans', fontWeight: '700', fontSize: isLargeScreen ? "28px" : "36px", lineHeight: isLargeScreen ? "1.2" : "45px", textAlign: "left", color: theme.colors.primaryBlue, marginBottom: "30px", marginTop: "0px" };
+  const labelStyle: React.CSSProperties = { fontFamily: 'Plus Jakarta Sans', fontWeight: '700', fontSize: isLargeScreen ? "28px" : "24px", lineHeight: isLargeScreen ? "1.2" : "1.3", textAlign: "left", color: theme.colors.primaryBlue, marginBottom: "20px", marginTop: "0px" };
   const inputStyle: React.CSSProperties = { width: "100%", border: "none", padding: "12px 0", fontFamily: 'Plus Jakarta Sans', fontWeight: '700', fontSize: "18px", lineHeight: "23px", color: theme.colors.inputText, background: "transparent", outline: "none", textAlign: 'left' };
-  const inputContainerStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', borderBottom: `1px solid ${theme.colors.inputBorder}`, marginBottom: "32px", position: 'relative' };
-  const navButtonStyle = (variant: 'primary' | 'secondary'): React.CSSProperties => ({ flex: 1, padding: "16px", borderRadius: "5px", border: "none", fontFamily: 'Plus Jakarta Sans', fontSize: "20px", fontWeight: "700", lineHeight: "25px", cursor: "pointer", backgroundColor: variant === 'primary' ? theme.colors.primaryBlue : '#E5E7EB', color: variant === 'primary' ? 'white' : '#4B5563', textAlign: "center", transition: 'background 0.2s' });
+  const inputContainerStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', borderBottom: `1px solid ${theme.colors.inputBorder}`, marginBottom: "24px", position: 'relative' };
+  const navButtonStyle = (variant: 'primary' | 'secondary'): React.CSSProperties => ({ flex: 1, padding: "14px", borderRadius: "12px", border: "none", fontFamily: 'Plus Jakarta Sans', fontSize: "16px", fontWeight: "700", lineHeight: "20px", cursor: "pointer", backgroundColor: variant === 'primary' ? theme.colors.primaryBlue : '#E5E7EB', color: variant === 'primary' ? 'white' : '#4B5563', textAlign: "center", transition: 'background 0.2s' });
 
   const getHeader = () => {
     switch (step) {
@@ -464,7 +464,9 @@ const OnboardingContent = () => {
     }
   }
 
-  if (isCheckingAuth) return <div>Loading...</div>;
+  // fail-safe: if auth fails, the useEffect above redirects. 
+  // We do not block rendering here to ensure "instant" feel for valid users.
+
 
   if (step === 0) {
     const brandBlue = '#1976D2'; const bgLight = '#F0F4FA';
@@ -484,8 +486,7 @@ const OnboardingContent = () => {
       <div style={{
         minHeight: "100vh",
         background: "#E7F0FF", // Blue background
-        borderLeft: "15px solid white", // Left white line
-        borderRight: "15px solid white", // Right white line
+        // Borders removed for full-width mobile view
         position: "relative",
         display: "flex",
         flexDirection: "column",
@@ -528,8 +529,13 @@ const OnboardingContent = () => {
   return (
     <div style={{ minHeight: "100vh", background: theme.colors.bg, position: "relative", display: "flex", flexDirection: "column", overflow: "hidden", fontFamily: theme.font }}>
       <BackgroundShapes step={step} />
-      <div style={{ position: "relative", zIndex: 10, padding: "24px", maxWidth: "440px", margin: "0 auto", width: "100%", paddingBottom: "40px" }}>
-        <div style={{ marginTop: '50px', marginBottom: '30px' }}><DigitalCard data={formData} step={step} /></div>
+      <style>{`
+        @media (max-width: 380px) {
+          .digital-card-preview { transform: scale(0.9); margin-bottom: -20px !important; }
+        }
+      `}</style>
+      <div style={{ position: "relative", zIndex: 10, padding: "20px", maxWidth: "440px", margin: "0 auto", width: "100%", paddingBottom: "30px", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+        <div style={{ marginTop: '20px', marginBottom: '20px', alignSelf: 'center', width: '100%' }}><DigitalCard data={formData} step={step} /></div>
         <div style={{ marginBottom: "20px" }}><h2 style={{ ...labelStyle, fontSize: '36px' }}>{getHeader()}</h2>{renderStepContent()}</div>
         <div style={{ display: "flex", gap: "12px", marginTop: "20px" }}>{showPrev && <button onClick={handlePrevious} style={navButtonStyle('secondary')}>Previous</button>}{showSkip && <button onClick={() => setStep(step + 1)} style={{ ...navButtonStyle('primary'), backgroundColor: '#60A5FA' }}>Skip</button>}<button onClick={handleContinue} style={{ ...navButtonStyle('primary'), boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)' }}>{step === 10 ? "Create" : "Continue"}</button></div>
         <div style={{ display: "flex", justifyContent: "center", gap: "5px", marginTop: "32px", marginBottom: "20px" }}>{[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (<div key={i} style={{ flex: 1, height: "5px", borderRadius: "5px", backgroundColor: i <= step ? theme.colors.progressActive : theme.colors.progressInactive, transition: "all 0.3s" }} />))}</div>

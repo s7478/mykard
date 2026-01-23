@@ -30,8 +30,8 @@ import {
   UserMinus,
   Trash2,
   Clock, // Added for Pending status
-  Camera, 
-  StopCircle, 
+  Camera,
+  StopCircle,
   RefreshCw
 } from "lucide-react";
 
@@ -126,7 +126,7 @@ const styles: Record<string, CSSProperties> = {
   postCard: {
     backgroundColor: "#ffffff",
     border: "1px solid #f1f5f9",
-    padding: "8px", 
+    padding: "8px",
     width: "100%",
     textAlign: "left",
     position: "relative",
@@ -468,11 +468,11 @@ const CameraCapture = ({ onCapture, onClose }: CameraCaptureProps) => {
         });
 
         streamRef.current = currentStream;
-        
+
         if (videoRef.current) {
           videoRef.current.srcObject = currentStream;
         }
-        
+
       } catch (err) {
         setError("Camera access denied or unavailable.");
         console.error(err);
@@ -493,7 +493,7 @@ const CameraCapture = ({ onCapture, onClose }: CameraCaptureProps) => {
   const takePhoto = () => {
     if (!videoRef.current) return;
     const video = videoRef.current;
-    
+
     // Create a canvas to draw the frame
     const canvas = document.createElement("canvas");
     canvas.width = video.videoWidth;
@@ -504,7 +504,7 @@ const CameraCapture = ({ onCapture, onClose }: CameraCaptureProps) => {
     // Flip horizontally if it's selfie mode (optional, mirrors feel more natural)
     ctx.translate(canvas.width, 0);
     ctx.scale(-1, 1);
-    
+
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     canvas.toBlob((blob) => {
@@ -518,7 +518,7 @@ const CameraCapture = ({ onCapture, onClose }: CameraCaptureProps) => {
   const startRecording = () => {
     if (!videoRef.current || !videoRef.current.srcObject) return;
     const stream = videoRef.current.srcObject as MediaStream;
-    
+
     const mediaRecorder = new MediaRecorder(stream);
     mediaRecorderRef.current = mediaRecorder;
     chunksRef.current = [];
@@ -544,22 +544,22 @@ const CameraCapture = ({ onCapture, onClose }: CameraCaptureProps) => {
     }
   };
 
- if (error) {
-  return (
-    <div className="relative flex flex-col items-center justify-center h-64 bg-black text-white rounded-lg p-4">
-      <button
-        onClick={onClose}
-        className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center 
+  if (error) {
+    return (
+      <div className="relative flex flex-col items-center justify-center h-64 bg-black text-white rounded-lg p-4">
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center 
                    bg-gray-700 hover:bg-gray-600 
                    rounded-full text-white font-bold transition"
-        aria-label="Close"
-      >
-        X
-      </button>
-      <p className="mb-4">{error}</p>
-    </div>
-  );
-}
+          aria-label="Close"
+        >
+          X
+        </button>
+        <p className="mb-4">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full h-[400px] bg-black rounded-lg overflow-hidden flex flex-col">
@@ -570,30 +570,28 @@ const CameraCapture = ({ onCapture, onClose }: CameraCaptureProps) => {
         muted // Muted in preview to prevent feedback loop
         className="w-full h-full object-cover transform -scale-x-100" // Mirror effect
       />
-      
+
       {/* Overlay Controls */}
       <div className="absolute bottom-0 inset-x-0 pb-8 pt-12 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col items-center gap-6">
-        
+
         {/* Mode Switcher */}
         {!isRecording && (
           <div className="flex bg-black/50 backdrop-blur-md rounded-sm p-1.5 gap-2 border border-white/10">
-             <button 
-               onClick={() => setMode("photo")}
-               className={`px-6 py-2 text-sm font-semibold rounded-sm transition-all duration-200 ${
-                mode === "photo"
-                  ? "bg-white text-black shadow-md"
-                  : "text-white/80 hover:text-white hover:bg-white/10"
-              }`}
-             >
-               Photo
-             </button>
-             <button
+            <button
+              onClick={() => setMode("photo")}
+              className={`px-6 py-2 text-sm font-semibold rounded-sm transition-all duration-200 ${mode === "photo"
+                ? "bg-white text-black shadow-md"
+                : "text-white/80 hover:text-white hover:bg-white/10"
+                }`}
+            >
+              Photo
+            </button>
+            <button
               onClick={() => setMode("video")}
-              className={`px-6 py-2 text-sm font-semibold rounded-sm transition-all duration-200 ${
-                mode === "video"
-                  ? "bg-white text-black shadow-md"
-                  : "text-white/80 hover:text-white hover:bg-white/10"
-              }`}
+              className={`px-6 py-2 text-sm font-semibold rounded-sm transition-all duration-200 ${mode === "video"
+                ? "bg-white text-black shadow-md"
+                : "text-white/80 hover:text-white hover:bg-white/10"
+                }`}
             >
               Video
             </button>
@@ -602,26 +600,26 @@ const CameraCapture = ({ onCapture, onClose }: CameraCaptureProps) => {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-8">
-           <button onClick={onClose} className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20">
-             <X size={20} />
-           </button>
+          <button onClick={onClose} className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20">
+            <X size={20} />
+          </button>
 
-           {mode === "photo" ? (
-             <button 
-               onClick={takePhoto}
-               className="w-16 h-16 rounded-full border-4 border-white flex items-center justify-center bg-white/20 hover:bg-white transition-all active:scale-95"
-             />
-           ) : (
-             <button 
-               onClick={isRecording ? stopRecording : startRecording}
-               className={`w-16 h-16 rounded-full border-4 flex items-center justify-center transition-all ${isRecording ? "border-red-500 bg-red-500" : "border-white bg-transparent"}`}
-             >
-               {isRecording && <div className="w-6 h-6 bg-white rounded-sm" />}
-             </button>
-           )}
+          {mode === "photo" ? (
+            <button
+              onClick={takePhoto}
+              className="w-16 h-16 rounded-full border-4 border-white flex items-center justify-center bg-white/20 hover:bg-white transition-all active:scale-95"
+            />
+          ) : (
+            <button
+              onClick={isRecording ? stopRecording : startRecording}
+              className={`w-16 h-16 rounded-full border-4 flex items-center justify-center transition-all ${isRecording ? "border-red-500 bg-red-500" : "border-white bg-transparent"}`}
+            >
+              {isRecording && <div className="w-6 h-6 bg-white rounded-sm" />}
+            </button>
+          )}
 
-           {/* Placeholder for symmetry or toggle camera */}
-           <div className="w-9" /> 
+          {/* Placeholder for symmetry or toggle camera */}
+          <div className="w-9" />
         </div>
       </div>
     </div>
@@ -728,12 +726,12 @@ const CreatePostModal = ({
   const handleCameraCapture = (file: File, type: "image" | "video") => {
     setMediaFile(file);
     setMediaType(type);
-    
+
     // Create preview URL locally
     const reader = new FileReader();
     reader.onloadend = () => setMediaPreview(reader.result as string);
     reader.readAsDataURL(file);
-    
+
     setIsCameraOpen(false);
   };
 
@@ -844,9 +842,9 @@ const CreatePostModal = ({
             </div>
           </div>
           {isCameraOpen ? (
-            <CameraCapture 
-              onCapture={handleCameraCapture} 
-              onClose={() => setIsCameraOpen(false)} 
+            <CameraCapture
+              onCapture={handleCameraCapture}
+              onClose={() => setIsCameraOpen(false)}
             />
           ) : (
             <>
@@ -857,15 +855,15 @@ const CreatePostModal = ({
                 onChange={(e) => setContent(e.target.value)}
               />
               {mediaPreview && (
-                 /* ... Existing Preview Logic ... */
-                 <div style={styles.previewArea}>
-                   <button onClick={removeMedia} style={styles.removeMediaBtn}><X size={16} /></button>
-                   {mediaType === "video" ? (
-                     <video src={mediaPreview} controls style={{ width: "100%", maxHeight: "300px" }} />
-                   ) : (
-                     <img src={mediaPreview} alt="Preview" style={{ width: "100%", maxHeight: "300px", objectFit: "contain" }} />
-                   )}
-                 </div>
+                /* ... Existing Preview Logic ... */
+                <div style={styles.previewArea}>
+                  <button onClick={removeMedia} style={styles.removeMediaBtn}><X size={16} /></button>
+                  {mediaType === "video" ? (
+                    <video src={mediaPreview} controls style={{ width: "100%", maxHeight: "300px" }} />
+                  ) : (
+                    <img src={mediaPreview} alt="Preview" style={{ width: "100%", maxHeight: "300px", objectFit: "contain" }} />
+                  )}
+                </div>
               )}
             </>
           )}
@@ -887,9 +885,9 @@ const CreatePostModal = ({
               <Video size={20} className="text-green-600" />
             </button>
 
-            <button 
-              onClick={() => setIsCameraOpen(true)} 
-              style={{ ...styles.mediaBtn, padding: "8px" }} 
+            <button
+              onClick={() => setIsCameraOpen(true)}
+              style={{ ...styles.mediaBtn, padding: "8px" }}
               title="Use Camera"
               disabled={isCameraOpen} // Disable if already open
             >
@@ -938,17 +936,26 @@ export const CreateStoryModal = ({
   const handleCameraCapture = (file: File, type: "image" | "video") => {
     setMediaFile(file);
     setMediaType(type);
-    
+
     const reader = new FileReader();
     reader.onloadend = () => setMediaPreview(reader.result as string);
     reader.readAsDataURL(file);
-    
+
     setIsCameraOpen(false);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // 🟢 File Size Check (e.g., 100MB limit for videos)
+    const MAX_SIZE = 100 * 1024 * 1024; // 100MB
+    if (file.size > MAX_SIZE) {
+      toast.error("File is too large. Please select a file under 100MB.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
     setMediaFile(file);
     const isVideo = file.type.startsWith("video/");
     setMediaType(isVideo ? "video" : "image");
@@ -964,43 +971,43 @@ export const CreateStoryModal = ({
   };
 
   const handleCreateStory = async () => {
-  if (!content.trim() && !mediaFile) return;
-  setLoading(true);
-  try {
-    let uploadedUrl = undefined;
-    if (mediaFile) {
-      const folder = mediaType === "video" ? "stories/videos" : "stories/images";
-      uploadedUrl = await uploadToFirebase(mediaFile, folder);
-      if (!uploadedUrl) throw new Error("Upload failed");
-    }
+    if (!content.trim() && !mediaFile) return;
+    setLoading(true);
+    try {
+      let uploadedUrl = undefined;
+      if (mediaFile) {
+        const folder = mediaType === "video" ? "stories/videos" : "stories/images";
+        uploadedUrl = await uploadToFirebase(mediaFile, folder);
+        if (!uploadedUrl) throw new Error("Upload failed");
+      }
 
-    // 🟢 CHANGE 1: Use the correct endpoint (/api/stories)
-    const res = await fetch("/api/stories", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      // 🟢 CHANGE 2: Structure body to match your stories/route.ts POST expectation
-      body: JSON.stringify({
-        content: content, // Matches the 'content' field in Prisma
-        imageUrl: mediaType === 'image' ? uploadedUrl : null,
-        videoUrl: mediaType === 'video' ? uploadedUrl : null,
-        visibility: visibility,
-      }),
-    });
+      // 🟢 CHANGE 1: Use the correct endpoint (/api/stories)
+      const res = await fetch("/api/stories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        // 🟢 CHANGE 2: Structure body to match your stories/route.ts POST expectation
+        body: JSON.stringify({
+          content: content, // Matches the 'content' field in Prisma
+          imageUrl: mediaType === 'image' ? uploadedUrl : null,
+          videoUrl: mediaType === 'video' ? uploadedUrl : null,
+          visibility: visibility,
+        }),
+      });
 
-    if (res.ok) {
-      toast.success("Story created!");
-      window.location.reload();
-      onClose();
-    } else {
-      throw new Error("Failed");
+      if (res.ok) {
+        toast.success("Story created!");
+        window.location.reload();
+        onClose();
+      } else {
+        throw new Error("Failed");
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to create story.");
+    } finally {
+      setLoading(false);
     }
-  } catch (e) {
-    console.error(e);
-    toast.error("Failed to create story.");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   if (!isOpen) return null;
 
@@ -1067,28 +1074,28 @@ export const CreateStoryModal = ({
             </div>
           </div>
           {isCameraOpen ? (
-             <CameraCapture 
-               onCapture={handleCameraCapture} 
-               onClose={() => setIsCameraOpen(false)} 
-             />
+            <CameraCapture
+              onCapture={handleCameraCapture}
+              onClose={() => setIsCameraOpen(false)}
+            />
           ) : (
             <>
-              <textarea 
+              <textarea
                 style={{ ...styles.modalTextarea, minHeight: "80px", fontSize: "18px", textAlign: "center" }}
-                placeholder="Type something..." 
-                value={content} 
-                onChange={(e) => setContent(e.target.value)} 
+                placeholder="Type something..."
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
               />
-              
+
               {mediaPreview && (
                 /* ... Existing Preview Logic ... */
                 <div style={styles.previewArea}>
-                   <button onClick={removeMedia} style={styles.removeMediaBtn}><X size={16} /></button>
-                   {mediaType === "video" ? (
-                      <video src={mediaPreview} controls style={{ width: "100%", maxHeight: "300px" }} />
-                   ) : (
-                      <img src={mediaPreview} alt="Preview" style={{ width: "100%", maxHeight: "300px", objectFit: "contain" }} />
-                   )}
+                  <button onClick={removeMedia} style={styles.removeMediaBtn}><X size={16} /></button>
+                  {mediaType === "video" ? (
+                    <video src={mediaPreview} controls style={{ width: "100%", maxHeight: "300px" }} />
+                  ) : (
+                    <img src={mediaPreview} alt="Preview" style={{ width: "100%", maxHeight: "300px", objectFit: "contain" }} />
+                  )}
                 </div>
               )}
             </>
@@ -1096,21 +1103,21 @@ export const CreateStoryModal = ({
         </div>
         <div style={styles.modalFooter}>
           <div style={{ display: "flex", gap: "10px" }}>
-              <button 
-                onClick={() => fileInputRef.current?.click()} 
-                style={{ ...styles.mediaBtn, padding: "8px" }}
-              >
-                <ImageIcon size={20} className="text-blue-500" /> Gallery
-              </button>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              style={{ ...styles.mediaBtn, padding: "8px" }}
+            >
+              <ImageIcon size={20} className="text-blue-500" /> Gallery
+            </button>
 
-              {/* 🟢 NEW CAMERA BUTTON */}
-              <button 
-                onClick={() => setIsCameraOpen(true)} 
-                style={{ ...styles.mediaBtn, padding: "8px" }}
-              >
-                <Camera size={20} className="text-purple-600" /> Camera
-              </button>
-           </div>
+            {/* 🟢 NEW CAMERA BUTTON */}
+            <button
+              onClick={() => setIsCameraOpen(true)}
+              style={{ ...styles.mediaBtn, padding: "8px" }}
+            >
+              <Camera size={20} className="text-purple-600" /> Camera
+            </button>
+          </div>
           <input
             type="file"
             ref={fileInputRef}
@@ -1338,13 +1345,13 @@ export const PostCard = ({
           const newComment = data.comment.user
             ? data.comment
             : {
-                ...data.comment,
-                user: {
-                  fullName: currentUser?.fullName || "Me",
-                  profileImage: currentUser?.profileImage,
-                  id: currentUser?.id,
-                },
-              };
+              ...data.comment,
+              user: {
+                fullName: currentUser?.fullName || "Me",
+                profileImage: currentUser?.profileImage,
+                id: currentUser?.id,
+              },
+            };
           setComments((prev) => [newComment, ...prev]);
         }
       } else {
@@ -1358,52 +1365,52 @@ export const PostCard = ({
   };
 
   const handleCancelRequest = async () => {
-  if (!confirm("Withdraw connection request?")) return;
-  setIsLoadingConnection(true);
-  
-  try {
-    // We need the connection ID to delete it. 
-    // If your backend supports deleting by userId, use that.
-    
-    // Fallback: If we don't have a specific connectionId from the feed, 
-    // we might need an endpoint that accepts receiverId.
-    // BUT usually, Feed API provides 'connectionId'. 
-    
-    const targetId = postData.connectionId; 
+    if (!confirm("Withdraw connection request?")) return;
+    setIsLoadingConnection(true);
 
-    // If connectionId is missing (sometimes happens in feeds), we usually need to find it
-    
-    let url = `/api/users/connections/${targetId}`;
-    let method = "DELETE";
-    let body = null;
+    try {
+      // We need the connection ID to delete it. 
+      // If your backend supports deleting by userId, use that.
 
-    // 🟢 EDGE CASE: If we just clicked "Connect" locally, we might not have the ID yet.
-    // In a real app, you'd refresh the feed or return the ID from the connect API.
-    
-    if (!targetId) {
-       // If no ID, we try to delete by user logic if your API supports it, 
-       // OR we just assume success for UI if it was a fresh optimistic update.
-       // Ideally, fetch the connection ID first.
-       console.warn("No connection ID available to cancel immediately");
-       setConnectionStatus("none");
-       setIsLoadingConnection(false);
-       return;
+      // Fallback: If we don't have a specific connectionId from the feed, 
+      // we might need an endpoint that accepts receiverId.
+      // BUT usually, Feed API provides 'connectionId'. 
+
+      const targetId = postData.connectionId;
+
+      // If connectionId is missing (sometimes happens in feeds), we usually need to find it
+
+      let url = `/api/users/connections/${targetId}`;
+      let method = "DELETE";
+      let body = null;
+
+      // 🟢 EDGE CASE: If we just clicked "Connect" locally, we might not have the ID yet.
+      // In a real app, you'd refresh the feed or return the ID from the connect API.
+
+      if (!targetId) {
+        // If no ID, we try to delete by user logic if your API supports it, 
+        // OR we just assume success for UI if it was a fresh optimistic update.
+        // Ideally, fetch the connection ID first.
+        console.warn("No connection ID available to cancel immediately");
+        setConnectionStatus("none");
+        setIsLoadingConnection(false);
+        return;
+      }
+
+      const res = await fetch(url, { method });
+
+      if (res.ok) {
+        setConnectionStatus("none"); // Reset to "Connect" button
+        toast.success("Request withdrawn");
+      } else {
+        toast.error("Failed to withdraw");
+      }
+    } catch (e) {
+      toast.error("Error withdrawing request");
+    } finally {
+      setIsLoadingConnection(false);
     }
-
-    const res = await fetch(url, { method });
-
-    if (res.ok) {
-      setConnectionStatus("none"); // Reset to "Connect" button
-      toast.success("Request withdrawn");
-    } else {
-      toast.error("Failed to withdraw");
-    }
-  } catch (e) {
-    toast.error("Error withdrawing request");
-  } finally {
-    setIsLoadingConnection(false);
-  }
-};
+  };
 
   const handleConnect = async () => {
     setIsLoadingConnection(true);
@@ -1415,17 +1422,17 @@ export const PostCard = ({
       });
       if (res.ok) {
         // 🟢 FIX: Immediately set to 'pending' so button disappears
-        setConnectionStatus("pending"); 
+        setConnectionStatus("pending");
         toast.success("Connection request sent!");
         setShowMenu(false);
       } else {
         const data = await res.json();
         // If API says request already exists, treat as pending
         if (data.error?.includes("already")) {
-             setConnectionStatus("pending");
-             toast.error("Request already pending");
+          setConnectionStatus("pending");
+          toast.error("Request already pending");
         } else {
-             toast.error("Failed to connect");
+          toast.error("Failed to connect");
         }
       }
     } catch (e) {
@@ -1493,7 +1500,7 @@ export const PostCard = ({
       toast.error(e?.message || "Failed to remove connection");
     }
   };
-  
+
   const handleLike = async () => {
     const newLiked = !isLiked;
     setIsLiked(newLiked);
@@ -1545,14 +1552,14 @@ export const PostCard = ({
       setSharesCount((prev) => prev - 1);
     }
   };
-  
+
   const handleCopyLink = () => {
     setShowMenu(false);
     navigator.clipboard.writeText(
       `${window.location.origin}/post/${postData.id}`
     );
     toast.success("Copied!");
-    
+
     // Track it!
     trackShare();
   };
@@ -1722,7 +1729,7 @@ export const PostCard = ({
                   {/* Report Button Removed */}
 
                   {/* MORE OPTIONS LOGIC */}
-                  
+
                   {/* 1. NOT CONNECTED: Show Connect */}
                   {connectionStatus === "none" && (
                     <button

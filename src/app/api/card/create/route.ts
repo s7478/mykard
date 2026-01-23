@@ -54,33 +54,42 @@ export async function POST(req: NextRequest) {
     const profileImageUrl = formData.get('profileImageUrl') as string;
 
     if (profileImageFile && profileImageFile.size > 0) {
-      const arrayBuffer = await profileImageFile.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
+      try {
+        const arrayBuffer = await profileImageFile.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
 
-      const originalName = (profileImageFile as any).name || 'profile.jpg';
-      const safeName = originalName.replace(/[^a-z0-9.]+/gi, '-').toLowerCase();
-      const timestamp = Date.now();
-      const filePath = `cards/profile-images/${decoded.userId}/${timestamp}-${safeName}`;
+        const originalName = (profileImageFile as any).name || 'profile.jpg';
+        const safeName = originalName.replace(/[^a-z0-9.]+/gi, '-').toLowerCase();
+        const timestamp = Date.now();
+        const filePath = `cards/profile-images/${decoded.userId}/${timestamp}-${safeName}`;
 
-      const bucket = adminStorageBucket();
-      if (!bucket) {
-        return NextResponse.json({ error: 'Firebase Storage not available during build' }, { status: 503 });
+        const bucket = adminStorageBucket();
+        if (!bucket) {
+          console.error('Firebase Storage Bucket not initialized');
+          throw new Error('Storage bucket not available');
+        }
+        const fileRef = bucket.file(filePath);
+
+        await fileRef.save(buffer, {
+          resumable: false,
+          metadata: {
+            contentType: profileImageFile.type || 'application/octet-stream',
+          },
+        });
+
+        const [signedUrl] = await fileRef.getSignedUrl({
+          action: 'read',
+          expires: '2100-01-01',
+        });
+
+        cardData.profileImage = signedUrl;
+      } catch (uploadError: any) {
+        console.error("Profile image upload failed:", uploadError);
+        // Do not fail the whole request, just skip the image? 
+        // Or throw to let the user know?
+        // Let's log and throw a more specific error so we catch it in the main block.
+        throw new Error(`Profile image upload failed: ${uploadError.message}`);
       }
-      const fileRef = bucket.file(filePath);
-
-      await fileRef.save(buffer, {
-        resumable: false,
-        metadata: {
-          contentType: profileImageFile.type || 'application/octet-stream',
-        },
-      });
-
-      const [signedUrl] = await fileRef.getSignedUrl({
-        action: 'read',
-        expires: '2100-01-01',
-      });
-
-      cardData.profileImage = signedUrl;
     } else if (profileImageUrl) {
       // Use existing profile image URL
       cardData.profileImage = profileImageUrl;

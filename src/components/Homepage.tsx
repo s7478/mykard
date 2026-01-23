@@ -600,7 +600,7 @@ export default function Homepage() {
             whileTap={{ scale: 0.98 }}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className="transition-all duration-300 ease-in-out cursor-default w-[800px] z-20"
+          className="transition-all duration-300 ease-in-out cursor-default w-full max-w-[800px] z-20"
           style={{
             padding: "clamp(1.2rem, 4vw, 2.6rem) clamp(1rem, 4vw, 3.8rem)",
             borderRadius: "26px",
@@ -742,7 +742,7 @@ export default function Homepage() {
     background: isDesktop
       ? "linear-gradient(180.96deg, #FFFFFF 8.61%, #B1E4FF 38.39%, #B1E4FF 64.58%, #678DFF 90.1%)"
       : "#ffffff",
-    paddingTop: "5rem",
+    paddingTop: "8rem",
     paddingBottom: "5rem",
     position: "relative",
     overflow: "hidden",
@@ -806,8 +806,9 @@ export default function Homepage() {
                 <button
                   key={i}
                   onClick={() => setCurrentIndex(i)}
-                  className={`h-2.5 rounded-full transition-all duration-300 ${currentIndex === i ? "w-8 bg-gray-600" : "w-2.5 bg-gray-300"
+                  className={`rounded-full transition-all duration-300 ${currentIndex === i ? "w-8 bg-gray-800" : "w-3 bg-gray-400"
                     }`}
+                   style={{ height: "12px" }}
                 />
               ))}
             </div>
