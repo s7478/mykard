@@ -15,6 +15,22 @@ export default function NotificationsPage() {
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [clearedIds, setClearedIds] = useState<string[]>([]);
   const [sort, setSort] = useState<"latest" | "oldest">("latest");
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  // Color and style definitions matching messages page
+  const colors = {
+    bg: "#F8FAFC",
+    cardBg: "#FFFFFF",
+    textMain: "#1E293B",
+    textSec: "#64748B",
+    textLight: "#94A3B8",
+    primary: "#4F46E5",
+    primaryLight: "#EEF2FF",
+    primaryGradient: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
+    border: "#E2E8F0",
+    danger: "#EF4444",
+    hoverBg: "#E7F8FF",
+  };
 
   // Force scroll to top on mount to fix refresh scroll offset and ensure header stays fixed
   useEffect(() => {
@@ -92,7 +108,7 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div style={{ padding: '6px 16px 120px' }}>
+    <div style={{ padding: '6px 16px 40px' }}>
       <h1 style={{ 
         fontSize: '24px', 
         fontWeight: 700, 
@@ -107,20 +123,20 @@ export default function NotificationsPage() {
       <p style={{ 
         fontSize: '12px', 
         color: "#6b7280", 
-        marginBottom: 12,
+        marginBottom: 6,
         textAlign: 'center',
         lineHeight: '1.4'
       }}>
         Stay up to date with your account activity
       </p>
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, marginTop: 2 }}>
         <button
           type="button"
           onClick={handleClearAll}
           style={{
-            padding: "8px 12px",
-            fontSize: 13,
+            padding: "6px 10px",
+            fontSize: 12,
             borderRadius: 9999,
             border: "1px solid #e5e7eb",
             background: "#f9fafb",
@@ -154,12 +170,13 @@ export default function NotificationsPage() {
       ) : items.length === 0 ? (
         <div
           style={{
-            background: "#fff",
-            border: "1px solid #e5e7eb",
-            borderRadius: 12,
+            background: colors.cardBg,
+            border: `2px solid #4A90E2`,
+            borderRadius: 10,
             padding: 24,
             textAlign: "center",
-            color: "#6b7280",
+            color: colors.textLight,
+            boxShadow: "0px 3px 5px #4A90E0",
           }}
         >
           You have no notifications yet.
@@ -169,40 +186,55 @@ export default function NotificationsPage() {
           {displayed.map((n) => (
             <li
               key={n.id}
+              onMouseEnter={() => setHoveredId(n.id)}
+              onMouseLeave={() => setHoveredId(null)}
               style={{
-                background: "#fff",
-                border: "1px solid #e5e7eb",
-                borderRadius: 12,
-                padding: 16,
+                background: hoveredId === n.id ? colors.hoverBg : colors.cardBg,
+                border: `2px solid #4A90E2`,
+                borderRadius: 10,
+                padding: "12px 16px",
                 display: "flex",
                 flexDirection: "column",
                 gap: 6,
+                cursor: "pointer",
+                boxShadow: "0px 3px 5px #4A90E0",
+                transition: "background-color 0.2s ease",
+                marginBottom: "8px"
               }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontWeight: 600, color: "#111827" }}>{n.title || "Notification"}</span>
-                <span style={{ fontSize: 12, color: "#9ca3af" }}>
-                  {new Date(n.createdAt).toLocaleString()}
-                </span>
-              </div>
-              <div style={{ fontSize: 14, color: "#374151" }}>{n.message}</div>
-              <div style={{ marginTop: 8, display: "flex", justifyContent: "flex-end" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1 }}>
+                  <span style={{ fontWeight: 600, color: "#111827" }}>{n.title || "Notification"}</span>
+                  <span style={{ fontSize: 12, color: "#9ca3af" }}>
+                    {new Date(n.createdAt).toLocaleString()}
+                  </span>
+                </div>
                 <button
                   type="button"
                   onClick={() => handleClearOne(n.id)}
                   style={{
-                    fontSize: 12,
-                    padding: "4px 10px",
-                    borderRadius: 9999,
-                    border: "1px solid #e5e7eb",
-                    background: "#f9fafb",
+                    fontSize: 11,
+                    padding: "4px 8px",
+                    borderRadius: 4,
+                    border: "none",
+                    background: "#f3f4f6",
                     color: "#6b7280",
                     cursor: "pointer",
+                    fontWeight: 500,
+                    transition: "all 0.2s ease",
+                    whiteSpace: "nowrap"
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.background = "#e5e7eb";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.background = "#f3f4f6";
                   }}
                 >
                   Clear
                 </button>
               </div>
+              <div style={{ fontSize: 14, color: "#374151" }}>{n.message}</div>
             </li>
           ))}
         </ul>
