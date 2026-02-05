@@ -33,6 +33,7 @@ const SleekCardPreview: React.FC<DigitalCardProps> = ({
   review = "",
   documentUrl,
   onDocumentClick,
+  onClick,
 }) => {
   const capitalizedFirstName = capitalizeFirstLetter(firstName);
   const capitalizedMiddleName = capitalizeFirstLetter(middleName);
@@ -147,6 +148,7 @@ const SleekCardPreview: React.FC<DigitalCardProps> = ({
 
   return (
     <div
+      onClick={onClick}
       style={{
         width: "360px",
         borderRadius: "6px",
@@ -156,6 +158,7 @@ const SleekCardPreview: React.FC<DigitalCardProps> = ({
         backgroundImage: `linear-gradient(135deg, ${themeColor1} 0%, ${themeColor2} 100%)`,
         border: `1px solid #e5e5e5`,
         position: "relative",
+        cursor: "pointer",
       }}
     >
      {(cardName || cardType) && (

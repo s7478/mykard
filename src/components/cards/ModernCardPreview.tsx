@@ -11,7 +11,7 @@ const ModernCardPreview: React.FC<DigitalCardProps> = ({
   title = "", company = "", location = "", about = "", photo = "", cover = "",
   email = "", phone = "", linkedin = "", website = "",
   themeColor1 = "#3b82f6", themeColor2 = "#2563eb", fontFamily = "system-ui, sans-serif",
-  skills = "", portfolio = "", experience = "", services = "", review = "", documentUrl, onDocumentClick,
+  skills = "", portfolio = "", experience = "", services = "", review = "", documentUrl, onDocumentClick, onClick,
 }) => {
 
   const capitalizedFirstName = capitalizeFirstLetter(firstName);
@@ -286,11 +286,11 @@ const ModernCardPreview: React.FC<DigitalCardProps> = ({
   };
 
   return (
-    <div style={{
+    <div onClick={onClick} style={{
       width: "360px", borderRadius: "20px", overflow: "hidden",
       boxShadow: "0 12px 32px rgba(0, 0, 0, 0.15)", fontFamily: fontFamily,
       background: `linear-gradient(135deg, ${themeColor1} 0%, ${themeColor2} 100%)`,
-      border: "1px solid rgba(255,255,255,0.2)", backdropFilter: "blur(10px)", position: 'relative'
+      border: "1px solid rgba(255,255,255,0.2)", backdropFilter: "blur(10px)", position: 'relative', cursor: "pointer"
     }}>
 
       {(cardName || cardType) && (

@@ -2,7 +2,7 @@
 
 import styles from "./publiccard.module.css";
 import React, { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast, Toaster } from "react-hot-toast";
 import { X, Users, CheckCircle } from "lucide-react";
@@ -332,6 +332,7 @@ const ConnectionModal: React.FC<{
 
 // ----------------- Main Public Card Page -----------------
 const PublicCardPage = () => {
+  const router = useRouter();
   const params = useParams();
   const cardId = params.id as string;
 
@@ -476,9 +477,9 @@ const PublicCardPage = () => {
               <p className={styles.poweredText}>
                 Created by <strong>MyKard.in</strong>
               </p>
-              <a href="https://www.mykard.in/auth/signup" className={styles.createButton}>
+              <button onClick={() => router.push('/dashboard/create?new=true')} className={styles.createButton} style={{ border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'inherit' }}>
                 Create Your Own Card
-              </a>
+              </button>
             </div>
 
           </div>

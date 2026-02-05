@@ -32,6 +32,7 @@ const FlatCardPreview: React.FC<DigitalCardProps> = ({
   review = "",
   documentUrl,
   onDocumentClick,
+  onClick,
 }) => {
   const capitalizedFirstName = capitalizeFirstLetter(firstName);
   const capitalizedMiddleName = capitalizeFirstLetter(middleName);
@@ -147,6 +148,7 @@ const FlatCardPreview: React.FC<DigitalCardProps> = ({
 
   return (
     <div
+      onClick={onClick}
       style={{
         width: "360px",
         borderRadius: "12px",
@@ -156,6 +158,7 @@ const FlatCardPreview: React.FC<DigitalCardProps> = ({
         background: `linear-gradient(135deg, ${themeColor1} 0%, ${themeColor2} 100%)`,
         border: `3px solid ${themeColor1}`,
         position: "relative",
+        cursor: "pointer",
       }}
     >
       {/* Card Name Badge */}
