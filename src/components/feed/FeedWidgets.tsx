@@ -7,6 +7,8 @@ import { toast } from "react-hot-toast";
 
 import ShareModal from "./ShareModal";
 import { uploadToFirebase } from "@/utils/upload";
+import { getRelativeTime } from "@/utils/dateUtils";
+
 
 import {
   MoreHorizontal,
@@ -1660,6 +1662,17 @@ export const PostCard = ({
               }}
             >
               {authorTitle}
+            </p>
+            {/* Timestamp underneath designation */}
+            <p
+              style={{
+                color: "#94a3b8", // lighter gray than title
+                fontSize: "10px",
+                margin: "2px 0 0 0",
+                ...truncateStyle,
+              }}
+            >
+              {getRelativeTime(postData.createdAt)}
             </p>
           </div>
         </div>
