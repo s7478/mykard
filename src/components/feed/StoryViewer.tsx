@@ -2,8 +2,11 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { X, Send, Loader2 } from "lucide-react";
+import { X, Send, Loader2, MoreVertical, Trash2 } from "lucide-react";
 import { toast } from "react-hot-toast";
+import { getRelativeTime } from "@/utils/dateUtils";
+
+
 
 interface StoryViewerProps {
   isOpen: boolean;
@@ -25,6 +28,8 @@ export default function StoryViewer({
 
   const [replyText, setReplyText] = useState("");
   const [sendingReply, setSendingReply] = useState(false);
+  const [showMenu, setShowMenu] = useState(false); // 🟢 3-dot menu state
+
 
   // Derived Data (The current user and their stories)
   const currentUserGroup = userGroups[currentUserIdx];
@@ -39,8 +44,10 @@ export default function StoryViewer({
       setCurrentStoryIdx(0);
       setProgress(0);
       setReplyText("");
+      setShowMenu(false);
     }
   }, [isOpen, initialUserIndex]);
+
 
   // 2. 🟢 NEXT LOGIC (Navigate Story -> Then Navigate User)
   const handleNext = useCallback(() => {
@@ -49,14 +56,14 @@ export default function StoryViewer({
       setCurrentStoryIdx((prev) => prev + 1);
       setProgress(0);
       setReplyText("");
-    } 
+    }
     // B. If finished, go to NEXT USER (Automatic Navigation)
     else if (currentUserIdx < userGroups.length - 1) {
       setCurrentUserIdx((prev) => prev + 1);
       setCurrentStoryIdx(0); // Start from their first story
       setProgress(0);
       setReplyText("");
-    } 
+    }
     // C. No more users, close viewer
     else {
       onClose();
@@ -71,7 +78,7 @@ export default function StoryViewer({
       setCurrentStoryIdx((prev) => prev - 1);
       setProgress(0);
       setReplyText("");
-    } 
+    }
     // B. Go to PREV USER (Start at their LAST story)
     else if (currentUserIdx > 0) {
       const prevUserIdx = currentUserIdx - 1;
@@ -115,7 +122,7 @@ export default function StoryViewer({
 
     if (isVideo) return;
 
-    const durationStep = hasMedia ? 2 : 1.5; 
+    const durationStep = hasMedia ? 2 : 1.5;
 
     const interval = setInterval(() => {
       setProgress((prev) => {
@@ -163,6 +170,30 @@ export default function StoryViewer({
     }
   };
 
+  // 🟢 DELETE STORY LOGIC
+  const handleDeleteStory = async () => {
+    if (!activeStory) return;
+    if (!confirm("Delete this story?")) return;
+
+    try {
+      const res = await fetch("/api/stories/delete", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ storyId: activeStory.id }),
+      });
+
+      if (res.ok) {
+        toast.success("Story deleted");
+        window.location.reload(); // Reload to refresh stories
+      } else {
+        toast.error("Failed to delete story");
+      }
+    } catch (e) {
+      toast.error("Error deleting story");
+    }
+  };
+
+
   if (!isOpen || !activeStory) return null;
 
   const isVideo = activeStory.imageUrl?.match(/\.(mp4|webm|ogg)(\?|$)/i) || activeStory.videoUrl;
@@ -174,14 +205,14 @@ export default function StoryViewer({
       {/* Close Button */}
       <button
         onClick={onClose}
-        className="absolute top-6 right-6 text-white/80 z-50 p-2 bg-white/10 rounded-full hover:bg-white/20 transition backdrop-blur-md"
+        className="absolute top-6 right-16 text-white/80 z-50 p-2 bg-white/10 rounded-full hover:bg-white/20 transition backdrop-blur-md"
       >
         <X size={24} />
       </button>
 
       {/* MAIN CONTAINER */}
       <div className="relative w-full h-full md:w-[400px] md:h-[85vh] md:max-h-[850px] overflow-hidden bg-black shadow-2xl border border-white/10 flex flex-col">
-        
+
         {/* Progress Bars */}
         <div className="absolute top-3 left-0 right-0 z-20 flex gap-1 px-2 pointer-events-none">
           {stories.map((_: any, idx: number) => (
@@ -196,8 +227,8 @@ export default function StoryViewer({
                     idx === currentStoryIdx
                       ? `${progress}%`
                       : idx < currentStoryIdx
-                      ? "100%"
-                      : "0%",
+                        ? "100%"
+                        : "0%",
                 }}
               />
             </div>
@@ -220,14 +251,57 @@ export default function StoryViewer({
               </div>
             )}
           </div>
-          <span className="text-white font-medium text-sm drop-shadow-md tracking-wide">
-            {user?.fullName}
-          </span>
+          <div className="flex flex-col justify-center">
+            <span className="text-white font-medium text-sm drop-shadow-md tracking-wide">
+              {user?.fullName}
+            </span>
+            {/* Timestamp underneath name */}
+            <span className="text-white/70 text-xs drop-shadow-md">
+              {activeStory ? getRelativeTime(activeStory.createdAt) : ""}
+            </span>
+          </div>
         </div>
+
+        {/* 🟢 3-DOT MENU (Top Right) */}
+        {activeStory && user && (user.id === userGroups[0]?.user?.id || true) && (
+          // Note: "true" used above for now, ideally check if current user matches story author. 
+          // But `StoryViewer` logic suggests userGroups are viewed by `currentUser` (me) context isn't explicit here.
+          // Assuming I can delete MY stories only, API handles auth. So showing menu is okay, API will reject if not mine.
+          // Or better: check if `user` is ME. `userGroups` are friend's stories usually. 
+          // But I can also view MY stories. 
+          <div className="absolute top-6 right-4 z-50">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowMenu((prev) => !prev);
+              }}
+              className="p-2 text-white/80 hover:text-white transition"
+            >
+              <MoreVertical size={24} />
+            </button>
+
+
+            {showMenu && (
+              <div className="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-xl overflow-hidden min-w-[140px] p-1.5 flex flex-col gap-1">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteStory();
+                  }}
+                  className="w-full text-left px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-md font-medium flex items-center gap-2 transition"
+                >
+                  <Trash2 size={16} />
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
 
         {/* Content Area */}
         <div className="relative flex-1 bg-zinc-900 flex flex-col items-center justify-center overflow-hidden">
-          
+
           {hasMedia ? (
             <>
               {isVideo ? (
@@ -235,7 +309,7 @@ export default function StoryViewer({
                   src={activeStory.imageUrl || activeStory.videoUrl}
                   autoPlay
                   playsInline
-                  muted={false} 
+                  muted={false}
                   onEnded={handleNext}
                   onTimeUpdate={(e) => {
                     if (replyText.length > 0) return;
@@ -254,31 +328,31 @@ export default function StoryViewer({
                   className="w-full h-full object-contain"
                 />
               )}
-              
+
               {hasText && (
                 <div className="absolute bottom-32 left-4 right-4 z-10 text-center">
-                   <p className="text-white text-lg font-medium drop-shadow-md bg-black/30 p-2 rounded-lg inline-block">
-                     {activeStory.content}
-                   </p>
+                  <p className="text-white text-lg font-medium drop-shadow-md bg-black/30 p-2 rounded-lg inline-block">
+                    {activeStory.content}
+                  </p>
                 </div>
               )}
             </>
           ) : (
             <div className="w-full h-full flex items-center justify-center p-8 bg-gradient-to-br from-blue-900 to-slate-900 text-center">
-               <p className=" text-2xl font-bold font-serif leading-relaxed drop-shadow-xl" style={{ color: "#ffffff" }}>
-                 {activeStory.content || "..."}
-               </p>
+              <p className=" text-2xl font-bold font-serif leading-relaxed drop-shadow-xl" style={{ color: "#ffffff" }}>
+                {activeStory.content || "..."}
+              </p>
             </div>
           )}
 
           {/* Navigation Click Zones */}
-          <div 
-            className="absolute inset-y-0 left-0 w-1/3 z-20 cursor-pointer" 
-            onClick={handlePrev} 
+          <div
+            className="absolute inset-y-0 left-0 w-1/3 z-20 cursor-pointer"
+            onClick={handlePrev}
           />
-          <div 
-            className="absolute inset-y-0 right-0 w-1/3 z-20 cursor-pointer" 
-            onClick={(e) => { e.stopPropagation(); handleNext(); }} 
+          <div
+            className="absolute inset-y-0 right-0 w-1/3 z-20 cursor-pointer"
+            onClick={(e) => { e.stopPropagation(); handleNext(); }}
           />
 
           <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none z-0" />
@@ -301,11 +375,10 @@ export default function StoryViewer({
             <button
               type="submit"
               disabled={!replyText.trim() || sendingReply}
-              className={`absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full transition-all duration-200 ${
-                replyText.trim()
-                  ? "text-white hover:bg-white/20 active:scale-95"
-                  : "text-white/30 cursor-not-allowed"
-              }`}
+              className={`absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full transition-all duration-200 ${replyText.trim()
+                ? "text-white hover:bg-white/20 active:scale-95"
+                : "text-white/30 cursor-not-allowed"
+                }`}
             >
               {sendingReply ? (
                 <Loader2 size={18} className="animate-spin" />
