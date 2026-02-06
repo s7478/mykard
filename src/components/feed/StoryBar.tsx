@@ -20,38 +20,38 @@ const styles = {
     border: "1px solid #f1f5f9",
     width: "100%",
     boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-    overflowX: "auto" as const, 
-    overflowY: "visible" as const, 
+    overflowX: "auto" as const,
+    overflowY: "visible" as const,
     scrollbarWidth: "none" as const,
     gap: "12px",
   },
-  
+
   storyItem: { width: "72px", flexShrink: 0, position: "relative" as const },
-  
-  avatarWrapper: { 
-    width: "64px", height: "64px", borderRadius: "9999px", padding: "2px", 
+
+  avatarWrapper: {
+    width: "64px", height: "64px", borderRadius: "9999px", padding: "2px",
     position: "relative" as const, display: "flex", alignItems: "center", justifyContent: "center"
   },
-  
+
   avatarWhiteRing: { width: "100%", height: "100%", backgroundColor: "#ffffff", borderRadius: "9999px", padding: "2px" },
-  
+
   avatar: { width: "100%", height: "100%", borderRadius: "9999px", overflow: "hidden", position: "relative" as const, backgroundColor: "#e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "10px", fontWeight: 700, color: "#64748b" },
-  
-  plusBadge: { 
-    position: "absolute" as const, bottom: 0, right: 0, backgroundColor: "#2563eb", 
+
+  plusBadge: {
+    position: "absolute" as const, bottom: 0, right: 0, backgroundColor: "#2563eb",
     color: "#ffffff", borderRadius: "9999px", padding: "2px", border: "2px solid #ffffff",
     zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center"
   },
-  
+
   nameText: { fontSize: "11px", marginTop: "4px", fontWeight: 500, textAlign: "center" as const, width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, color: "#334155" },
 
   dropdownMenu: {
     position: "fixed" as const, // Fixed to viewport
     // Top/Left set dynamically
-    backgroundColor: "#ffffff", borderRadius: "12px", 
+    backgroundColor: "#ffffff", borderRadius: "12px",
     boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
-    border: "1px solid #e2e8f0", padding: "6px", 
-    zIndex: 9999, 
+    border: "1px solid #e2e8f0", padding: "6px",
+    zIndex: 9999,
     minWidth: "140px",
     display: "flex", flexDirection: "column" as const, gap: "2px",
     // 🟢 REMOVED: transform: "translateX(-50%)" so it aligns left-to-right
@@ -70,15 +70,15 @@ export default function StoryBar({ currentUser }: { currentUser: any }) {
   const [stories, setStories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
-  
+
   // Viewer State
   const [viewerOpen, setViewerOpen] = useState(false);
-  const [viewerGroups, setViewerGroups] = useState<any[]>([]); 
-  const [initialViewerIndex, setInitialViewerIndex] = useState(0); 
+  const [viewerGroups, setViewerGroups] = useState<any[]>([]);
+  const [initialViewerIndex, setInitialViewerIndex] = useState(0);
   const [showMyStoryMenu, setShowMyStoryMenu] = useState(false);
-  
+
   // 🟢 Ref and Pos state for menu
-  const myStoryRef = useRef<HTMLDivElement>(null); 
+  const myStoryRef = useRef<HTMLDivElement>(null);
   const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
 
   const fetchStories = async () => {
@@ -117,36 +117,36 @@ export default function StoryBar({ currentUser }: { currentUser: any }) {
 
       {/* 🟢 SINGLE CONTAINER */}
       <div className="hide-scrollbar" style={styles.scrollContainer}>
-        
+
         {/* === 1. MY STORY ITEM === */}
-        <div 
+        <div
           ref={myStoryRef}
-          className="flex flex-col items-center cursor-pointer" 
+          className="flex flex-col items-center cursor-pointer"
           style={styles.storyItem}
           onClick={(e) => {
             e.stopPropagation();
             if (myStoryGroup) {
-               // 🟢 Calculate Coordinates (Left Aligned)
-               if (myStoryRef.current) {
-                 const rect = myStoryRef.current.getBoundingClientRect();
-                 setMenuPos({ 
-                   top: rect.bottom + 5, 
-                   left: rect.left // 🟢 Aligns with the left edge of the avatar
-                 });
-               }
-               setShowMyStoryMenu(!showMyStoryMenu);
+              // 🟢 Calculate Coordinates (Left Aligned)
+              if (myStoryRef.current) {
+                const rect = myStoryRef.current.getBoundingClientRect();
+                setMenuPos({
+                  top: rect.bottom + 5,
+                  left: rect.left // 🟢 Aligns with the left edge of the avatar
+                });
+              }
+              setShowMyStoryMenu(!showMyStoryMenu);
             } else {
-               setIsStoryModalOpen(true);
+              setIsStoryModalOpen(true);
             }
           }}
         >
           <div style={{
-             ...styles.avatarWrapper,
-             background: myStoryGroup ? "linear-gradient(45deg, #181FFF, #1279E1)" : "transparent" 
+            ...styles.avatarWrapper,
+            background: myStoryGroup ? "linear-gradient(45deg, #181FFF, #1279E1)" : "transparent"
           }}>
             <div style={styles.avatarWhiteRing}>
               <div style={styles.avatar}>
-                {currentUser?.profileImage ? ( <Image src={currentUser.profileImage} alt="Me" fill className="object-cover" /> ) : ( getInitials(currentUser?.fullName || "Me") )}
+                {currentUser?.profileImage ? (<Image src={currentUser.profileImage} alt="Me" fill className="object-cover" />) : (getInitials(currentUser?.fullName || "Me"))}
               </div>
             </div>
             {!myStoryGroup && <div style={styles.plusBadge}><Plus size={14} strokeWidth={3} /></div>}
@@ -157,17 +157,17 @@ export default function StoryBar({ currentUser }: { currentUser: any }) {
           {showMyStoryMenu && (
             <>
               <div style={styles.menuBackdrop} onClick={(e) => { e.stopPropagation(); setShowMyStoryMenu(false); }} />
-              <div 
+              <div
                 style={{
                   ...styles.dropdownMenu,
                   top: menuPos.top,
                   left: menuPos.left
-                }} 
+                }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <button style={styles.menuItem} onClick={() => { 
-                    handleOpenViewer(0); 
-                    setShowMyStoryMenu(false); 
+                <button style={styles.menuItem} onClick={() => {
+                  handleOpenViewer(0);
+                  setShowMyStoryMenu(false);
                 }}>
                   <Eye size={16} /> View Story
                 </button>
@@ -181,9 +181,9 @@ export default function StoryBar({ currentUser }: { currentUser: any }) {
 
         {/* === 2. OTHER STORIES === */}
         {otherStories.map((group, i) => (
-          <div 
-            key={group.user.id} 
-            className="flex flex-col items-center cursor-pointer" 
+          <div
+            key={group.user.id}
+            className="flex flex-col items-center cursor-pointer"
             style={styles.storyItem}
             onClick={() => {
               const actualIndex = myStoryGroup ? i + 1 : i;
@@ -193,7 +193,7 @@ export default function StoryBar({ currentUser }: { currentUser: any }) {
             <div style={{ ...styles.avatarWrapper, background: group.hasUnseen ? "linear-gradient(45deg, #181FFF, #1279E1)" : "#cbd5f5" }}>
               <div style={styles.avatarWhiteRing}>
                 <div style={styles.avatar}>
-                  {group.user.profileImage ? ( <Image src={group.user.profileImage} alt={group.user.fullName} fill className="object-cover" /> ) : ( getInitials(group.user.fullName) )}
+                  {group.user.profileImage ? (<Image src={group.user.profileImage} alt={group.user.fullName} fill className="object-cover" />) : (getInitials(group.user.fullName))}
                 </div>
               </div>
             </div>
@@ -204,18 +204,18 @@ export default function StoryBar({ currentUser }: { currentUser: any }) {
         {/* Skeletons */}
         {loading && Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="flex flex-col items-center shrink-0" style={styles.storyItem}>
-            <div className="bg-slate-100 animate-pulse" style={{width: 64, height: 64, borderRadius: 999}} />
-            <div className="bg-slate-100 animate-pulse mt-1" style={{width: 48, height: 8, borderRadius: 4}} />
+            <div className="bg-slate-100 animate-pulse" style={{ width: 64, height: 64, borderRadius: 999 }} />
+            <div className="bg-slate-100 animate-pulse mt-1" style={{ width: 48, height: 8, borderRadius: 4 }} />
           </div>
         ))}
       </div>
 
-      <StoryViewer 
-        isOpen={viewerOpen} 
+      <StoryViewer
+        isOpen={viewerOpen}
         onClose={() => {
-            setViewerOpen(false);
-            // 🟢 3. IMPORTANT: Refresh data when viewer closes!
-            fetchStories(); 
+          setViewerOpen(false);
+          // 🟢 3. IMPORTANT: Refresh data when viewer closes!
+          fetchStories();
         }}
         userGroups={viewerGroups}
         initialUserIndex={initialViewerIndex}
