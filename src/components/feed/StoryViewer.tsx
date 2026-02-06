@@ -29,6 +29,7 @@ export default function StoryViewer({
   const [replyText, setReplyText] = useState("");
   const [sendingReply, setSendingReply] = useState(false);
   const [showMenu, setShowMenu] = useState(false); // 🟢 3-dot menu state
+  const [isExpanded, setIsExpanded] = useState(false); // 🟢 Read More state
 
 
   // Derived Data (The current user and their stories)
@@ -45,8 +46,14 @@ export default function StoryViewer({
       setProgress(0);
       setReplyText("");
       setShowMenu(false);
+      setIsExpanded(false);
     }
   }, [isOpen, initialUserIndex]);
+
+  // 1.5 Reset expanded state when changing stories
+  useEffect(() => {
+    setIsExpanded(false);
+  }, [currentStoryIdx, currentUserIdx]);
 
 
   // 2. 🟢 NEXT LOGIC (Navigate Story -> Then Navigate User)
@@ -330,10 +337,31 @@ export default function StoryViewer({
               )}
 
               {hasText && (
-                <div className="absolute bottom-32 left-4 right-4 z-10 text-center">
-                  <p className="text-white text-lg font-medium drop-shadow-md bg-black/30 p-2 rounded-lg inline-block">
-                    {activeStory.content}
-                  </p>
+                <div className="absolute bottom-24 left-0 right-0 z-10 flex flex-col items-center">
+                  <div
+                    className={`w-full bg-black/40 backdrop-blur-sm p-4 pb-2 text-center transition-all duration-300 ${isExpanded ? "max-h-[60vh] overflow-y-auto" : "max-h-[160px]"
+                      }`}
+                  >
+                    <p className="!text-white text-base font-medium drop-shadow-md leading-relaxed inline" style={{ color: "#ffffff" }}>
+                      {isExpanded ? activeStory.content : (
+                        activeStory.content.length > 180
+                          ? `${activeStory.content.slice(0, 180)}... `
+                          : activeStory.content
+                      )}
+                    </p>
+
+                    {activeStory.content.length > 180 && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsExpanded(!isExpanded);
+                        }}
+                        className="text-blue-400 font-bold ml-1 hover:underline text-sm inline-block"
+                      >
+                        {isExpanded ? "Show less" : "Read more"}
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
             </>

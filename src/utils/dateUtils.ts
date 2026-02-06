@@ -19,12 +19,12 @@ export const getRelativeTime = (dateInput: string | Date | number): string => {
   const hours = Math.floor(minutes / 60);
 
   if (hours < 1) {
-    if (minutes === 0) return "posted just now";
-    return `posted ${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
+    if (minutes === 0) return "just now";
+    return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
   }
 
   if (hours < 24) {
-    return `posted ${hours} hour${hours !== 1 ? "s" : ""} ago`;
+    return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
   }
 
   // Format as DD/MM/YY
@@ -32,5 +32,5 @@ export const getRelativeTime = (dateInput: string | Date | number): string => {
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const year = date.getFullYear().toString().slice(-2);
 
-  return `posted ${day}/${month}/${year}`;
+  return `${day}/${month}/${year}`;
 };

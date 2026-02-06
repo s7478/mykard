@@ -1,16 +1,16 @@
-import { NextRequest,NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 const CACHE_TTL_MS = 10_000; // 10 seconds
 
 type MessagesCacheEntry = {
-  timestamp: number;
-  payload: {
-    ok: boolean;
-    messages: any[];
-    sentMessages: any[];
-    senders: any[];
-  };
+    timestamp: number;
+    payload: {
+        ok: boolean;
+        messages: any[];
+        sentMessages: any[];
+        senders: any[];
+    };
 };
 
 // Per-user in-memory cache to reduce repeated DB hits
@@ -21,9 +21,9 @@ export async function GET(req: NextRequest) {
         // Extract user ID from middleware headers
         const userId = req.headers.get('x-user-id');
         if (!userId) {
-            return NextResponse.json({ 
-                ok: false, 
-                error: "Unauthorized - User not authenticated" 
+            return NextResponse.json({
+                ok: false,
+                error: "Unauthorized - User not authenticated"
             }, { status: 401 });
         }
 
@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
             ...allSentMessages.map((msg: any) => msg.receiverId)
         ]);
 
-        // Fetch details for all conversation partners, including profile image & basic info
+        // Fetch details for all conversation partners
         const senders = await (prisma as any).user.findMany({
             where: {
                 id: { in: Array.from(allPartnerIds) },
@@ -75,20 +75,39 @@ export async function GET(req: NextRequest) {
             },
         });
 
+        // 🟢 MANUAL STORY FETCHING
+        const storyIds = new Set<string>();
+        [...incomingMessages, ...allSentMessages].forEach((m: any) => {
+            if (m.storyId) storyIds.add(m.storyId);
+        });
+
+        const stories = await (prisma as any).story.findMany({
+            where: { id: { in: Array.from(storyIds) } },
+            select: { id: true, imageUrl: true, videoUrl: true }
+        });
+
+        const storyMap = new Map(stories.map((s: any) => [s.id, s]));
+
+        // Helper to attach story
+        const attachStory = (msg: any) => ({
+            ...msg,
+            story: msg.storyId ? storyMap.get(msg.storyId) || null : null
+        });
+
         // For the frontend, we need to structure the data properly
         // Messages sent TO the user (incoming)
-        const messages = incomingMessages;
-        
-        // Messages sent BY the user to these partners (outgoing)
-        const sentMessages = allSentMessages.filter((msg: any) => 
-            allPartnerIds.has(msg.receiverId)
-        );
+        const messages = incomingMessages.map(attachStory);
 
-        const payload = { 
-            ok: true, 
+        // Messages sent BY the user to these partners (outgoing)
+        const sentMessages = allSentMessages
+            .filter((msg: any) => allPartnerIds.has(msg.receiverId))
+            .map(attachStory);
+
+        const payload = {
+            ok: true,
             messages,       // incoming messages (others -> user)
             sentMessages,   // outgoing messages (user -> others)
-            senders 
+            senders
         };
 
         messagesCache.set(cacheKey, { timestamp: now, payload });
@@ -97,9 +116,9 @@ export async function GET(req: NextRequest) {
 
     } catch (error) {
         console.error('Error fetching messages:', error);
-        return NextResponse.json({ 
-            ok: false, 
-            error: "Failed to fetch messages" 
+        return NextResponse.json({
+            ok: false,
+            error: "Failed to fetch messages"
         }, { status: 500 });
     }
 }

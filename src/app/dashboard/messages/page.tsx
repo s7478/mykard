@@ -31,6 +31,11 @@ interface MessageItem {
     text: string;
     date: string;
     direction: 'in' | 'out';
+    story?: {
+      id: string;
+      imageUrl?: string;
+      videoUrl?: string;
+    } | null;
   }>;
   replies?: {
     text: string;
@@ -330,6 +335,7 @@ function MessagesPageContent() {
               date: m.createdAt || m.date || new Date().toISOString(),
               direction: 'in' as const,
               tag: m.tag,
+              story: m.story, // 🟢 Attach Story Data
             })),
             ...sentForParty.map((m: any) => ({
               id: m.id,
@@ -337,6 +343,7 @@ function MessagesPageContent() {
               date: m.createdAt || m.date || new Date().toISOString(),
               direction: 'out' as const,
               tag: m.tag,
+              story: m.story, // 🟢 Attach Story Data
             })),
           ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
@@ -829,26 +836,26 @@ function MessagesPageContent() {
       backgroundColor: "#FFFFFF",
       border: `1px solid ${colors.border}`,
       color: colors.textMain,
-      padding: "14px 18px",
+      padding: "12px 16px",
       borderRadius: "18px 18px 18px 4px",
       fontSize: "14px",
-      lineHeight: "1.6",
+      lineHeight: "1.5",
       boxShadow: "0 2px 4px rgba(0,0,0,0.04)",
-      maxWidth: "80%",
-      wordBreak: "break-word" as const,
-      overflowWrap: "break-word" as const,
+      maxWidth: "100%", // Parent handles the 80% width constraint
+      width: "fit-content",
+      overflowWrap: "anywhere" as const, // better than break-word for long URLs
     },
     bubbleOut: {
       background: colors.primaryGradient,
       color: "#FFFFFF",
-      padding: "14px 18px",
+      padding: "12px 16px",
       borderRadius: "18px 18px 4px 18px",
       fontSize: "14px",
-      lineHeight: "1.6",
+      lineHeight: "1.5",
       boxShadow: "0 4px 12px rgba(99, 102, 241, 0.3)",
-      maxWidth: "80%",
-      wordBreak: "break-word" as const,
-      overflowWrap: "break-word" as const,
+      maxWidth: "100%", // Parent handles the 80% width constraint
+      width: "fit-content",
+      overflowWrap: "anywhere" as const,
     },
     composer: {
       padding: isMobile ? "8px 8px" : "12px 16px", // reduced composer padding
@@ -1098,7 +1105,9 @@ function MessagesPageContent() {
                           marginBottom: "2px",
                           marginTop: "0px"
                         }}>
-                          Replied to your story
+                          {m.thread && m.thread.length > 0 && m.thread[m.thread.length - 1].direction === 'out'
+                            ? "You replied to their story"
+                            : "Replied to your story"}
                         </p>
                       )}
 
@@ -1247,6 +1256,26 @@ function MessagesPageContent() {
 
                         <div style={{ display: "flex", width: "100%", justifyContent: isIncoming ? "flex-start" : "flex-end", marginBottom: "8px" }}>
                           <div style={{ display: "flex", flexDirection: "column", alignItems: isIncoming ? "flex-start" : "flex-end", maxWidth: "80%" }}>
+
+                            {/* 🟢 Story Reply Label & Thumbnail */}
+                            {item.story && (
+                              <div style={{ display: 'flex', flexDirection: 'column', alignItems: isIncoming ? 'flex-start' : 'flex-end', marginBottom: '6px' }}>
+                                <p style={{ fontSize: '11px', color: '#94a3b8', margin: '0 0 4px 0', fontWeight: 500 }}>
+                                  {isIncoming ? "Replied to your story" : `Replied to ${activeMessage.name.split(' ')[0]}'s story`}
+                                </p>
+                                <div style={{
+                                  width: '48px', height: '72px', borderRadius: '8px', overflow: 'hidden',
+                                  border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0
+                                }}>
+                                  {item.story.imageUrl ? (
+                                    <img src={item.story.imageUrl} alt="Story" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                  ) : item.story.videoUrl ? (
+                                    <video src={item.story.videoUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                  ) : null}
+                                </div>
+                              </div>
+                            )}
+
                             <div style={isIncoming ? styles.bubbleIn : styles.bubbleOut}>
                               {renderMessageText(item.text)}
                               <div style={{
