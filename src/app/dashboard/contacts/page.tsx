@@ -225,50 +225,93 @@ export default function ContactsPage() {
                     <div className={styles.contactsList}>
                       {filteredContacts.map((contact) => (
                         <div key={contact.id} className={`${styles.contactCard} ${expandedContactId === contact.id ? styles.expanded : ""}`} onClick={() => setExpandedContactId(expandedContactId === contact.id ? null : contact.id)}>
-                          <div className={styles.contactHeader}>
-                            <div className={styles.contactInfo}>
-                              <div className={styles.avatar}>{contact.name?.charAt(0).toUpperCase() || "?"}</div>
-                              <div className={styles.contactDetails}>
-                                <div className={styles.nameRow}>
-                                  <h3 className={styles.contactName}>{contact.name}</h3>
-                                  <span className={styles.contactedViaInline} title={contact.card?.cardName || contact.card?.fullName}>(Contacted via {contact.card?.cardName || contact.card?.fullName || "Link"})</span>
+                          <div className={styles.contactHeaderWrapper}>
+                            {/* Desktop/Default View - Icon Only */}
+                            <div className={styles.desktopView}>
+                              <div className={styles.contactHeader}>
+                                <div className={styles.contactInfo}>
+                                  <div className={styles.avatar}>{contact.name?.charAt(0).toUpperCase() || "?"}</div>
+                                  <div className={styles.contactDetails}>
+                                    <h3 className={styles.contactName}>{contact.name}</h3>
+                                    <span className={styles.contactedViaInline} title={contact.card?.cardName || contact.card?.fullName}>(Contacted via {contact.card?.cardName || contact.card?.fullName || "Link"})</span>
+                                  </div>
+                                </div>
+                                <div className={styles.desktopQuickActions}>
+                                  <button onClick={(e) => { e.stopPropagation(); handlePhoneClick(contact.phone); }} className={styles.desktopQuickIcon} title="Call"><Phone size={16} /></button>
+                                  <button onClick={(e) => { e.stopPropagation(); handleEmailClick(contact.email); }} className={styles.desktopQuickIcon} title="Message"><Mail size={16} /></button>
+                                  <div className={styles.dropdownContainer}>
+                                    <button onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === contact.id ? null : contact.id); }} className={styles.moreButton} title="More options">
+                                      <MoreHorizontal size={16} />
+                                    </button>
+                                    {openDropdown === contact.id && (
+                                      <div className={styles.dropdownMenu}>
+                                        <button onClick={() => handleDeleteContact(contact.id)} className={styles.dropdownItemDelete}>Delete Contact</button>
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                            <div className={styles.contactMeta}>
-                              <div className={styles.dropdownContainer}>
-                                <button onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === contact.id ? null : contact.id); }} className={styles.moreButton} title="More options">
-                                  <MoreHorizontal size={9} />
-                                </button>
-                                {openDropdown === contact.id && (
-                                  <div className={styles.dropdownMenu}>
-                                    <button onClick={() => handleDeleteContact(contact.id)} className={styles.dropdownItemDelete}>Delete Contact</button>
+
+                              {expandedContactId === contact.id && (
+                                <div className={styles.contactActions}>
+                                  <button onClick={(e) => { e.stopPropagation(); handleEmailClick(contact.email); }} className={`${styles.actionButton} ${styles.messageButton}`} title="Send email">
+                                    <Mail size={16} />
+                                    <span className={styles.actionText}>{contact.email}</span>
+                                  </button>
+                                  <button onClick={(e) => { e.stopPropagation(); handlePhoneClick(contact.phone); }} className={`${styles.actionButton} ${styles.phoneButton}`} title="Call phone">
+                                    <Phone size={16} />
+                                    <span className={styles.actionText}>{contact.phone}</span>
+                                  </button>
+                                  <div className={styles.mobileTimeStamp}>
+                                    <Calendar size={14} /> {formatRelativeTime(contact.createdAt)}
                                   </div>
-                                )}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Mobile View - Expanded Details */}
+                            <div className={styles.mobileView}>
+                              <div className={styles.contactHeader}>
+                                <div className={styles.contactInfo}>
+                                  <div className={styles.avatar}>{contact.name?.charAt(0).toUpperCase() || "?"}</div>
+                                  <div className={styles.contactDetails}>
+                                    <div className={styles.nameRow}>
+                                      <h3 className={styles.contactName}>{contact.name}</h3>
+                                      <span className={styles.contactedViaInline} title={contact.card?.cardName || contact.card?.fullName}>(Contacted via {contact.card?.cardName || contact.card?.fullName || "Link"})</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className={styles.mobileHeaderIcons}>
+                                  <button onClick={(e) => { e.stopPropagation(); handlePhoneClick(contact.phone); }} className={styles.desktopQuickIcon} title="Call"><Phone size={16} /></button>
+                                  <button onClick={(e) => { e.stopPropagation(); handleEmailClick(contact.email); }} className={styles.desktopQuickIcon} title="Message"><Mail size={16} /></button>
+                                  <div className={styles.dropdownContainer}>
+                                    <button onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === contact.id ? null : contact.id); }} className={styles.moreButton} title="More options">
+                                      <MoreHorizontal size={16} />
+                                    </button>
+                                    {openDropdown === contact.id && (
+                                      <div className={styles.dropdownMenu}>
+                                        <button onClick={() => handleDeleteContact(contact.id)} className={styles.dropdownItemDelete}>Delete Contact</button>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          </div>
 
-                          {expandedContactId !== contact.id && (
-                            <div className={styles.quickActions}>
-                              <button onClick={(e) => { e.stopPropagation(); handlePhoneClick(contact.phone); }} className={styles.quickIcon} title="Call"><Phone size={14} /></button>
-                              <button onClick={(e) => { e.stopPropagation(); handleEmailClick(contact.email); }} className={styles.quickIcon} title="Message"><Mail size={14} /></button>
-                            </div>
-                          )}
-
-                          <div className={styles.contactActions}>
-                            <button onClick={(e) => { e.stopPropagation(); handleEmailClick(contact.email); }} className={`${styles.actionButton} ${styles.messageButton}`} title="Send email">
-                              <Mail size={16} />
-                              {/* 👇 UPDATED: Wrapped text in span for safe layout */}
-                              <span className={styles.actionText}>{contact.email}</span>
-                            </button>
-                            <button onClick={(e) => { e.stopPropagation(); handlePhoneClick(contact.phone); }} className={`${styles.actionButton} ${styles.phoneButton}`} title="Call phone">
-                              <Phone size={16} />
-                              {/* 👇 UPDATED: Wrapped text in span for safe layout */}
-                              <span className={styles.actionText}>{contact.phone}</span>
-                            </button>
-                            <div className={styles.mobileTimeStamp}>
-                              <Calendar size={14} /> {formatRelativeTime(contact.createdAt)}
+                              {expandedContactId === contact.id && (
+                                <div className={styles.contactActions}>
+                                  <button onClick={(e) => { e.stopPropagation(); handleEmailClick(contact.email); }} className={`${styles.actionButton} ${styles.messageButton}`} title="Send email">
+                                    <Mail size={16} />
+                                    <span className={styles.actionText}>{contact.email}</span>
+                                  </button>
+                                  <button onClick={(e) => { e.stopPropagation(); handlePhoneClick(contact.phone); }} className={`${styles.actionButton} ${styles.phoneButton}`} title="Call phone">
+                                    <Phone size={16} />
+                                    <span className={styles.actionText}>{contact.phone}</span>
+                                  </button>
+                                  <div className={styles.mobileTimeStamp}>
+                                    <Calendar size={14} /> {formatRelativeTime(contact.createdAt)}
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
