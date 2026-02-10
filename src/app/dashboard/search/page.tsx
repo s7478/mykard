@@ -46,7 +46,11 @@ const getInitials = (name: string) =>
 function SearchPageContent() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
+  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
 
+  const handleCardClick = (profile: Profile) => {
+    setSelectedProfile(profile);
+  };
 
   const dummyProfiles: Profile[] = [
     { id: "1", username: "arnav_wasnik", name: "Arnav Wasnik", designation: "Frontend Developer", company: "BoostNow Solutions", city: "Nagpur", category: "Technology", verified: true, views: 245, email: "arnav@example.com", phone: "+91 1234567890" },
@@ -179,7 +183,6 @@ function SearchPageContent() {
   const [connectingUserId, setConnectingUserId] = useState<string | null>(null);
   const [sentRequests, setSentRequests] = useState<Set<string>>(new Set());
   const [acceptedConnections, setAcceptedConnections] = useState<Set<string>>(new Set());
-  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
 
 
   useEffect(() => {
@@ -226,8 +229,11 @@ function SearchPageContent() {
           profileImage: user.profileImage || user.avatar || user.image || '',
           email: user.email || '',
           phone: user.phone || user.phoneNumber || '',
+          about: user.about || user.bio || '',
+          services: user.services || user.offerings || user.service || '',
+          skills: user.skills || user.skillset || '',
+          description: user.description || user.bio || '',
           verified: user.verified || user.emailVerified || false,
-          reviews: user.reviews || user.ratingCount || 0,
           views: user.views || user.impressions || 0,
         }));
 
@@ -780,6 +786,9 @@ if (!raw && activeCategory === "All") {
                     fontWeight: 500,
                     cursor: "pointer"
                   }}
+                const handleCardClick = (profile: Profile) => {
+                  setSelectedProfile(profile);
+                };
                 >
                   Filter
                   <ChevronDown size={16} />
@@ -802,14 +811,14 @@ if (!raw && activeCategory === "All") {
 
                     <div className="filterActions">
                       <button
-                        className="clearFilterBtn"
-                        onClick={() => {
-                          setTempCategory("All");
-                          setActiveCategory("All");
-                          setShowFilter(false);
-                        }}
+                      className="clearFilterBtn"
+                      onClick={() => {
+                        setTempCategory("All");
+                        setActiveCategory("All");
+                        setShowFilter(false);
+                      }}
                       >
-                        Clear
+                      Clear
                       </button>
 
                       <button
@@ -850,7 +859,7 @@ if (!raw && activeCategory === "All") {
                     className={`card ${activeCardId === p.id ? "active" : ""}`}
                     onMouseEnter={() => setActiveCardId(p.id)}
                     onMouseLeave={() => setActiveCardId(null)}
-                    onClick={() => setActiveCardId(p.id)}
+                    onClick={() => handleCardClick(p)}  // YE LINE ADD KARO
                   >
                     <div className="card-info">
                       <div className="avatar">
@@ -885,7 +894,6 @@ if (!raw && activeCategory === "All") {
                               e.stopPropagation();
                               handleConnect(p.id, p.name);
                             }}
-                            disabled={connectingUserId === p.id}
                           >
                             Connect +
                           </button>
@@ -918,7 +926,7 @@ if (!raw && activeCategory === "All") {
                     className={`card ${activeCardId === p.id ? "active" : ""}`}
                     onMouseEnter={() => setActiveCardId(p.id)}
                     onMouseLeave={() => setActiveCardId(null)}
-                    onClick={() => setActiveCardId(p.id)}
+                    onClick={() => handleCardClick(p)}  // YE LINE ADD KARO
                   >
                     <div className="card-info">
                       <div className="avatar">
