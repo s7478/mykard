@@ -397,7 +397,6 @@ const CreatePageContent = () => {
         return;
       }
 
-
       if (includePhone && !phone.trim()) {
         setPopupMessage('You enabled "Show on Card" but the phone number is empty. Please enter a number or disable the toggle.');
         setIsPopupOpen(true);
@@ -457,14 +456,22 @@ const CreatePageContent = () => {
       if (bannerImageFile) formData.append('bannerImage', bannerImageFile);
       if (resumeFile) formData.append('document', resumeFile);
 
-      const response = await fetch('/api/card/create', { method: 'POST', body: formData });
+      let response;
+      if (cardId) {
+        // Update existing card
+        response = await fetch(`/api/card/update/${cardId}`, { method: 'PATCH', body: formData });
+      } else {
+        // Create new card
+        response = await fetch('/api/card/create', { method: 'POST', body: formData });
+      }
+
       const data = await response.json();
 
-      if (!response.ok) throw new Error(data.error || 'Failed to create card');
+      if (!response.ok) throw new Error(data.error || (cardId ? 'Failed to update card' : 'Failed to create card'));
 
       setExistingCardId(data.card.id);
       setIsPopupOpen(true);
-      setPopupMessage('Card created successfully!');
+      setPopupMessage(cardId ? 'Card updated successfully!' : 'Card created successfully!');
     } catch (error: any) {
       console.error('Error saving card:', error);
       setIsPopupOpen(true);

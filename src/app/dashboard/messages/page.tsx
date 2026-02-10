@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState, Suspense } from "react";
-import { Search, X, Trash2, Send, ChevronLeft, Radius, AlignCenter, Underline } from "lucide-react";
+import { Search, X, Trash2, Send, ChevronLeft, Radius, AlignCenter, Underline, ChevronDown, Filter } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import styles from "./messages.module.css";
 import { is } from "zod/v4/locales";
 import { Margarine } from "next/font/google";
 import BorderStyle from "pdf-lib/cjs/core/annotation/BorderStyle";
@@ -62,6 +63,7 @@ function MessagesPageContent() {
   const [chatUpdateTrigger, setChatUpdateTrigger] = useState(0);
   const [isNearBottom, setIsNearBottom] = useState(true);
   const [showReplyLabel, setShowReplyLabel] = useState(true);
+  const [hoveredTab, setHoveredTab] = useState<string | null>(null);
   const renderMessageText = (text: string) => {
     const lines = text.split(/\n|\d+\.\s/).filter(Boolean);
 
@@ -117,8 +119,24 @@ function MessagesPageContent() {
     setIsNearBottom(distanceFromBottom < 80);
   };
 
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const filterRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        setIsFilterOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   useEffect(() => {
     const mql = window.matchMedia("(max-width: 640px)");
+
     const onChange = () => setIsMobile(mql.matches);
     onChange();
     // @ts-ignore
@@ -529,7 +547,7 @@ function MessagesPageContent() {
           message: replyText.trim(),
           receiverId: originalMessage.senderId,
           status: 'REPLIED',
-          tag: originalMessage.tag?.toUpperCase() || 'SUPPORT',
+          tag: originalMessage.tag === 'STORY_REPLY' ? 'SUPPORT' : (originalMessage.tag?.toUpperCase() || 'SUPPORT'),
           read: false,
         }),
       });
@@ -574,421 +592,59 @@ function MessagesPageContent() {
   // ------------------ STYLES ------------------ //
 
   // Color Palette
-  const colors = {
-    bg: "#F8FAFC",
-    cardBg: "#FFFFFF",
-    textMain: "#1E293B",
-    textSec: "#64748B",
-    textLight: "#94A3B8",
-    primary: "#4F46E5",
-    primaryLight: "#EEF2FF",
-    primaryGradient: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
-    border: "#E2E8F0",
-    danger: "#EF4444",
-    successBg: "#ECFDF5",
-    successText: "#059669",
-    hoverBg: "#F1F5F9",
-  };
-  const styles = {
-    container: {
-      flex: 1,
-      display: "flex",
-      flexDirection: "column" as const,
-      overflow: "hidden",
-      minHeight: 0,
-      padding: "0", // Removed padding
-      backgroundColor: "transparent", // Transparent to show page bg
-      borderRadius: "0", // Removed radius
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-      color: colors.textMain,
-    },
-
-    pageWrapper: {
-      display: "flex",
-      flexDirection: "column" as const,
-      height: "100dvh",
-      overflow: "hidden",
-      backgroundColor: "#f9fafb",
-      // Removed padding/gap to match connections exactly
-    },
-
-    container1: {
-      backgroundColor: "transparent",
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-      color: colors.textMain,
-    },
-
-    mainCard: {
-      maxWidth: "1200px",
-      height: "auto",
-      margin: isMobile ? "0" : "20px auto",
-      borderRadius: isMobile ? "0" : "16px",
-      boxShadow: isMobile ? "none" : "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-      display: "flex",
-      flexDirection: "column" as const,
-      overflow: "hidden",
-      border: isMobile ? "none" : `1px solid ${colors.border}`,
-      position: "relative" as const,
-    },
-    header: {
-      position: "sticky" as const,
-      top: 0,
-      zIndex: 20,
-      backgroundColor: "transparent",
-      backdropFilter: "blur(8px)",
-      display: "flex",
-      flexDirection: "column" as const,
-    },
-    tabsContainer: {
-      display: "flex",
-      alignItems: "center",
-      gap: "15px",
-      flexWrap: "nowrap" as const,
-      marginTop: "12px",
-      width: "100%",
-    },
-
-    tabsList: {
-      // display: "flex",
-      gap: "15px",
-      overflowX: "hidden" as const,
-      paddingBottom: "4px",
-      marginLeft: "5px",
-      flex: "1 1 0%",
-      minWidth: 0,
-      maxWidth: "calc(100% - 110px)", // reserve space for the select so it stays on one line
-    },
-
-    filter: {
-      height: "45px",
-      padding: "0 12px",
-      borderRadius: "10px",
-      border: "1px solid #4A90E2",
-      backgroundColor: "#FFFFFF",
-      fontWeight: 500,
-      cursor: "pointer",
-      marginLeft: "10px",
-      whiteSpace: "nowrap" as const,
-      width: "87px",
-    },
-
-    tabButton: (isActive: boolean) => ({
-      padding: "6px 10px",
-      //borderRadius: "8px",
-      fontSize: "12px",
-      fontWeight: 500,
-      border: isActive ? "none" : `1px solid ${colors.border}`,
-      backgroundColor: isActive ? "#1E293B" : "transparent",
-      textDecoration: isActive ? "underline" : "none",
-      underlineColor: isActive ? "#2563EB" : "transparent",
-      color: "#646464",
-      //textDecoration: "underline",
-      cursor: "pointer",
-      whiteSpace: "nowrap" as const,
-      transition: "all 0.15s",
-    }),
-
-    searchContainer: {
-      position: "relative" as const,
-      display: "flex",
-      alignItems: "center",
-      gap: "10px",
-      width: "100%",
-    },
-
-    searchInput: {
-      flex: 1,
-      height: "40px",
-      padding: "0 16px 0 40px",
-      borderRadius: "12px",
-      border: "1px solid #cbd5e1",
-      backgroundColor: "#FFFFFF",
-      fontSize: "14px",
-      outline: "none",
-      minWidth: 0,
-      color: "#334155",
-      boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-    },
-
-
-    sortSelect: {
-      height: "40px",
-      padding: "0 16px",
-      fontSize: "14px",
-      fontWeight: 500,
-      color: "#334155",
-      border: "1px solid #cbd5e1",
-      backgroundColor: "#FFFFFF",
-      borderRadius: "12px",
-      cursor: "pointer",
-      whiteSpace: "nowrap" as const,
-      boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-    },
-
-    sortSelectMobile: {
-      height: "40px",
-      padding: "0 12px",
-      fontSize: "14px",
-      fontWeight: 500,
-      color: "#334155",
-      border: "1px solid #cbd5e1",
-      backgroundColor: "#FFFFFF",
-      borderRadius: "12px",
-      cursor: "pointer",
-      width: "90px",
-      boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-    },
-
-    listContainer: {
-      flex: 1,
-      overflowY: "auto" as const,
-      overscrollBehavior: "contain",
-      //backgroundColor: "#FAFAFA",
-    },
-    messageRow: (messageId: string, isRead: boolean) => ({
-      padding: isMobile ? "8px" : "12px 18px", // tighter row padding
-      //borderRadius: "15px 15px 0px 0px",
-      margin: "10px",
-      borderRadius: "10px",
-      border: `2px solid #4A90E2`,
-      cursor: "pointer",
-      //backgroundColor: hoveredId === messageId ? "#F8FAFC" : (isRead ? "#FFFFFF" : "#E0E7FF"),
-      backgroundColor: hoveredId === messageId ? "#E7F8FF" : (isRead ? "#FFFFFF" : "#E0E7FF"),
-      boxShadow: "0px 3px 5px #4A90E0",
-      transition: "background-color 0.2s",
-      display: "flex",
-      alignItems: "flex-start",
-      gap: "16px",
-      position: "relative" as const,
-      marginBottom: "15px"
-    }),
-    avatar: (name: string, profileImage?: string) => ({
-      width: "48px",
-      height: "48px",
-      borderRadius: "50%",
-      background: profileImage ? `url(${profileImage})` : colors.primaryGradient,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      color: profileImage ? "#FFF" : "#FFF",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      fontSize: "14px",
-      fontWeight: 700,
-      flexShrink: 0,
-      boxShadow: "0 4px 12px rgba(99, 102, 241, 0.25)",
-      overflow: "hidden",
-    }),
-    unreadDot: {
-      display: "none",
-    },
-    incomingBadge: {
-      minWidth: 20,
-      height: 20,
-      borderRadius: "9999px",
-      backgroundColor: colors.primary,
-      color: "#FFFFFF",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      fontSize: "11px",
-      fontWeight: 700,
-    },
-    detailOverlay: {
-      position: "fixed" as const,
-      top: 0, left: 0, right: 0, bottom: 0,
-      backgroundColor: "rgba(15, 23, 42, 0.2)",
-      backdropFilter: "blur(4px)",
-      zIndex: 50,
-      display: "flex",
-      justifyContent: isMobile ? "center" : "flex-end",
-    },
-    detailPanel: {
-      width: isMobile ? "100%" : "650px",
-      maxWidth: "100%",
-      height: "100%",
-      backgroundColor: "#FFFFFF",
-      boxShadow: "-10px 0 30px rgba(0,0,0,0.1)",
-      display: "flex",
-      flexDirection: "column" as const,
-      animation: "slideIn 0.3s ease-out",
-    },
-    chatHeader: {
-      height: "70px",
-      padding: "0 20px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      borderBottom: `1px solid ${colors.border}`,
-      backgroundColor: "rgba(255,255,255,0.9)",
-      backdropFilter: "blur(10px)",
-    },
-    chatBody: {
-      flex: 1,
-      overflowY: "auto" as const,
-      padding: "16px", // reduced inner chat padding
-      backgroundColor: "#F8FAFC",
-      display: "flex",
-      flexDirection: "column" as const,
-      gap: "20px",
-    },
-    bubbleIn: {
-      backgroundColor: "#FFFFFF",
-      border: `1px solid ${colors.border}`,
-      color: colors.textMain,
-      padding: "12px 16px",
-      borderRadius: "18px 18px 18px 4px",
-      fontSize: "14px",
-      lineHeight: "1.5",
-      boxShadow: "0 2px 4px rgba(0,0,0,0.04)",
-      maxWidth: "100%", // Parent handles the 80% width constraint
-      width: "fit-content",
-      overflowWrap: "anywhere" as const, // better than break-word for long URLs
-    },
-    bubbleOut: {
-      background: colors.primaryGradient,
-      color: "#FFFFFF",
-      padding: "12px 16px",
-      borderRadius: "18px 18px 4px 18px",
-      fontSize: "14px",
-      lineHeight: "1.5",
-      boxShadow: "0 4px 12px rgba(99, 102, 241, 0.3)",
-      maxWidth: "100%", // Parent handles the 80% width constraint
-      width: "fit-content",
-      overflowWrap: "anywhere" as const,
-    },
-    composer: {
-      padding: isMobile ? "8px 8px" : "12px 16px", // reduced composer padding
-      borderTop: `1px solid ${colors.border}`,
-      backgroundColor: "#FFFFFF",
-      width: "100%",
-      boxSizing: "border-box" as const,
-    },
-    composerInputContainer: {
-      backgroundColor: "#F8FAFC",
-      border: `1px solid ${colors.border}`,
-      borderRadius: "16px",
-      padding: isMobile ? "4px 8px 4px 10px" : "4px 10px 4px 12px",
-      width: "100%",
-      maxWidth: "100%",
-      boxSizing: "border-box" as const,
-      transition: "border 0.2s",
-    },
-    textarea: {
-      width: "100%",
-      backgroundColor: "transparent",
-      border: "none",
-      padding: "12px 16px",
-      fontSize: "14px",
-      outline: "none",
-      resize: "none" as const,
-      minHeight: "50px",
-      maxHeight: "120px",
-      fontFamily: "inherit",
-    },
-    sendButton: (disabled: boolean) => ({
-      backgroundColor: disabled ? "#E2E8F0" : colors.primary,
-      color: disabled ? "#94A3B8" : "#FFFFFF",
-      border: "none",
-      width: 40,
-      height: 40,
-      minWidth: 40,
-      minHeight: 40,
-      borderRadius: 9999,
-      padding: 0,
-      cursor: disabled ? "not-allowed" : "pointer",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      flexShrink: 0,
-      transition: "all 0.2s",
-    }),
-  };
-
-  // Inject minimal global styles for animation/scrollbar
-  const globalStyles = `
-    @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  `;
-
   const activeMessage = detailId ? messages.find(m => m.senderId === detailId) : null;
 
   return (
     <>
-      <div style={styles.pageWrapper}>
+      <div className={styles.minHScreen} style={{
+        background: `radial-gradient(600px 300px at 50% -50px, rgba(14, 61, 114, 0.25), transparent 70%),
+                   radial-gradient(500px 250px at 15% 120px, rgba(40, 107, 241, 0.2), transparent 70%),
+                   radial-gradient(500px 250px at 85% 140px, rgba(23, 69, 167, 0.18), transparent 70%),
+                   linear-gradient(180deg, #F5F9FF 0%, #FFFFFF 55%)`
+      }}>
 
-        <div style={styles.header}>
-          <div style={styles.searchContainer}>
-            {/* Search Icon */}
-            <Search style={{
-              position: "absolute",
-              left: "12px", top: "50%",
-              transform: "translateY(-50%)",
-              color: "#94a3b8",
-              width: "20px",
-              height: "20px",
-              pointerEvents: "none",
-            }}
-            />
+        <div className={styles.wFull}>
+          {/* Hero Section (Search & Filter) */}
+          <div className={styles.heroSection}>
+            <div className={styles.searchBarSection}>
+              <div className={styles.searchRow}>
+                <div className={styles.searchWrapper}>
+                  <span className={styles.searchIcon}> <Search size={20} /></span>
+                  <input
+                    type="text"
+                    placeholder="Search Messages..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className={styles.searchInput}
+                  />
+                </div>
 
-            {/* Search Input */}
-            <input type="text"
-              placeholder="Search Connections..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={styles.searchInput}
-            />
-
-            {/* Desktop Filter */}
-            {!isMobile && (
-              <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value as any)}
-                style={styles.sortSelect} >
-                <option value="newest">Filter</option>
-                <option value="az">Sort by A–Z</option>
-                <option value="za">Sort by Z–A</option>
-                <option value="recent">Recent</option>
-                <option value="oldest">Oldest</option>
-              </select>
-            )}
-
-            {/* Mobile Filter */}
-            {isMobile && (
-              <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value as any)}
-                style={styles.sortSelectMobile}
-              >
-                <option value="newest">Filter</option>
-                <option value="az">A–Z</option>
-                <option value="za">Z–A</option>
-                <option value="recent">Recent</option>
-                <option value="oldest">Oldest</option>
-              </select>
-            )}
+                <div className={styles.filterContainer} ref={filterRef}>
+                  <button onClick={() => setIsFilterOpen(!isFilterOpen)} className={styles.filterButton} aria-expanded={isFilterOpen}>
+                    Filter
+                    <ChevronDown className={styles.chevronIcon} size={18} />
+                  </button>
+                  {isFilterOpen && (
+                    <div className={styles.filterDropdown}>
+                      <button onClick={() => { setSortOrder('newest'); setIsFilterOpen(false); }}>Newest</button>
+                      <button onClick={() => { setSortOrder('oldest'); setIsFilterOpen(false); }}>Oldest</button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
 
-
-
-
-
-        <div style={styles.container}>
-          <div style={{ flexShrink: 0 }}>
-            {/* --- Message List --- */}
-            <div style={{
-              display: "flex",
-              gap: "16px",
-              alignItems: "center",
-              marginTop: "4px",   // ⬅️ reduce space (was 12px)
-              paddingLeft: "10px",
-              flexWrap: "nowrap",
-              minHeight: 0,
-            }}>
-
+          {/* Tabs */}
+          <div className={styles.tabsContainer}>
+            <div className={styles.tabs}>
               {(["Messages", "Leads", "Connections", "Requests"] as const).map((tab) => (
                 <button
                   key={tab}
+                  className={`${styles.tabButton} ${tab === "Messages" ? styles.tabButtonActive : ""}`}
+                  onMouseEnter={() => setHoveredTab(tab)}
+                  onMouseLeave={() => setHoveredTab(null)}
                   onClick={() => {
-                    // 3. Navigation Logic
                     if (tab === "Messages") {
                       setActiveFilter("Messages");
                     } else if (tab === "Leads") {
@@ -996,20 +652,8 @@ function MessagesPageContent() {
                     } else if (tab === "Connections") {
                       router.push("/dashboard/connections");
                     } else if (tab === "Requests") {
-                      // Pass a query param to open the requests tab directly
                       router.push("/dashboard/connections?view=requests");
                     }
-                  }}
-                  style={{
-                    padding: "6px 4px",
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    border: "none",
-                    background: "transparent",
-                    cursor: "pointer",
-                    //color: tab === "Messages" ? "#2563EB" : "#64748B",
-                    borderBottom: tab === "Messages" ? "2px solid #2563EB" : "2px solid transparent",
-                    transition: "all 0.2s ease",
                   }}
                 >
                   {tab}
@@ -1017,11 +661,13 @@ function MessagesPageContent() {
               ))}
             </div>
           </div>
-          <div style={styles.listContainer} className="no-scrollbar">
+
+          {/* Message List */}
+          <div className={`${styles.listContainer} no-scrollbar`}>
             {filteredMessages.length === 0 ? (
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", opacity: 0.5 }}>
-                <Search style={{ width: "40px", height: "40px", marginBottom: "16px", color: colors.textLight }} />
-                <p style={{ fontSize: "14px", color: colors.textSec }}>No messages found</p>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", opacity: 0.5, paddingTop: "40px" }}>
+                <Search style={{ width: "40px", height: "40px", marginBottom: "16px", color: "#94A3B8" }} />
+                <p style={{ fontSize: "14px", color: "#64748B" }}>No messages found</p>
               </div>
             ) : (
               <div>
@@ -1031,124 +677,48 @@ function MessagesPageContent() {
                     onClick={() => openDetail(m.senderId)}
                     onMouseEnter={() => setHoveredId(m.id)}
                     onMouseLeave={() => setHoveredId(null)}
-                    style={styles.messageRow(m.id, m.read)}
+                    className={`${styles.messageRow} ${m.read ? styles.messageRowRead : ''} ${hoveredId === m.id ? styles.messageRowHover : ''}`}
                   >
                     {/* Avatar */}
-                    <div style={styles.avatar(m.name, m.profileImage)}>
-                      {m.profileImage ? (
-                        <img
-                          src={m.profileImage}
-                          alt={m.name}
-                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                        />
-                      ) : (
-                        getInitials(m.name, m.email)
-                      )}
+                    <div className={styles.avatar} style={{ backgroundImage: m.profileImage ? `url(${m.profileImage})` : undefined }}>
+                      {!m.profileImage && getInitials(m.name, m.email)}
                     </div>
 
                     {/* Content */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-                        <h3
-                          style={{
-                            fontSize: "16px",
-                            margin: 0,
-                            fontWeight: m.read ? 600 : 700,
-                            color: m.read ? colors.textMain : "#000",
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            maxWidth: isMobile ? "60%" : "70%",
-                          }}
-                        >
+                        <h3 style={{ fontSize: "16px", margin: 0, fontWeight: m.read ? 600 : 700, color: m.read ? "#1E293B" : "#000", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: isMobile ? "60%" : "70%" }}>
                           {m.name}
                         </h3>
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span
-                            style={{
-                              fontSize: "6px",
-                              color: colors.textLight,
-                              fontWeight: 500,
-                              whiteSpace: "nowrap",
-                              flexShrink: 0,
-                            }}
-                          >
+                          <span style={{ fontSize: "11px", color: "#94A3B8", fontWeight: 500, whiteSpace: "nowrap", flexShrink: 0 }}>
                             {formatDate(m.date)}
                           </span>
                           {!m.read && m.incomingCount > 0 && (
-                            <div style={styles.incomingBadge}>{m.incomingCount}</div>
+                            <div className={styles.incomingBadge}>{m.incomingCount}</div>
                           )}
                         </div>
                       </div>
 
-                      {/* {(m.title || m.company) && (
-                      <p
-                        style={{
-                          margin: 0,
-                          marginBottom: 2,
-                          fontSize: "12px",
-                          color: colors.textSec,
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        {[m.title, m.company].filter(Boolean).join(" • ")}
-                      </p>
-                    )} */}
-
                       {m.tag === "STORY_REPLY" && (
-                        <p style={{
-                          fontSize: "11px",
-                          color: "#2563EB",
-                          fontWeight: 600,
-                          marginBottom: "2px",
-                          marginTop: "0px"
-                        }}>
+                        <p style={{ fontSize: "11px", color: "#2563EB", fontWeight: 600, marginBottom: "2px", marginTop: "0px" }}>
                           {m.thread && m.thread.length > 0 && m.thread[m.thread.length - 1].direction === 'out'
                             ? "You replied to their story"
                             : "Replied to your story"}
                         </p>
                       )}
 
-                      <p
-                        className="message-text-left"
-                        style={{
-                          margin: 0,
-                          fontSize: "10px",
-                          color: m.read ? colors.textSec : colors.textMain,
-                          fontWeight: m.read ? 400 : 500,
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
+                      <p className="message-text-left" style={{ margin: 0, fontSize: "12px", color: m.read ? "#64748B" : "#1E293B", fontWeight: m.read ? 400 : 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {m.message}
                       </p>
 
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          height: "20px",
-                        }}
-                      >
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: "20px" }}>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             deleteMessage(m.senderId);
                           }}
-                          style={{
-                            background: "transparent",
-                            border: "none",
-                            color: colors.textLight,
-                            cursor: "pointer",
-                            padding: "4px",
-                            marginLeft: "auto",
-                            opacity: 1,
-                            transition: "opacity 0.2s",
-                          }}
+                          style={{ background: "transparent", border: "none", color: "#94A3B8", cursor: "pointer", padding: "4px", marginLeft: "auto", opacity: 1, transition: "opacity 0.2s" }}
                         >
                           <Trash2 style={{ width: "16px", height: "16px" }} />
                         </button>
@@ -1159,54 +729,36 @@ function MessagesPageContent() {
               </div>
             )}
           </div>
-
-
         </div>
 
-        {/* --- Detail View Overlay --- */}
+        {/* --- Detail View OverlayWrapper --- */}
         {activeMessage && (
           <div
-            style={styles.detailOverlay}
+            className={styles.detailOverlay}
             onClick={(e) => {
-              // Desktop: click on dimmed background closes chat
               if (isMobile) return;
               if (e.target === e.currentTarget) {
                 closeDetail();
               }
             }}
           >
-            <div style={styles.detailPanel}>
+            <div className={styles.detailPanel}>
 
               {/* Chat Header */}
-              <div style={styles.chatHeader}>
+              <div className={styles.chatHeader}>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                   {isMobile && (
                     <button onClick={closeDetail} style={{ background: "transparent", border: "none", padding: "4px", cursor: "pointer" }}>
-                      <ChevronLeft style={{ color: colors.textSec }} />
+                      <ChevronLeft style={{ color: "#64748B" }} />
                     </button>
                   )}
-                  <div
-                    style={{
-                      ...styles.avatar(activeMessage.name, activeMessage.profileImage),
-                      width: "40px",
-                      height: "40px",
-                      fontSize: "12px",
-                    }}
-                  >
-                    {activeMessage.profileImage ? (
-                      <img
-                        src={activeMessage.profileImage}
-                        alt={activeMessage.name}
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                      />
-                    ) : (
-                      getInitials(activeMessage.name, activeMessage.email)
-                    )}
+                  <div className={styles.avatar} style={{ width: "40px", height: "40px", fontSize: "12px", backgroundImage: activeMessage.profileImage ? `url(${activeMessage.profileImage})` : undefined }}>
+                    {!activeMessage.profileImage && getInitials(activeMessage.name, activeMessage.email)}
                   </div>
                   <div>
-                    <h2 style={{ fontSize: "16px", fontWeight: 700, margin: 0, color: colors.textMain, marginBottom: '4px' }}>{activeMessage.name}</h2>
+                    <h2 style={{ fontSize: "16px", fontWeight: 700, margin: 0, color: "#1E293B", marginBottom: '4px' }}>{activeMessage.name}</h2>
                     {(activeMessage.title || activeMessage.company) && (
-                      <p style={{ fontSize: "12px", margin: 0, color: colors.textSec }}>
+                      <p style={{ fontSize: "12px", margin: 0, color: "#64748B" }}>
                         {[activeMessage.title, activeMessage.company].filter(Boolean).join(" • ")}
                       </p>
                     )}
@@ -1215,7 +767,7 @@ function MessagesPageContent() {
               </div>
 
               {/* Conversation */}
-              <div ref={conversationRef} style={styles.chatBody} onScroll={handleConversationScroll} className="no-scrollbar">
+              <div ref={conversationRef} className={`${styles.chatBody} no-scrollbar`} onScroll={handleConversationScroll}>
                 {(() => {
                   const threadItems = (activeMessage.thread && activeMessage.thread.length > 0
                     ? activeMessage.thread
@@ -1236,16 +788,7 @@ function MessagesPageContent() {
                       <React.Fragment key={item.id || idx}>
                         {showDateHeader && (
                           <div style={{ textAlign: "center", margin: "10px 0" }}>
-                            <span
-                              style={{
-                                fontSize: "11px",
-                                fontWeight: 700,
-                                color: "#94A3B8",
-                                backgroundColor: "#F1F5F9",
-                                padding: "4px 12px",
-                                borderRadius: "20px",
-                              }}
-                            >
+                            <span style={{ fontSize: "11px", fontWeight: 700, color: "#94A3B8", backgroundColor: "#F1F5F9", padding: "4px 12px", borderRadius: "20px" }}>
                               {new Intl.DateTimeFormat(undefined, {
                                 month: "short",
                                 day: "numeric",
@@ -1257,16 +800,13 @@ function MessagesPageContent() {
                         <div style={{ display: "flex", width: "100%", justifyContent: isIncoming ? "flex-start" : "flex-end", marginBottom: "8px" }}>
                           <div style={{ display: "flex", flexDirection: "column", alignItems: isIncoming ? "flex-start" : "flex-end", maxWidth: "80%" }}>
 
-                            {/* 🟢 Story Reply Label & Thumbnail */}
+                            {/* Story Reply Label & Thumbnail */}
                             {item.story && (
                               <div style={{ display: 'flex', flexDirection: 'column', alignItems: isIncoming ? 'flex-start' : 'flex-end', marginBottom: '6px' }}>
                                 <p style={{ fontSize: '11px', color: '#94a3b8', margin: '0 0 4px 0', fontWeight: 500 }}>
                                   {isIncoming ? "Replied to your story" : `Replied to ${activeMessage.name.split(' ')[0]}'s story`}
                                 </p>
-                                <div style={{
-                                  width: '48px', height: '72px', borderRadius: '8px', overflow: 'hidden',
-                                  border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0
-                                }}>
+                                <div style={{ width: '48px', height: '72px', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0 }}>
                                   {item.story.imageUrl ? (
                                     <img src={item.story.imageUrl} alt="Story" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                   ) : item.story.videoUrl ? (
@@ -1276,37 +816,19 @@ function MessagesPageContent() {
                               </div>
                             )}
 
-                            <div style={isIncoming ? styles.bubbleIn : styles.bubbleOut}>
+                            <div className={isIncoming ? styles.bubbleIn : styles.bubbleOut}>
                               {renderMessageText(item.text)}
-                              <div style={{
-                                fontSize: "10px",
-                                marginTop: "4px",
-                                color: isIncoming ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.8)",
-                                textAlign: "right",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "flex-end",
-                                gap: "4px"
-                              }}>
+                              <div style={{ fontSize: "10px", marginTop: "4px", color: isIncoming ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.8)", textAlign: "right", display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "4px" }}>
                                 <span>{formatDate(item.date).split(',')[1].trim()}</span>
-                                {/* Delete button for outgoing messages */}
                                 {!isIncoming && (
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       if (confirm("Delete this message?")) {
-                                        // Ideally call API to delete specific message. keeping simple for now or implement if API supports.
                                         alert("Message missing delete implementation");
                                       }
                                     }}
-                                    style={{
-                                      background: "transparent",
-                                      border: "none",
-                                      color: "inherit",
-                                      cursor: "pointer",
-                                      padding: "0 2px",
-                                      display: "none" // Hidden by default, could show on hover if we had CSS hover state
-                                    }}
+                                    style={{ background: "transparent", border: "none", color: "inherit", cursor: "pointer", padding: "0 2px", display: "none" }}
                                   >
                                     <Trash2 size={10} />
                                   </button>
@@ -1322,47 +844,30 @@ function MessagesPageContent() {
               </div>
 
               {/* Composer */}
-              <div style={styles.composer}>
-                <div style={styles.composerInputContainer}>
-                  <div style={{ display: "flex", alignItems: "center", padding: "8px 12px", gap: "8px", width: "100%", boxSizing: "border-box" }}>
-                    {/* Label removed to fix double input issue */}
-                    <textarea
-                      ref={composerInputRef}
-                      value={replyText}
-                      onChange={(e) => setReplyText(e.target.value)}
-                      placeholder="Type your reply..."
-                      rows={1}
-                      onKeyDown={(e) => {
-                        // Ctrl + Enter OR Cmd + Enter → Send
-                        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-                          e.preventDefault();
-                          if (replyText.trim()) sendReply();
-                        }
-                        // Normal Enter → new line (ALLOW)
-                      }}
-                      style={{
-                        flex: 1,
-                        backgroundColor: "transparent",
-                        border: "none",
-                        outline: "none",
-                        fontSize: "14px",
-                        color: colors.textMain,
-                        fontFamily: "inherit",
-                        resize: "none",
-                        minHeight: "40px",
-                        maxHeight: "120px",
-                        lineHeight: "1.5",
-                      }}
-                    />
+              <div className={styles.composer}>
+                <div className={styles.composerInputContainer}>
+                  <textarea
+                    ref={composerInputRef}
+                    value={replyText}
+                    onChange={(e) => setReplyText(e.target.value)}
+                    placeholder="Type your reply..."
+                    rows={1}
+                    className={styles.textarea}
+                    onKeyDown={(e) => {
+                      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+                        e.preventDefault();
+                        if (replyText.trim()) sendReply();
+                      }
+                    }}
+                  />
 
-                    <button
-                      onClick={sendReply}
-                      disabled={!replyText.trim()}
-                      style={styles.sendButton(!replyText.trim())}
-                    >
-                      <Send style={{ width: "18px", height: "18px" }} />
-                    </button>
-                  </div>
+                  <button
+                    onClick={sendReply}
+                    disabled={!replyText.trim()}
+                    className={`${styles.sendButton} ${!replyText.trim() ? styles.sendButtonDisabled : ''}`}
+                  >
+                    <Send style={{ width: "18px", height: "18px" }} />
+                  </button>
                 </div>
               </div>
             </div>
@@ -1371,6 +876,7 @@ function MessagesPageContent() {
       </div>
     </>
   );
+
 }
 
 export default function MessagesPage() {

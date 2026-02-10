@@ -152,178 +152,138 @@ export default function ContactsPage() {
   };
 
   return (
-    <div className={styles.container} style={{
+    <main className={styles.minHScreen} style={{
       background: `radial-gradient(600px 300px at 50% -50px, rgba(14, 61, 114, 0.25), transparent 70%),
                    radial-gradient(500px 250px at 15% 120px, rgba(40, 107, 241, 0.2), transparent 70%),
                    radial-gradient(500px 250px at 85% 140px, rgba(23, 69, 167, 0.18), transparent 70%),
                    linear-gradient(180deg, #F5F9FF 0%, #FFFFFF 55%)`
     }}>
 
-      <div className={styles.heroSection}>
-        <div className={styles.searchBarSection}>
-          <div className={styles.searchRow}>
-            {/* Search Input Container */}
-            <div className={styles.searchWrapper}>
-              <span className={styles.searchIcon}>
-                <Search size={20} />
-              </span>
-              <input
-                type="text"
-                placeholder="Search Leads..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={styles.searchInput}
-              />
-            </div>
+      <div className={styles.wFull}>
 
-            {/* Export Button (Styled to match Filter button) */}
-            <button
-              onClick={exportToCSV}
-              className={styles.exportButtonLink}
-              title="Download Leads"
-            >
-              <Download size={18} />
-              <span className={styles.desktopOnly}>Export</span>
-            </button>
+        <div className={styles.heroSection}>
+          <div className={styles.searchBarSection}>
+            <div className={styles.searchRow}>
+              {/* Search Input Container */}
+              <div className={styles.searchWrapper}>
+                <span className={styles.searchIcon}>
+                  <Search size={20} />
+                </span>
+                <input
+                  type="text"
+                  placeholder="Search Leads..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={styles.searchInput}
+                />
+              </div>
+
+              {/* Export Button (Styled to match Filter button) */}
+              <button
+                onClick={exportToCSV}
+                className={styles.exportButtonLink}
+                title="Download Leads"
+              >
+                <Download size={18} />
+                <span className={styles.desktopOnly}>Export</span>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* 2. Content Section */}
-      <div className={styles.tabsContainer}>
-        <div className={styles.whitePanel}>
-          <div className={styles.tabs}>
-            <button onClick={() => router.push('/dashboard/messages')} className={styles.tab}>Messages</button>
-            <button className={`${styles.tab} ${styles.activeTab}`}>Leads</button>
-            <button onClick={() => router.push('/dashboard/connections')} className={styles.tab}>Connections</button>
-            <button onClick={() => router.push('/dashboard/connections?view=requests')} className={styles.tab}>Requests</button>
-          </div>
+        {/* 2. Content Section */}
+        <div className={styles.tabsContainer}>
+          <div className={styles.whitePanel}>
+            <div className={styles.tabs}>
+              <button onClick={() => router.push('/dashboard/messages')} className={styles.tab}>Messages</button>
+              <button className={`${styles.tab} ${styles.activeTab}`}>Leads</button>
+              <button onClick={() => router.push('/dashboard/connections')} className={styles.tab}>Connections</button>
+              <button onClick={() => router.push('/dashboard/connections?view=requests')} className={styles.tab}>Requests</button>
+            </div>
 
-          <div className={styles.scrollArea}>
-            <div className={styles.resultsSection}>
-              {loading ? (
-                <div className={styles.loadingContainer}>
-                  <div className={styles.spinner}></div>
-                  <p className={styles.loadingText}>Loading contacts...</p>
-                </div>
-              ) : (
-                <>
-                  {searchQuery && (
-                    <div className={styles.resultsHeader}>
-                      <p className={styles.resultsCount}>Showing <span className={styles.countNumber}>{filteredContacts.length}</span> {filteredContacts.length === 1 ? ' contact' : ' contacts'}</p>
-                    </div>
-                  )}
+            <div className={styles.scrollArea}>
+              <div className={styles.resultsSection}>
+                {loading ? (
+                  <div className={styles.loadingContainer}>
+                    <div className={styles.spinner}></div>
+                    <p className={styles.loadingText}>Loading contacts...</p>
+                  </div>
+                ) : (
+                  <>
+                    {searchQuery && (
+                      <div className={styles.resultsHeader}>
+                        <p className={styles.resultsCount}>Showing <span className={styles.countNumber}>{filteredContacts.length}</span> {filteredContacts.length === 1 ? ' contact' : ' contacts'}</p>
+                      </div>
+                    )}
 
-                  {filteredContacts.length === 0 ? (
-                    <div className={styles.emptyState}>
-                      <Users className={styles.emptyIcon} />
-                      <h3 className={styles.emptyTitle}>{searchQuery ? 'No contacts found' : 'No contacts yet'}</h3>
-                      <p className={styles.emptyMessage}>{searchQuery ? 'Try adjusting search.' : 'When people connect, they appear here.'}</p>
-                      {searchQuery && <button onClick={() => setSearchQuery("")} className={styles.clearSearchButton}>Clear search</button>}
-                    </div>
-                  ) : (
-                    <div className={styles.contactsList}>
-                      {filteredContacts.map((contact) => (
-                        <div key={contact.id} className={`${styles.contactCard} ${expandedContactId === contact.id ? styles.expanded : ""}`} onClick={() => setExpandedContactId(expandedContactId === contact.id ? null : contact.id)}>
-                          <div className={styles.contactHeaderWrapper}>
-                            {/* Desktop/Default View - Icon Only */}
-                            <div className={styles.desktopView}>
-                              <div className={styles.contactHeader}>
-                                <div className={styles.contactInfo}>
-                                  <div className={styles.avatar}>{contact.name?.charAt(0).toUpperCase() || "?"}</div>
-                                  <div className={styles.contactDetails}>
+                    {filteredContacts.length === 0 ? (
+                      <div className={styles.emptyState}>
+                        <Users className={styles.emptyIcon} />
+                        <h3 className={styles.emptyTitle}>{searchQuery ? 'No contacts found' : 'No contacts yet'}</h3>
+                        <p className={styles.emptyMessage}>{searchQuery ? 'Try adjusting search.' : 'When people connect, they appear here.'}</p>
+                        {searchQuery && <button onClick={() => setSearchQuery("")} className={styles.clearSearchButton}>Clear search</button>}
+                      </div>
+                    ) : (
+                      <div className={styles.contactsList}>
+                        {filteredContacts.map((contact) => (
+                          <div key={contact.id} className={`${styles.contactCard} ${expandedContactId === contact.id ? styles.expanded : ""}`} onClick={() => setExpandedContactId(expandedContactId === contact.id ? null : contact.id)}>
+                            <div className={styles.contactHeader}>
+                              <div className={styles.contactInfo}>
+                                <div className={styles.avatar}>{contact.name?.charAt(0).toUpperCase() || "?"}</div>
+                                <div className={styles.contactDetails}>
+                                  <div className={styles.nameRow}>
                                     <h3 className={styles.contactName}>{contact.name}</h3>
                                     <span className={styles.contactedViaInline} title={contact.card?.cardName || contact.card?.fullName}>(Contacted via {contact.card?.cardName || contact.card?.fullName || "Link"})</span>
                                   </div>
                                 </div>
-                                <div className={styles.desktopQuickActions}>
-                                  <button onClick={(e) => { e.stopPropagation(); handlePhoneClick(contact.phone); }} className={styles.desktopQuickIcon} title="Call"><Phone size={16} /></button>
-                                  <button onClick={(e) => { e.stopPropagation(); handleEmailClick(contact.email); }} className={styles.desktopQuickIcon} title="Message"><Mail size={16} /></button>
-                                  <div className={styles.dropdownContainer}>
-                                    <button onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === contact.id ? null : contact.id); }} className={styles.moreButton} title="More options">
-                                      <MoreHorizontal size={16} />
-                                    </button>
-                                    {openDropdown === contact.id && (
-                                      <div className={styles.dropdownMenu}>
-                                        <button onClick={() => handleDeleteContact(contact.id)} className={styles.dropdownItemDelete}>Delete Contact</button>
-                                      </div>
-                                    )}
-                                  </div>
+                              </div>
+                              <div className={styles.contactMeta}>
+                                <div className={styles.dropdownContainer}>
+                                  <button onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === contact.id ? null : contact.id); }} className={styles.moreButton} title="More options">
+                                    <MoreHorizontal size={9} />
+                                  </button>
+                                  {openDropdown === contact.id && (
+                                    <div className={styles.dropdownMenu}>
+                                      <button onClick={() => handleDeleteContact(contact.id)} className={styles.dropdownItemDelete}>Delete Contact</button>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
-
-                              {expandedContactId === contact.id && (
-                                <div className={styles.contactActions}>
-                                  <button onClick={(e) => { e.stopPropagation(); handleEmailClick(contact.email); }} className={`${styles.actionButton} ${styles.messageButton}`} title="Send email">
-                                    <Mail size={16} />
-                                    <span className={styles.actionText}>{contact.email}</span>
-                                  </button>
-                                  <button onClick={(e) => { e.stopPropagation(); handlePhoneClick(contact.phone); }} className={`${styles.actionButton} ${styles.phoneButton}`} title="Call phone">
-                                    <Phone size={16} />
-                                    <span className={styles.actionText}>{contact.phone}</span>
-                                  </button>
-                                  <div className={styles.mobileTimeStamp}>
-                                    <Calendar size={14} /> {formatRelativeTime(contact.createdAt)}
-                                  </div>
-                                </div>
-                              )}
                             </div>
 
-                            {/* Mobile View - Expanded Details */}
-                            <div className={styles.mobileView}>
-                              <div className={styles.contactHeader}>
-                                <div className={styles.contactInfo}>
-                                  <div className={styles.avatar}>{contact.name?.charAt(0).toUpperCase() || "?"}</div>
-                                  <div className={styles.contactDetails}>
-                                    <div className={styles.nameRow}>
-                                      <h3 className={styles.contactName}>{contact.name}</h3>
-                                      <span className={styles.contactedViaInline} title={contact.card?.cardName || contact.card?.fullName}>(Contacted via {contact.card?.cardName || contact.card?.fullName || "Link"})</span>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className={styles.mobileHeaderIcons}>
-                                  <button onClick={(e) => { e.stopPropagation(); handlePhoneClick(contact.phone); }} className={styles.desktopQuickIcon} title="Call"><Phone size={16} /></button>
-                                  <button onClick={(e) => { e.stopPropagation(); handleEmailClick(contact.email); }} className={styles.desktopQuickIcon} title="Message"><Mail size={16} /></button>
-                                  <div className={styles.dropdownContainer}>
-                                    <button onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === contact.id ? null : contact.id); }} className={styles.moreButton} title="More options">
-                                      <MoreHorizontal size={16} />
-                                    </button>
-                                    {openDropdown === contact.id && (
-                                      <div className={styles.dropdownMenu}>
-                                        <button onClick={() => handleDeleteContact(contact.id)} className={styles.dropdownItemDelete}>Delete Contact</button>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
+                            {expandedContactId !== contact.id && (
+                              <div className={styles.quickActions}>
+                                <button onClick={(e) => { e.stopPropagation(); handlePhoneClick(contact.phone); }} className={styles.quickIcon} title="Call"><Phone size={14} /></button>
+                                <button onClick={(e) => { e.stopPropagation(); handleEmailClick(contact.email); }} className={styles.quickIcon} title="Message"><Mail size={14} /></button>
                               </div>
+                            )}
 
-                              {expandedContactId === contact.id && (
-                                <div className={styles.contactActions}>
-                                  <button onClick={(e) => { e.stopPropagation(); handleEmailClick(contact.email); }} className={`${styles.actionButton} ${styles.messageButton}`} title="Send email">
-                                    <Mail size={16} />
-                                    <span className={styles.actionText}>{contact.email}</span>
-                                  </button>
-                                  <button onClick={(e) => { e.stopPropagation(); handlePhoneClick(contact.phone); }} className={`${styles.actionButton} ${styles.phoneButton}`} title="Call phone">
-                                    <Phone size={16} />
-                                    <span className={styles.actionText}>{contact.phone}</span>
-                                  </button>
-                                  <div className={styles.mobileTimeStamp}>
-                                    <Calendar size={14} /> {formatRelativeTime(contact.createdAt)}
-                                  </div>
-                                </div>
-                              )}
+                            <div className={styles.contactActions}>
+                              <button onClick={(e) => { e.stopPropagation(); handleEmailClick(contact.email); }} className={`${styles.actionButton} ${styles.messageButton}`} title="Send email">
+                                <Mail size={16} />
+                                {/* 👇 UPDATED: Wrapped text in span for safe layout */}
+                                <span className={styles.actionText}>{contact.email}</span>
+                              </button>
+                              <button onClick={(e) => { e.stopPropagation(); handlePhoneClick(contact.phone); }} className={`${styles.actionButton} ${styles.phoneButton}`} title="Call phone">
+                                <Phone size={16} />
+                                {/* 👇 UPDATED: Wrapped text in span for safe layout */}
+                                <span className={styles.actionText}>{contact.phone}</span>
+                              </button>
+                              <div className={styles.mobileTimeStamp}>
+                                <Calendar size={14} /> {formatRelativeTime(contact.createdAt)}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </>
-              )}
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

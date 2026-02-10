@@ -6,36 +6,64 @@
   overflow-x: hidden;
 }
 
-.wFull { width: 100%; }
+.wFull {
+  width: 100%;
+}
 
-.mobileOnly { display: block; }
-
-@media (min-width: 640px) {.mobileOnly { display: none; } }
-
-.desktopOnly { display: none; }
-
-@media (min-width: 640px) {.desktopOnly {display: block; } }
-
-@media (max-width: 640px) { .hiddenInHeader { display: none !important;} }
-
-/* --- Hero Section & Header --- */
-.heroSection {
-  position: relative; padding: 6px 6px; overflow: visible;
+.mobileOnly {
+  display: block;
 }
 
 @media (min-width: 640px) {
-  .heroSection { padding: 9px 15px; overflow: visible; }
+  .mobileOnly {
+    display: none;
+  }
+}
+
+.desktopOnly {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .desktopOnly {
+    display: block;
+  }
+}
+
+@media (max-width: 640px) {
+  .hiddenInHeader {
+    display: none !important;
+  }
+}
+
+/* --- Hero Section & Header --- */
+.heroSection {
+  position: relative;
+  padding: 24px 24px;
+  overflow: visible;
+  padding-top: 24px !important;
+  padding-bottom: 24px !important;
+}
+
+@media (min-width: 640px) {
+  .heroSection {
+    padding: 9px 15px;
+  }
 }
 
 @media (min-width: 1024px) {
-  .heroSection { overflow: visible; }
+  .heroSection {
+    overflow: visible;
+  }
 }
 
 .heroContentWrapper {
   position: relative;
   max-width: 1280px;
-  margin-left: auto; margin-right: auto;
-  padding-left: 16px; padding-right: 16px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
   overflow: visible;
   text-align: left;
 }
@@ -58,13 +86,16 @@
   }
 }
 
-.flexOne { flex: 1;}
+.flexOne {
+  flex: 1;
+}
 
 .pageTitle {
   font-size: 24px;
   font-weight: bold;
   color: #111827;
-  margin-bottom: 4px; margin-top: 6px;
+  margin-bottom: 4px;
+  margin-top: 6px;
   letter-spacing: -0.025em;
   text-align: center;
   width: 100%;
@@ -72,12 +103,16 @@
 }
 
 @media (min-width: 640px) {
-  .pageTitle { font-size: 24px; }
+  .pageTitle {
+    font-size: 24px;
+  }
 }
 
 @media (min-width: 1024px) {
   .pageTitle {
-    font-size: 28px; text-align: left; width: auto;
+    font-size: 28px;
+    text-align: left;
+    width: auto;
   }
 }
 
@@ -94,7 +129,9 @@
 }
 
 @media (min-width: 640px) {
-  .pageSubtitle { font-size: 16px; }
+  .pageSubtitle {
+    font-size: 16px;
+  }
 }
 
 .controlsFlexContainer {
@@ -104,7 +141,8 @@
 }
 
 .controlsInnerFlex {
-  display: flex; gap: 8px;
+  display: flex;
+  gap: 8px;
   justify-content: flex-end;
   align-items: center;
   width: 100%;
@@ -118,7 +156,9 @@
   }
 }
 
-.statsBox { display: none; }
+.statsBox {
+  display: none;
+}
 
 @media (min-width: 640px) {
   .statsBox {
@@ -134,29 +174,44 @@
 .controlsGroup {
   display: flex;
   flex-direction: column-reverse;
-  gap: 12px; width: 100%;
+  gap: 12px;
+  width: 100%;
 }
 
 /* View Toggle */
 .viewToggleContainer {
-  position: relative; display: flex; align-items: center;
+  position: relative;
+  display: flex;
+  align-items: center;
   background-color: white;
-  border-radius: 12px; padding: 0;
+  border-radius: 12px;
+  padding: 0;
   border: 1px solid #e5e7eb;
-  width: 100%; min-width: 0; height: 40px;
+  width: 100%;
+  min-width: 0;
+  height: 40px;
   box-sizing: border-box;
   order: 1;
 }
 
-@media (max-width: 640px) {.viewToggleContainer { margin-top: 16px; } }
+@media (max-width: 640px) {
+  .viewToggleContainer {
+    margin-top: 16px;
+  }
+}
 
 @media (min-width: 640px) {
-  .viewToggleContainer { width: auto; min-width: 320px; order: 1; }
+  .viewToggleContainer {
+    width: auto;
+    min-width: 320px;
+    order: 1;
+  }
 }
 
 .viewToggleBackground {
   position: absolute;
-  top: 6px; bottom: 6px;
+  top: 6px;
+  bottom: 6px;
   background-image: linear-gradient(to right, #2563eb, #1d4ed8);
   border-radius: 8px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
@@ -165,9 +220,15 @@
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.viewToggleTableActive { left: 6px; right: 50%; }
+.viewToggleTableActive {
+  left: 6px;
+  right: 50%;
+}
 
-.viewToggleCardsActive { left: 50%; right: 6px; }
+.viewToggleCardsActive {
+  left: 50%;
+  right: 6px;
+}
 
 .viewToggleButton {
   position: relative;
@@ -183,11 +244,19 @@
   white-space: nowrap;
 }
 
-.viewToggleActiveText { color: white; }
+.viewToggleActiveText {
+  color: white;
+}
 
-.viewToggleInactiveText { color: #4b5563; /* text-gray-600 */ }
+.viewToggleInactiveText {
+  color: #4b5563;
+  /* text-gray-600 */
+}
 
-.viewToggleInactiveText:hover { color: #1f2937; /* hover:text-gray-800 */ }
+.viewToggleInactiveText:hover {
+  color: #1f2937;
+  /* hover:text-gray-800 */
+}
 
 .flexCenter {
   display: flex;
@@ -196,18 +265,31 @@
   gap: 8px;
 }
 
-.viewToggleIcon { width: 16px; height: 16px; }
+.viewToggleIcon {
+  width: 16px;
+  height: 16px;
+}
 
 /* tighter toggle on very small screens to avoid wrapping */
 @media (max-width: 360px) {
-  .viewToggleContainer { height: 36px; }
+  .viewToggleContainer {
+    height: 36px;
+  }
 
-  .viewToggleButton { padding: 2px 10px;  font-size: 13px;}
+  .viewToggleButton {
+    padding: 2px 10px;
+    font-size: 13px;
+  }
 
-  .viewToggleIcon { width: 14px; height: 14px; }
+  .viewToggleIcon {
+    width: 14px;
+    height: 14px;
+  }
 }
 
-.relativeContainer { position: relative; }
+.relativeContainer {
+  position: relative;
+}
 
 /* --- Insights Panel --- */
 .insightsPanel {
@@ -217,35 +299,57 @@
 }
 
 .insightsGrid {
-  display: grid; gap: 16px;
+  display: grid;
+  gap: 16px;
   grid-template-columns: repeat(1, minmax(0, 1fr));
 }
 
 @media (min-width: 768px) {
-  .insightsGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .insightsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .flexCenterGap {
-  display: flex; align-items: center; gap: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .avatarPlaceholder {
-  width: 32px; height: 32px;
+  width: 32px;
+  height: 32px;
   background-image: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   border-radius: 9999px;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
 }
 
 .avatarImage {
-  width: 100%; height: 100%; object-fit: cover; display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
-.avatarText { color: #ffffff; font-weight: 600; font-size: 14px; }
+.avatarText {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+}
 
-.contactNameButton { text-align: left; color: #111827; transition-property: color; transition-duration: 150ms; }
+.contactNameButton {
+  text-align: left;
+  color: #111827;
+  transition-property: color;
+  transition-duration: 150ms;
+}
 
-.contactNameButton:hover { color: #2563eb; }
+.contactNameButton:hover {
+  color: #2563eb;
+}
 
 .messageButton {
   display: inline-flex;
@@ -253,19 +357,23 @@
   gap: 4px;
   padding: 4px 12px;
   color: #1d4ed8;
-  font-size: 14px; font-weight: 500;
+  font-size: 14px;
+  font-weight: 500;
   transition-property: color;
   transition-duration: 150ms;
 }
 
-.messageButton:hover { color: #1e3a8a; }
+.messageButton:hover {
+  color: #1e3a8a;
+}
 
 .moreButton {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px; color: #6b7280;
+  width: 32px;
+  color: #6b7280;
   background-color: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
@@ -279,13 +387,18 @@
   border-color: #e5e7eb;
 }
 
-.moreIcon { width: 18px; height: 18px; }
+.moreIcon {
+  width: 18px;
+  height: 18px;
+}
 
 /* Dropdown Menu (Table) */
 .dropdownMenu {
   position: absolute;
-  right: 0; top: calc(100% + 8px);
-  min-width: 180px; max-width: calc(100vw - 24px);
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 180px;
+  max-width: calc(100vw - 24px);
   background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
@@ -300,14 +413,21 @@
 /* Ensure the dropdown stays within the viewport on very narrow windows */
 @media (max-width: 480px) {
   .dropdownMenu {
-    right: 8px; left: auto; transform: none;
+    right: 8px;
+    left: auto;
+    transform: none;
   }
 }
 
-.dropdownIcon {width: 16px; height: 16px;}
+.dropdownIcon {
+  width: 16px;
+  height: 16px;
+}
 
 .relativeContainer {
-  position: relative; overflow: visible; display: inline-block;
+  position: relative;
+  overflow: visible;
+  display: inline-block;
 }
 
 .dropdownItemDelete {
@@ -329,13 +449,17 @@
   overflow: hidden;
 }
 
-.dropdownItemDeleteMobile:hover { background-color: #fef2f2; }
+.dropdownItemDeleteMobile:hover {
+  background-color: #fef2f2;
+}
 
 .mobileCardFooter {
-  margin-top: 4px; display: flex;
+  margin-top: 4px;
+  display: flex;
   align-items: center;
   justify-content: flex-end;
-  width: 100%; gap: 12px;
+  width: 100%;
+  gap: 12px;
 }
 
 .mobileCompanyText {
@@ -347,17 +471,28 @@
   text-align: left !important;
 }
 
-.mobileDateText { font-size: 12px; color: #9ca3af; flex-shrink: 0;}
+.mobileDateText {
+  font-size: 12px;
+  color: #9ca3af;
+  flex-shrink: 0;
+}
 
 .mobileContactInfoBox {
-  margin-top: 12px; padding: 12px;
+  margin-top: 12px;
+  padding: 12px;
   background-color: #f9fafb;
   border-radius: 8px;
 }
 
-.mobileContactInfoText { white-space: normal !important; font-size: 14px; }
+.mobileContactInfoText {
+  white-space: normal !important;
+  font-size: 14px;
+}
 
-.mobileContactInfoLabel { font-weight: 500; color: #374151; }
+.mobileContactInfoLabel {
+  font-weight: 500;
+  color: #374151;
+}
 
 .mobileContactInfoValue {
   white-space: normal !important;
@@ -366,16 +501,25 @@
 }
 
 /* --- Cards View --- */
-.cardsViewContainer { background-color: #f9fafb; min-height: 100vh; }
+.cardsViewContainer {
+  background-color: #f9fafb;
+  min-height: 100vh;
+}
 
-.cardsWrapper { padding: 12px 16px; }
+.cardsWrapper {
+  padding: 12px 16px;
+}
 
 @media (min-width: 640px) {
-  .cardsWrapper { padding: 12px; }
+  .cardsWrapper {
+    padding: 12px;
+  }
 }
 
 @media (min-width: 1024px) {
-  .cardsWrapper { padding: 14px 24px; }
+  .cardsWrapper {
+    padding: 14px 24px;
+  }
 }
 
 .cardsGrid {
@@ -393,72 +537,100 @@
 
 @media (min-width: 768px) {
   .cardsGrid {
-    grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 cards on tablet */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    /* 3 cards on tablet */
   }
 }
 
 @media (min-width: 1024px) {
   .cardsGrid {
-    grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 cards on desktop */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    /* 3 cards on desktop */
     gap: 18px;
   }
 }
 
 @media (min-width: 1280px) {
   .cardsGrid {
-    grid-template-columns: repeat(4, minmax(0, 1fr)); /* 4 cards on large screens */
-    
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    /* 4 cards on large screens */
+
   }
 }
 
-.cardGroup { position: relative; }
+.cardGroup {
+  position: relative;
+}
 
 /* --- 3D Flip Styles (Crucial for Card View) --- */
 .flipCardContainer {
   position: relative;
-  width: 100%; height: 165px;
+  width: 100%;
+  height: 165px;
   perspective: 1200px;
 }
 
 @media (min-width: 640px) {
-  .flipCardContainer { height: 190px; }
+  .flipCardContainer {
+    height: 190px;
+  }
 }
 
 @media (min-width: 1024px) {
-  .flipCardContainer { height: 220px; }
+  .flipCardContainer {
+    height: 220px;
+  }
 }
 
 .flipCardInner {
   position: relative;
-  top: 0; bottom: 0;
-  left: 0; right: 0;
-  width: 100%; height: 100%;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
   transition: transform 0.7s ease;
   transform-style: preserve-3d;
 }
 
-.rotateY180 { transform: rotateY(180deg); }
+.rotateY180 {
+  transform: rotateY(180deg);
+}
 
 .cardFace {
   position: absolute;
-  top: 0; bottom: 0;
-  left: 0; right: 0;
-  width: 100%; height: 100%;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
   border-radius: 12px;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-  border: 1px solid; padding: 10px;
+  border: 1px solid;
+  padding: 10px;
   transition: all 0.4s ease;
   overflow: hidden;
   backface-visibility: hidden;
 }
 
 @media (min-width: 640px) {
-  .cardFace { border-radius: 16px; padding: 16px; }
+  .cardFace {
+    border-radius: 16px;
+    padding: 16px;
+  }
 }
 
-@media (min-width: 1024px) { .cardFace { padding: 24px;} }
+@media (min-width: 1024px) {
+  .cardFace {
+    padding: 24px;
+  }
+}
 
-.backfaceHidden { backface-visibility: hidden; }
+.backfaceHidden {
+  backface-visibility: hidden;
+}
 
 /* Card Front Styles - Color Variations */
 .cardFront1 {
@@ -480,7 +652,8 @@
 
 .cardFront2:hover {
   background-image: linear-gradient(to bottom right, #dcfce7, #ccfbf1);
-  border-color: #86efac; transform: scale(1.05);
+  border-color: #86efac;
+  transform: scale(1.05);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
 }
 
@@ -491,9 +664,10 @@
 
 .cardFront3:hover {
   background-image: linear-gradient(to bottom right, #ffedd5, #ffe4e6);
-  border-color: #fbbf24; transform: scale(1.05);
+  border-color: #fbbf24;
+  transform: scale(1.05);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  
+
 }
 
 .cardFront4 {
@@ -503,40 +677,58 @@
 
 .cardFront4:hover {
   background-image: linear-gradient(to bottom right, #e0e7ff, #f3e8ff);
-  border-color: #a5b4fc; transform: scale(1.05);
+  border-color: #a5b4fc;
+  transform: scale(1.05);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
- 
+
 }
 
 .cardDecorativeElement {
   position: absolute;
-  top: 16px; right: 16px;
+  top: 16px;
+  right: 16px;
   opacity: 0.2;
   transition-property: opacity;
   transition-duration: 300ms;
 }
 
-.cardGroup:hover .cardDecorativeElement { opacity: 0.4; }
+.cardGroup:hover .cardDecorativeElement {
+  opacity: 0.4;
+}
 
-.cardCircle { width: 32px; height: 32px; border-radius: 9999px; }
+.cardCircle {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+}
 
-.circle1 { background-color: #d8b4fe; }
+.circle1 {
+  background-color: #d8b4fe;
+}
 
-.circle2 { background-color: #86efac; }
+.circle2 {
+  background-color: #86efac;
+}
 
-.circle3 { background-color: #fdba74; }
+.circle3 {
+  background-color: #fdba74;
+}
 
-.circle4 { background-color: #a5b4fc; }
+.circle4 {
+  background-color: #a5b4fc;
+}
 
 .cardContentFlex {
-  display: flex; min-height: 0;
+  display: flex;
+  min-height: 0;
   flex-direction: column;
-  height: 100%; z-index: 10;
+  height: 100%;
+  z-index: 10;
   justify-content: center;
   align-items: flex-start;
   text-align: left;
   position: relative;
-  overflow: visible !important; 
+  overflow: visible !important;
 }
 
 .cardName {
@@ -552,7 +744,9 @@
   line-height: 1.3;
 }
 
-.cardGroup:hover .cardName { color: #1f2937; }
+.cardGroup:hover .cardName {
+  color: #1f2937;
+}
 
 @media (min-width: 640px) {
   .cardName {
@@ -562,11 +756,16 @@
 }
 
 @media (min-width: 1024px) {
-  .cardName { font-size: 16px;  margin-bottom: 8px; }
+  .cardName {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
 }
 
 @media (min-width: 1280px) {
-  .cardName { font-size: 18px; }
+  .cardName {
+    font-size: 18px;
+  }
 }
 
 .cardTitle {
@@ -581,17 +780,29 @@
   line-height: 1.3;
 }
 
-.cardGroup:hover .cardTitle { color: #374151; }
+.cardGroup:hover .cardTitle {
+  color: #374151;
+}
 
 @media (min-width: 640px) {
-  .cardTitle { font-size: 13px; margin-bottom: 6px; }
+  .cardTitle {
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
 }
 
 @media (min-width: 1024px) {
-  .cardTitle { font-size: 14px; margin-bottom: 8px; }
+  .cardTitle {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
 }
 
-@media (min-width: 1280px) { .cardTitle { font-size: 15px; } }
+@media (min-width: 1280px) {
+  .cardTitle {
+    font-size: 15px;
+  }
+}
 
 .cardCompany {
   font-size: 14px;
@@ -605,27 +816,44 @@
   line-height: 1.3;
 }
 
-.cardGroup:hover .cardCompany { color: #4b5563;}
+.cardGroup:hover .cardCompany {
+  color: #4b5563;
+}
 
 @media (min-width: 640px) {
-  .cardCompany { font-size: 13px; margin-bottom: 8px; }
+  .cardCompany {
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
 }
 
 @media (min-width: 1024px) {
-  .cardCompany { font-size: 13px; margin-bottom: 10px; }
+  .cardCompany {
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
 }
 
 @media (min-width: 1280px) {
-  .cardCompany { font-size: 14px; margin-bottom: 12px; }
+  .cardCompany {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
 }
 
 /* Tags */
 .cardTagsFlex {
-  display: flex; flex-wrap: wrap; gap: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
   justify-content: flex-start;
 }
 
-@media (min-width: 640px) { .cardTagsFlex { gap: 8px; } }
+@media (min-width: 640px) {
+  .cardTagsFlex {
+    gap: 8px;
+  }
+}
 
 .cardTag {
   display: inline-flex;
@@ -637,7 +865,9 @@
   transition: all 300ms;
 }
 
-.cardGroup:hover .cardTag { transform: scale(1.1);}
+.cardGroup:hover .cardTag {
+  transform: scale(1.1);
+}
 
 @media (min-width: 640px) {
   .cardTag {
@@ -719,7 +949,10 @@
   color: white;
 }
 
-.cardBackTextCenter { text-align: center; margin-bottom: 24px; }
+.cardBackTextCenter {
+  text-align: center;
+  margin-bottom: 24px;
+}
 
 .cardBackName {
   font-weight: 600;
@@ -737,13 +970,16 @@
 }
 
 .cardBackInfoItem {
-  display: flex; gap: 8px;
+  display: flex;
+  gap: 8px;
   align-items: center;
   font-size: 14px;
 }
 
 .cardBackIcon {
-  width: 16px; height: 16px; flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 
 .cardBackInfoText {
@@ -774,7 +1010,9 @@
   transition: all 150ms;
 }
 
-.cardBackActionButton:hover { background-color: #f3f4f6; }
+.cardBackActionButton:hover {
+  background-color: #f3f4f6;
+}
 
 .cardBackActionButtonSecondary {
   display: inline-flex;
@@ -795,7 +1033,10 @@
   border-color: white;
 }
 
-.cardBackActionButtonIcon { width: 16px; height: 16px; }
+.cardBackActionButtonIcon {
+  width: 16px;
+  height: 16px;
+}
 
 /* --- Card Back Quick Actions (CSS Modules conversion) --- */
 .cardBackCenter {
@@ -810,14 +1051,17 @@
 }
 
 .quickHeader {
-  text-align: center; width: 100%;
+  text-align: center;
+  width: 100%;
   margin-bottom: 10px;
   align-self: center;
 }
 
 .quickTitle {
-  font-weight: 600; font-size: 18px;
-  line-height: 1.25; margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 1.25;
+  margin-bottom: 8px;
   text-align: center;
 }
 
@@ -854,17 +1098,25 @@
 
 /* Scale down actions and paddings on very small screens */
 @media (max-width: 380px) {
-  .cardBackCenter { padding: 16px 12px 20px 12px; }
+  .cardBackCenter {
+    padding: 16px 12px 20px 12px;
+  }
 
   .quickActionBtn {
-    width: 36px; height: 36px;
+    width: 36px;
+    height: 36px;
     position: static;
     transform: none;
   }
 
-  .quickActionIcon { width: 14px; height: 14px; }
+  .quickActionIcon {
+    width: 14px;
+    height: 14px;
+  }
 
-  .quickActionsRow { gap: 10px; }
+  .quickActionsRow {
+    gap: 10px;
+  }
 
   .quickActionTop,
   .quickActionLeft,
@@ -876,7 +1128,9 @@
 
 /* Slightly narrow phones */
 @media (max-width: 430px) and (min-width: 381px) {
-  .cardBackCenter { padding: 18px 14px 18px 14px; }
+  .cardBackCenter {
+    padding: 18px 14px 18px 14px;
+  }
 
   .quickActionBtn {
     width: 40px;
@@ -886,21 +1140,29 @@
   }
 
   .quickActionIcon {
-    width: 16px; height: 16px;
+    width: 16px;
+    height: 16px;
   }
 
-  .quickActionsRow { gap: 12px;}
+  .quickActionsRow {
+    gap: 12px;
+  }
 
   .quickActionTop,
   .quickActionLeft,
-  .quickActionRight { position: static; transform: none; }
+  .quickActionRight {
+    position: static;
+    transform: none;
+  }
 }
 
 /* --- Modal Styles --- */
 .modalOverlay {
   position: fixed;
-  top: 0; left: 0;
-  right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
@@ -1035,42 +1297,67 @@
 
 /* Connection Requests Styles */
 .tabsContainer {
-  /* margin-top: 0.5rem; */
+  width: 100%;
+  margin-top: 0;
+  background-color: #ffffff;
+  border-top: 1px solid #e2e8f0;
   border-bottom: 1px solid #e5e7eb;
+  padding-top: 8px;
 }
 
 .tabs {
+  flex-shrink: 0;
   display: flex;
-  gap: 1rem;
-  padding: 0 1rem;
+  justify-content: flex-start;
+  gap: 24px;
+  padding: 0 16px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #ffffff;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .tabButton {
-  padding: 0.5rem 0;
+  position: relative;
   background: none;
   border: none;
-  font-size: 0.875rem;
-  color: #6b7280;
+  padding: 12px 4px;
+  font-weight: 500;
+  color: #64748B;
   cursor: pointer;
-  position: relative;
+  font-family: inherit;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.tabButton:hover {
+  color: #2563eb;
 }
 
 .tabButtonActive {
-  color: #3b82f6;
-  font-weight: 500;
+  font-weight: 600;
+  color: #2563eb;
 }
 
 .tabButtonActive::after {
-  content: '';
+  content: "";
   position: absolute;
-  bottom: -1px;
+  bottom: 0;
   left: 0;
   right: 0;
   height: 2px;
-  background-color: #3b82f6;
+  background-color: #2563eb;
+  border-radius: 2px 2px 0 0;
 }
 
-.requestsViewContainer { padding: 0.5rem; }
+.requestsViewContainer {
+  padding: 0.5rem;
+}
 
 .requestsTitle {
   font-size: 1.125rem;
@@ -1091,12 +1378,15 @@
   gap: 8px;
   padding: 6px 6px;
   background-color: transparent;
-  border: 2px solid #93c5fd; /* blue outline */
+  border: 2px solid #93c5fd;
+  /* blue outline */
   border-radius: 14px;
 }
 
 
-.requestCard:hover { background-color: #f9fafb; }
+.requestCard:hover {
+  background-color: #f9fafb;
+}
 
 .requestUserInfo {
   display: flex;
@@ -1124,15 +1414,21 @@
 
 
 .requestName {
-  font-weight: 600; font-size: 15px;
-  color: #0f172a; margin-bottom: 2px;
+  font-weight: 600;
+  font-size: 15px;
+  color: #0f172a;
+  margin-bottom: 2px;
 }
 
-.requestDetails { font-size: 1rem; color: #475569; }
+.requestDetails {
+  font-size: 1rem;
+  color: #475569;
+}
 
 
 .requestActions {
-  display: flex; gap: 8px;
+  display: flex;
+  gap: 8px;
   align-items: center;
   flex-shrink: 0;
 }
@@ -1158,9 +1454,10 @@
 }
 
 .requestApproveButton:hover,
-.requestRejectButton:hover{
+.requestRejectButton:hover {
   cursor: pointer;
 }
+
 .noRequestsText {
   color: #6b7280;
   text-align: center;
@@ -1168,7 +1465,11 @@
 }
 
 /* Mobile layout for Requests: stack actions vertically */
-@media (max-width: 600px) { .requestDetails { font-size: 8px; } }
+@media (max-width: 600px) {
+  .requestDetails {
+    font-size: 8px;
+  }
+}
 
 /* Below 530px → ellipsis */
 @media (max-width: 530px) {
@@ -1179,25 +1480,25 @@
   }
 }
 
-.selector-473 { top: 0; bottom: 0; }
+.selector-473 {
+  top: 0;
+  bottom: 0;
+}
 
-.selector-572 { top: 0; bottom: 0; }
+.selector-572 {
+  top: 0;
+  bottom: 0;
+}
 
-.selector-1502 { top: 0; bottom: 0; }
+.selector-1502 {
+  top: 0;
+  bottom: 0;
+}
 
 /* In c:\Users\SARTHAK BARANGE\Desktop\MyKard\CredLink\src\app\dashboard\connections\connections.module.css */
 
 /* Add this near other tab styles */
-.tabButton {
-  position: relative;
-  padding: 0.5rem 0;
-  background: none;
-  border: none;
-  font-size: 0.875rem;
-  color: #6b7280;
-  cursor: pointer;
-  position: relative;
-}
+
 
 .notificationDot {
   position: absolute;
@@ -1226,17 +1527,27 @@
 }
 
 /* PAGE TOP PADDING REMOVE + BOTTOM PADDING ADD */
-.heroSection { padding-top: 0 !important; }
+/* .heroSection padding removed */
 
-.minHScreen { padding-bottom: 50px !important;}
-
-@media (max-width: 640px) {
-  .heroSection { padding: 0 !important; }
-  .mobileCard {padding: 12px;}
-  .mobileCardsList { gap: 8px;}
+.minHScreen {
+  padding-bottom: 50px !important;
 }
 
-.minHScreen { padding-bottom: 70px !important;}
+@media (max-width: 640px) {
+  /* .heroSection padding removed */
+
+  .mobileCard {
+    padding: 12px;
+  }
+
+  .mobileCardsList {
+    gap: 8px;
+  }
+}
+
+.minHScreen {
+  padding-bottom: 70px !important;
+}
 
 
 /* ========================================= REMOVE ALL SHADOW CONTAINERS – CONNECTIONS ========================================= */
@@ -1268,136 +1579,69 @@
   padding-bottom: 0 !important;
 } */
 
-/* Remove top padding that creates card feel */
-.heroSection {
-  padding-top: 0 !important; padding-bottom: 0 !important;
-}
+/* Remove top padding that creates card feel - REMOVED */
 
 /* Mobile extra gaps fix */
 @media (max-width: 640px) {
-  .heroSection { padding: 0 !important; }
-  .mobileCardsList { gap: 8px !important; }
-} 
+  /* .heroSection padding removed */
+
+  .mobileCardsList {
+    gap: 8px !important;
+  }
+}
 
 .viewToggleRow {
-  display: flex; justify-content: flex-end; 
-  padding: 6px 16px; width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  padding: 6px 16px;
+  width: 100%;
 }
 
 .viewTogglePill {
-  display: flex; align-items: center;
+  display: flex;
+  align-items: center;
   background: #ffffff;
-  border: 1.5px solid #A5C9F3; 
-  border-radius: 14px; 
+  border: 1.5px solid #A5C9F3;
+  border-radius: 14px;
   padding: 4px;
-  box-shadow: 0 4px 12px rgba(165, 201, 243, 0.3); 
+  box-shadow: 0 4px 12px rgba(165, 201, 243, 0.3);
 }
 
 .viewIconBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 16px; border-radius: 10px;
-  color: #888; 
+  padding: 8px 16px;
+  border-radius: 10px;
+  color: #888;
   background: transparent;
-  border: none; cursor: pointer;
+  border: none;
+  cursor: pointer;
   transition: all 0.2s ease-in-out;
 }
 
-.viewIconActive { background-color: #0066FF; color: #ffffff; }
+.viewIconActive {
+  background-color: #0066FF;
+  color: #ffffff;
+}
 
 /* Ensure icons scale correctly */
-.viewIconBtn svg { stroke: currentColor; }
-
-/* Container for the entire row */
-.searchRow {
-  display: flex;
-  align-items: center;
-  gap: 8px; width: 100%;
-  padding: 6px 8px;
+.viewIconBtn svg {
+  stroke: currentColor;
 }
 
-/* Search Input Wrapper */
-.searchWrapper {
-  display: flex; align-items: center;
-  flex: 1; height: 44px; 
-  padding: 0 12px;
-  background: #ffffff;
-  border: 1.5px solid #A5C9F3;
-  border-radius: 14px;
-  box-shadow: 0 2px 6px rgba(165, 201, 243, 0.25); 
-  transition: border-color 0.2s ease;
-}
 
-.searchWrapper:focus-within { border-color: #0066FF; }
 
-.searchIcon {
-  color: #94A3B8; margin-right: 8px;
-  display: flex; align-items: center;
-}
-
-.searchInput {
-  border: none; outline: none; width: 100%;
-  font-size: 14px; font-weight: 500;
-  color: #1E293B; background: transparent;
-  padding-left: 24px;
-  height: 44px; border-radius: 12px;
-}
-
-.searchInput::placeholder { color: #94A3B8; }
-
-.filterContainer { position: relative; width: auto; }
-
-/* Filter Button */
-.filterButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  height: 44px; padding: 0 14px;
-  background: #ffffff;
-  border: 1.5px solid #A5C9F3;
-  border-radius: 14px;
-  color: #475569;
-  font-weight: 500; font-size: 14px;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(165, 201, 243, 0.25);
-  transition: all 0.2s ease;
-}
-
-.filterButton:hover { background-color: #F8FAFC; }
-
-.chevronIcon { color: #64748B; margin-left: 4px; transition: transform 0.2s ease; }
-
-.filterButton[aria-expanded="true"] .chevronIcon { transform: rotate(180deg); }
-
-/* Dropdown styling */
-.filterDropdown {
-  position: absolute; right: 0;
-  top: calc(100% + 8px); 
-  background: #ffffff;
-  border: 1px solid #E2E8F0;
-  border-radius: 12px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  z-index: 50; width: max-content;        
-  min-width: 160px; padding: 6px 0;
-}
-
-.filterDropdown button {
-  display: block; padding: 12px 16px; text-align: left;
-  border: none; background: none;
-  cursor: pointer; color: #475569;
-}
-
-.filterDropdown button:hover { background-color: #F1F5F9; }
 
 .connectionCard {
-  display: flex; align-items: center;
-  padding: 12px 20px; margin: 6px 12px;
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  margin: 6px 12px;
   background: #ffffff;
-  border: 1.5px solid #A5C9F3; 
+  border: 1.5px solid #A5C9F3;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(165, 201, 243, 0.15); 
+  box-shadow: 0 4px 12px rgba(165, 201, 243, 0.15);
   transition: transform 0.2s ease;
 }
 
@@ -1405,245 +1649,360 @@
 .avatarGlow {
   width: 54px;
   height: 54px;
-  border-radius: 50%;      /* circle */
-  overflow: hidden;        /* image ko mask karta hai */
+  border-radius: 50%;
+  /* circle */
+  overflow: hidden;
+  /* image ko mask karta hai */
   background: #759BFF;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 3px solid white; /* optional glow */
-  box-shadow: 0 8px 18px rgba(0,0,0,.25);
-  flex-shrink: 0;          /* layout break na ho */
+  border: 3px solid white;
+  /* optional glow */
+  box-shadow: 0 8px 18px rgba(0, 0, 0, .25);
+  flex-shrink: 0;
+  /* layout break na ho */
   margin-right: 8px;
 }
 
 
 .cardAvatarImage {
-  width: 100%; height: 100%;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   object-fit: cover;
 }
 
 .cardInfo {
-  flex: 1; display: flex; 
-  flex-direction: column; gap: 2px; 
-  text-align: left; 
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
 }
 
 .cardInfo .contactNameLink {
-  font-size: 16px; font-weight: 800;
-  margin: 0; color: #000; text-align: left;
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0;
+  color: #000;
+  text-align: left;
 }
 
 
-.contactTitle, .contactCompany { font-size: 14px; color: #666; margin: 0;}
+.contactTitle,
+.contactCompany {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
 
 .cardActions {
-  display: flex; height: 60px; 
+  display: flex;
+  height: 60px;
   flex-direction: column;
   align-items: flex-end;
   justify-content: space-between;
- 
-} 
+
+}
 
 /* Blue Message Bubble Button (from image_64cace.png) */
 .messageIconButton {
-  background-color: #0066FF; border: none;
-  border-radius: 12px; padding: 6px 8px;
-  cursor: pointer; display: flex;
-  align-items: center; justify-content: center;
+  background-color: #0066FF;
+  border: none;
+  border-radius: 12px;
+  padding: 6px 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   box-shadow: 0 4px 8px rgba(0, 102, 255, 0.2);
-} 
+}
 
 /* =============================== MAIN CARD =================================*/
 .modernCard {
-  border-radius: 18px; overflow: hidden;
+  border-radius: 18px;
+  overflow: hidden;
   border: 1.5px solid #A5C9F3;
-  box-shadow: 0 10px 25px rgba(0,0,0,.08);
-  display: flex;  gap:2;
-  flex-direction: column; transition: .25s ease;
-  background: linear-gradient(180deg,#0B3EA9 0%, #062C88 100%);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, .08);
+  display: flex;
+  gap: 2;
+  flex-direction: column;
+  transition: .25s ease;
+  background: linear-gradient(180deg, #0B3EA9 0%, #062C88 100%);
 }
 
 /* Light theme card example (alternating optional) */
-.modernCard:nth-child(even){ background: linear-gradient(180deg,#D9ECFF 0%, #BFDDFE 100%); }
-.modernCard:hover{ transform: translateY(-4px); }
+.modernCard:nth-child(even) {
+  background: linear-gradient(180deg, #D9ECFF 0%, #BFDDFE 100%);
+}
+
+.modernCard:hover {
+  transform: translateY(-4px);
+}
 
 /* =============================== BANNER =================================*/
-.cardBanner{
-  height: 75px; margin: 14px; border-radius: 14px;
-  border: 2px solid rgba(255,255,255,.4);
-  background: linear-gradient(180deg,#78B7FF,#4191ff);
+.cardBanner {
+  height: 75px;
+  margin: 14px;
+  border-radius: 14px;
+  border: 2px solid rgba(255, 255, 255, .4);
+  background: linear-gradient(180deg, #78B7FF, #4191ff);
   position: relative;
 }
 
 /* =============================== AVATAR ================================= */
-.avatarGlowContainer{ position:absolute; bottom:-26px; left:50%; transform:translateX(-40%); }
+.avatarGlowContainer {
+  position: absolute;
+  bottom: -26px;
+  left: 50%;
+  transform: translateX(-40%);
+}
 
 
 
 /* =============================== ACTION ICONS ================================= */
-   
-.quickActionsRow{ display:flex; justify-content:center; gap:12px; margin-top:20px; }
 
-.actionCircleBtn{
-  width:30px; height:32px;
-  border-radius:50%;
-  border:none;
-  background:#1E40FF;
-  color:White; display:flex;
-  align-items:center;
-  justify-content:center;
-  box-shadow:0 4px 12px rgba(0,0,0,.2);
+.quickActionsRow {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.actionCircleBtn {
+  width: 30px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #1E40FF;
+  color: White;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
 }
 
 /* =============================== WHITE INFO BOX =================================*/
 
 .cardInfoBox {
-  background: white; border-radius: 10px;
+  background: white;
+  border-radius: 10px;
   margin: 14px auto 18px;
   padding: 10px 8px;
-  width: 82%; text-align: center; 
+  width: 82%;
+  text-align: center;
   border: 2px solid #0B3EA9;
 }
 
 /* — NAME — */
-.cardInfoBox .contactNameLink{
-  font-size:16px; font-weight:800;
-  margin:0; color:#000;
+.cardInfoBox .contactNameLink {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0;
+  color: #000;
 }
 
 /* — TITLE — */
-.contactTitle{ font-size:13px; margin-top:4px; color:#444; }
+.contactTitle {
+  font-size: 13px;
+  margin-top: 4px;
+  color: #444;
+}
 
 /* — COMPANY — */
-.contactCompany{ font-size:12px; color:#666; margin-top:2px; }
+.contactCompany {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+}
 
 /* =============================== SPACING CLEANUP =================================*/
-.badgeWrapper{ display:none; }
+.badgeWrapper {
+  display: none;
+}
 
 /* =============================== RESPONSIVE GRID =================================*/
-.cardsGrid{ display:grid; gap:16px; }
+.cardsGrid {
+  display: grid;
+  gap: 16px;
+}
 
 /* Desktop — 4 cards */
-@media (min-width:1280px){.cardsGrid{ grid-template-columns:repeat(4,1fr); } }
+@media (min-width:1280px) {
+  .cardsGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
 
 /* Laptop — 3 cards */
-@media (max-width:1279px) and (min-width:1024px){ .cardsGrid{ grid-template-columns:repeat(3,1fr); } }
+@media (max-width:1279px) and (min-width:1024px) {
+  .cardsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
 
 /* Tablet — 2 cards */
-@media (max-width:1023px) and (min-width:640px){ .cardsGrid{ grid-template-columns:repeat(2,1fr); } }
+@media (max-width:1023px) and (min-width:640px) {
+  .cardsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 
 /* Mobile — 1 card */
-@media (max-width:639px){ .cardsGrid{ grid-template-columns:1fr; } }
+@media (max-width:639px) {
+  .cardsGrid {
+    grid-template-columns: 1fr;
+  }
+}
 
 
 /* ================= SEARCH + FILTER BASE ================= */
 
-.searchBarSection { margin-top: 12px; width: 100%; }
+.searchBarSection {
+  width: 100%;
+}
 
-.searchRow { display: flex; align-items: center;  gap: 10px; width: 100%; }
-
-/* ---------- SEARCH ---------- */
+.searchRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
 
 .searchWrapper {
-  position: relative; flex: 1;
-  display: flex; align-items: center;
-  height: 44px; padding: 0 14px;
-  background: #fff;
-  border: 1.5px solid #A5C9F3;
-  border-radius: 14px;
-  box-shadow: 0 2px 6px rgba(165, 201, 243, 0.25);
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
 }
 
 .searchIcon {
   position: absolute;
-  left: 14px; top: 50%;
+  left: 12px;
+  top: 50%;
   transform: translateY(-50%);
-  color: #94A3B8;
+  color: #94a3b8;
   pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .searchInput {
   width: 100%;
-  padding-left: 28px;
-  border: none; outline: none;
-  background: transparent;
+  height: 40px;
+  padding: 0 16px 0 40px;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
   font-size: 14px;
-  color: #1E293B;
+  background: #ffffff;
+  outline: none;
+  transition: all 0.2s;
+  color: #334155;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.searchInput::placeholder { color: #94A3B8; }
+.searchInput:focus {
+  border-color: #2563eb;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
 
-/* ---------- FILTER ---------- */
-
-.filterContainer { position: relative; flex-shrink: 0; }
+/* Filter Button & Dropdown */
+.filterContainer {
+  position: relative;
+}
 
 .filterButton {
-  height: 44px; padding: 0 16px;
+  height: 40px;
+  padding: 0 16px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+  cursor: pointer;
   display: flex;
-  align-items: center; gap: 6px;
-  background: #fff;
-  border: 1.5px solid #A5C9F3;
-  border-radius: 14px;
-  font-size: 14px; font-weight: 500;
-  color: #475569; cursor: pointer;
-  box-shadow: 0 2px 6px rgba(165, 201, 243, 0.25);
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
 }
 
-.chevronIcon { transition: transform 0.2s ease; }
+.filterButton:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
 
-.filterButton[aria-expanded="true"] .chevronIcon { transform: rotate(180deg); }
-
-/* ---------- DROPDOWN ---------- */
+.chevronIcon {
+  color: #64748b;
+}
 
 .filterDropdown {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  min-width: 160px;
-  background: #fff;
+  width: 160px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
-  border: 1px solid #E2E8F0;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.12);
-  z-index: 100; padding: 6px 0;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .filterDropdown button {
-  padding: 10px 16px; width: 100%;
-  background: none; border: none;
-  text-align: left; cursor: pointer;
-  font-size: 14px; color: #475569;
+  text-align: left;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
 }
 
-.filterDropdown button:hover { background: #F1F5F9; }
+.filterDropdown button:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
 
 /* ================= MOBILE ================= */
 
 @media (max-width: 639px) {
-  .searchRow { flex-direction: row; gap: 3px; }
-  .filterButton,
-  .searchWrapper { width: 100%; }
+
+  /* Match Connections mobile behavior if needed */
+  .heroSection {
+    padding: 16px 16px !important;
+  }
 }
 
 /* ================= TABLET ================= */
 
 @media (min-width: 640px) and (max-width: 1023px) {
-  .searchWrapper { flex: 1; width:100%;}
-  .filterContainer { width: auto; }
+  /* preserved */
 }
 
 /* ================= DESKTOP ================= */
 
 @media (min-width: 1024px) {
-  .searchWrapper { flex: 1; }
-  .filterContainer { width: auto; }
+  /* preserved */
 }
+
 .cardAvatarImage,
 .avatarImage {
   width: 100%;
   height: 100%;
-  border-radius: 50%;     
-  object-fit: cover;    
+  border-radius: 50%;
+  object-fit: cover;
   display: block;
 }
