@@ -1,0 +1,468 @@
+/* Copied from connections.module.css to ensure consistency */
+
+/* --- Global & Layout --- */
+.minHScreen {
+    min-height: 100vh;
+    background-color: #f9fafb;
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    overflow-x: hidden;
+    padding-bottom: 50px !important;
+}
+
+.wFull {
+    width: 100%;
+}
+
+/* --- Hero Section & Header --- */
+.heroSection {
+    position: relative;
+    padding: 24px 24px;
+    /* Symmetrical padding for desktop */
+    overflow: visible;
+}
+
+@media (min-width: 640px) {
+    .heroSection {
+        padding: 24px 24px;
+    }
+}
+
+@media (max-width: 640px) {
+    .heroSection {
+        padding: 16px 16px !important;
+        /* Equal spacing mobile */
+    }
+}
+
+.searchBarSection {
+    width: 100%;
+}
+
+.searchRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.searchWrapper {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.searchInput {
+    width: 100%;
+    height: 40px;
+    padding: 0 16px 0 40px;
+    border-radius: 12px;
+    border: 1px solid #cbd5e1;
+    font-size: 14px;
+    background: #ffffff;
+    outline: none;
+    transition: all 0.2s;
+    color: #334155;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.searchInput:focus {
+    border-color: #2563eb;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Filter Button & Dropdown */
+.filterContainer {
+    position: relative;
+}
+
+.filterButton {
+    height: 40px;
+    padding: 0 16px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #334155;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    white-space: nowrap;
+}
+
+.filterButton:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+}
+
+.chevronIcon {
+    color: #64748b;
+}
+
+.filterDropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 160px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    z-index: 50;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.filterDropdown button {
+    text-align: left;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    font-size: 13px;
+    font-weight: 500;
+    color: #475569;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.filterDropdown button:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+/* Tabs */
+.tabsContainer {
+    width: 100%;
+    margin-top: 0;
+    background-color: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e5e7eb;
+    padding-top: 8px;
+}
+
+.tabs {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: flex-start;
+    gap: 15px;
+    padding-bottom: 4px;
+    margin-left: 5px;
+    /* overflow-x: auto; */
+    /* Connections logic specific */
+
+    /* Matches connections page styling */
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.tabButton {
+    position: relative;
+    background: none;
+    border: none;
+    padding: 12px 4px;
+    font-weight: 500;
+    color: #64748B;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    white-space: nowrap;
+    transition: color 0.2s ease;
+}
+
+.tabButton:hover {
+    color: #2563eb;
+}
+
+.tabButtonActive {
+    font-weight: 600;
+    color: #2563eb;
+}
+
+.tabButtonActive::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #2563eb;
+    border-radius: 2px 2px 0 0;
+}
+
+.notificationDot {
+    position: absolute;
+    top: 4px;
+    right: -8px;
+    width: 8px;
+    height: 8px;
+    background-color: #ef4444;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* Message List Specific Styles (migrated from messages/page.tsx styles object) */
+.listContainer {
+    flex: 1;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-bottom: 20px;
+}
+
+.messageRow {
+    padding: 12px 18px;
+    margin: 10px;
+    border-radius: 10px;
+    border: 2px solid #4A90E2;
+    cursor: pointer;
+    background-color: #E0E7FF;
+    box-shadow: 0px 3px 5px #4A90E0;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: relative;
+    margin-bottom: 15px;
+}
+
+@media (max-width: 640px) {
+    .messageRow {
+        padding: 8px;
+    }
+}
+
+.messageRowRead {
+    background-color: #FFFFFF;
+}
+
+.messageRowHover {
+    background-color: #E7F8FF;
+}
+
+.avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    color: #FFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+    overflow: hidden;
+    background-image: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.incomingBadge {
+    min-width: 20px;
+    height: 20px;
+    border-radius: 9999px;
+    background-color: #4F46E5;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* --- Overlay & Chat Styles --- */
+.detailOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(15, 23, 42, 0.2);
+    backdrop-filter: blur(4px);
+    z-index: 50;
+    display: flex;
+    justify-content: flex-end;
+}
+
+@media (max-width: 640px) {
+    .detailOverlay {
+        justify-content: center;
+    }
+}
+
+.detailPanel {
+    width: 650px;
+    max-width: 100%;
+    height: 100%;
+    background-color: #FFFFFF;
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    animation: slideIn 0.3s ease-out;
+}
+
+@media (max-width: 640px) {
+    .detailPanel {
+        width: 100%;
+    }
+}
+
+.chatHeader {
+    height: 70px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #E2E8F0;
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+}
+
+.chatBody {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    background-color: #F8FAFC;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.bubbleIn {
+    background-color: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    color: #1E293B;
+    padding: 12px 16px;
+    border-radius: 18px 18px 18px 4px;
+    font-size: 14px;
+    line-height: 1.5;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    max-width: 80%;
+    width: fit-content;
+    overflow-wrap: anywhere;
+}
+
+.bubbleOut {
+    background-image: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: #FFFFFF;
+    padding: 12px 16px;
+    border-radius: 18px 18px 4px 18px;
+    font-size: 14px;
+    line-height: 1.5;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    max-width: 80%;
+    width: fit-content;
+    overflow-wrap: anywhere;
+    margin-left: auto;
+}
+
+.composer {
+    padding: 12px 16px;
+    border-top: 1px solid #E2E8F0;
+    background-color: #FFFFFF;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+    .composer {
+        padding: 8px 8px;
+    }
+}
+
+.composerInputContainer {
+    background-color: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    padding: 4px 10px 4px 12px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    transition: border 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+@media (max-width: 640px) {
+    .composerInputContainer {
+        padding: 4px 8px 4px 10px;
+    }
+}
+
+.textarea {
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    padding: 12px 16px;
+    font-size: 14px;
+    outline: none;
+    resize: none;
+    min-height: 50px;
+    max-height: 120px;
+    font-family: inherit;
+    flex: 1;
+}
+
+.sendButton {
+    background-color: #4F46E5;
+    color: #FFFFFF;
+    border: none;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    border-radius: 9999px;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+.sendButtonDisabled {
+    background-color: #E2E8F0;
+    color: #94A3B8;
+    cursor: not-allowed;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

@@ -661,7 +661,12 @@ function DashboardContactPage() {
     };
 
     return (
-        <main className={styles.minHScreen}>
+        <main className={styles.minHScreen} style={{
+            background: `radial-gradient(600px 300px at 50% -50px, rgba(14, 61, 114, 0.25), transparent 70%),
+                   radial-gradient(500px 250px at 15% 120px, rgba(40, 107, 241, 0.2), transparent 70%),
+                   radial-gradient(500px 250px at 85% 140px, rgba(23, 69, 167, 0.18), transparent 70%),
+                   linear-gradient(180deg, #F5F9FF 0%, #FFFFFF 55%)`
+        }}>
             <div className={styles.wFull}>
                 {previewContact && (
                     <Modal isOpen={!!previewContact} onClose={() => setPreviewContact(null)} title="" message={null} showActions={false}>
@@ -720,24 +725,22 @@ function DashboardContactPage() {
                 {/* Content Area */}
                 <div className={styles.tabsContainer}>
                     {/* Navigation Tabs */}
-                    <div className={styles.tabsContainer}>
-                        <div className={styles.tabs}>
-                            {/* Messages Link */}
-                            <button onClick={() => router.push('/dashboard/messages')} className={styles.tabButton}>Messages</button>
+                    <div className={styles.tabs}>
+                        {/* Messages Link */}
+                        <button onClick={() => router.push('/dashboard/messages')} className={styles.tabButton}>Messages</button>
 
-                            {/* Leads Link */}
-                            <button onClick={() => router.push('/dashboard/contacts')} className={styles.tabButton}>Leads</button>
+                        {/* Leads Link */}
+                        <button onClick={() => router.push('/dashboard/contacts')} className={styles.tabButton}>Leads</button>
 
-                            {/* Active Page Tabs */}
-                            <button onClick={() => handleTabClick('connections')} className={`${styles.tabButton} ${activeTab === 'connections' ? styles.tabButtonActive : ''}`}>
-                                Connections
-                            </button>
+                        {/* Active Page Tabs */}
+                        <button onClick={() => handleTabClick('connections')} className={`${styles.tabButton} ${activeTab === 'connections' ? styles.tabButtonActive : ''}`}>
+                            Connections
+                        </button>
 
-                            <button onClick={() => handleTabClick('requests')} className={`${styles.tabButton} ${activeTab === 'requests' ? styles.tabButtonActive : ''}`} >
-                                Requests
-                                {hasUnreadRequests && <span className={styles.notificationDot}></span>}
-                            </button>
-                        </div>
+                        <button onClick={() => handleTabClick('requests')} className={`${styles.tabButton} ${activeTab === 'requests' ? styles.tabButtonActive : ''}`} >
+                            Requests
+                            {hasUnreadRequests && <span className={styles.notificationDot}></span>}
+                        </button>
                     </div>
 
                     {/* View Toggle Row - Positioned Below Tabs */}
