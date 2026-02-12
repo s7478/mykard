@@ -4,6 +4,7 @@ import React, { CSSProperties, useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
+import { Modal } from "@/components/ui/modal";
 
 import ShareModal from "./ShareModal";
 import { uploadToFirebase } from "@/utils/upload";
@@ -1602,6 +1603,7 @@ export const PostCard = ({
               overflow: "hidden",
               flexShrink: 0,
               backgroundColor: "#f3f4f6",
+              cursor: "default",
             }}
           >
             {authorImage ? (
@@ -2041,6 +2043,8 @@ export const PostCard = ({
         currentUserId={currentUser?.id}
         onShareSuccess={trackShare}
       />
+
+
     </div>
   );
 };

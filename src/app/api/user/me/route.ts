@@ -48,7 +48,16 @@ export async function GET() {
         phone: true,
         username: true,
         profileImage: true,
+        bannerImage: true,
         title: true,
+        company: true,
+        location: true,
+        bio: true,
+        firstName: true,
+        lastName: true,
+        cardName: true,
+        selectedColor: true,
+        selectedFont: true,
       },
     })
 
@@ -59,6 +68,55 @@ export async function GET() {
       )
     }
 
+    // Count accepted connections (where user is either sender or receiver)
+    const connectionCount = await prisma.connection.count({
+      where: {
+        AND: [
+          {
+            OR: [
+              { senderId: decoded.userId },
+              { receiverId: decoded.userId }
+            ]
+          },
+          { status: 'ACCEPTED' }
+        ]
+      }
+    })
+
+    // Fetch user's card with documentUrl and analytics (only active cards)
+    const card = await prisma.card.findFirst({
+      where: { 
+        userId: decoded.userId,
+        cardActive: true
+      },
+      select: {
+        documentUrl: true,
+        views: true,
+        shares: true,
+      },
+      orderBy: { createdAt: 'desc' }
+    })
+
+    // Fetch user's recent posts with likes and comments count
+    const posts = await prisma.post.findMany({
+      where: { authorId: decoded.userId },
+      select: {
+        id: true,
+        content: true,
+        imageUrl: true,
+        createdAt: true,
+        visibility: true,
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 10
+    })
+
     return NextResponse.json({ 
       user: {
         id: user.id,
@@ -67,7 +125,21 @@ export async function GET() {
         phone: user.phone || null,
         username: user.username || null,
         profileImage: user.profileImage || null,
+        bannerImage: user.bannerImage || null,
         title: user.title || null,
+        company: user.company || null,
+        location: user.location || null,
+        bio: user.bio || null,
+        firstName: user.firstName || null,
+        lastName: user.lastName || null,
+        cardName: user.cardName || null,
+        selectedColor: user.selectedColor || null,
+        selectedFont: user.selectedFont || null,
+        documentUrl: card?.documentUrl || null,
+        views: card?.views || 0,
+        shares: card?.shares || 0,
+        connectionCount: connectionCount,
+        posts: posts,
       },
     })
   } catch (error) {
