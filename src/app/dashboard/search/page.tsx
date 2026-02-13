@@ -46,7 +46,31 @@ const getInitials = (name: string) =>
 function SearchPageContent() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
+  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
+  const [selectedUserCard, setSelectedUserCard] = useState<any>(null);
+  const [loadingCard, setLoadingCard] = useState(false);
 
+  const handleCardClick = async (profile: Profile) => {
+    setSelectedProfile(profile);
+    setLoadingCard(true);
+    setSelectedUserCard(null);
+    
+    try {
+      // Fetch the user's active card
+      const response = await fetch(`/api/card/user/${profile.id}`, {
+        credentials: "include",
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setSelectedUserCard(data.card);
+      }
+    } catch (error) {
+      console.error("Error fetching user card:", error);
+    } finally {
+      setLoadingCard(false);
+    }
+  };
 
   const dummyProfiles: Profile[] = [
     { id: "1", username: "arnav_wasnik", name: "Arnav Wasnik", designation: "Frontend Developer", company: "BoostNow Solutions", city: "Nagpur", category: "Technology", verified: true, views: 245, email: "arnav@example.com", phone: "+91 1234567890" },
@@ -179,7 +203,6 @@ function SearchPageContent() {
   const [connectingUserId, setConnectingUserId] = useState<string | null>(null);
   const [sentRequests, setSentRequests] = useState<Set<string>>(new Set());
   const [acceptedConnections, setAcceptedConnections] = useState<Set<string>>(new Set());
-  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
 
 
   useEffect(() => {
@@ -226,8 +249,11 @@ function SearchPageContent() {
           profileImage: user.profileImage || user.avatar || user.image || '',
           email: user.email || '',
           phone: user.phone || user.phoneNumber || '',
+          about: user.about || user.bio || '',
+          services: user.services || user.offerings || user.service || '',
+          skills: user.skills || user.skillset || '',
+          description: user.description || user.bio || '',
           verified: user.verified || user.emailVerified || false,
-          reviews: user.reviews || user.ratingCount || 0,
           views: user.views || user.impressions || 0,
         }));
 
@@ -780,6 +806,9 @@ if (!raw && activeCategory === "All") {
                     fontWeight: 500,
                     cursor: "pointer"
                   }}
+                const handleCardClick = (profile: Profile) => {
+                  setSelectedProfile(profile);
+                };
                 >
                   Filter
                   <ChevronDown size={16} />
@@ -802,14 +831,14 @@ if (!raw && activeCategory === "All") {
 
                     <div className="filterActions">
                       <button
-                        className="clearFilterBtn"
-                        onClick={() => {
-                          setTempCategory("All");
-                          setActiveCategory("All");
-                          setShowFilter(false);
-                        }}
+                      className="clearFilterBtn"
+                      onClick={() => {
+                        setTempCategory("All");
+                        setActiveCategory("All");
+                        setShowFilter(false);
+                      }}
                       >
-                        Clear
+                      Clear
                       </button>
 
                       <button
@@ -850,7 +879,7 @@ if (!raw && activeCategory === "All") {
                     className={`card ${activeCardId === p.id ? "active" : ""}`}
                     onMouseEnter={() => setActiveCardId(p.id)}
                     onMouseLeave={() => setActiveCardId(null)}
-                    onClick={() => setActiveCardId(p.id)}
+                    onClick={() => handleCardClick(p)}  // YE LINE ADD KARO
                   >
                     <div className="card-info">
                       <div className="avatar">
@@ -885,7 +914,6 @@ if (!raw && activeCategory === "All") {
                               e.stopPropagation();
                               handleConnect(p.id, p.name);
                             }}
-                            disabled={connectingUserId === p.id}
                           >
                             Connect +
                           </button>
@@ -918,7 +946,7 @@ if (!raw && activeCategory === "All") {
                     className={`card ${activeCardId === p.id ? "active" : ""}`}
                     onMouseEnter={() => setActiveCardId(p.id)}
                     onMouseLeave={() => setActiveCardId(null)}
-                    onClick={() => setActiveCardId(p.id)}
+                    onClick={() => handleCardClick(p)}  // YE LINE ADD KARO
                   >
                     <div className="card-info">
                       <div className="avatar">
@@ -1079,63 +1107,42 @@ if (!raw && activeCategory === "All") {
                   onClose={() => setSelectedProfile(null)}
                 >
                   {/* popup content */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                    {loadingCard ? (
+                      <p style={{ textAlign: "center", color: "#64748b" }}>Loading card information...</p>
+                    ) : selectedUserCard ? (
+                      <>
+                        {/* Title - Name */}
+                        <div style={{ borderBottom: "1px solid #e2e8f0", paddingBottom: 12 }}>
+                          <h2 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#0f172a", margin: 0 }}>
+                            {selectedUserCard.fullName}
+                          </h2>
+                        </div>
+
+                        {/* Content */}
+                        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                          {selectedUserCard.title && <div style={{ fontSize: "0.95rem" }}><strong>Title:</strong> {selectedUserCard.title}</div>}
+                          {selectedUserCard.company && <div style={{ fontSize: "0.95rem" }}><strong>Company:</strong> {selectedUserCard.company}</div>}
+                          {selectedUserCard.location && <div style={{ fontSize: "0.95rem" }}><strong>Location:</strong> {selectedUserCard.location}</div>}
+                          
+                          {selectedUserCard.services && (
+                            <div style={{ fontSize: "0.95rem" }}>
+                              <strong>Services:</strong> {selectedUserCard.services
+                                .split(',')
+                                .map((s: string) => s.trim())
+                                .filter(Boolean)
+                                .join(', ')}
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <p style={{ textAlign: "center", color: "#64748b" }}>No card information available</p>
+                    )}
+                  </div>
                 </Modal>
               </div>
             </div>
-          )}
-
-
-
-
-          {/* /* Modal unchanged (logic intact) */}
-          {/* <Modal
-          isOpen={showModal}
-          onClose={() => setShowModal(false)}
-          title="Connection Request Sent"
-          message={<>Your connection request has been sent to <strong style={{ color: "#111827" }}>{connectionName}</strong>. They will be notified and can accept or reject your request.</>}
-          primaryText="Close"
-        /> */}
-
-
-
-          {selectedProfile && (
-            <Modal
-              isOpen={!!selectedProfile} onClose={() => setSelectedProfile(null)}>
-
-              <div className="p-6 space-y-3">
-                {/* Full Name */}
-                <h2 className="text-xl font-semibold"> {selectedProfile.name} </h2>
-
-                {/* Location */}
-                {selectedProfile.city && (
-                  <p className="text-sm text-gray-600"> {selectedProfile.city} </p>
-                )}
-
-                {/* Company & Designation */}
-                {(selectedProfile.company || selectedProfile.designation) && (
-                  <p className="text-sm">
-                    {selectedProfile.designation}
-                    {selectedProfile.company && ` ${selectedProfile.company}`}
-                  </p>
-                )}
-
-                {/* Description */}
-                {selectedProfile.description && (
-                  <div>
-                    <h4 className="font-medium mt-3">Description</h4>
-                    <p className="text-sm text-gray-700"> {selectedProfile.description} </p>
-                  </div>
-                )}
-
-                {/* Services */}
-                {selectedProfile.services && (
-                  <div>
-                    <h4 className="font-medium mt-3">Services</h4>
-                    <p className="text-sm text-gray-700"> {selectedProfile.services} </p>
-                  </div>
-                )}
-              </div>
-            </Modal>
           )}
         </div>
       </div>

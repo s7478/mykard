@@ -392,6 +392,7 @@ const CreatePage = () => {
 
       formData.append('status', 'draft');
       if (profileImageFile) formData.append('profileImage', profileImageFile);
+      if (!profileImageFile && profileImage) formData.append('profileImageUrl', profileImage);
       if (bannerImageFile) formData.append('bannerImage', bannerImageFile);
       if (resumeFile) formData.append('document', resumeFile);
 

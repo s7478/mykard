@@ -336,7 +336,7 @@ export function Header() {
                       }}
                     >
                       <Link
-                        href="/dashboard/support"
+                        href="/profile"
                         onClick={() => setIsDropdownOpen(false)}
                         style={{
                           display: "flex",
@@ -359,8 +359,8 @@ export function Header() {
                           e.currentTarget.style.color = "#374151";
                         }}
                       >
-                        <HelpCircle style={{ width: "16px", height: "16px" }} />
-                        <span>Help & Support</span>
+                        <User style={{ width: "16px", height: "16px" }} />
+                        <span>Profile</span>
                       </Link>
 
                       <Link
@@ -482,6 +482,34 @@ export function Header() {
                           )}
                         </AnimatePresence>
                       </div>
+
+                      <Link
+                        href="/dashboard/support"
+                        onClick={() => setIsDropdownOpen(false)}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "12px",
+                          padding: "12px 16px",
+                          margin: "6px 0",
+                          fontSize: "14px",
+                          color: "#374151",
+                          textDecoration: "none",
+                          transition: "all 0.2s ease",
+                          borderRadius: "8px",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = "#eff6ff";
+                          e.currentTarget.style.color = "#1d4ed8";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = "transparent";
+                          e.currentTarget.style.color = "#374151";
+                        }}
+                      >
+                        <HelpCircle style={{ width: "16px", height: "16px" }} />
+                        <span>Help & Support</span>
+                      </Link>
 
                       <button
                         onClick={handleLogout}
