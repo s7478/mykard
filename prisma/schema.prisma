@@ -34,6 +34,7 @@ model User {
   profileImage        String?              @db.Text
   bannerImage         String?              @db.Text
   bio                 String?              @db.Text
+  website             String?              @db.VarChar(1000)
   status              String?              @default("draft")
   views               Int                  @default(0)
   createdAt           DateTime             @default(now())

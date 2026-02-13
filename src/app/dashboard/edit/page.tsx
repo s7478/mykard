@@ -871,7 +871,15 @@ const CreatePageContent = () => {
           {activeTab === "Information" && openSection === "document" && (
             <div className={styles.inputGroup}>
               <label className={styles.label}>Upload Document</label>
-              <input type="file" />
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    setResumeFile(e.target.files[0]);
+                  }
+                }}
+              />
             </div>
           )}
 

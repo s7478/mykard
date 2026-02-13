@@ -7,7 +7,7 @@ function decodeJWT(token: string) {
   try {
     const parts = token.split('.')
     if (parts.length !== 3) return null
-    
+
     const payload = parts[1]
     const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString())
     return decoded
@@ -30,7 +30,7 @@ export async function GET() {
 
     // Decode JWT token to get user id
     const decoded = decodeJWT(token)
-    
+
     if (!decoded || !decoded.userId) {
       return NextResponse.json(
         { error: 'Invalid token' },
@@ -49,6 +49,26 @@ export async function GET() {
         username: true,
         profileImage: true,
         title: true,
+        company: true,
+        location: true,
+        bio: true,
+        website: true,
+        posts: {
+          orderBy: { createdAt: 'desc' },
+          select: {
+            id: true,
+            content: true,
+            imageUrl: true,
+            createdAt: true,
+            visibility: true,
+            _count: {
+              select: {
+                likes: true,
+                comments: true
+              }
+            }
+          }
+        }
       },
     })
 
@@ -59,15 +79,21 @@ export async function GET() {
       )
     }
 
-    return NextResponse.json({ 
+    // Get connection count
+    const connectionCount = await prisma.connection.count({
+      where: {
+        OR: [
+          { senderId: user.id },
+          { receiverId: user.id }
+        ],
+        status: 'ACCEPTED'
+      }
+    })
+
+    return NextResponse.json({
       user: {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        phone: user.phone || null,
-        username: user.username || null,
-        profileImage: user.profileImage || null,
-        title: user.title || null,
+        ...user,
+        connectionCount
       },
     })
   } catch (error) {
@@ -75,6 +101,58 @@ export async function GET() {
     return NextResponse.json(
       { error: 'Invalid or expired token' },
       { status: 401 }
+    )
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    const cookieStore = await cookies()
+    const token = cookieStore.get('user_token')?.value
+
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Not authenticated' },
+        { status: 401 }
+      )
+    }
+
+    const decoded = decodeJWT(token)
+
+    if (!decoded || !decoded.userId) {
+      return NextResponse.json(
+        { error: 'Invalid token' },
+        { status: 401 }
+      )
+    }
+
+    const body = await request.json()
+    const { fullName, title, company, location, bio, phone, username, website } = body
+
+    // Update user
+    const updatedUser = await prisma.user.update({
+      where: { id: decoded.userId },
+      data: {
+        fullName,
+        title,
+        company,
+        location,
+        bio,
+        phone,
+        username,
+        website,
+      },
+    })
+
+    return NextResponse.json({
+      success: true,
+      user: updatedUser
+    })
+  } catch (error) {
+    console.error('Update user error:', error)
+    return NextResponse.json(
+      { error: 'Failed to update profile' },
+      { status: 500 }
     )
   }
 }
