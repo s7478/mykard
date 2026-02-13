@@ -364,6 +364,34 @@ export function Header() {
                       </Link>
 
                       <Link
+                        href="/dashboard/profile"
+                        onClick={() => setIsDropdownOpen(false)}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "12px",
+                          padding: "12px 16px",
+                          margin: "6px 0",
+                          fontSize: "14px",
+                          color: "#374151",
+                          textDecoration: "none",
+                          transition: "all 0.2s ease",
+                          borderRadius: "8px",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = "#eff6ff";
+                          e.currentTarget.style.color = "#1d4ed8";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = "transparent";
+                          e.currentTarget.style.color = "#374151";
+                        }}
+                      >
+                       <User style={{ width: "16px", height: "16px" }} />
+                        <span>Profile</span>
+                      </Link>
+
+                      <Link
                         href="/dashboard/settings"
                         onClick={() => setIsDropdownOpen(false)}
                         style={{

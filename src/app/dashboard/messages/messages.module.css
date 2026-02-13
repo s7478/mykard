@@ -158,7 +158,11 @@
     background-color: #ffffff;
     border-top: 1px solid #e2e8f0;
     border-bottom: 1px solid #e5e7eb;
-    padding-top: 8px;
+    /* padding-top: 8px; REMOVED for vertical centering */
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
 .tabs {
@@ -166,8 +170,8 @@
     display: flex;
     justify-content: flex-start;
     gap: 15px;
-    padding-bottom: 4px;
-    margin-left: 5px;
+    padding: 8px 16px 0 16px;
+    margin-left: 0;
     /* overflow-x: auto; */
     /* Connections logic specific */
 

@@ -51,7 +51,7 @@ const CreatePage = () => {
   const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
   const [openSection, setOpenSection] = useState<string | null>(null);
-  
+
 
   const toggleSection = (key: string) => {
     setOpenSection(prev => (prev === key ? null : key));
@@ -179,7 +179,7 @@ const CreatePage = () => {
       </div>
     )}
   </div>
-  
+
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -627,7 +627,7 @@ const CreatePage = () => {
   if (isLoadingUser) return <div className={styles.pageWrapper} style={{ justifyContent: 'center', alignItems: 'center' }}>Loading...</div>;
 
   return (
-   <div className={styles.pageWrapper} style={{ overflowY: 'auto' }}>
+    <div className={styles.pageWrapper} style={{ overflowY: 'auto' }}>
 
 
       <div className={styles.container}>
@@ -803,7 +803,15 @@ const CreatePage = () => {
           {activeTab === "Information" && openSection === "document" && (
             <div className={styles.inputGroup}>
               <label className={styles.label}>Upload Document</label>
-              <input type="file" />
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    setResumeFile(e.target.files[0]);
+                  }
+                }}
+              />
             </div>
           )}
 

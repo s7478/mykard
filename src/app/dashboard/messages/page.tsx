@@ -660,76 +660,77 @@ function MessagesPageContent() {
                 </button>
               ))}
             </div>
-          </div>
 
-          {/* Message List */}
-          <div className={`${styles.listContainer} no-scrollbar`}>
-            {filteredMessages.length === 0 ? (
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", opacity: 0.5, paddingTop: "40px" }}>
-                <Search style={{ width: "40px", height: "40px", marginBottom: "16px", color: "#94A3B8" }} />
-                <p style={{ fontSize: "14px", color: "#64748B" }}>No messages found</p>
-              </div>
-            ) : (
-              <div>
-                {filteredMessages.map(m => (
-                  <div
-                    key={m.id}
-                    onClick={() => openDetail(m.senderId)}
-                    onMouseEnter={() => setHoveredId(m.id)}
-                    onMouseLeave={() => setHoveredId(null)}
-                    className={`${styles.messageRow} ${m.read ? styles.messageRowRead : ''} ${hoveredId === m.id ? styles.messageRowHover : ''}`}
-                  >
-                    {/* Avatar */}
-                    <div className={styles.avatar} style={{ backgroundImage: m.profileImage ? `url(${m.profileImage})` : undefined }}>
-                      {!m.profileImage && getInitials(m.name, m.email)}
-                    </div>
+            {/* Message List */}
+            <div className={`${styles.listContainer} no-scrollbar`}>
+              {filteredMessages.length === 0 ? (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", opacity: 0.5, paddingTop: "40px" }}>
+                  <Search style={{ width: "40px", height: "40px", marginBottom: "16px", color: "#94A3B8" }} />
+                  <p style={{ fontSize: "14px", color: "#64748B" }}>No messages found</p>
+                </div>
+              ) : (
+                <div>
+                  {filteredMessages.map(m => (
+                    <div
+                      key={m.id}
+                      onClick={() => openDetail(m.senderId)}
+                      onMouseEnter={() => setHoveredId(m.id)}
+                      onMouseLeave={() => setHoveredId(null)}
+                      className={`${styles.messageRow} ${m.read ? styles.messageRowRead : ''} ${hoveredId === m.id ? styles.messageRowHover : ''}`}
+                    >
+                      {/* Avatar */}
+                      <div className={styles.avatar} style={{ backgroundImage: m.profileImage ? `url(${m.profileImage})` : undefined }}>
+                        {!m.profileImage && getInitials(m.name, m.email)}
+                      </div>
 
-                    {/* Content */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-                        <h3 style={{ fontSize: "16px", margin: 0, fontWeight: m.read ? 600 : 700, color: m.read ? "#1E293B" : "#000", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: isMobile ? "60%" : "70%" }}>
-                          {m.name}
-                        </h3>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span style={{ fontSize: "11px", color: "#94A3B8", fontWeight: 500, whiteSpace: "nowrap", flexShrink: 0 }}>
-                            {formatDate(m.date)}
-                          </span>
-                          {!m.read && m.incomingCount > 0 && (
-                            <div className={styles.incomingBadge}>{m.incomingCount}</div>
-                          )}
+                      {/* Content */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                          <h3 style={{ fontSize: "16px", margin: 0, fontWeight: m.read ? 600 : 700, color: m.read ? "#1E293B" : "#000", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: isMobile ? "60%" : "70%" }}>
+                            {m.name}
+                          </h3>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <span style={{ fontSize: "11px", color: "#94A3B8", fontWeight: 500, whiteSpace: "nowrap", flexShrink: 0 }}>
+                              {formatDate(m.date)}
+                            </span>
+                            {!m.read && m.incomingCount > 0 && (
+                              <div className={styles.incomingBadge}>{m.incomingCount}</div>
+                            )}
+                          </div>
+                        </div>
+
+                        {m.tag === "STORY_REPLY" && (
+                          <p style={{ fontSize: "11px", color: "#2563EB", fontWeight: 600, marginBottom: "2px", marginTop: "0px" }}>
+                            {m.thread && m.thread.length > 0 && m.thread[m.thread.length - 1].direction === 'out'
+                              ? "You replied to their story"
+                              : "Replied to your story"}
+                          </p>
+                        )}
+
+                        <p className="message-text-left" style={{ margin: 0, fontSize: "12px", color: m.read ? "#64748B" : "#1E293B", fontWeight: m.read ? 400 : 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {m.message}
+                        </p>
+
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: "20px" }}>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteMessage(m.senderId);
+                            }}
+                            style={{ background: "transparent", border: "none", color: "#94A3B8", cursor: "pointer", padding: "4px", marginLeft: "auto", opacity: 1, transition: "opacity 0.2s" }}
+                          >
+                            <Trash2 style={{ width: "16px", height: "16px" }} />
+                          </button>
                         </div>
                       </div>
-
-                      {m.tag === "STORY_REPLY" && (
-                        <p style={{ fontSize: "11px", color: "#2563EB", fontWeight: 600, marginBottom: "2px", marginTop: "0px" }}>
-                          {m.thread && m.thread.length > 0 && m.thread[m.thread.length - 1].direction === 'out'
-                            ? "You replied to their story"
-                            : "Replied to your story"}
-                        </p>
-                      )}
-
-                      <p className="message-text-left" style={{ margin: 0, fontSize: "12px", color: m.read ? "#64748B" : "#1E293B", fontWeight: m.read ? 400 : 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {m.message}
-                      </p>
-
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: "20px" }}>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteMessage(m.senderId);
-                          }}
-                          style={{ background: "transparent", border: "none", color: "#94A3B8", cursor: "pointer", padding: "4px", marginLeft: "auto", opacity: 1, transition: "opacity 0.2s" }}
-                        >
-                          <Trash2 style={{ width: "16px", height: "16px" }} />
-                        </button>
-                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
+
 
         {/* --- Detail View OverlayWrapper --- */}
         {activeMessage && (
