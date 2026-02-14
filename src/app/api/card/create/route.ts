@@ -93,6 +93,15 @@ export async function POST(req: NextRequest) {
     } else if (profileImageUrl) {
       // Use existing profile image URL
       cardData.profileImage = profileImageUrl;
+    } else {
+      // If no profile image provided, use user's profile photo
+      const user = await prisma.user.findUnique({
+        where: { id: decoded.userId },
+        select: { profileImage: true }
+      });
+      if (user?.profileImage) {
+        cardData.profileImage = user.profileImage;
+      }
     }
 
     // Handle banner image upload (Firebase Storage)
@@ -125,6 +134,18 @@ export async function POST(req: NextRequest) {
       });
 
       cardData.bannerImage = signedUrl;
+      cardData.coverImage = signedUrl;
+    }
+
+    if (!cardData.bannerImage) {
+      const user = await prisma.user.findUnique({
+        where: { id: decoded.userId },
+        select: { bannerImage: true }
+      });
+      if (user?.bannerImage) {
+        cardData.bannerImage = user.bannerImage;
+        cardData.coverImage = user.bannerImage;
+      }
     }
 
     // Handle cover image upload (Firebase Storage)
@@ -157,6 +178,14 @@ export async function POST(req: NextRequest) {
       });
 
       cardData.coverImage = signedUrl;
+      cardData.bannerImage = signedUrl;
+    }
+
+    if (cardData.bannerImage && !cardData.coverImage) {
+      cardData.coverImage = cardData.bannerImage;
+    }
+    if (cardData.coverImage && !cardData.bannerImage) {
+      cardData.bannerImage = cardData.coverImage;
     }
 
     // Handle document upload (Firebase Storage with conversion)
@@ -238,6 +267,15 @@ export async function POST(req: NextRequest) {
           where: { id: decoded.userId },
           data: profileUpdateData,
         });
+        
+        // If profile image was uploaded, sync it to all existing cards
+        if (profileUpdateData.profileImage) {
+          await prisma.card.updateMany({
+            where: { userId: decoded.userId, id: { not: card.id } },
+            data: { profileImage: profileUpdateData.profileImage }
+          });
+          console.log('✅ Synced profile image to all existing cards');
+        }
       }
     } catch (err) {
       console.error('Failed to sync user profile from card data:', err);

@@ -136,11 +136,19 @@ export async function POST(request: NextRequest) {
     })
     console.log('✅ Upload API: User updated in database:', updatedUser);
 
+    // Sync profile image to all cards belonging to this user
+    const updatedCards = await prisma.card.updateMany({
+      where: { userId: decoded.userId },
+      data: { profileImage: signedUrl } as any
+    })
+    console.log(`✅ Upload API: Synced profile image to ${updatedCards.count} cards`);
+
     return NextResponse.json({
       success: true,
-      message: 'Profile image uploaded successfully',
+      message: 'Profile image uploaded successfully and synced to all cards',
       user: updatedUser,
-      imageUrl: signedUrl
+      imageUrl: signedUrl,
+      cardsUpdated: updatedCards.count
     })
 
   } catch (error) {

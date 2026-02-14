@@ -459,7 +459,7 @@ const CreatePage = () => {
             <div>
               <h3 className={styles.subTitle}>Cover Image</h3>
               <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                <input type="file" accept="image/*" style={{ display: 'none' }} id="banner-upload" onChange={(e) => { if (e.target.files?.[0]) setBannerImage(URL.createObjectURL(e.target.files[0])) }} />
+                <input type="file" accept="image/*" style={{ display: 'none' }} id="banner-upload" onChange={(e) => { if (e.target.files?.[0]) { setBannerImage(URL.createObjectURL(e.target.files[0])); setBannerImageFile(e.target.files[0]); } }} />
                 <button onClick={() => document.getElementById('banner-upload')?.click()} className={styles.btnIcon}>Add Cover Image</button>
               </div>
             </div>
