@@ -315,6 +315,17 @@ export async function PATCH(
       });
 
       updateData.profileImage = signedUrl;
+      
+      // Sync profile image to user profile and all other cards
+      await prisma.user.update({
+        where: { id: decoded.userId },
+        data: { profileImage: signedUrl }
+      });
+      await prisma.card.updateMany({
+        where: { userId: decoded.userId },
+        data: { profileImage: signedUrl }
+      });
+      console.log('✅ Synced profile image to user and all cards');
     }
 
     // Handle banner image upload
@@ -357,6 +368,21 @@ export async function PATCH(
       });
 
       updateData.bannerImage = signedUrl;
+      updateData.coverImage = signedUrl;
+
+      try {
+        await prisma.user.update({
+          where: { id: decoded.userId },
+          data: { bannerImage: signedUrl }
+        });
+        await prisma.card.updateMany({
+          where: { userId: decoded.userId },
+          data: { bannerImage: signedUrl, coverImage: signedUrl }
+        });
+        console.log('✅ Synced banner image to user and all cards');
+      } catch (err) {
+        console.error('Failed to sync banner image to user/cards:', err);
+      }
     }
 
     // Handle cover image upload
@@ -399,6 +425,21 @@ export async function PATCH(
       });
 
       updateData.coverImage = signedUrl;
+      updateData.bannerImage = signedUrl;
+
+      try {
+        await prisma.user.update({
+          where: { id: decoded.userId },
+          data: { bannerImage: signedUrl }
+        });
+        await prisma.card.updateMany({
+          where: { userId: decoded.userId },
+          data: { bannerImage: signedUrl, coverImage: signedUrl }
+        });
+        console.log('✅ Synced cover image to user and all cards');
+      } catch (err) {
+        console.error('Failed to sync cover image to user/cards:', err);
+      }
     }
 
     // Best-effort: sync basic contact info from card into user profile
