@@ -27,10 +27,10 @@ export async function POST(request: NextRequest) {
       fullName: string
     }
 
-    // Get current user to check for existing profile image
+    // Get current user to check for existing banner image
     const currentUser = await prisma.user.findUnique({
       where: { id: decoded.userId },
-      select: { profileImage: true } as any
+      select: { bannerImage: true } as any
     })
 
     // Get form data
@@ -62,17 +62,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Delete old profile image from Cloudinary if it exists
-    const oldProfileImage = (currentUser as any)?.profileImage
-    if (oldProfileImage && typeof oldProfileImage === 'string') {
+    // Delete old banner image from Cloudinary if it exists
+    const oldBannerImage = (currentUser as any)?.bannerImage
+    if (oldBannerImage && typeof oldBannerImage === 'string') {
       try {
         // Extract public_id from Cloudinary URL
-        // URL format: https://res.cloudinary.com/cloud_name/image/upload/v123456/MyKard/profile-images/filename.ext
-        const urlParts = oldProfileImage.split('/')
+        const urlParts = oldBannerImage.split('/')
         const uploadIndex = urlParts.findIndex(part => part === 'upload')
         
         if (uploadIndex !== -1 && uploadIndex + 2 < urlParts.length) {
-          // Skip version number (v123456) if present
           const startIndex = urlParts[uploadIndex + 1].startsWith('v') ? uploadIndex + 2 : uploadIndex + 1
           const pathParts = urlParts.slice(startIndex)
           const fileWithExt = pathParts[pathParts.length - 1]
@@ -80,16 +78,16 @@ export async function POST(request: NextRequest) {
           const folderPath = pathParts.slice(0, -1).join('/')
           const publicId = folderPath ? `${folderPath}/${fileName}` : fileName
           
-          console.log('🔍 Upload API: Extracted public ID:', publicId)
+          console.log('🔍 Banner Upload API: Extracted public ID:', publicId)
           
-          console.log('🗑️ Upload API: Deleting old profile image:', publicId)
+          console.log('🗑️ Banner Upload API: Deleting old banner image:', publicId)
           await deleteFromCloudinary(publicId)
-          console.log('✅ Upload API: Old profile image deleted successfully')
+          console.log('✅ Banner Upload API: Old banner image deleted successfully')
         } else {
-          console.warn('⚠️ Upload API: Could not extract public ID from URL:', oldProfileImage)
+          console.warn('⚠️ Banner Upload API: Could not extract public ID from URL:', oldBannerImage)
         }
       } catch (deleteError) {
-        console.warn('⚠️ Upload API: Failed to delete old profile image:', deleteError)
+        console.warn('⚠️ Banner Upload API: Failed to delete old banner image:', deleteError)
         // Continue with upload even if deletion fails
       }
     }
@@ -99,10 +97,10 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes)
 
     // Upload new image to Firebase Storage
-    const originalName = (file as any).name || 'profile.jpg'
+    const originalName = (file as any).name || 'banner.jpg'
     const safeName = originalName.replace(/[^a-z0-9.]+/gi, '-').toLowerCase()
     const timestamp = Date.now()
-    const filePath = `users/profile-images/${decoded.userId}/${timestamp}-${safeName}`
+    const filePath = `users/banner-images/${decoded.userId}/${timestamp}-${safeName}`
 
     const bucket = adminStorageBucket();
     if (!bucket) {
@@ -123,28 +121,28 @@ export async function POST(request: NextRequest) {
     })
 
     // Update user profile in database
-    console.log('🔄 Upload API: Updating user profile with image URL:', signedUrl);
+    console.log('🔄 Banner Upload API: Updating user profile with banner URL:', signedUrl);
     const updatedUser = await prisma.user.update({
       where: { id: decoded.userId },
-      data: { profileImage: signedUrl } as any,
+      data: { bannerImage: signedUrl } as any,
       select: {
         id: true,
         email: true,
         fullName: true,
-        profileImage: true
+        bannerImage: true
       } as any
     })
-    console.log('✅ Upload API: User updated in database:', updatedUser);
+    console.log('✅ Banner Upload API: User updated in database:', updatedUser);
 
     return NextResponse.json({
       success: true,
-      message: 'Profile image uploaded successfully',
+      message: 'Banner image uploaded successfully',
       user: updatedUser,
       url: signedUrl
     })
 
   } catch (error) {
-    console.error('Profile image upload error:', error)
+    console.error('Banner image upload error:', error)
     
     if (error instanceof Error) {
       // Handle specific JWT errors
@@ -155,7 +153,7 @@ export async function POST(request: NextRequest) {
         )
       }
       
-      // Handle Cloudinary errors
+      // Handle upload errors
       if (error.message.includes('cloudinary') || error.message.includes('upload')) {
         return NextResponse.json(
           { error: 'Failed to upload image. Please try again.' },
@@ -165,7 +163,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: 'An error occurred while uploading the image' },
+      { error: 'An error occurred while uploading the banner image' },
       { status: 500 }
     )
   }

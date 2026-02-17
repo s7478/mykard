@@ -191,7 +191,12 @@ const CreatePageContent = () => {
           setFirstName(user.fullName?.split(' ')[0] || '');
           setEmail(user.email || '');
           setPhone(user.phone || '');
-          setProfileImage(user.profileImage || null);
+          
+          // Only use user's profile image as default when creating a NEW card
+          // When editing an existing card, the card fetch will override this
+          if (!cardId) {
+            setProfileImage(user.profileImage || null);
+          }
           setOriginalUserProfileImage(user.profileImage || null);
         }
       } catch (error) {
@@ -201,7 +206,7 @@ const CreatePageContent = () => {
       }
     };
     fetchUserData();
-  }, []);
+  }, [cardId]);
 
 
   useEffect(() => {
@@ -310,8 +315,14 @@ const CreatePageContent = () => {
         setServices(card.services || "");
         setReviews(card.review || "");
 
+        // Always use the card's specific profile/banner images, even if null
+        // This ensures card images are independent from user profile images
         setProfileImage(card.profileImage || null);
-        setBannerImage(card.bannerImage || null);
+        // Check both coverImage and bannerImage for backwards compatibility
+        setBannerImage(card.coverImage || card.bannerImage || null);
+        
+        console.log('Loaded card profileImage:', card.profileImage);
+        console.log('Loaded card cover/banner:', card.coverImage || card.bannerImage);
 
         if (card.customFields) {
           try {
@@ -453,7 +464,7 @@ const CreatePageContent = () => {
 
       formData.append('status', 'draft');
       if (profileImageFile) formData.append('profileImage', profileImageFile);
-      if (bannerImageFile) formData.append('bannerImage', bannerImageFile);
+      if (bannerImageFile) formData.append('coverImage', bannerImageFile); // Send as coverImage to match dashboard
       if (resumeFile) formData.append('document', resumeFile);
 
       let response;
@@ -489,7 +500,8 @@ const CreatePageContent = () => {
 
     const props = {
       firstName, middleName, lastName, cardName, title, company, location: cardLocation,
-      about, skills, portfolio, experience, services, review: reviews, photo: profileImage || '', cover: bannerImage || '',
+      about, skills, portfolio, experience, services, review: reviews, photo: profileImage || '', 
+      cover: bannerImage || '', // bannerImage already has coverImage fallback from fetch
       email, phone: previewPhone, linkedin, website, themeColor1: selectedColor1, themeColor2: selectedColor2, textColor: textColor,
       fontFamily: selectedFont, cardType, customFields: extraFields,
       onDocumentClick: handleDocumentClick
