@@ -226,6 +226,7 @@ body {
   outline: none;
   flex: 1;
   min-width: 55px;
+  display: flex;
   align-items: center;
   justify-content: center;
   width: 120px;
@@ -235,14 +236,12 @@ body {
 .btnPrimary {
   border: none;
   color: white;
-  margin-top: -20px;
 }
 
 .btnSecondary {
   background-color: transparent;
   border: 1px solid #646464;
   color: #555;
-  margin-top: -20px;
 }
 
 .btnOutline {
