@@ -43,6 +43,16 @@ export default function CataloguePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [isUploading, setIsUploading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -255,30 +265,32 @@ export default function CataloguePage() {
         <div
           style={{
             display: "flex",
+            flexDirection: isMobile ? "column" : "row",
             alignItems: "center",
             justifyContent: "space-between",
-            gap: "16px",
+            gap: isMobile ? "12px" : "16px",
             marginBottom: "32px",
             backgroundImage: "linear-gradient(135deg, #0a66c2 0%, #0856a6 100%)",
-            padding: "24px",
+            padding: isMobile ? "16px" : "24px",
             borderRadius: "12px",
             boxShadow: "0 4px 16px rgba(10, 102, 194, 0.2)",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: isMobile ? "12px" : "16px", width: "100%" }}>
             <Link
               href="/dashboard/profile"
               style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                width: "44px",
-                height: "44px",
+                width: isMobile ? "36px" : "44px",
+                height: isMobile ? "36px" : "44px",
                 borderRadius: "50%",
                 backgroundColor: "rgba(255,255,255,0.2)",
                 cursor: "pointer",
                 textDecoration: "none",
                 transition: "background-color 0.2s",
+                flexShrink: 0,
               }}
               onMouseEnter={(e) => {
                 (e.currentTarget as HTMLElement).style.backgroundColor =
@@ -289,12 +301,12 @@ export default function CataloguePage() {
                   "rgba(255,255,255,0.2)";
               }}
             >
-              <ArrowLeft size={22} color="#fff" />
+              <ArrowLeft size={isMobile ? 18 : 22} color="#fff" />
             </Link>
             <div>
               <h1
                 style={{
-                  fontSize: "28px",
+                  fontSize: isMobile ? "20px" : "28px",
                   fontWeight: "700",
                   color: "#fff",
                   margin: "0 0 4px 0",
@@ -302,7 +314,7 @@ export default function CataloguePage() {
               >
                 Business Showcase
               </h1>
-              <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.9)", margin: 0 }}>
+              <p style={{ fontSize: isMobile ? "12px" : "13px", color: "rgba(255,255,255,0.9)", margin: 0 }}>
                 Display your products & services professionally
               </p>
             </div>
@@ -313,18 +325,20 @@ export default function CataloguePage() {
               setShowAddProduct(true);
             }}
             style={{
-              padding: "12px 24px",
+              padding: isMobile ? "10px 16px" : "12px 24px",
               backgroundColor: "#fff",
               color: "#0a66c2",
               border: "none",
               borderRadius: "6px",
-              fontSize: "14px",
+              fontSize: isMobile ? "12px" : "14px",
               fontWeight: "600",
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
               gap: "8px",
               transition: "all 0.2s",
+              width: isMobile ? "100%" : "auto",
+              justifyContent: "center",
             }}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLElement).style.transform = "scale(1.05)";
@@ -333,8 +347,8 @@ export default function CataloguePage() {
               (e.currentTarget as HTMLElement).style.transform = "scale(1)";
             }}
           >
-            <Plus size={18} />
-            Add Product / Service
+            <Plus size={isMobile ? 16 : 18} />
+            {isMobile ? "Add" : "Add Product / Service"}
           </button>
         </div>
 
@@ -345,39 +359,42 @@ export default function CataloguePage() {
             gap: "8px",
             marginBottom: "24px",
             borderBottom: "2px solid #e0e0e0",
+            overflowX: "auto",
           }}
         >
           <button
             onClick={() => setActiveTab("products")}
             style={{
-              padding: "12px 20px",
+              padding: isMobile ? "10px 12px" : "12px 20px",
               backgroundColor: activeTab === "products" ? "#0a66c2" : "transparent",
               color: activeTab === "products" ? "#fff" : "#666",
               border: "none",
               borderRadius: "6px 6px 0 0",
-              fontSize: "14px",
+              fontSize: isMobile ? "12px" : "14px",
               fontWeight: "600",
               cursor: "pointer",
               transition: "all 0.2s",
+              whiteSpace: "nowrap",
             }}
           >
-            Products & Services ({filteredProducts.length})
+            {isMobile ? "Products" : `Products & Services (${filteredProducts.length})`}
           </button>
           <button
             onClick={() => setActiveTab("documents")}
             style={{
-              padding: "12px 20px",
+              padding: isMobile ? "10px 12px" : "12px 20px",
               backgroundColor: activeTab === "documents" ? "#0a66c2" : "transparent",
               color: activeTab === "documents" ? "#fff" : "#666",
               border: "none",
               borderRadius: "6px 6px 0 0",
-              fontSize: "14px",
+              fontSize: isMobile ? "12px" : "14px",
               fontWeight: "600",
               cursor: "pointer",
               transition: "all 0.2s",
+              whiteSpace: "nowrap",
             }}
           >
-            Documents ({cards.length})
+            {isMobile ? "Docs" : `Documents (${cards.length})`}
           </button>
         </div>
 
@@ -390,17 +407,17 @@ export default function CataloguePage() {
                 style={{
                   backgroundColor: "#fff",
                   borderRadius: "12px",
-                  padding: "24px",
+                  padding: isMobile ? "16px" : "24px",
                   marginBottom: "24px",
                   boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
                   border: "2px solid #0a66c2",
                 }}
               >
-                <h2 style={{ fontSize: "18px", fontWeight: "600", margin: "0 0 20px 0" }}>
+                <h2 style={{ fontSize: isMobile ? "16px" : "18px", fontWeight: "600", margin: "0 0 20px 0" }}>
                   {editingProduct ? "Edit" : "Add New"} Product / Service
                 </h2>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "16px" }}>
                   <div>
                     <label style={{ fontSize: "13px", fontWeight: "600", color: "#000" }}>
                       Title *
@@ -476,7 +493,7 @@ export default function CataloguePage() {
                     </div>
                   </div>
 
-                  <div style={{ gridColumn: "1 / 3" }}>
+                  <div style={{ gridColumn: isMobile ? "1" : "1 / 3" }}>
                     <label style={{ fontSize: "13px", fontWeight: "600", color: "#000" }}>
                       Description *
                     </label>
@@ -501,7 +518,7 @@ export default function CataloguePage() {
                     />
                   </div>
 
-                  <div style={{ gridColumn: "1 / 3" }}>
+                  <div style={{ gridColumn: isMobile ? "1" : "1 / 3" }}>
                     <label style={{ fontSize: "13px", fontWeight: "600", color: "#000" }}>
                       Product Images (Optional)
                     </label>
@@ -589,7 +606,7 @@ export default function CataloguePage() {
                         <div
                           style={{
                             display: "grid",
-                            gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))",
+                            gridTemplateColumns: isMobile ? "repeat(3, 1fr)" : "repeat(auto-fill, minmax(100px, 1fr))",
                             gap: "12px",
                           }}
                         >
@@ -732,7 +749,7 @@ export default function CataloguePage() {
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+                  gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(320px, 1fr))",
                   gap: "24px",
                 }}
               >
@@ -1070,7 +1087,7 @@ export default function CataloguePage() {
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                    gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(280px, 1fr))",
                     gap: "24px",
                   }}
                 >
@@ -1215,7 +1232,7 @@ export default function CataloguePage() {
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                    gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(280px, 1fr))",
                     gap: "24px",
                   }}
                 >
