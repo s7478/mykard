@@ -1586,12 +1586,16 @@ export const PostCard = ({
       )}
 
       <div style={styles.postHeader}>
-        <div
+        <Link
+          href={`/dashboard/profile/${postData.authorId}`}
           style={{
             display: "flex",
             alignItems: "center",
             minWidth: 0,
             flex: 1,
+            textDecoration: "none",
+            color: "inherit",
+            cursor: "pointer"
           }}
         >
           <div
@@ -1677,7 +1681,7 @@ export const PostCard = ({
               {getRelativeTime(postData.createdAt)}
             </p>
           </div>
-        </div>
+        </Link>
         <div style={styles.headerActions}>
           {!isOwnPost && connectionStatus !== "connected" && (
             <button
@@ -1902,140 +1906,142 @@ export const PostCard = ({
         </button>
       </div>
 
-      {showComments && (
-        <div style={styles.commentSection}>
-          {/* Input Area */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              marginBottom: "16px",
-            }}
-          >
+      {
+        showComments && (
+          <div style={styles.commentSection}>
+            {/* Input Area */}
             <div
               style={{
-                position: "relative",
-                width: "28px",
-                height: "28px",
-                borderRadius: "50%",
-                overflow: "hidden",
-                flexShrink: 0,
-                backgroundColor: "#e2e8f0",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
+                gap: "8px",
+                marginBottom: "16px",
               }}
             >
-              {myAvatar ? (
-                <Image
-                  src={myAvatar}
-                  alt="Me"
-                  fill
-                  unoptimized
-                  style={{ objectFit: "cover" }}
-                />
-              ) : (
-                <span
-                  style={{
-                    fontSize: "10px",
-                    fontWeight: "700",
-                    color: "#64748b",
-                  }}
-                >
-                  {myInitials}
-                </span>
-              )}
-            </div>
-            <input
-              type="text"
-              placeholder="Add a comment..."
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              style={{
-                flex: 1,
-                fontSize: "12px",
-                padding: "8px 12px",
-                borderRadius: "20px",
-                border: "1px solid #e2e8f0",
-                outline: "none",
-                backgroundColor: "#f8fafc",
-              }}
-            />
-            <button
-              onClick={handlePostComment}
-              disabled={loadingComment || !commentText.trim()}
-              style={{ background: "none", border: "none", cursor: "pointer" }}
-            >
-              {loadingComment ? (
-                <Loader2 size={16} className="animate-spin text-blue-600" />
-              ) : (
-                <Send size={16} color="#2563eb" />
-              )}
-            </button>
-          </div>
-
-          {/* 🟢 List of Comments */}
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "12px" }}
-          >
-            {comments.map((c: any) => (
-              <div key={c.id || Math.random()} style={styles.commentItem}>
-                <div
-                  style={{
-                    position: "relative",
-                    width: "24px",
-                    height: "24px",
-                    borderRadius: "50%",
-                    overflow: "hidden",
-                    flexShrink: 0,
-                    backgroundColor: "#e2e8f0",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  {c.user?.profileImage ? (
-                    <Image
-                      src={c.user.profileImage}
-                      alt={c.user.fullName}
-                      fill
-                      unoptimized
-                      style={{ objectFit: "cover" }}
-                    />
-                  ) : (
-                    <span
-                      style={{
-                        fontSize: "9px",
-                        fontWeight: "700",
-                        color: "#64748b",
-                      }}
-                    >
-                      {getInitials(c.user?.fullName || "User")}
-                    </span>
-                  )}
-                </div>
-                <div style={styles.commentBubble}>
-                  <div style={styles.commentUser}>{c.user?.fullName}</div>
-                  <div style={styles.commentText}>{c.content}</div>
-                </div>
-              </div>
-            ))}
-            {commentsLoaded && comments.length === 0 && (
-              <p
+              <div
                 style={{
-                  fontSize: "11px",
-                  color: "#94a3b8",
-                  textAlign: "center",
-                  padding: "4px",
+                  position: "relative",
+                  width: "28px",
+                  height: "28px",
+                  borderRadius: "50%",
+                  overflow: "hidden",
+                  flexShrink: 0,
+                  backgroundColor: "#e2e8f0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                No comments yet.
-              </p>
-            )}
+                {myAvatar ? (
+                  <Image
+                    src={myAvatar}
+                    alt="Me"
+                    fill
+                    unoptimized
+                    style={{ objectFit: "cover" }}
+                  />
+                ) : (
+                  <span
+                    style={{
+                      fontSize: "10px",
+                      fontWeight: "700",
+                      color: "#64748b",
+                    }}
+                  >
+                    {myInitials}
+                  </span>
+                )}
+              </div>
+              <input
+                type="text"
+                placeholder="Add a comment..."
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                style={{
+                  flex: 1,
+                  fontSize: "12px",
+                  padding: "8px 12px",
+                  borderRadius: "20px",
+                  border: "1px solid #e2e8f0",
+                  outline: "none",
+                  backgroundColor: "#f8fafc",
+                }}
+              />
+              <button
+                onClick={handlePostComment}
+                disabled={loadingComment || !commentText.trim()}
+                style={{ background: "none", border: "none", cursor: "pointer" }}
+              >
+                {loadingComment ? (
+                  <Loader2 size={16} className="animate-spin text-blue-600" />
+                ) : (
+                  <Send size={16} color="#2563eb" />
+                )}
+              </button>
+            </div>
+
+            {/* 🟢 List of Comments */}
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "12px" }}
+            >
+              {comments.map((c: any) => (
+                <div key={c.id || Math.random()} style={styles.commentItem}>
+                  <div
+                    style={{
+                      position: "relative",
+                      width: "24px",
+                      height: "24px",
+                      borderRadius: "50%",
+                      overflow: "hidden",
+                      flexShrink: 0,
+                      backgroundColor: "#e2e8f0",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {c.user?.profileImage ? (
+                      <Image
+                        src={c.user.profileImage}
+                        alt={c.user.fullName}
+                        fill
+                        unoptimized
+                        style={{ objectFit: "cover" }}
+                      />
+                    ) : (
+                      <span
+                        style={{
+                          fontSize: "9px",
+                          fontWeight: "700",
+                          color: "#64748b",
+                        }}
+                      >
+                        {getInitials(c.user?.fullName || "User")}
+                      </span>
+                    )}
+                  </div>
+                  <div style={styles.commentBubble}>
+                    <div style={styles.commentUser}>{c.user?.fullName}</div>
+                    <div style={styles.commentText}>{c.content}</div>
+                  </div>
+                </div>
+              ))}
+              {commentsLoaded && comments.length === 0 && (
+                <p
+                  style={{
+                    fontSize: "11px",
+                    color: "#94a3b8",
+                    textAlign: "center",
+                    padding: "4px",
+                  }}
+                >
+                  No comments yet.
+                </p>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
       <ShareModal
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
@@ -2045,7 +2051,7 @@ export const PostCard = ({
       />
 
 
-    </div>
+    </div >
   );
 };
 

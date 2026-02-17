@@ -75,6 +75,7 @@ export default function ProfilePage() {
     linkedin: "",
     website: ""
   });
+  const [showContactPopup, setShowContactPopup] = useState(false);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -324,9 +325,10 @@ export default function ProfilePage() {
   const cardsWithDocuments = cards.filter(card => card.documentUrl);
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#f3f2ef", paddingTop: "60px" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#f3f2ef", paddingTop: "0px" }}>
       {/* Main Container */}
-      <div style={{ maxWidth: "1128px", margin: "0 auto", padding: "24px 16px" }}>
+      {/* Main Container */}
+      <div style={{ maxWidth: "1128px", margin: "0 auto", padding: "0px 0px" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
 
           {/* Main Content */}
@@ -533,9 +535,12 @@ export default function ProfilePage() {
                       </>
                     )
                   )}
-                  <Link href="#contact-info" style={{ color: "#0a66c2", textDecoration: "none", fontWeight: "500" }}>
+                  <button
+                    onClick={() => setShowContactPopup(true)}
+                    style={{ color: "#0a66c2", textDecoration: "none", fontWeight: "500", background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: "14px" }}
+                  >
                     Contact info
-                  </Link>
+                  </button>
                 </div>
 
                 <div style={{ fontSize: "14px", color: "#0a66c2", fontWeight: "600", marginBottom: "16px" }}>
@@ -607,7 +612,7 @@ export default function ProfilePage() {
           </div>
 
           {/* About Section */}
-          <div style={{ backgroundColor: "#fff", borderRadius: "8px", padding: "24px", boxShadow: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)", marginBottom: "8px" }}>
+          <div style={{ backgroundColor: "#fff", borderRadius: "8px", padding: "16px", boxShadow: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)", marginBottom: "8px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
               <h2 style={{ fontSize: "20px", fontWeight: "600", color: "#000", margin: 0 }}>About</h2>
               {/* <Edit size={20} color="#666" style={{ cursor: "pointer" }} /> */}
@@ -673,7 +678,7 @@ export default function ProfilePage() {
                   transition: "all 0.2s"
                 }}
               >
-                Comments
+                Textual Posts
               </button>
             </div>
 
@@ -841,144 +846,141 @@ export default function ProfilePage() {
             })()}
           </div>
 
-          {/* Contact Information Section */}
-          <div id="contact-info" style={{ backgroundColor: "#fff", borderRadius: "8px", padding: "24px", boxShadow: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)", marginTop: "8px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-              <h2 style={{ fontSize: "20px", fontWeight: "600", color: "#000", margin: 0 }}>Contact Information</h2>
-              {isEditingContact ? (
-                <div style={{ display: "flex", gap: "8px" }}>
-                  <button
-                    onClick={handleSaveContact}
-                    style={{
-                      backgroundColor: "#0a66c2",
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: "16px",
-                      padding: "6px 16px",
-                      fontSize: "14px",
-                      fontWeight: "600",
-                      cursor: "pointer"
-                    }}
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={handleCancelContact}
-                    style={{
-                      backgroundColor: "#fff",
-                      color: "#666",
-                      border: "1px solid #666",
-                      borderRadius: "16px",
-                      padding: "6px 16px",
-                      fontSize: "14px",
-                      fontWeight: "600",
-                      cursor: "pointer"
-                    }}
-                  >
-                    Cancel
-                  </button>
+          {/* Contact Information Popup */}
+          {showContactPopup && (
+            <div style={{
+              position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
+              backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000
+            }} onClick={() => setShowContactPopup(false)}>
+              <div style={{
+                backgroundColor: "#fff", borderRadius: "8px", padding: "24px",
+                width: "90%", maxWidth: "500px", boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                maxHeight: "90vh", overflowY: "auto"
+              }} onClick={e => e.stopPropagation()}>
+
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                  <h2 style={{ fontSize: "20px", fontWeight: "600", color: "#000", margin: 0 }}>Contact Information</h2>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    {isEditingContact ? (
+                      <div style={{ display: "flex", gap: "8px" }}>
+                        <button
+                          onClick={handleSaveContact}
+                          style={{
+                            backgroundColor: "#0a66c2", color: "#fff", border: "none", borderRadius: "16px",
+                            padding: "6px 16px", fontSize: "14px", fontWeight: "600", cursor: "pointer"
+                          }}
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={handleCancelContact}
+                          style={{
+                            backgroundColor: "#fff", color: "#666", border: "1px solid #666", borderRadius: "16px",
+                            padding: "6px 16px", fontSize: "14px", fontWeight: "600", cursor: "pointer"
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <Edit size={20} color="#666" style={{ cursor: "pointer" }} onClick={handleEditContact} />
+                        <button onClick={() => setShowContactPopup(false)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "24px", lineHeight: "1", color: "#666" }}>
+                          &times;
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
-              ) : (
-                <Edit size={20} color="#666" style={{ cursor: "pointer" }} onClick={handleEditContact} />
-              )}
-            </div>
 
-            {displayUser.email && (
-              <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 0", borderBottom: "1px solid #e0e0e0" }}>
-                <Mail size={20} color="#666" />
-                <div>
-                  <div style={{ fontSize: "12px", color: "#666", marginBottom: "2px" }}>Email</div>
-                  <a href={`mailto:${displayUser.email}`} style={{ fontSize: "14px", color: "#0a66c2", textDecoration: "none" }}>
-                    {displayUser.email}
-                  </a>
+                {displayUser.email && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 0", borderBottom: "1px solid #e0e0e0" }}>
+                    <Mail size={20} color="#666" />
+                    <div>
+                      <div style={{ fontSize: "12px", color: "#666", marginBottom: "2px" }}>Email</div>
+                      <a href={`mailto:${displayUser.email}`} style={{ fontSize: "14px", color: "#0a66c2", textDecoration: "none" }}>
+                        {displayUser.email}
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 0", borderBottom: "1px solid #e0e0e0" }}>
+                  <Phone size={20} color="#666" />
+                  <div style={{ width: "100%" }}>
+                    <div style={{ fontSize: "12px", color: "#666", marginBottom: "2px" }}>Phone</div>
+                    {isEditingContact ? (
+                      <input
+                        type="text"
+                        name="phone"
+                        value={contactForm.phone}
+                        onChange={handleContactInputChange}
+                        placeholder="Phone Number"
+                        style={{
+                          fontSize: "14px", color: "#000", width: "100%", border: "1px solid #ccc",
+                          borderRadius: "4px", padding: "4px 8px"
+                        }}
+                      />
+                    ) : (
+                      <a href={`tel:${displayUser.phone}`} style={{ fontSize: "14px", color: "#0a66c2", textDecoration: "none" }}>
+                        {displayUser.phone || "Add phone number"}
+                      </a>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
 
-            <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 0", borderBottom: "1px solid #e0e0e0" }}>
-              <Phone size={20} color="#666" />
-              <div style={{ width: "100%" }}>
-                <div style={{ fontSize: "12px", color: "#666", marginBottom: "2px" }}>Phone</div>
-                {isEditingContact ? (
-                  <input
-                    type="text"
-                    name="phone"
-                    value={contactForm.phone}
-                    onChange={handleContactInputChange}
-                    placeholder="Phone Number"
-                    style={{
-                      fontSize: "14px",
-                      color: "#000",
-                      width: "100%",
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                      padding: "4px 8px"
-                    }}
-                  />
-                ) : (
-                  <a href={`tel:${displayUser.phone}`} style={{ fontSize: "14px", color: "#0a66c2", textDecoration: "none" }}>
-                    {displayUser.phone || "Add phone number"}
-                  </a>
-                )}
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 0", borderBottom: "1px solid #e0e0e0" }}>
+                  <Linkedin size={20} color="#666" />
+                  <div style={{ width: "100%" }}>
+                    <div style={{ fontSize: "12px", color: "#666", marginBottom: "2px" }}>LinkedIn</div>
+                    {isEditingContact ? (
+                      <input
+                        type="text"
+                        name="linkedin"
+                        value={contactForm.linkedin}
+                        onChange={handleContactInputChange}
+                        placeholder="LinkedIn Username"
+                        style={{
+                          fontSize: "14px", color: "#000", width: "100%", border: "1px solid #ccc",
+                          borderRadius: "4px", padding: "4px 8px"
+                        }}
+                      />
+                    ) : (
+                      <a href={`https://linkedin.com/in/${displayUser.linkedin}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: "14px", color: "#0a66c2", textDecoration: "none" }}>
+                        {displayUser.linkedin ? `linkedin.com/in/${displayUser.linkedin}` : "Add LinkedIn"}
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 0" }}>
+                  <Globe size={20} color="#666" />
+                  <div style={{ width: "100%" }}>
+                    <div style={{ fontSize: "12px", color: "#666", marginBottom: "2px" }}>Website</div>
+                    {isEditingContact ? (
+                      <input
+                        type="text"
+                        name="website"
+                        value={contactForm.website}
+                        onChange={handleContactInputChange}
+                        placeholder="Website URL"
+                        style={{
+                          fontSize: "14px", color: "#000", width: "100%", border: "1px solid #ccc",
+                          borderRadius: "4px", padding: "4px 8px"
+                        }}
+                      />
+                    ) : (
+                      <a href={displayUser.website} target="_blank" rel="noopener noreferrer" style={{ fontSize: "14px", color: "#0a66c2", textDecoration: "none" }}>
+                        {displayUser.website || "Add website"}
+                      </a>
+                    )}
+                  </div>
+                </div>
+
               </div>
             </div>
-
-            <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 0", borderBottom: "1px solid #e0e0e0" }}>
-              <Linkedin size={20} color="#666" />
-              <div style={{ width: "100%" }}>
-                <div style={{ fontSize: "12px", color: "#666", marginBottom: "2px" }}>LinkedIn</div>
-                {isEditingContact ? (
-                  <input
-                    type="text"
-                    name="linkedin"
-                    value={contactForm.linkedin}
-                    onChange={handleContactInputChange}
-                    placeholder="LinkedIn Username"
-                    style={{
-                      fontSize: "14px",
-                      color: "#000",
-                      width: "100%",
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                      padding: "4px 8px"
-                    }}
-                  />
-                ) : (
-                  <a href={`https://linkedin.com/in/${displayUser.linkedin}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: "14px", color: "#0a66c2", textDecoration: "none" }}>
-                    {displayUser.linkedin ? `linkedin.com/in/${displayUser.linkedin}` : "Add LinkedIn"}
-                  </a>
-                )}
-              </div>
-            </div>
-
-            <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 0" }}>
-              <Globe size={20} color="#666" />
-              <div style={{ width: "100%" }}>
-                <div style={{ fontSize: "12px", color: "#666", marginBottom: "2px" }}>Website</div>
-                {isEditingContact ? (
-                  <input
-                    type="text"
-                    name="website"
-                    value={contactForm.website}
-                    onChange={handleContactInputChange}
-                    placeholder="Website URL"
-                    style={{
-                      fontSize: "14px",
-                      color: "#000",
-                      width: "100%",
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                      padding: "4px 8px"
-                    }}
-                  />
-                ) : (
-                  <a href={displayUser.website} target="_blank" rel="noopener noreferrer" style={{ fontSize: "14px", color: "#0a66c2", textDecoration: "none" }}>
-                    {displayUser.website || "Add website"}
-                  </a>
-                )}
-              </div>
-            </div>
-          </div>
+          )}
 
 
           {/* Who's Viewed Your Profile */}
@@ -1022,6 +1024,7 @@ export default function ProfilePage() {
               </Link>
             </div>
           </div>
+          <div className="h-24 lg:h-0 w-full flex-shrink-0" />
         </div>
       </div>
     </div>

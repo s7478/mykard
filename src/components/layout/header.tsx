@@ -37,7 +37,7 @@ export function Header() {
     return letters || "U";
   };
 
-  
+
   useEffect(() => {
     const mql = window.matchMedia("(min-width: 1024px)");
     const onChange = () => setIsLgUp(mql.matches);
@@ -47,47 +47,47 @@ export function Header() {
   }, []);
 
   useEffect(() => {
-  let intervalId: any;
+    let intervalId: any;
 
-  const computeCount = (list: any[]) => {
-    let cleared: string[] = [];
-    try {
-      const stored = localStorage.getItem("dashboard-cleared-notifications");
-      if (stored) cleared = JSON.parse(stored);
-    } catch {
-      cleared = [];
-    }
+    const computeCount = (list: any[]) => {
+      let cleared: string[] = [];
+      try {
+        const stored = localStorage.getItem("dashboard-cleared-notifications");
+        if (stored) cleared = JSON.parse(stored);
+      } catch {
+        cleared = [];
+      }
 
-    const clearedSet = new Set(cleared || []);
-    return list.filter((n: any) => !clearedSet.has(n.id)).length;
-  };
+      const clearedSet = new Set(cleared || []);
+      return list.filter((n: any) => !clearedSet.has(n.id)).length;
+    };
 
-  const fetchNotifications = async () => {
-    if (document.visibilityState !== "visible") return;
+    const fetchNotifications = async () => {
+      if (document.visibilityState !== "visible") return;
 
-    try {
-      const res = await fetch("/api/notifications", { credentials: "include" });
-      if (!res.ok) return;
+      try {
+        const res = await fetch("/api/notifications", { credentials: "include" });
+        if (!res.ok) return;
 
-      const data = await res.json();
-      const list = Array.isArray(data.notifications) ? data.notifications : [];
-      const unreadTotal = computeCount(list);
-      setNotificationsCount(unreadTotal);
-    } catch (_) {}
-  };
+        const data = await res.json();
+        const list = Array.isArray(data.notifications) ? data.notifications : [];
+        const unreadTotal = computeCount(list);
+        setNotificationsCount(unreadTotal);
+      } catch (_) { }
+    };
 
-  fetchNotifications(); // immediate load
-  intervalId = setInterval(fetchNotifications, 60000);
+    fetchNotifications(); // immediate load
+    intervalId = setInterval(fetchNotifications, 60000);
 
-  // listen for update events
-  const onUpdated = () => fetchNotifications();
-  window.addEventListener("notifications-updated", onUpdated);
+    // listen for update events
+    const onUpdated = () => fetchNotifications();
+    window.addEventListener("notifications-updated", onUpdated);
 
-  return () => {
-    clearInterval(intervalId);
-    window.removeEventListener("notifications-updated", onUpdated);
-  };
-}, []);
+    return () => {
+      clearInterval(intervalId);
+      window.removeEventListener("notifications-updated", onUpdated);
+    };
+  }, []);
 
 
   useEffect(() => {
@@ -99,7 +99,7 @@ export function Header() {
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.cards && data.cards.length > 0) {
-    
+
             const activeCard = data.cards.find((card: any) => card.cardActive !== false);
             if (activeCard) {
               setActiveCardName(activeCard.cardName || "My Card");
@@ -174,24 +174,24 @@ export function Header() {
             "
           >
             {/* LEFT AREA */}
-           <div className="flex items-center">
-  
-  {/* Invisible spacer for mobile left padding */}
-  {!isLgUp && <div className="w-4" />} 
-  {/* w-4 = 16px; increase to w-6 (24px) if you want more */}
+            <div className="flex items-center">
 
-  {!isLgUp && (
-    <Link href="/dashboard">
-      <Image
-        src="/assets/headerlogo.png"
-        alt="Logo"
-        width={120}
-        height={32}
-        className="h-auto w-auto object-contain"
-      />
-    </Link>
-  )}
-</div>
+              {/* Invisible spacer for mobile left padding */}
+              {!isLgUp && <div className="w-4" />}
+              {/* w-4 = 16px; increase to w-6 (24px) if you want more */}
+
+              {!isLgUp && (
+                <Link href="/dashboard">
+                  <Image
+                    src="/assets/headerlogo.png"
+                    alt="Logo"
+                    width={120}
+                    height={32}
+                    className="h-auto w-auto object-contain"
+                  />
+                </Link>
+              )}
+            </div>
 
             {/* RIGHT SIDE */}
             <div
@@ -203,18 +203,18 @@ export function Header() {
                 paddingRight: "32px",
               }}
             >
-<Link
-  href="/dashboard/notifications"
-  className="relative flex items-center justify-center"
->
-  <Bell className="w-5 h-5 text-gray-500 hover:text-blue-600 transition-colors" />
+              <Link
+                href="/dashboard/notifications"
+                className="relative flex items-center justify-center"
+              >
+                <Bell className="w-5 h-5 text-gray-500 hover:text-blue-600 transition-colors" />
 
-  {notificationsCount > 0 && (
-    <span
-      className="absolute -top-1 -right-1 w-2 h-2 bg-red-600 rounded-full"
-    ></span>
-  )}
-</Link>
+                {notificationsCount > 0 && (
+                  <span
+                    className="absolute -top-1 -right-1 w-2 h-2 bg-red-600 rounded-full"
+                  ></span>
+                )}
+              </Link>
 
 
               <div className="relative" data-profile-menu>
@@ -335,33 +335,7 @@ export function Header() {
                         transform: "translateX(-16px)",
                       }}
                     >
-                      <Link
-                        href="/profile"
-                        onClick={() => setIsDropdownOpen(false)}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "12px",
-                          padding: "12px 16px",
-                          margin: "6px 0",
-                          fontSize: "14px",
-                          color: "#374151",
-                          textDecoration: "none",
-                          transition: "all 0.2s ease",
-                          borderRadius: "8px",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = "#eff6ff";
-                          e.currentTarget.style.color = "#1d4ed8";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = "transparent";
-                          e.currentTarget.style.color = "#374151";
-                        }}
-                      >
-                        <User style={{ width: "16px", height: "16px" }} />
-                        <span>Profile</span>
-                      </Link>
+
 
                       <Link
                         href="/dashboard/profile"
@@ -387,7 +361,7 @@ export function Header() {
                           e.currentTarget.style.color = "#374151";
                         }}
                       >
-                       <User style={{ width: "16px", height: "16px" }} />
+                        <User style={{ width: "16px", height: "16px" }} />
                         <span>Profile</span>
                       </Link>
 
@@ -434,8 +408,8 @@ export function Header() {
                             <Activity style={{ width: "16px", height: "16px" }} />
                             <span>My Activity</span>
                           </div>
-                          <ChevronRight 
-                            style={{ width: "14px", height: "14px", transition: "transform 0.2s", transform: isActivityOpen ? "rotate(90deg)" : "rotate(0deg)" }} 
+                          <ChevronRight
+                            style={{ width: "14px", height: "14px", transition: "transform 0.2s", transform: isActivityOpen ? "rotate(90deg)" : "rotate(0deg)" }}
                           />
                         </button>
 
@@ -467,7 +441,7 @@ export function Header() {
                                 <FileText style={{ width: "14px", height: "14px" }} />
                                 <span>Liked</span>
                               </Link>
-                              
+
                               <Link
                                 href="/dashboard/feed/saved"
                                 onClick={() => setIsDropdownOpen(false)}

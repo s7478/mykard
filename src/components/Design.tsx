@@ -51,7 +51,7 @@ const MyKardStack = () => {
                     className="absolute z-10 w-[95%] max-w-[1100px] h-[70vh] md:h-[40vh] rounded-[40px] shadow-2xl overflow-hidden  flex flex-col md:flex-row"
                 >
                     {/* Text Side */}
-                    <div className="flex-1 p-8 md:p-12 flex flex-col justify-center" style={{ textAlign: "center", padding: "2rem", background: "linear-gradient(93.87deg, #FFFFFF 0%, #B0D2F0 48.25%, #83A1FE 90.76%);" }}>
+                    <div className="flex-1 p-8 md:p-12 flex flex-col justify-center" style={{ textAlign: "center", padding: "2rem", background: "linear-gradient(93.87deg, #FFFFFF 0%, #B0D2F0 48.25%, #83A1FE 90.76%)" }}>
                         <div className="text-center" style={{ height: "50%", width: "60%", margin: "auto", border: "3px solid #1070FF", borderRadius: "10px", padding: "1rem" }}>
                             <p className="text-[#06214A] text-2xl md:text-6xl font-bold  mb-8 leading-relaxed">
                                 Personalize your own digital business cards with your headshot, logo and slick design templates. New job title? New logo? No problem.

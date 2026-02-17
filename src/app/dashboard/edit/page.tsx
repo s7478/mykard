@@ -973,7 +973,7 @@ const CreatePageContent = () => {
                 <div
                   style={{
                     display: "flex",
-                    justifyContent: "flex-end",
+                    width: "100%",
                     gap: "10px",
                     marginTop: "12px",
                   }}
