@@ -221,8 +221,7 @@ export async function POST(req: NextRequest) {
 
     // Best-effort: sync basic contact info from card into user profile
     // so admin lists, settings, search, connections, and messages can rely
-    // on a single source of truth for user details. This now includes the
-    // profile photo captured during card creation.
+    // on a single source of truth for user details.
     try {
       const profileUpdateData: any = {};
       if (cardData.phone) profileUpdateData.phone = cardData.phone;
@@ -231,7 +230,6 @@ export async function POST(req: NextRequest) {
       if (cardData.company) profileUpdateData.company = cardData.company;
       if (cardData.title) profileUpdateData.title = cardData.title;
       if (cardData.email) profileUpdateData.email = cardData.email;
-      if (cardData.profileImage) profileUpdateData.profileImage = cardData.profileImage;
 
       if (Object.keys(profileUpdateData).length > 0) {
         await prisma.user.update({
