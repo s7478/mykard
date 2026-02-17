@@ -393,7 +393,7 @@ const CreatePage = () => {
       formData.append('status', 'draft');
       if (profileImageFile) formData.append('profileImage', profileImageFile);
       if (!profileImageFile && profileImage) formData.append('profileImageUrl', profileImage);
-      if (bannerImageFile) formData.append('bannerImage', bannerImageFile);
+      if (bannerImageFile) formData.append('coverImage', bannerImageFile); // Send as coverImage to match dashboard
       if (resumeFile) formData.append('document', resumeFile);
 
       const response = await fetch('/api/card/create', { method: 'POST', body: formData });
