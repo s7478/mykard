@@ -220,7 +220,7 @@ export default function PublicProfilePage() {
         <div style={{ minHeight: "100vh", backgroundColor: "#f3f2ef", paddingTop: "0px" }}>
             {/* Main Container */}
             <div style={{ maxWidth: "1128px", margin: "0 auto", padding: "0px 0px" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
 
                     {/* Main Content */}
                     {/* Profile Card */}

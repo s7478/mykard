@@ -419,7 +419,7 @@ export default function ProfilePage() {
       {/* Main Container */}
       {/* Main Container */}
       <div style={{ maxWidth: "1128px", margin: "0 auto", padding: "0px 0px" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
 
           {/* Main Content */}
           {/* Profile Card */}
@@ -435,7 +435,7 @@ export default function ProfilePage() {
               ) : (
                 <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}></div>
               )}
-              
+
               {/* Banner Upload Button */}
               <input
                 type="file"
