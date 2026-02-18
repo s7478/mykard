@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/hooks/use-auth";
-import { Mail, Phone, Linkedin, Globe, MapPin, Users, Edit, Eye, TrendingUp, Search, ChevronRight, Building, Heart, MessageCircle, Send, Bookmark, Camera, Grid3X3 } from "lucide-react";
+import { Mail, Phone, Linkedin, Globe, MapPin, Users, Edit, Eye, TrendingUp, Search, ChevronRight, Building, Heart, MessageCircle, Send, Bookmark, Camera } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -523,27 +523,6 @@ export default function ProfilePage() {
                 </div>
               ) : (
                 <div style={{ display: "flex", gap: "8px" }}>
-                  <Link
-                    href="/dashboard/catalogue"
-                    style={{
-                      position: "absolute",
-                      top: "16px",
-                      right: "56px",
-                      backgroundColor: "#fff",
-                      border: "none",
-                      borderRadius: "50%",
-                      width: "40px",
-                      height: "40px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: "pointer",
-                      boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                      textDecoration: "none"
-                    }}
-                  >
-                    <Grid3X3 size={18} color="#666" />
-                  </Link>
                   <button
                     onClick={handleEditIntro}
                     style={{
