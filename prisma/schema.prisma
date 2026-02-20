@@ -158,6 +158,10 @@ model Card {
 
   textColor String? @default("#ffffff")
 
+  showCatalog    Boolean          @default(false) @map("show_catalog")
+  catalogTitle   String?          @map("catalog_title") @db.VarChar(255)
+  catalogItems   String?          @map("catalog_items") @db.LongText
+
 
   documentUrl    String?          @map("document_url") @db.VarChar(1000)
   shares         Int              @default(0)

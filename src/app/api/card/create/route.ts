@@ -44,7 +44,70 @@ export async function POST(req: NextRequest) {
       bio: formData.get('bio') as string || undefined,
       description: formData.get('description') as string || undefined,
       status: formData.get('status') as string || 'draft',
+      // Catalog Fields
+      showCatalog: formData.get('showCatalog') === 'true',
+      catalogTitle: formData.get('catalogTitle') as string || undefined,
+      catalogItems: formData.get('catalogItems') as string || undefined,
     };
+
+    // Helper to process catalog images
+    if (cardData.catalogItems) {
+      try {
+        let items = JSON.parse(cardData.catalogItems);
+        const bucket = adminStorageBucket();
+
+        if (!bucket) {
+          throw new Error("DEBUG: Firebase Storage Bucket is NULL. Check environment variables.");
+        }
+
+        if (Array.isArray(items)) {
+          for (const item of items) {
+            if (item.images && Array.isArray(item.images)) {
+              const processedImages: any[] = [];
+              for (let i = 0; i < item.images.length; i++) {
+                const imgEntry = item.images[i];
+                if (imgEntry.fileKey) {
+                  // Try to upload the file to Firebase
+                  const file = formData.get(imgEntry.fileKey) as File;
+                  if (!file) {
+                    throw new Error(`DEBUG: File not found in FormData for key: ${imgEntry.fileKey}. Available keys: ${Array.from(formData.keys()).join(', ')}`);
+                  }
+
+                  if (file.size > 0) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const buffer = Buffer.from(arrayBuffer);
+                    const safeName = (file.name || 'image.jpg').replace(/[^a-z0-9.]+/gi, '-').toLowerCase();
+                    const filePath = `cards/catalog-images/${decoded.userId}/${Date.now()}-${safeName}`;
+                    const fileRef = bucket.file(filePath);
+                    await fileRef.save(buffer, {
+                      metadata: { contentType: file.type || 'application/octet-stream' }
+                    });
+                    const [url] = await fileRef.getSignedUrl({ action: 'read', expires: '2100-01-01' });
+                    processedImages.push({ preview: url });
+                  } else {
+                    throw new Error(`DEBUG: File size is 0 for key: ${imgEntry.fileKey}`);
+                  }
+                } else if (imgEntry.preview && !imgEntry.preview.startsWith('blob:')) {
+                  // Keep existing valid (non-blob) URLs
+                  processedImages.push({ preview: imgEntry.preview });
+                } else {
+                  // blob: URL without bucket — can't store, skip
+                  // If we are here, it means we had a blob url but NO fileKey? That shouldn't happen with the new frontend logic.
+                  throw new Error(`DEBUG: Found blob URL without fileKey. Frontend logic mismatch.`);
+                }
+              }
+              item.images = processedImages;
+            }
+          }
+          // Always update with cleaned data
+          cardData.catalogItems = JSON.stringify(items);
+        }
+      } catch (e: any) {
+        console.error("Error processing catalog items", e);
+        // Throw the error so the user sees it in the popup
+        throw new Error(`Catalog Image Error: ${e.message}`);
+      }
+    }
 
     // console.log('🎨 Card creation - selectedDesign received:', cardData.selectedDesign);
     // console.log('📦 Full cardData:', JSON.stringify(cardData, null, 2));

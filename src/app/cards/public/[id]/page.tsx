@@ -10,6 +10,7 @@ import DigitalCardPreview from "@/components/cards/DigitalCardPreview";
 import FlatCardPreview from "@/components/cards/FlatCardPreview";
 import ModernCardPreview from "@/components/cards/ModernCardPreview";
 import SleekCardPreview from "@/components/cards/SleekCardPreview";
+import CatalogViewer from "@/components/cards/CatalogViewer";
 import { capitalizeFirstLetter } from '@/lib/utils';
 
 
@@ -45,7 +46,9 @@ interface Card {
 
 
   customFields?: string;
-
+  showCatalog?: boolean;
+  catalogTitle?: string;
+  catalogItems?: string | any;
 
   documentUrl?: string;
   selectedDesign?: string;
@@ -77,14 +80,15 @@ interface ConnectionFormData {
 const CardPreview: React.FC<{ card: Card; onDocumentClick: (url: string) => void }> = ({ card, onDocumentClick }) => {
   const capitalizedFullName = capitalizeFirstLetter(card.fullName || "");
   const nameParts = capitalizedFullName.split(" ");
+  const [catalogViewerData, setCatalogViewerData] = useState<{ isOpen: boolean; title: string; items: any[] }>({ isOpen: false, title: '', items: [] });
 
 
   let parsedCustomFields = [];
   try {
     if (card.customFields) {
       //if it's a string, parse it. If it's already an object, use it.
-      parsedCustomFields = typeof card.customFields === 'string' 
-        ? JSON.parse(card.customFields) 
+      parsedCustomFields = typeof card.customFields === 'string'
+        ? JSON.parse(card.customFields)
         : card.customFields;
     }
   } catch (err) {
@@ -92,7 +96,7 @@ const CardPreview: React.FC<{ card: Card; onDocumentClick: (url: string) => void
   }
 
 
-  
+
   const commonProps = {
     firstName: nameParts[0] || "",
     middleName: nameParts.length === 3 ? nameParts[1] : "",
@@ -117,10 +121,17 @@ const CardPreview: React.FC<{ card: Card; onDocumentClick: (url: string) => void
     themeColor2: card.selectedColor2 || "#2563eb",
     textColor: card.textColor || "#ffffff",
     documentUrl: card.documentUrl || "",
-
+    showCatalog: card.showCatalog || false,
+    catalogTitle: card.catalogTitle || 'Catalog',
+    onCatalogClick: () => {
+      let items: any[] = [];
+      try {
+        items = card.catalogItems ? (typeof card.catalogItems === 'string' ? JSON.parse(card.catalogItems) : card.catalogItems) : [];
+      } catch (e) { console.error('Failed to parse catalog items', e); }
+      setCatalogViewerData({ isOpen: true, title: card.catalogTitle || 'Catalog', items });
+    },
 
     customFields: parsedCustomFields,
-
 
     onDocumentClick,
   };
@@ -142,15 +153,24 @@ const CardPreview: React.FC<{ card: Card; onDocumentClick: (url: string) => void
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ type: "spring", stiffness: 100, damping: 20 }}
-      className={styles.cardPreviewArea}
-      style={{ maxWidth: "360px" }}
-    >
-      {renderCardPreview()}
-    </motion.div>
+    <>
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        className={styles.cardPreviewArea}
+        style={{ maxWidth: "360px" }}
+      >
+        {renderCardPreview()}
+      </motion.div>
+
+      <CatalogViewer
+        isOpen={catalogViewerData.isOpen}
+        onClose={() => setCatalogViewerData(prev => ({ ...prev, isOpen: false }))}
+        title={catalogViewerData.title}
+        items={catalogViewerData.items}
+      />
+    </>
   );
 };
 
@@ -221,15 +241,15 @@ const ConnectionModal: React.FC<{
 
   const variants = isMobile
     ? {
-        initial: { opacity: 0, y: "100%" },
-        animate: { opacity: 1, y: 0 },
-        exit: { opacity: 0, y: "100%" },
-      }
+      initial: { opacity: 0, y: "100%" },
+      animate: { opacity: 1, y: 0 },
+      exit: { opacity: 0, y: "100%" },
+    }
     : {
-        initial: { opacity: 0, scale: 0.9, y: 20 },
-        animate: { opacity: 1, scale: 1, y: 0 },
-        exit: { opacity: 0, scale: 0.9, y: 20 },
-      };
+      initial: { opacity: 0, scale: 0.9, y: 20 },
+      animate: { opacity: 1, scale: 1, y: 0 },
+      exit: { opacity: 0, scale: 0.9, y: 20 },
+    };
 
   return (
     <AnimatePresence>
@@ -443,9 +463,9 @@ const PublicCardPage = () => {
   return (
     <>
 
-      <Toaster 
-        position="top-center" 
-        containerStyle={{ zIndex: 99999 }} 
+      <Toaster
+        position="top-center"
+        containerStyle={{ zIndex: 99999 }}
       />
 
 
@@ -460,7 +480,7 @@ const PublicCardPage = () => {
           </div>
 
           <div className={styles.rightColumn}>
-            
+
             {/* 1. Connect Button */}
             <motion.button
               onClick={() => setIsModalOpen(true)}
@@ -500,20 +520,20 @@ const PublicCardPage = () => {
           transition={{ duration: 0.5 }}
           className={styles.contentWrapper}
         > */}
-          {/* Card Preview */}
-          {/* <CardPreview
+        {/* Card Preview */}
+        {/* <CardPreview
             card={card}
             onDocumentClick={(url) => setSelectedDocumentUrl(url)}
           /> */}
 
-          {/* Connect Button */}
-          {/* <motion.button
+        {/* Connect Button */}
+        {/* <motion.button
             onClick={() => setIsModalOpen(true)}
             className={styles.connectButton}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           > */}
-            {/* <Users size={20} />
+        {/* <Users size={20} />
             Let's Connect
           </motion.button>
         </motion.div> */}
@@ -532,9 +552,9 @@ const PublicCardPage = () => {
           <a href="https://www.mykard.in/auth/signup" className={styles.createButton}>
             Create Your Digital Card
           </a>
-      </div> */} 
-      
-    </div>
+      </div> */}
+
+      </div>
 
       {/* ---------------- DOCUMENT VIEWER ---------------- */}
       {selectedDocumentUrl && (
@@ -610,7 +630,7 @@ const PublicCardPage = () => {
             <button
               onClick={() => setIsSuccessPopupOpen(false)}
               style={{
-                backgroundColor: '#1e67f4', 
+                backgroundColor: '#1e67f4',
                 color: 'white',
                 border: 'none',
                 padding: '10px 20px',

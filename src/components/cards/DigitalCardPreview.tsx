@@ -71,6 +71,10 @@ export interface DigitalCardProps {
   // Added onClick prop for navigation
   onClick?: () => void;
   customFields?: ExtraField[];
+  showCatalog?: boolean;
+  catalogTitle?: string;
+  onCatalogClick?: () => void;
+  showHelper?: boolean;
 }
 
 const DigitalCardPreview: React.FC<DigitalCardProps> = ({
@@ -104,6 +108,10 @@ const DigitalCardPreview: React.FC<DigitalCardProps> = ({
   cardType = "",
   documentUrl,
   customFields = [],
+  showCatalog = false, // Destructure showCatalog with default false
+  catalogTitle = 'Catalog',
+  onCatalogClick,
+  showHelper = false,
 }) => {
 
   // --- DATA PROCESSING LOGIC ---
@@ -448,6 +456,75 @@ const DigitalCardPreview: React.FC<DigitalCardProps> = ({
                   {b.text}
                 </button>
               ))}
+
+            {showCatalog && (
+              <div style={{ position: 'relative' }}>
+                {/* Helper Cloud */}
+                {showHelper && (
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '100%',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    marginBottom: '10px',
+                    background: '#4F46E5',
+                    color: 'white',
+                    padding: '6px 12px',
+                    borderRadius: '12px',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
+                    animation: 'pulse 2s infinite',
+                    pointerEvents: 'none',
+                    zIndex: 20,
+                    width: 'auto'
+                  }}>
+                    Click to add contents
+                    <div style={{
+                      position: 'absolute',
+                      top: '100%',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      borderWidth: '6px',
+                      borderStyle: 'solid',
+                      borderColor: '#4F46E5 transparent transparent transparent'
+                    }} />
+                    <style>{`
+                    @keyframes pulse {
+                      0% { transform: translateX(-50%) scale(1); }
+                      50% { transform: translateX(-50%) scale(1.05); }
+                      100% { transform: translateX(-50%) scale(1); }
+                    }
+                  `}</style>
+                  </div>
+                )}
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onCatalogClick?.();
+                  }}
+                  style={{
+                    padding: "6px 16px",
+                    background: styles.buttonBg,
+                    border: styles.buttonBorder,
+                    borderRadius: "6px",
+                    color: "#FFFFFF",
+                    fontFamily: styles.font,
+                    fontWeight: "500",
+                    fontSize: "12px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backdropFilter: "blur(4px)"
+                  }}
+                >
+                  {catalogTitle || 'Catalog'}
+                </button>
+              </div>
+            )}
 
             {documentUrl && (
               <button

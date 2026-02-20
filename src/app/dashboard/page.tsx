@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { toast } from "react-hot-toast";
@@ -9,7 +9,9 @@ import DigitalCardPreview, { DigitalCardProps } from "@/components/cards/Digital
 import FlatCardPreview from '@/components/cards/FlatCardPreview';
 import ModernCardPreview from "@/components/cards/ModernCardPreview";
 import SleekCardPreview from "@/components/cards/SleekCardPreview";
+import CatalogViewer from "@/components/cards/CatalogViewer";
 import { capitalizeFirstLetter } from '@/lib/utils';
+import { Plus, Users, Eye, BarChart2, PenSquare } from "lucide-react";
 
 // Icons
 import {
@@ -22,7 +24,6 @@ import {
   FiToggleLeft,
   FiToggleRight
 } from "react-icons/fi";
-import { BarChart2, Eye, Plus, PenSquare, ArrowUpRight, ArrowDownRight, Minus, Users } from "lucide-react";
 
 // ----------------- Card Type Definition -----------------
 interface Card {
@@ -72,6 +73,9 @@ interface Card {
   viewsGrowth?: number;
   contactsGrowth?: number;
   customFields?: string | any;
+  showCatalog?: boolean;
+  catalogTitle?: string;
+  catalogItems?: string | any;
   user?: any;
 }
 
@@ -82,6 +86,7 @@ const Dashboard = () => {
   const [cardsData, setCardsData] = useState<Card[]>([]);
   const [isLoadingCards, setIsLoadingCards] = useState(false);
   const [selectedDocumentUrl, setSelectedDocumentUrl] = useState<string | null>(null);
+  const [catalogViewerData, setCatalogViewerData] = useState<{ isOpen: boolean; title: string; items: any[] }>({ isOpen: false, title: '', items: [] });
 
   const [showAllCards, setShowAllCards] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -179,6 +184,17 @@ const Dashboard = () => {
       customFields: card.customFields
         ? (typeof card.customFields === 'string' ? JSON.parse(card.customFields) : card.customFields)
         : [],
+      // Catalog display
+      showCatalog: card.showCatalog || false,
+      catalogTitle: card.catalogTitle || 'Catalog',
+      onCatalogClick: () => {
+        let items: any[] = [];
+        try {
+          items = card.catalogItems ? (typeof card.catalogItems === 'string' ? JSON.parse(card.catalogItems) : card.catalogItems) : [];
+          console.log('[CatalogViewer] Parsed catalog items:', JSON.stringify(items, null, 2));
+        } catch (e) { console.error('Failed to parse catalog items', e); }
+        setCatalogViewerData({ isOpen: true, title: card.catalogTitle || 'Catalog', items });
+      },
       // Fix: Pass navigation click here instead of wrapper
       onClick: () => router.push(`/cards/${card.id}`)
     };
@@ -253,6 +269,14 @@ const Dashboard = () => {
     }
   }, [isAuthenticated, isLoading]);
 
+  // Refetch cards when user navigates back to this page (e.g., after editing a card)
+  const pathname = usePathname();
+  useEffect(() => {
+    if (isAuthenticated && !isLoading && pathname === '/dashboard') {
+      fetchCards();
+    }
+  }, [pathname]);
+
   useEffect(() => {
     const checkMobile = () => {
       const mqMobile = window.matchMedia("(max-width: 767px)");
@@ -275,11 +299,23 @@ const Dashboard = () => {
       const response = await fetch("/api/card", {
         method: "GET",
         credentials: "include",
+        cache: "no-store",
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
 
       if (data.success) {
+        // Debug: log catalog data from fetched cards
+        data.cards.forEach((c: any) => {
+          if (c.showCatalog || c.catalogItems) {
+            console.log('[Dashboard] Card catalog data:', {
+              cardId: c.id,
+              showCatalog: c.showCatalog,
+              catalogTitle: c.catalogTitle,
+              catalogItems: c.catalogItems?.substring?.(0, 200) || c.catalogItems,
+            });
+          }
+        });
         setCardsData(data.cards);
         if (data.cards.length > 0) {
           if (!activeCardId) {
@@ -380,7 +416,7 @@ const Dashboard = () => {
             initial={{ opacity: 0.8 }}
             animate={{ opacity: 1 }}
             className="bg-[#0B6BCB] rounded-[1rem] px-6 pt-10 pb-10 text-white shadow-lg relative overflow-hidden"
-            style={{ marginBottom: "1rem" }}
+            style={{ marginBottom: "1.5rem" }}
           >
             {/* ... (Mobile header content hidden for brevity, kept identical) ... */}
             <div className="flex items-start justify-between relative z-10" style={{ paddingTop: "0.2rem", padding: "0.5rem" }}>
@@ -420,7 +456,7 @@ const Dashboard = () => {
         )}
 
         <div className="px-5 mt-6">
-          <div className="grid grid-cols-2 gap-3 mb-4" style={{ marginBottom: '1rem' }}>
+          <div className="grid grid-cols-2 gap-3 mb-4" style={{ marginBottom: '1.5rem' }}>
             {/* CONNECTIONS BOX */}
             <div
               onClick={() => router.push("/dashboard/connections")}
@@ -445,18 +481,18 @@ const Dashboard = () => {
               <div className="mt-2 pl-1" style={{ color: 'black', textAlign: 'center' }}><h3 className="text-2xl font-bold !text-gray-900 leading-tight">{activeCard?.views || 0}</h3></div>
             </div>
           </div>
-          <button onClick={() => activeCard && router.push(`/cards/${activeCard.id}?tab=analytics`)} className="w-full bg-[#C7DFFF] hover:bg-blue-100 text-[#0B6BCB] py-3.5 px-5 rounded-[0.5rem] flex items-center justify-between font-semibold text-sm transition-colors mb-6 shadow-sm border border-none" style={{ marginBottom: "1rem", padding: "0.7rem" }}>
+          <button onClick={() => activeCard && router.push(`/cards/${activeCard.id}?tab=analytics`)} className="w-full bg-[#C7DFFF] hover:bg-blue-100 text-[#0B6BCB] h-14 rounded-[0.5rem] flex items-center justify-between font-semibold text-sm transition-colors mb-6 shadow-sm border border-none px-5" style={{ marginBottom: "1.5rem" }}>
             <div className="flex items-center gap-2"><BarChart2 size={18} /><span>Show Analytics</span></div><FiChevronRight size={18} />
           </button>
-          <div className="flex gap-4 mb-8" style={{ marginBottom: "1rem" }}>
-            <button onClick={() => router.push("/dashboard/create?new=true")} className="flex-1 bg-[#dbeafe] text-[#0B6BCB] py-3.5 px-4 rounded-[0.5rem] font-semibold flex items-center justify-center gap-1 shadow-md shadow-blue-200 active:scale-95 hover:bg-[#0B6BCB] hover:text-white transition-all duration-300" style={{ fontFamily: "Poppins, sans-serif, Plus Jakarta Sans" }}><Plus size={18} /> Create New Card</button>
-            <button onClick={() => activeCard && router.push(`/dashboard/edit?id=${activeCard.id}`)} className="flex-1 bg-[#dbeafe] text-[#0B6BCB] py-3.5 px-4 rounded-[0.5rem] font-semibold flex items-center justify-center gap-1 border border-blue-100 shadow-md shadow-blue-200 active:scale-95 transition-transform text-sm hover:bg-[#0B6BCB] hover:text-white" style={{ padding: "0.2rem", fontFamily: "Poppins, sans-serif,Plus Jakarta Sans" }}><PenSquare size={18} /> Edit a Card</button>
+          <div className="flex gap-4 mb-8" style={{ marginBottom: "2rem" }}>
+            <button onClick={() => router.push("/dashboard/create?new=true")} className="flex-1 bg-[#0B6BCB] text-white h-14 rounded-[0.5rem] font-semibold flex items-center justify-center gap-1 shadow-md shadow-blue-200 active:scale-95 hover:bg-blue-700 transition-all duration-300 px-4" style={{ fontFamily: "Poppins, sans-serif, Plus Jakarta Sans" }}><Plus size={18} /> Create New Card</button>
+            <button onClick={() => activeCard && router.push(`/dashboard/edit?id=${activeCard.id}`)} className="flex-1 bg-[#dbeafe] text-[#0B6BCB] h-14 rounded-[0.5rem] font-semibold flex items-center justify-center gap-1 border border-blue-100 shadow-md shadow-blue-200 active:scale-95 transition-transform text-sm hover:bg-[#cbf3f0] hover:text-[#0B6BCB] px-4" style={{ fontFamily: "Poppins, sans-serif,Plus Jakarta Sans" }}><PenSquare size={18} /> Edit a Card</button>
           </div>
-          <div className="flex items-start justify-between mb-4">
-            <h3 className="text-lg text-gray-900" style={{ fontFamily: 'Poppins, sans-serif, "Plus Jakarta Sans"', fontWeight: "500", lineHeight: "1", color: 'black' }}>My Cards</h3>
-            <button onClick={() => setShowAllCards(!showAllCards)} className="text-xs font-bold text-gray-900 hover:text-blue-600" style={{ fontFamily: 'Poppins, sans-serif, "Plus Jakarta Sans"', fontWeight: "500", lineHeight: "1", marginTop: "4px", paddingRight: "1rem" }}>{showAllCards ? "View Less" : "View All"}</button>
+          <div className="flex items-center justify-between mb-4 px-1">
+            <h2 className="text-lg font-bold text-gray-900">My Cards</h2>
+            <button onClick={() => setShowAllCards(!showAllCards)} className="text-xs font-bold text-gray-600 hover:text-blue-600" style={{ fontFamily: 'Poppins, sans-serif, "Plus Jakarta Sans"' }}>{showAllCards ? "View Less" : "View All"}</button>
           </div>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-6">
             {isLoadingCards ? (
               <div className="text-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div></div>
             ) : cardsToDisplay.length > 0 ? (
@@ -473,12 +509,12 @@ const Dashboard = () => {
           DESKTOP VIEW (hidden md:block) - CLICK OUTSIDE FIX APPLIED
          ========================================================================= */}
       <div className="hidden md:block px-8 sm:px-14 py-8">
-        <div className="flex justify-center my-6" style={{ marginBottom: "1rem" }}>
+        <div className="flex flex-col md:flex-row justify-center items-center my-8">
           <motion.button
             whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(59, 130, 246, 0.4), 0 0 30px rgba(59, 130, 246, 0.3)" }}
             whileTap={{ scale: 0.97 }}
             onClick={() => router.push("/dashboard/create")}
-            style={{ background: 'linear-gradient(to bottom right, #1e3a8a, #2563eb)', color: 'white', padding: '8px 16px', borderRadius: '8px', fontWeight: '500', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', display: 'flex', alignItems: 'center', gap: '8px' }}
+            style={{ background: 'linear-gradient(to bottom right, #1e3a8a, #2563eb)', color: 'white', padding: '12px 24px', borderRadius: '8px', fontWeight: '500', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', display: 'flex', alignItems: 'center', gap: '8px' }}
           >
             <FiPlus size={16} /> Create New Card
           </motion.button>
@@ -488,7 +524,6 @@ const Dashboard = () => {
           {isLoadingCards ? (
             <div className="col-span-full text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-green mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading cards...</p>
             </div>
           ) : cardsData.length > 0 ? (
             cardsData.map((card, index) => {
@@ -541,6 +576,13 @@ const Dashboard = () => {
           </motion.div>
         )}
       </div>
+
+      <CatalogViewer
+        isOpen={catalogViewerData.isOpen}
+        onClose={() => setCatalogViewerData(prev => ({ ...prev, isOpen: false }))}
+        title={catalogViewerData.title}
+        items={catalogViewerData.items}
+      />
     </div>
   );
 };

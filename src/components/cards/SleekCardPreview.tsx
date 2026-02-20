@@ -12,7 +12,7 @@ const SleekCardPreview: React.FC<DigitalCardProps> = ({
   middleName = "",
   lastName = "",
   cardName = "",
-    cardType = "", 
+  cardType = "",
   title = "",
   company = "",
   location = "",
@@ -34,6 +34,10 @@ const SleekCardPreview: React.FC<DigitalCardProps> = ({
   documentUrl,
   onDocumentClick,
   onClick,
+  showCatalog = false, // Destructure showCatalog
+  catalogTitle = 'Catalog',
+  onCatalogClick,
+  showHelper = false,
 }) => {
   const capitalizedFirstName = capitalizeFirstLetter(firstName);
   const capitalizedMiddleName = capitalizeFirstLetter(middleName);
@@ -161,52 +165,52 @@ const SleekCardPreview: React.FC<DigitalCardProps> = ({
         cursor: "pointer",
       }}
     >
-     {(cardName || cardType) && (
-  <div
-    style={{
-      position: "absolute",
-      top: "16px",
-      right: "16px",
-      display: "flex",
-      gap: "8px",
-      zIndex: 20,
-    }}
-  >
-    {/* Card Name */}
-    {cardName && (
-      <div
-        style={{
-          background: "rgba(255,255,255,0.95)",
-          color: themeColor1,
-          padding: "6px 14px",
-          borderRadius: "20px",
-          fontSize: "12px",
-          fontWeight: 700,
-          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-        }}
-      >
-        {cardName}
-      </div>
-    )}
+      {(cardName || cardType) && (
+        <div
+          style={{
+            position: "absolute",
+            top: "16px",
+            right: "16px",
+            display: "flex",
+            gap: "8px",
+            zIndex: 20,
+          }}
+        >
+          {/* Card Name */}
+          {cardName && (
+            <div
+              style={{
+                background: "rgba(255,255,255,0.95)",
+                color: themeColor1,
+                padding: "6px 14px",
+                borderRadius: "20px",
+                fontSize: "12px",
+                fontWeight: 700,
+                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+              }}
+            >
+              {cardName}
+            </div>
+          )}
 
-    {/* Card Type */}
-    {cardType && (
-      <div
-        style={{
-          background: "rgba(255,255,255,0.85)",
-          color: themeColor1,
-          padding: "6px 12px",
-          borderRadius: "14px",
-          fontSize: "11px",
-          fontWeight: 700,
-          border: `1px solid ${themeColor1}`,
-        }}
-      >
-        {cardType}
-      </div>
-    )}
-  </div>
-)}
+          {/* Card Type */}
+          {cardType && (
+            <div
+              style={{
+                background: "rgba(255,255,255,0.85)",
+                color: themeColor1,
+                padding: "6px 12px",
+                borderRadius: "14px",
+                fontSize: "11px",
+                fontWeight: 700,
+                border: `1px solid ${themeColor1}`,
+              }}
+            >
+              {cardType}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Header */}
       <div
@@ -451,6 +455,71 @@ const SleekCardPreview: React.FC<DigitalCardProps> = ({
                 {b.text}
               </button>
             ))}
+
+          {showCatalog && (
+            <div style={{ position: 'relative' }}>
+              {/* Helper Cloud */}
+              {showHelper && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: '100%',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  marginBottom: '10px',
+                  background: '#4F46E5',
+                  color: 'white',
+                  padding: '6px 12px',
+                  borderRadius: '12px',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  whiteSpace: 'nowrap',
+                  boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
+                  animation: 'pulse 2s infinite',
+                  pointerEvents: 'none',
+                  zIndex: 20,
+                  width: 'auto'
+                }}>
+                  Click to add contents
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    borderWidth: '6px',
+                    borderStyle: 'solid',
+                    borderColor: '#4F46E5 transparent transparent transparent'
+                  }} />
+                  <style>{`
+                  @keyframes pulse {
+                    0% { transform: translateX(-50%) scale(1); }
+                    50% { transform: translateX(-50%) scale(1.05); }
+                    100% { transform: translateX(-50%) scale(1); }
+                  }
+                `}</style>
+                </div>
+              )}
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCatalogClick?.();
+                }}
+                style={{
+                  padding: "8px 14px",
+                  background: "rgba(255,255,255,0.2)",
+                  color: "#FFFFFF",
+                  border: "1px solid rgba(255,255,255,0.3)",
+                  borderRadius: "12px",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.04)",
+                }}
+              >
+                {catalogTitle || 'Catalog'}
+              </button>
+            </div>
+          )}
 
           {documentUrl && (
             <button
