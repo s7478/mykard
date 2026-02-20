@@ -6,6 +6,7 @@ import DigitalCardPreviewComponent from '@/components/cards/DigitalCardPreview';
 import FlatCardPreviewComponent from '@/components/cards/FlatCardPreview';
 import ModernCardPreviewComponent from '@/components/cards/ModernCardPreview';
 import SleekCardPreviewComponent from '@/components/cards/SleekCardPreview';
+import CatalogPopup, { CatalogItem } from '@/components/cards/CatalogPopup';
 import LocationSelect from "@/components/LocationSelect";
 import { usePathname, useSearchParams } from "next/navigation";
 
@@ -96,6 +97,11 @@ const CreatePage = () => {
   const [website, setWebsite] = useState('');
   const [services, setServices] = useState('');
   const [reviews, setReviews] = useState('');
+  const [showCatalog, setShowCatalog] = useState(false); // New State for Catalog Toggle
+  const [catalogTitle, setCatalogTitle] = useState('Catalog'); // Default Title
+  const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
+  const [isCatalogPopupOpen, setIsCatalogPopupOpen] = useState(false);
+  const [hasClickedCatalog, setHasClickedCatalog] = useState(false);
 
   const [isCustomTitle, setIsCustomTitle] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -390,13 +396,32 @@ const CreatePage = () => {
       if (extraFields.length > 0) formData.append('customFields', JSON.stringify(extraFields));
       else formData.append('customFields', JSON.stringify([]));
 
-      formData.append('status', 'draft');
-      if (profileImageFile) formData.append('profileImage', profileImageFile);
-      if (!profileImageFile && profileImage) formData.append('profileImageUrl', profileImage);
-      if (bannerImageFile) formData.append('coverImage', bannerImageFile); // Send as coverImage to match dashboard
-      if (resumeFile) formData.append('document', resumeFile);
+      // Append Catalog Data
+      formData.append('showCatalog', showCatalog.toString());
+      formData.append('catalogTitle', catalogTitle);
 
-      const response = await fetch('/api/card/create', { method: 'POST', body: formData });
+      const itemsToSend = catalogItems.map((item, itemIdx) => {
+        // Create a shallow copy of the item to avoid mutating state
+        const itemCopy = { ...item };
+        const imagesToSend = item.images.map((img, imgIdx) => {
+          // img is { preview: string, file?: File }
+          if (img.file) {
+            const fileKey = `catalogImage_${item.id}_${imgIdx}`;
+            formData.append(fileKey, img.file);
+            // Return object with fileKey instruction for backend
+            // Backend will replace this object with { preview: url }
+            return { preview: img.preview, fileKey: fileKey };
+          }
+          // If no file, keep existing structure (likely just preview URL)
+          return { preview: img.preview };
+        });
+        return { ...itemCopy, images: imagesToSend };
+      });
+
+      console.log('Sending Catalog Data:', { showCatalog, catalogTitle, catalogItemsJSON: JSON.stringify(itemsToSend) });
+      formData.append('catalogItems', JSON.stringify(itemsToSend));
+
+      formData.append('status', 'draft');
       const data = await response.json();
 
       if (!response.ok) throw new Error(data.error || 'Failed to create card');
@@ -424,7 +449,14 @@ const CreatePage = () => {
       about, skills, portfolio, experience, services, review: reviews, photo: profileImage || '', cover: bannerImage || '',
       email, phone: previewPhone, linkedin, website, themeColor1: selectedColor1, themeColor2: selectedColor2, textColor: textColor,
       fontFamily: selectedFont, cardType, customFields: extraFields,
-      onDocumentClick: handleDocumentClick
+      onDocumentClick: handleDocumentClick,
+      showCatalog, // Pass the state
+      catalogTitle,
+      onCatalogClick: () => {
+        setIsCatalogPopupOpen(true);
+        setHasClickedCatalog(true);
+      },
+      showHelper: showCatalog && !hasClickedCatalog
     };
     switch (selectedDesign) {
       case 'Flat': return <FlatCardPreviewComponent {...props} />;
@@ -616,6 +648,47 @@ const CreatePage = () => {
                   </span>
                 </div>
               ))}
+            </div>
+
+            {/* Catalog Toggle Section */}
+            <div style={{
+              marginTop: '20px',
+              padding: '16px',
+              backgroundColor: '#fff',
+              borderRadius: '12px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              border: '1px solid #e0e0e0'
+            }}>
+              <span style={{ fontSize: '16px', fontWeight: 600, color: '#333' }}>
+                Add a catalog.
+              </span>
+              <div
+                onClick={() => setShowCatalog(!showCatalog)}
+                style={{
+                  width: '50px',
+                  height: '26px',
+                  background: showCatalog ? '#4F46E5' : '#ccc',
+                  borderRadius: '30px',
+                  position: 'relative',
+                  cursor: 'pointer',
+                  transition: 'background 0.3s ease'
+                }}
+              >
+                <div style={{
+                  width: '22px',
+                  height: '22px',
+                  background: 'white',
+                  borderRadius: '50%',
+                  position: 'absolute',
+                  top: '2px',
+                  left: showCatalog ? '26px' : '2px',
+                  transition: 'left 0.3s ease',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                }} />
+              </div>
             </div>
           </div>
         );
@@ -1101,7 +1174,7 @@ const CreatePage = () => {
           {isPopupOpen && (
             <div className={styles.popupOverlay}>
               <div className={styles.popupBox}>
-                <p>{popupMessage}</p>
+                <p>Your Card has been successfully Created</p>
                 <button
                   onClick={() => {
                     setIsPopupOpen(false);
@@ -1116,9 +1189,23 @@ const CreatePage = () => {
               </div>
             </div>
           )}
-        </div>
 
+          {/* Catalog Popup */}
+          <CatalogPopup
+            isOpen={isCatalogPopupOpen}
+            onClose={() => setIsCatalogPopupOpen(false)}
+            title={catalogTitle}
+            initialItems={catalogItems}
+            onSave={(newTitle, newItems) => {
+              console.log('[CreatePage] onSave received:', newTitle, newItems);
+              setCatalogTitle(newTitle);
+              setCatalogItems(newItems);
+              setIsCatalogPopupOpen(false); // Close AFTER state update
+            }}
+          />
+        </div>
       </div>
+
     </div>
   );
 

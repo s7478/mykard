@@ -8,6 +8,8 @@ import FlatCardPreviewComponent from '@/components/cards/FlatCardPreview';
 import ModernCardPreviewComponent from '@/components/cards/ModernCardPreview';
 import SleekCardPreviewComponent from '@/components/cards/SleekCardPreview';
 import LocationSelect from "@/components/LocationSelect";
+import CatalogPopup, { CatalogItem } from '@/components/cards/CatalogPopup';
+import { HelpCircle } from 'lucide-react';
 
 // Import Shared CSS
 import styles from './edit.module.css';
@@ -126,6 +128,31 @@ const CreatePageContent = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState("");
 
+  // Catalog State
+  const [showCatalog, setShowCatalog] = useState(false);
+  const [isCatalogPopupOpen, setIsCatalogPopupOpen] = useState(false);
+  const [catalogTitle, setCatalogTitle] = useState('Catalog');
+  const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
+  const [showCatalogHelper, setShowCatalogHelper] = useState(false);
+
+  // Helper Cloud Logic
+  useEffect(() => {
+    const hasSeenHelper = localStorage.getItem('hasSeenCatalogHelper');
+    if (!hasSeenHelper) {
+      setShowCatalogHelper(true);
+      const timer = setTimeout(() => setShowCatalogHelper(false), 5000); // Hide after 5s
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const handleCatalogClick = () => {
+    setShowCatalog(!showCatalog);
+    if (showCatalogHelper) {
+      setShowCatalogHelper(false);
+      localStorage.setItem('hasSeenCatalogHelper', 'true');
+    }
+  };
+
   const platforms = [
     { name: "WhatsApp", img: "/assets/whatsapp.png" },
     { name: "GitHub", img: "/assets/github.png" },
@@ -191,7 +218,7 @@ const CreatePageContent = () => {
           setFirstName(user.fullName?.split(' ')[0] || '');
           setEmail(user.email || '');
           setPhone(user.phone || '');
-          
+
           // Only use user's profile image as default when creating a NEW card
           // When editing an existing card, the card fetch will override this
           if (!cardId) {
@@ -320,7 +347,7 @@ const CreatePageContent = () => {
         setProfileImage(card.profileImage || null);
         // Check both coverImage and bannerImage for backwards compatibility
         setBannerImage(card.coverImage || card.bannerImage || null);
-        
+
         console.log('Loaded card profileImage:', card.profileImage);
         console.log('Loaded card cover/banner:', card.coverImage || card.bannerImage);
 
@@ -330,6 +357,20 @@ const CreatePageContent = () => {
           } catch {
             setExtraFields([]);
           }
+        }
+
+        // Load Catalog Data
+        setShowCatalog(card.showCatalog || false);
+        setCatalogTitle(card.catalogTitle || 'Catalog');
+        if (card.catalogItems) {
+          try {
+            setCatalogItems(JSON.parse(card.catalogItems));
+          } catch (e) {
+            console.error("Error parsing catalog items", e);
+            setCatalogItems([]);
+          }
+        } else {
+          setCatalogItems([]);
         }
 
       } catch (err) {
@@ -426,26 +467,36 @@ const CreatePageContent = () => {
       const formData = new FormData();
       formData.append('cardName', cardName);
       formData.append('firstName', firstName);
-      if (middleName) formData.append('middleName', middleName);
+
+      // ... existing formData appends ... 
+      // Re-add all form data appends here to ensure nothing is missed
+      // Wait, let's use the explicit fields from state
+
+      const currentCardId = cardId || existingCardId;
+      console.log('[EditPage] Saving for Card ID:', currentCardId);
+
+      // Append Basic Fields
+      if (cardName) formData.append('cardName', cardName);
+      if (firstName) formData.append('firstName', firstName);
       if (lastName) formData.append('lastName', lastName);
+      if (middleName) formData.append('middleName', middleName);
       if (prefix) formData.append('prefix', prefix);
       if (suffix) formData.append('suffix', suffix);
-      if (preferredName) formData.append('preferredName', preferredName);
-      if (maidenName) formData.append('maidenName', maidenName);
-      if (pronouns) formData.append('pronouns', pronouns);
-      if (title) formData.append('title', title);
-      if (company) formData.append('company', company);
+      if (title) formData.append('title', title); // Changed from jobTitle to title
+      if (company) formData.append('company', company); // Changed from companyName to company
       if (department) formData.append('department', department);
       if (affiliation) formData.append('affiliation', affiliation);
       if (headline) formData.append('headline', headline);
       if (accreditations) formData.append('accreditations', accreditations);
       if (email) formData.append('email', email);
-      if (includePhone && phone) formData.append('phone', phone);
+      if (includePhone && phone) formData.append('phone', phone); // Changed from phoneNumber to phone, added includePhone check
       if (emailLink) formData.append('emailLink', emailLink);
       if (phoneLink) formData.append('phoneLink', phoneLink);
-      if (cardLocation) formData.append('location', cardLocation);
-      if (linkedin) formData.append('linkedinUrl', linkedin);
-      if (website) formData.append('websiteUrl', website);
+      if (cardLocation) formData.append('location', cardLocation); // Changed from location to cardLocation
+      if (linkedin) formData.append('linkedinUrl', linkedin); // Changed from linkedinUrl to linkedin
+      if (website) formData.append('websiteUrl', website); // Changed from websiteUrl to website
+      // if (cardActive !== undefined) formData.append('cardActive', String(cardActive)); // cardActive is not defined in the original context, omitting
+
       if (cardType) formData.append('cardType', cardType);
       if (selectedDesign) formData.append('selectedDesign', selectedDesign);
       if (selectedColor1) formData.append('selectedColor', selectedColor1);
@@ -462,27 +513,78 @@ const CreatePageContent = () => {
       if (extraFields.length > 0) formData.append('customFields', JSON.stringify(extraFields));
       else formData.append('customFields', JSON.stringify([]));
 
+      // Append Catalog Data
+      formData.append('showCatalog', showCatalog.toString());
+      formData.append('catalogTitle', catalogTitle);
+
+      // 3. CATALOG ITEMS (Handle file uploads)
+      console.log('[EditPage] Processing catalog items for save:', catalogItems.length);
+
+      let missingFileError = false;
+
+      const itemsToSend = catalogItems.map((item: CatalogItem, itemIdx: number) => {
+        const imagesToSend = item.images.map((img: { preview: string; file?: File, fileKey?: string }, imgIdx: number) => {
+          // If it's a new file (has file object)
+          if (img.file) {
+            const fileKey = `catalogImage_${item.id}_${imgIdx}`;
+            formData.append(fileKey, img.file);
+            console.log(`[EditPage] Appended file for ${fileKey}:`, img.file.name, img.file.size);
+            return { preview: img.preview, fileKey: fileKey };
+          }
+
+          // Debug: If blob but no file, something is wrong
+          if (img.preview?.startsWith('blob:')) {
+            console.error(`[EditPage] CRITICAL: Found blob URL without File object! Item: ${item.id}, ImgIdx: ${imgIdx}`);
+            missingFileError = true;
+          }
+
+          // Keep existing image (no file object needed)
+          return { preview: img.preview };
+        });
+
+        return { ...item, images: imagesToSend };
+      });
+
+      if (missingFileError) {
+        toast.error("Image upload failed: Source file missing. Please re-upload the image.", { duration: 5000 });
+        setIsSaving(false);
+        return; // STOP SAVE
+      }
+
+      console.log('[EditPage] Catalog save debug:', {
+        showCatalog,
+        catalogTitle,
+        catalogItemsCount: catalogItems.length,
+        itemsToSendJSON: JSON.stringify(itemsToSend).substring(0, 300),
+      });
+      formData.append('catalogItems', JSON.stringify(itemsToSend));
+
       formData.append('status', 'draft');
       if (profileImageFile) formData.append('profileImage', profileImageFile);
       if (bannerImageFile) formData.append('coverImage', bannerImageFile); // Send as coverImage to match dashboard
       if (resumeFile) formData.append('document', resumeFile);
 
       let response;
-      if (cardId) {
+      if (currentCardId) {
         // Update existing card
-        response = await fetch(`/api/card/update/${cardId}`, { method: 'PATCH', body: formData });
+        console.log('[EditPage] Calling UPDATE endpoint:', `/api/card/update/${currentCardId}`);
+        response = await fetch(`/api/card/update/${currentCardId}`, { method: 'PATCH', body: formData });
       } else {
         // Create new card
+        console.log('[EditPage] Calling CREATE endpoint');
         response = await fetch('/api/card/create', { method: 'POST', body: formData });
       }
 
       const data = await response.json();
+      console.log('[EditPage] Save response:', { status: response.status, ok: response.ok, data: JSON.stringify(data).substring(0, 200) });
 
-      if (!response.ok) throw new Error(data.error || (cardId ? 'Failed to update card' : 'Failed to create card'));
+      if (!response.ok) throw new Error(data.error || (currentCardId ? 'Failed to update card' : 'Failed to create card'));
 
       setExistingCardId(data.card.id);
       setIsPopupOpen(true);
-      setPopupMessage(cardId ? 'Card updated successfully!' : 'Card created successfully!');
+      setPopupMessage(currentCardId ? 'Card updated successfully!' : 'Card created successfully!');
+
+      // Force refresh logic could go here if needed
     } catch (error: any) {
       console.error('Error saving card:', error);
       setIsPopupOpen(true);
@@ -500,11 +602,28 @@ const CreatePageContent = () => {
 
     const props = {
       firstName, middleName, lastName, cardName, title, company, location: cardLocation,
-      about, skills, portfolio, experience, services, review: reviews, photo: profileImage || '', 
+      about, skills, portfolio, experience, services, review: reviews, photo: profileImage || '',
       cover: bannerImage || '', // bannerImage already has coverImage fallback from fetch
       email, phone: previewPhone, linkedin, website, themeColor1: selectedColor1, themeColor2: selectedColor2, textColor: textColor,
       fontFamily: selectedFont, cardType, customFields: extraFields,
-      onDocumentClick: handleDocumentClick
+      onDocumentClick: handleDocumentClick,
+      // Catalog Props
+      showCatalog,
+      catalogTitle,
+      initialItems: catalogItems, // Pass current items (with potential Files) to popup
+      onSave: (newTitle: string, newItems: CatalogItem[]) => {
+        console.log('[EditPage] Catalog Popup Save:', {
+          newTitle,
+          itemsCount: newItems.length,
+          hasFiles: newItems.some(i => i.images.some(img => img.file))
+        });
+        setCatalogTitle(newTitle);
+        setCatalogItems(newItems);
+        setIsCatalogPopupOpen(false);
+      },
+      onCatalogClick: () => {
+        setIsCatalogPopupOpen(true);
+      }
     };
     switch (selectedDesign) {
       case 'Flat': return <FlatCardPreviewComponent {...props} />;
@@ -696,6 +815,47 @@ const CreatePageContent = () => {
                   </span>
                 </div>
               ))}
+            </div>
+
+            {/* Catalog Toggle Section */}
+            <div style={{
+              marginTop: '20px',
+              padding: '16px',
+              backgroundColor: '#fff',
+              borderRadius: '12px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              border: '1px solid #e0e0e0'
+            }}>
+              <span style={{ fontSize: '16px', fontWeight: 600, color: '#333' }}>
+                Add a catalog.
+              </span>
+              <div
+                onClick={() => setShowCatalog(!showCatalog)}
+                style={{
+                  width: '50px',
+                  height: '26px',
+                  background: showCatalog ? '#4F46E5' : '#ccc',
+                  borderRadius: '30px',
+                  position: 'relative',
+                  cursor: 'pointer',
+                  transition: 'background 0.3s ease'
+                }}
+              >
+                <div style={{
+                  width: '22px',
+                  height: '22px',
+                  background: 'white',
+                  borderRadius: '50%',
+                  position: 'absolute',
+                  top: '2px',
+                  left: showCatalog ? '26px' : '2px',
+                  transition: 'left 0.3s ease',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                }} />
+              </div>
             </div>
           </div>
         );
@@ -1143,6 +1303,21 @@ const CreatePageContent = () => {
               />
             </div>
           )}
+
+
+          {/* Catalog Popup */}
+          <CatalogPopup
+            isOpen={isCatalogPopupOpen}
+            onClose={() => setIsCatalogPopupOpen(false)}
+            title={catalogTitle}
+            initialItems={catalogItems}
+            onSave={(newTitle, newItems) => {
+              console.log('[EditPage] onSave received:', newTitle, newItems);
+              setCatalogTitle(newTitle);
+              setCatalogItems(newItems);
+              setIsCatalogPopupOpen(false); // Close AFTER state update
+            }}
+          />
 
           {/* ===== WHITE PANEL (TABS + ICONS) ===== */}
           <div className={styles.editPanel} style={{ height: activeTab === 'Information' ? '50dvh' : 'auto' }}>

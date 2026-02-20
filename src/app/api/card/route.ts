@@ -66,6 +66,9 @@ export async function GET(req: NextRequest) {
 
         customFields: true,
 
+        showCatalog: true,
+        catalogTitle: true,
+        catalogItems: true,
 
         user: {
           select: {
@@ -86,7 +89,7 @@ export async function GET(req: NextRequest) {
       console.log('🔍 First card data:', JSON.stringify(cards[0], null, 2));
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       cards: cards,
       count: cards.length
@@ -94,8 +97,8 @@ export async function GET(req: NextRequest) {
 
   } catch (error: any) {
     console.error("Error fetching cards:", error);
-    return NextResponse.json({ 
-      error: error.message || "Failed to fetch cards" 
+    return NextResponse.json({
+      error: error.message || "Failed to fetch cards"
     }, { status: 500 });
   }
 }

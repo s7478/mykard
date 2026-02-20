@@ -31,6 +31,7 @@ import {
 import Link from "next/link";
 import QRCode from "react-qr-code";
 import { capitalizeFirstLetter } from '@/lib/utils';
+import CatalogViewer from "@/components/cards/CatalogViewer";
 
 /* -------------------------------------------------
    DESIGN SYSTEM 
@@ -150,6 +151,9 @@ interface Card {
   coverImage?: string;
   bannerImage?: string;
   customFields?: string | any;
+  showCatalog?: boolean;
+  catalogTitle?: string;
+  catalogItems?: string | any;
 }
 
 // ----------------- Main Page Content -----------------
@@ -169,6 +173,7 @@ const CardDetailsContent = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [contactsCount, setContactsCount] = useState(0);
   const [showDelete, setShowDelete] = useState(false);
+  const [catalogViewerData, setCatalogViewerData] = useState<{ isOpen: boolean; title: string; items: any[] }>({ isOpen: false, title: '', items: [] });
 
   // Growth Analytics State
   const [analytics, setAnalytics] = useState({
@@ -216,6 +221,15 @@ const CardDetailsContent = () => {
       customFields: cardData.customFields
         ? (typeof cardData.customFields === 'string' ? JSON.parse(cardData.customFields) : cardData.customFields)
         : [],
+      showCatalog: cardData.showCatalog || false,
+      catalogTitle: cardData.catalogTitle || 'Catalog',
+      onCatalogClick: () => {
+        let items: any[] = [];
+        try {
+          items = cardData.catalogItems ? (typeof cardData.catalogItems === 'string' ? JSON.parse(cardData.catalogItems) : cardData.catalogItems) : [];
+        } catch (e) { console.error('Failed to parse catalog items', e); }
+        setCatalogViewerData({ isOpen: true, title: cardData.catalogTitle || 'Catalog', items });
+      },
       onClick: () => { }
     };
 
@@ -599,6 +613,13 @@ const CardDetailsContent = () => {
       </div>
 
       {showDelete && <Delete cardname={card.cardName ?? ""} onConfirm={handleDelete} onCancel={() => setShowDelete(false)} />}
+
+      <CatalogViewer
+        isOpen={catalogViewerData.isOpen}
+        onClose={() => setCatalogViewerData(prev => ({ ...prev, isOpen: false }))}
+        title={catalogViewerData.title}
+        items={catalogViewerData.items}
+      />
     </>
   );
 };
