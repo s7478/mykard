@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { X, ChevronLeft, ChevronRight, ImageOff } from 'lucide-react';
+import { X, ImageOff } from 'lucide-react';
 
 interface CatalogViewerItem {
     id: string;
@@ -27,17 +27,6 @@ const CatalogViewer: React.FC<CatalogViewerProps> = ({ isOpen, onClose, title, i
     const validItems = items.filter(
         item => item.title?.trim() || (item.images && item.images.length > 0)
     );
-
-    const handleScroll = (itemId: string, direction: 'left' | 'right') => {
-        const container = document.getElementById(`catalog-scroll-${itemId}`);
-        if (container) {
-            const scrollAmount = 220;
-            container.scrollBy({
-                left: direction === 'right' ? scrollAmount : -scrollAmount,
-                behavior: 'smooth'
-            });
-        }
-    };
 
     // Resolve image URL from various possible structures
     const getImageUrl = (img: any): string => {
@@ -164,135 +153,88 @@ const CatalogViewer: React.FC<CatalogViewerProps> = ({ isOpen, onClose, title, i
                                         </h3>
                                     )}
 
-                                    {/* Image Gallery */}
+                                    {/* Image Gallery - 3 Column Grid */}
                                     {item.images && item.images.length > 0 && (
-                                        <div style={{ position: 'relative' }}>
-                                            {/* Scroll Left Button */}
-                                            {item.images.length > 2 && (
-                                                <button
-                                                    onClick={() => handleScroll(item.id, 'left')}
-                                                    style={{
-                                                        position: 'absolute',
-                                                        left: '-8px',
-                                                        top: '50%',
-                                                        transform: 'translateY(-50%)',
-                                                        zIndex: 2,
-                                                        background: 'rgba(255,255,255,0.95)',
-                                                        border: '1px solid #e0e0e0',
-                                                        borderRadius: '50%',
-                                                        width: '28px',
-                                                        height: '28px',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        cursor: 'pointer',
-                                                        boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
-                                                    }}
-                                                >
-                                                    <ChevronLeft size={16} color="#666" />
-                                                </button>
-                                            )}
+                                        <div style={{
+                                            display: 'grid',
+                                            gridTemplateColumns: 'repeat(3, 1fr)',
+                                            gap: '12px',
+                                            maxHeight: item.images.length > 6 ? '320px' : 'auto',
+                                            overflowY: item.images.length > 6 ? 'auto' : 'visible',
+                                            overflowX: 'hidden',
+                                            width: '100%'
+                                        }}>
+                                            {item.images.map((img: any, imgIndex: number) => {
+                                                const imgUrl = getImageUrl(img);
+                                                if (!imgUrl) return null;
 
-                                            <div
-                                                id={`catalog-scroll-${item.id}`}
-                                                style={{
-                                                    display: 'flex',
-                                                    gap: '10px',
-                                                    overflowX: 'auto',
-                                                    paddingBottom: '4px',
-                                                    scrollbarWidth: 'none',
-                                                }}
-                                            >
-                                                {item.images.map((img: any, imgIndex: number) => {
-                                                    const imgUrl = getImageUrl(img);
-                                                    if (!imgUrl) return null;
+                                                const imgKey = `${item.id}-${imgIndex}`;
+                                                const isBroken = isBlobUrl(imgUrl) || failedImages.has(imgKey);
 
-                                                    const imgKey = `${item.id}-${imgIndex}`;
-                                                    const isBroken = isBlobUrl(imgUrl) || failedImages.has(imgKey);
-
-                                                    // Show placeholder for broken/blob images
-                                                    if (isBroken) {
-                                                        return (
-                                                            <div
-                                                                key={imgIndex}
-                                                                style={{
-                                                                    width: '140px',
-                                                                    height: '140px',
-                                                                    borderRadius: '10px',
-                                                                    border: '2px dashed #d1d5db',
-                                                                    background: '#f9fafb',
-                                                                    display: 'flex',
-                                                                    flexDirection: 'column',
-                                                                    alignItems: 'center',
-                                                                    justifyContent: 'center',
-                                                                    gap: '6px',
-                                                                    flexShrink: 0,
-                                                                    color: '#9ca3af',
-                                                                }}
-                                                            >
-                                                                <ImageOff size={24} />
-                                                                <span style={{ fontSize: '11px', textAlign: 'center', padding: '0 8px' }}>
-                                                                    Image unavailable
-                                                                </span>
-                                                            </div>
-                                                        );
-                                                    }
-
+                                                // Show placeholder for broken/blob images
+                                                if (isBroken) {
                                                     return (
-                                                        <img
+                                                        <div
                                                             key={imgIndex}
+                                                            style={{
+                                                                position: 'relative',
+                                                                aspectRatio: '1 / 1',
+                                                                borderRadius: '10px',
+                                                                border: '2px dashed #d1d5db',
+                                                                background: '#f9fafb',
+                                                                display: 'flex',
+                                                                flexDirection: 'column',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                gap: '6px',
+                                                                width: '100%',
+                                                                color: '#9ca3af',
+                                                            }}
+                                                        >
+                                                            <ImageOff size={24} />
+                                                            <span style={{ fontSize: '11px', textAlign: 'center', padding: '0 8px' }}>
+                                                                Image unavailable
+                                                            </span>
+                                                        </div>
+                                                    );
+                                                }
+
+                                                return (
+                                                    <div
+                                                        key={imgIndex}
+                                                        style={{
+                                                            position: 'relative',
+                                                            aspectRatio: '1 / 1',
+                                                            borderRadius: '10px',
+                                                            overflow: 'hidden',
+                                                            border: '1px solid #eee',
+                                                            width: '100%',
+                                                            backgroundColor: '#f5f5f5'
+                                                        }}
+                                                    >
+                                                        <img
                                                             src={imgUrl}
                                                             alt={`${item.title || 'Catalog'} ${imgIndex + 1}`}
                                                             onClick={() => setLightboxImage(imgUrl)}
                                                             onError={() => handleImageError(imgKey, imgUrl)}
                                                             style={{
-                                                                width: '140px',
-                                                                height: '140px',
-                                                                borderRadius: '10px',
+                                                                width: '100%',
+                                                                height: '100%',
                                                                 objectFit: 'cover',
                                                                 cursor: 'pointer',
-                                                                flexShrink: 0,
-                                                                border: '1px solid #eee',
-                                                                transition: 'transform 0.2s, box-shadow 0.2s'
+                                                                display: 'block',
+                                                                transition: 'transform 0.2s'
                                                             }}
                                                             onMouseOver={(e) => {
-                                                                e.currentTarget.style.transform = 'scale(1.03)';
-                                                                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                                                                e.currentTarget.style.transform = 'scale(1.05)';
                                                             }}
                                                             onMouseOut={(e) => {
                                                                 e.currentTarget.style.transform = 'scale(1)';
-                                                                e.currentTarget.style.boxShadow = 'none';
                                                             }}
                                                         />
-                                                    );
-                                                })}
-                                            </div>
-
-                                            {/* Scroll Right Button */}
-                                            {item.images.length > 2 && (
-                                                <button
-                                                    onClick={() => handleScroll(item.id, 'right')}
-                                                    style={{
-                                                        position: 'absolute',
-                                                        right: '-8px',
-                                                        top: '50%',
-                                                        transform: 'translateY(-50%)',
-                                                        zIndex: 2,
-                                                        background: 'rgba(255,255,255,0.95)',
-                                                        border: '1px solid #e0e0e0',
-                                                        borderRadius: '50%',
-                                                        width: '28px',
-                                                        height: '28px',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        cursor: 'pointer',
-                                                        boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
-                                                    }}
-                                                >
-                                                    <ChevronRight size={16} color="#666" />
-                                                </button>
-                                            )}
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     )}
                                 </div>
