@@ -422,6 +422,10 @@ const CreatePage = () => {
       formData.append('catalogItems', JSON.stringify(itemsToSend));
 
       formData.append('status', 'draft');
+      const response = await fetch('/api/cards', {
+        method: 'POST',
+        body: formData,
+      });
       const data = await response.json();
 
       if (!response.ok) throw new Error(data.error || 'Failed to create card');
