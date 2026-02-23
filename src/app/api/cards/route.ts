@@ -1,2 +1,3 @@
-// Alias route for GET /api/cards → reuse /api/card implementation
+// Alias route for /api/cards
 export { GET } from "../card/route";
+export { POST } from "../card/create/route";
