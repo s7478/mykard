@@ -526,7 +526,7 @@ const Dashboard = () => {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-green mx-auto mb-4"></div>
             </div>
           ) : cardsData.length > 0 ? (
-            cardsData.map((card, index) => {
+            cardsData.slice(0, 6).map((card, index) => {
               return (
                 <motion.div
                   key={card.id}
