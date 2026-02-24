@@ -909,7 +909,7 @@ function DashboardContactPage() {
                                                 </div>
                                             </div>
                                             {/* Actions */}
-                                            <div className={`${styles.requestActions}flex gap-2 sm:gap-3`}>
+                                            <div className={`${styles.requestActions} flex flex-row gap-2 sm:gap-3`}>
                                                 {/* Accept */}
                                                 <button onClick={() => openApproveModal(request)} className={`${styles.requestApproveButton} flex items-center justify-center`}>
                                                     {/* Mobile icon */}

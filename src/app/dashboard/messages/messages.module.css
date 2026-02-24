@@ -229,7 +229,6 @@
 .listContainer {
     flex: 1;
     overflow-y: auto;
-    overscroll-behavior: contain;
     padding-bottom: 20px;
 }
 
