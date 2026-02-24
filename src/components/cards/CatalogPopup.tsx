@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Image as ImageIcon, Plus, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, Plus, Trash2 } from 'lucide-react';
 
 export interface CatalogItem {
     id: string;
@@ -242,12 +242,12 @@ const CatalogPopup: React.FC<CatalogPopupProps> = ({
                                     onBlur={(e) => e.target.style.borderColor = '#eee'}
                                 />
 
-                                {/* Image Grid/Scroll */}
-                                <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px', alignItems: 'center' }}>
-                                    {/* Add Image Button */}
+                                {/* Image Grid - 3 Columns with 2 Rows initially, then scrollable */}
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    {/* Add Image Button - Full Width */}
                                     <label style={{
-                                        minWidth: '100px',
-                                        height: '100px',
+                                        width: '100%',
+                                        minHeight: '80px',
                                         border: '2px dashed #4F46E5',
                                         borderRadius: '12px',
                                         display: 'flex',
@@ -257,7 +257,15 @@ const CatalogPopup: React.FC<CatalogPopupProps> = ({
                                         cursor: 'pointer',
                                         color: '#4F46E5',
                                         backgroundColor: '#EEF2FF',
-                                        flexShrink: 0
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onMouseOver={(e) => {
+                                        e.currentTarget.style.backgroundColor = '#E0E7FF';
+                                        e.currentTarget.style.borderColor = '#4338CA';
+                                    }}
+                                    onMouseOut={(e) => {
+                                        e.currentTarget.style.backgroundColor = '#EEF2FF';
+                                        e.currentTarget.style.borderColor = '#4F46E5';
                                     }}>
                                         <input
                                             type="file"
@@ -267,52 +275,82 @@ const CatalogPopup: React.FC<CatalogPopupProps> = ({
                                             style={{ display: 'none' }}
                                         />
                                         <Plus size={20} />
-                                        <span style={{ fontSize: '11px', fontWeight: 600, marginTop: '4px' }}>Add Images</span>
+                                        <span style={{ fontSize: '13px', fontWeight: 600, marginTop: '4px' }}>Add Images</span>
                                     </label>
 
-                                    {/* Images */}
-                                    {item.images.map((imgObj, imgIndex) => (
-                                        <div key={imgIndex} style={{ position: 'relative', flexShrink: 0 }}>
-                                            <img
-                                                src={imgObj.preview}
-                                                alt={`Preview ${imgIndex}`}
-                                                onClick={() => setLightboxImage(imgObj.preview)}
-                                                style={{
-                                                    width: '100px',
-                                                    height: '100px',
-                                                    borderRadius: '12px',
-                                                    objectFit: 'cover',
-                                                    cursor: 'pointer',
-                                                    border: '1px solid #eee'
-                                                }}
-                                            />
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    removeImage(item.id, imgIndex);
-                                                }}
-                                                style={{
-                                                    position: 'absolute',
-                                                    top: '-6px',
-                                                    right: '-6px',
-                                                    background: '#fff',
-                                                    border: '1px solid #eee',
-                                                    borderRadius: '50%',
-                                                    width: '20px',
-                                                    height: '20px',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    cursor: 'pointer',
-                                                    color: '#666',
-                                                    fontSize: '10px',
-                                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                                                }}
-                                            >
-                                                <X size={12} />
-                                            </button>
+                                    {/* Images Grid - 3 columns */}
+                                    {item.images.length > 0 && (
+                                        <div style={{
+                                            display: 'grid',
+                                            gridTemplateColumns: 'repeat(3, 1fr)',
+                                            gap: '12px',
+                                            maxHeight: item.images.length > 6 ? '350px' : 'auto',
+                                            overflowY: item.images.length > 6 ? 'auto' : 'visible',
+                                            overflowX: 'hidden',
+                                            width: '100%'
+                                        }}>
+                                            {item.images.map((imgObj, imgIndex) => (
+                                                <div key={imgIndex} style={{
+                                                    position: 'relative',
+                                                    aspectRatio: '1 / 1',
+                                                    borderRadius: '8px',
+                                                    overflow: 'hidden',
+                                                    backgroundColor: '#f5f5f5',
+                                                    border: '1px solid #e8e8e8',
+                                                    width: '100%'
+                                                }}>
+                                                    <img
+                                                        src={imgObj.preview}
+                                                        alt={`Preview ${imgIndex}`}
+                                                        onClick={() => setLightboxImage(imgObj.preview)}
+                                                        style={{
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            objectFit: 'cover',
+                                                            cursor: 'pointer',
+                                                            display: 'block'
+                                                        }}
+                                                    />
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            removeImage(item.id, imgIndex);
+                                                        }}
+                                                        style={{
+                                                            position: 'absolute',
+                                                            top: '5px',
+                                                            right: '5px',
+                                                            background: 'rgba(255, 255, 255, 0.95)',
+                                                            border: '1px solid #e0e0e0',
+                                                            borderRadius: '50%',
+                                                            width: '26px',
+                                                            height: '26px',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            cursor: 'pointer',
+                                                            color: '#999',
+                                                            padding: 0,
+                                                            boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+                                                            transition: 'all 0.2s'
+                                                        }}
+                                                        onMouseOver={(e) => {
+                                                            e.currentTarget.style.backgroundColor = '#ff5555';
+                                                            e.currentTarget.style.color = '#fff';
+                                                            e.currentTarget.style.borderColor = '#ff5555';
+                                                        }}
+                                                        onMouseOut={(e) => {
+                                                            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+                                                            e.currentTarget.style.color = '#999';
+                                                            e.currentTarget.style.borderColor = '#e0e0e0';
+                                                        }}
+                                                    >
+                                                        <X size={16} />
+                                                    </button>
+                                                </div>
+                                            ))}
                                         </div>
-                                    ))}
+                                    )}
                                 </div>
                             </div>
                         ))}
