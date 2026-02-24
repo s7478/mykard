@@ -317,6 +317,7 @@ const Dashboard = () => {
           }
         });
         setCardsData(data.cards);
+        toast.success(`Fetched ${data.cards.length} cards`);
         if (data.cards.length > 0) {
           if (!activeCardId) {
             const defaultActive = data.cards.find((c: Card) => c.cardActive) || data.cards[0];
@@ -349,7 +350,11 @@ const Dashboard = () => {
   const fetchAnalytics = useCallback(async () => {
     if (!activeCardId) return;
     try {
-      const response = await fetch("/api/card", { method: "GET", credentials: "include" });
+      const response = await fetch("/api/card", {
+        method: "GET",
+        credentials: "include",
+        cache: "no-store"
+      });
       const data = await response.json();
       if (data.success) {
         setCardsData(data.cards);
@@ -404,7 +409,8 @@ const Dashboard = () => {
 
   const activeCard = cardsData.find((c) => c.id === activeCardId) || cardsData[0];
   const sortedCards = [...cardsData];
-  const cardsToDisplay = showAllCards ? sortedCards : sortedCards.slice(0, 3);
+  // Removed slice limit for both views
+  const cardsToDisplay = sortedCards;
 
   return (
     <div className="min-h-screen bg-background lg:ml-64 transition-all duration-300">
@@ -526,7 +532,7 @@ const Dashboard = () => {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-green mx-auto mb-4"></div>
             </div>
           ) : cardsData.length > 0 ? (
-            cardsData.slice(0, 6).map((card, index) => {
+            cardsData.map((card, index) => {
               return (
                 <motion.div
                   key={card.id}
@@ -583,6 +589,7 @@ const Dashboard = () => {
         title={catalogViewerData.title}
         items={catalogViewerData.items}
       />
+
     </div>
   );
 };
