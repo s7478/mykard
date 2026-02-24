@@ -329,6 +329,12 @@ const CreatePage = () => {
   const handleSaveCard = async () => {
     try {
       setIsSaving(true);
+      if ((!cardName || cardName.trim() === '') && (!title || title.trim() === '')) {
+        setPopupMessage('Please enter both Card Name and Title to create a new card.');
+        setIsPopupOpen(true);
+        setIsSaving(false);
+        return;
+      }
       if (!cardName || cardName.trim() === '') {
         setPopupMessage('Please enter a card name.');
         setIsPopupOpen(true);
@@ -422,9 +428,26 @@ const CreatePage = () => {
       formData.append('catalogItems', JSON.stringify(itemsToSend));
 
       formData.append('status', 'draft');
-      const data = await response.json();
 
-      if (!response.ok) throw new Error(data.error || 'Failed to create card');
+      if (profileImageFile) formData.append('profileImage', profileImageFile);
+      else if (profileImage) formData.append('profileImageUrl', profileImage);
+      if (bannerImageFile) formData.append('bannerImage', bannerImageFile);
+      if (resumeFile) formData.append('document', resumeFile);
+
+      const response = await fetch('/api/card/create', {
+        method: 'POST',
+        body: formData,
+      });
+
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        const text = await response.text();
+        throw new Error(`Server error (${response.status}): ${text.substring(0, 100)}`);
+      }
+
+      if (!response.ok) throw new Error(data?.error || `Failed to create card (${response.status})`);
 
       setExistingCardId(data.card.id);
       setIsPopupOpen(true);
@@ -1174,7 +1197,7 @@ const CreatePage = () => {
           {isPopupOpen && (
             <div className={styles.popupOverlay}>
               <div className={styles.popupBox}>
-                <p>Your Card has been successfully Created</p>
+                <p>{popupMessage || "Your Card has been successfully Created"}</p>
                 <button
                   onClick={() => {
                     setIsPopupOpen(false);

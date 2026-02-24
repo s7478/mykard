@@ -509,7 +509,7 @@ const Dashboard = () => {
           DESKTOP VIEW (hidden md:block) - CLICK OUTSIDE FIX APPLIED
          ========================================================================= */}
       <div className="hidden md:block px-8 sm:px-14 py-8">
-        <div className="flex flex-col md:flex-row justify-center items-center my-8">
+        <div className="flex flex-col md:flex-row justify-center items-center" style={{ paddingTop: '20px', paddingBottom: '20px' }}>
           <motion.button
             whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(59, 130, 246, 0.4), 0 0 30px rgba(59, 130, 246, 0.3)" }}
             whileTap={{ scale: 0.97 }}

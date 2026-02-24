@@ -477,7 +477,12 @@ const SleekCardPreview: React.FC<DigitalCardProps> = ({
                   animation: 'pulse 2s infinite',
                   pointerEvents: 'none',
                   zIndex: 20,
-                  width: 'auto'
+                  minWidth: '130px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxSizing: 'border-box',
+                  textAlign: 'center'
                 }}>
                   Click to add contents
                   <div style={{
