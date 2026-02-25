@@ -54,13 +54,13 @@ function SearchPageContent() {
     setSelectedProfile(profile);
     setLoadingCard(true);
     setSelectedUserCard(null);
-    
+
     try {
       // Fetch the user's active card
       const response = await fetch(`/api/card/user/${profile.id}`, {
         credentials: "include",
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setSelectedUserCard(data.card);
@@ -326,49 +326,49 @@ function SearchPageContent() {
 
   const hasQuery = query.trim().length > 0 || activeCategory !== "All";
   const filtered = useMemo(() => {
-  const raw = query.trim().toLowerCase();
+    const raw = query.trim().toLowerCase();
 
-  // 🔹 CASE 1: NO SEARCH, BUT CATEGORY SELECTED
-  if (!raw && activeCategory !== "All") {
-    return profiles.filter(p => getMainCategory(p) === activeCategory);
-  }
-
-  // CASE 2: NO SEARCH + ALL → show all
-if (!raw && activeCategory === "All") {
-  return profiles.slice(0, 50);
-}
-
-
-  // 🔹 SEARCH LOGIC (UNCHANGED)
-  let keywordsPart = raw;
-  let locationPart = "";
-
-  const inIdx = raw.lastIndexOf(" in ");
-  if (inIdx > -1) {
-    keywordsPart = raw.slice(0, inIdx).trim();
-    locationPart = raw.slice(inIdx + 4).trim();
-  }
-
-  const keywords = keywordsPart.split(/\s+/).filter(Boolean);
-
-  return profiles.filter((p) => {
-    // Category filter
-    if (activeCategory !== "All") {
-      const mainCategory = getMainCategory(p);
-      if (mainCategory !== activeCategory) return false;
+    // 🔹 CASE 1: NO SEARCH, BUT CATEGORY SELECTED
+    if (!raw && activeCategory !== "All") {
+      return profiles.filter(p => getMainCategory(p) === activeCategory);
     }
 
-    const hay = `${p.name} ${p.designation ?? ""} ${p.company ?? ""} ${p.category ?? ""} ${p.city ?? ""}`.toLowerCase();
-    const city = (p.city || "").toLowerCase();
+    // CASE 2: NO SEARCH + ALL → show all
+    if (!raw && activeCategory === "All") {
+      return profiles.slice(0, 50);
+    }
 
-    const keywordsMatch =
-      keywords.length === 0 || keywords.every(k => hay.includes(k));
-    const locationMatch =
-      !locationPart || city.includes(locationPart);
 
-    return keywordsMatch && locationMatch;
-  }).slice(0, 50);
-}, [query, profiles, activeCategory]);
+    // 🔹 SEARCH LOGIC (UNCHANGED)
+    let keywordsPart = raw;
+    let locationPart = "";
+
+    const inIdx = raw.lastIndexOf(" in ");
+    if (inIdx > -1) {
+      keywordsPart = raw.slice(0, inIdx).trim();
+      locationPart = raw.slice(inIdx + 4).trim();
+    }
+
+    const keywords = keywordsPart.split(/\s+/).filter(Boolean);
+
+    return profiles.filter((p) => {
+      // Category filter
+      if (activeCategory !== "All") {
+        const mainCategory = getMainCategory(p);
+        if (mainCategory !== activeCategory) return false;
+      }
+
+      const hay = `${p.name} ${p.designation ?? ""} ${p.company ?? ""} ${p.category ?? ""} ${p.city ?? ""}`.toLowerCase();
+      const city = (p.city || "").toLowerCase();
+
+      const keywordsMatch =
+        keywords.length === 0 || keywords.every(k => hay.includes(k));
+      const locationMatch =
+        !locationPart || city.includes(locationPart);
+
+      return keywordsMatch && locationMatch;
+    }).slice(0, 50);
+  }, [query, profiles, activeCategory]);
 
 
 
@@ -619,8 +619,8 @@ if (!raw && activeCategory === "All") {
 
 /* + button (23x23 exactly like Figma) */
 .plusBtn {
-  width: 15px;
-  height: 15px;
+  width: 26px;
+  height: 26px;
 
   background: #225BE4 !important;
   color: #ffffff !important;
@@ -632,7 +632,7 @@ if (!raw && activeCategory === "All") {
   align-items: center;
   justify-content: center;
 
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   line-height: 1;
 
@@ -831,14 +831,14 @@ if (!raw && activeCategory === "All") {
 
                     <div className="filterActions">
                       <button
-                      className="clearFilterBtn"
-                      onClick={() => {
-                        setTempCategory("All");
-                        setActiveCategory("All");
-                        setShowFilter(false);
-                      }}
+                        className="clearFilterBtn"
+                        onClick={() => {
+                          setTempCategory("All");
+                          setActiveCategory("All");
+                          setShowFilter(false);
+                        }}
                       >
-                      Clear
+                        Clear
                       </button>
 
                       <button
@@ -866,7 +866,7 @@ if (!raw && activeCategory === "All") {
 
           </div>
           {/* RESULTS CONTAINER – FIGMA STYLE */}
-          <div className="resultsContainer" style={{  margin: "", background: "#ffffff", borderRadius: "30px", padding: "12px", boxShadow: "0 8px 20px rgba(103,141,223,0.18)", border: "1px solid #E6EDFF", }}>
+          <div className="resultsContainer" style={{ margin: "", background: "#ffffff", borderRadius: "30px", padding: "12px", boxShadow: "0 8px 20px rgba(103,141,223,0.18)", border: "1px solid #E6EDFF", }}>
 
             <div className="grid" style={{ marginTop: 12 }}>
 
@@ -1012,7 +1012,7 @@ if (!raw && activeCategory === "All") {
                       )}
 
                       {/* CONNECTED */}
-                     {acceptedConnections.has(p.id) && null}
+                      {acceptedConnections.has(p.id) && null}
                     </div>
 
                   </div>
@@ -1124,7 +1124,7 @@ if (!raw && activeCategory === "All") {
                           {selectedUserCard.title && <div style={{ fontSize: "0.95rem" }}><strong>Title:</strong> {selectedUserCard.title}</div>}
                           {selectedUserCard.company && <div style={{ fontSize: "0.95rem" }}><strong>Company:</strong> {selectedUserCard.company}</div>}
                           {selectedUserCard.location && <div style={{ fontSize: "0.95rem" }}><strong>Location:</strong> {selectedUserCard.location}</div>}
-                          
+
                           {selectedUserCard.services && (
                             <div style={{ fontSize: "0.95rem" }}>
                               <strong>Services:</strong> {selectedUserCard.services
