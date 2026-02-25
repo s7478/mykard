@@ -52,6 +52,7 @@ export async function GET() {
         title: true,
         company: true,
         location: true,
+        activeCatalogCardId: true,
         bio: true,
         website: true,
         posts: {
@@ -97,7 +98,7 @@ export async function GET() {
 
     // Fetch user's card with documentUrl and analytics (only active cards)
     const card = await prisma.card.findFirst({
-      where: { 
+      where: {
         userId: decoded.userId,
         cardActive: true
       },
@@ -141,6 +142,7 @@ export async function GET() {
         title: user.title || null,
         company: user.company || null,
         location: user.location || null,
+        activeCatalogCardId: user.activeCatalogCardId || null,
         bio: user.bio || null,
         documentUrl: card?.documentUrl || null,
         views: card?.views || 0,

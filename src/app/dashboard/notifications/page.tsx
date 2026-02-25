@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 
 type NotificationItem = {
   id: string;
@@ -11,6 +12,7 @@ type NotificationItem = {
 };
 
 export default function NotificationsPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [clearedIds, setClearedIds] = useState<string[]>([]);
@@ -107,12 +109,27 @@ export default function NotificationsPage() {
     persistCleared(next);
   };
 
+  const handleNotificationClick = (id: string) => {
+    if (id.startsWith('msg:') || id.startsWith('msg-')) {
+      if (id.startsWith('msg:')) {
+        const parts = id.split(':');
+        if (parts.length >= 3) {
+          router.push(`/dashboard/messages?chat=${parts[1]}`);
+          return;
+        }
+      }
+      router.push('/dashboard/messages');
+    } else if (id.startsWith('conn:') || id.startsWith('conn-')) {
+      router.push('/dashboard/connections?view=requests');
+    }
+  };
+
   return (
     <div style={{ padding: '6px 16px 40px' }}>
-      <h1 style={{ 
-        fontSize: '24px', 
-        fontWeight: 700, 
-        color: '#111827', 
+      <h1 style={{
+        fontSize: '24px',
+        fontWeight: 700,
+        color: '#111827',
         marginBottom: 8,
         lineHeight: '1.05',
         textAlign: 'center',
@@ -120,9 +137,9 @@ export default function NotificationsPage() {
       }}>
         Notifications
       </h1>
-      <p style={{ 
-        fontSize: '12px', 
-        color: "#6b7280", 
+      <p style={{
+        fontSize: '12px',
+        color: "#6b7280",
         marginBottom: 6,
         textAlign: 'center',
         lineHeight: '1.4'
@@ -182,24 +199,25 @@ export default function NotificationsPage() {
           You have no notifications yet.
         </div>
       ) : (
-        <ul style={{ display: "grid", gap: 12 }}>
+        <ul style={{ display: "grid", gap: 8 }}>
           {displayed.map((n) => (
             <li
               key={n.id}
+              onClick={() => handleNotificationClick(n.id)}
               onMouseEnter={() => setHoveredId(n.id)}
               onMouseLeave={() => setHoveredId(null)}
               style={{
                 background: hoveredId === n.id ? colors.hoverBg : colors.cardBg,
                 border: `2px solid #4A90E2`,
                 borderRadius: 10,
-                padding: "12px 16px",
+                padding: "8px 12px",
                 display: "flex",
                 flexDirection: "column",
-                gap: 6,
+                gap: 4,
                 cursor: "pointer",
-                boxShadow: "0px 3px 5px #4A90E0",
+                boxShadow: "0px 1px 3px rgba(74, 144, 224, 0.4)",
                 transition: "background-color 0.2s ease",
-                marginBottom: "8px"
+                marginBottom: "4px"
               }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
@@ -211,7 +229,10 @@ export default function NotificationsPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => handleClearOne(n.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleClearOne(n.id);
+                  }}
                   style={{
                     fontSize: 11,
                     padding: "4px 8px",
@@ -234,7 +255,7 @@ export default function NotificationsPage() {
                   Clear
                 </button>
               </div>
-              <div style={{ fontSize: 14, color: "#374151" }}>{n.message}</div>
+              <div style={{ fontSize: 13, color: "#374151" }}>{n.message}</div>
             </li>
           ))}
         </ul>

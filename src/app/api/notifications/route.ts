@@ -42,9 +42,9 @@ export async function GET(req: NextRequest) {
 
     const senders = senderIds.length
       ? await (prisma as any).user.findMany({
-          where: { id: { in: senderIds } },
-          select: { id: true, fullName: true, email: true },
-        })
+        where: { id: { in: senderIds } },
+        select: { id: true, fullName: true, email: true },
+      })
       : [];
 
     const sendersMap = new Map<string, { id: string; fullName?: string | null; email?: string | null }>();
@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
         sender?.fullName?.trim() || sender?.email || "Someone";
 
       return {
-        id: `msg-${m.id}`,
+        id: `msg:${m.senderId}:${m.id}`,
         title: "Message received",
         message: `Message received from ${displayName}`,
         createdAt: (m.createdAt || new Date()).toISOString(),
@@ -89,7 +89,7 @@ export async function GET(req: NextRequest) {
         sender?.fullName?.trim() || sender?.email || "Someone";
 
       return {
-        id: `conn-${c.id}`,
+        id: `conn:${sender?.id || 'unknown'}:${c.id}`,
         title: "Connection request",
         message: `Connection request received from ${displayName}`,
         createdAt: (c.createdAt || new Date()).toISOString(),

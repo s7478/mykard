@@ -1792,16 +1792,18 @@ export const PostCard = ({
       </div>
 
       <div>
-        <p
-          style={{
-            fontSize: "13px",
-            margin: "0 0 12px 0",
-            lineHeight: "1.4",
-            color: "#334155",
-          }}
-        >
-          {postData.content}
-        </p>
+        {postData.content && (
+          <p
+            style={{
+              fontSize: "13px",
+              margin: "0 0 8px 0",
+              lineHeight: "1.4",
+              color: "#334155",
+            }}
+          >
+            {postData.content}
+          </p>
+        )}
         {postData.imageUrl && (
           <div className="post-media-wrapper">
             <div
