@@ -431,13 +431,13 @@ const CreatePage = () => {
 
       if (profileImageFile) formData.append('profileImage', profileImageFile);
       else if (profileImage) formData.append('profileImageUrl', profileImage);
-      if (bannerImageFile) formData.append('bannerImage', bannerImageFile);
+    
       if (resumeFile) formData.append('document', resumeFile);
 
       // Append Images & Files
-      if (profileImageFile) formData.append('profileImage', profileImageFile);
+      
       if (bannerImageFile) formData.append('coverImage', bannerImageFile);
-      if (resumeFile) formData.append('document', resumeFile);
+      
 
       // Call API directly to avoid potential alias issues
       const response = await fetch('/api/card/create', {
