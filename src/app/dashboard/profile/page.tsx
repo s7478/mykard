@@ -46,12 +46,17 @@ interface UserProfile {
   shares?: number;
   connectionCount?: number;
   posts?: UserPost[];
+  activeCatalogCardId?: string;
 }
 
 interface Card {
   id: string;
   cardName: string;
   documentUrl?: string;
+  cardActive?: boolean;
+  showCatalog?: boolean;
+  catalogTitle?: string;
+  catalogItems?: any;
 }
 
 export default function ProfilePage() {
@@ -60,7 +65,10 @@ export default function ProfilePage() {
   const [cards, setCards] = useState<Card[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activePostTab, setActivePostTab] = useState<'posts' | 'comments'>('posts');
+  const [activePostTab, setActivePostTab] = useState<'posts' | 'comments' | 'catalog'>('posts');
+  const [selectedCatalogCardId, setSelectedCatalogCardId] = useState<string | null>(null);
+  const [showCatalogSelector, setShowCatalogSelector] = useState(false);
+  const [savingCatalogSelection, setSavingCatalogSelection] = useState(false);
   const [isEditingIntro, setIsEditingIntro] = useState(false);
   const [editForm, setEditForm] = useState({
     fullName: "",
@@ -410,6 +418,137 @@ export default function ProfilePage() {
       </div>
     );
   }
+
+  const saveCatalogSelection = async (cardId: string) => {
+    if (!userProfile) return;
+    setSavingCatalogSelection(true);
+    try {
+      const res = await fetch("/api/user/active-catalog", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ activeCatalogCardId: cardId }),
+      });
+      if (res.ok) {
+        alert("Catalog selection saved");
+        setSelectedCatalogCardId(cardId);
+        setShowCatalogSelector(false);
+        setUserProfile(prev => prev ? { ...prev, activeCatalogCardId: cardId } : null);
+      } else {
+        alert("Failed to save selection");
+      }
+    } catch (e) {
+      alert("Error saving selection");
+    } finally {
+      setSavingCatalogSelection(false);
+    }
+  };
+
+  const renderCatalog = (card: any) => {
+    let catalogItems: any[] = [];
+    try {
+      if (card.catalogItems) {
+        catalogItems = typeof card.catalogItems === 'string'
+          ? JSON.parse(card.catalogItems)
+          : card.catalogItems;
+      }
+    } catch (e) {
+      console.error("Failed to parse catalog items", e);
+    }
+
+    if (catalogItems.length === 0) {
+      return (
+        <div style={{ padding: "24px", textAlign: "center", color: "#666", fontSize: "14px" }}>
+          Catalog exists but has no items.
+        </div>
+      );
+    }
+
+    const catalogCards = cards.filter(c => c.cardActive && c.showCatalog);
+
+    return (
+      <div style={{ padding: "16px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+          <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "600", color: "#333" }}>
+            {card.catalogTitle || "Catalog"}
+          </h3>
+          {catalogCards.length > 1 && (
+            <button
+              onClick={() => setShowCatalogSelector(true)}
+              style={{ background: "none", border: "1px solid #e0e0e0", borderRadius: "16px", padding: "4px 12px", fontSize: "12px", cursor: "pointer", color: "#666" }}
+            >
+              Change
+            </button>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {catalogItems.map((item: any, index: number) => (
+            <div key={index} style={{
+              border: '1px solid #e0e0e0',
+              borderRadius: '12px',
+              padding: '16px',
+              backgroundColor: '#fff'
+            }}>
+              <h4 style={{
+                fontSize: '16px',
+                fontWeight: 600,
+                color: '#333',
+                marginBottom: '16px',
+                marginTop: 0,
+              }}>
+                {item.title || "Untitled"}
+              </h4>
+
+              {item.images && item.images.length > 0 ? (
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: '12px',
+                  width: '100%'
+                }}>
+                  {item.images.map((imgObj: any, imgIndex: number) => {
+                    const imgSrc = typeof imgObj === 'string' ? imgObj : (imgObj.url || imgObj.preview);
+                    return (
+                      <div key={imgIndex} style={{
+                        position: 'relative',
+                        aspectRatio: '1 / 1',
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        backgroundColor: '#f5f5f5',
+                        border: '1px solid #e8e8e8',
+                        width: '100%'
+                      }}>
+                        {imgSrc ? (
+                          <img
+                            src={imgSrc}
+                            alt={`${item.title} image ${imgIndex + 1}`}
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                              display: 'block'
+                            }}
+                          />
+                        ) : (
+                          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#aaa', fontSize: '12px' }}>
+                            No image
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div style={{ padding: "24px", textAlign: "center", color: "#666", fontSize: "14px", backgroundColor: "#f9f9f9", borderRadius: "8px" }}>
+                  No images added
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   // Filter cards to find those with documents
   const cardsWithDocuments = cards.filter(card => card.documentUrl);
@@ -866,9 +1005,116 @@ export default function ProfilePage() {
               >
                 Textual Posts
               </button>
+              <button
+                onClick={() => setActivePostTab('catalog')}
+                style={{
+                  padding: "8px 16px",
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  color: activePostTab === 'catalog' ? "#fff" : "#666",
+                  backgroundColor: activePostTab === 'catalog' ? "#01754f" : "transparent",
+                  border: activePostTab === 'catalog' ? "none" : "1px solid #666",
+                  borderRadius: "16px",
+                  cursor: "pointer",
+                  marginBottom: "12px",
+                  transition: "all 0.2s"
+                }}
+              >
+                Catalog
+              </button>
             </div>
 
             {(() => {
+              if (activePostTab === 'catalog') {
+                const catalogCards = cards.filter(c => c.cardActive && c.showCatalog);
+                const hasCatalogs = catalogCards.length > 0;
+
+                // Case 1: 0 Catalogs
+                if (!hasCatalogs) {
+                  return (
+                    <div style={{ padding: "24px", textAlign: "center" }}>
+                      <p style={{ color: "#666", fontSize: "14px", marginBottom: "16px" }}>Create new or edit a card to add catalog</p>
+                      <button
+                        onClick={() => window.location.href = '/dashboard'}
+                        style={{
+                          padding: "8px 16px", backgroundColor: "#01754f", color: "white", borderRadius: "16px", border: "none", cursor: "pointer", fontSize: "14px", fontWeight: "600"
+                        }}
+                      >
+                        Add Catalog
+                      </button>
+                    </div>
+                  );
+                }
+
+                // Case 2: Exactly 1 Catalog
+                if (catalogCards.length === 1) {
+                  return renderCatalog(catalogCards[0]);
+                }
+
+                // Case 3: Multiple Catalogs
+                const activeId = selectedCatalogCardId || userProfile?.activeCatalogCardId;
+                const activeCard = catalogCards.find(c => c.id === activeId);
+
+                if (!activeId || showCatalogSelector) {
+                  return (
+                    <div style={{ padding: "16px", textAlign: "center" }}>
+                      <p style={{ color: "#666", fontSize: "14px", marginBottom: "16px" }}>
+                        {showCatalogSelector ? "Select a card to display its catalog:" : "You have multiple catalogs on different cards, select one card to display its catalog."}
+                      </p>
+                      {!showCatalogSelector && (
+                        <button
+                          onClick={() => setShowCatalogSelector(true)}
+                          style={{
+                            padding: "8px 16px", backgroundColor: "#01754f", color: "white", borderRadius: "16px", border: "none", cursor: "pointer", fontSize: "14px", fontWeight: "600", marginBottom: "16px"
+                          }}
+                        >
+                          Choose
+                        </button>
+                      )}
+
+                      {showCatalogSelector && (
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "16px" }}>
+                          {catalogCards.map(card => (
+                            <div key={card.id} style={{ border: "1px solid #e0e0e0", borderRadius: "8px", padding: "16px", backgroundColor: "#f9f9f9" }}>
+                              <h4 style={{ margin: "0 0 12px 0", fontSize: "14px", color: "#333", fontWeight: "600" }}>{card.cardName}</h4>
+                              <p style={{ margin: "0 0 12px 0", fontSize: "12px", color: "#666" }}>
+                                {card.catalogTitle || "Catalog"} (
+                                {(() => {
+                                  try {
+                                    return (typeof card.catalogItems === 'string' ? JSON.parse(card.catalogItems) : card.catalogItems || []).length;
+                                  } catch (e) {
+                                    return 0;
+                                  }
+                                })()}
+                                &nbsp;items)
+                              </p>
+                              <button
+                                onClick={() => saveCatalogSelection(card.id)}
+                                disabled={savingCatalogSelection}
+                                style={{
+                                  width: "100%", padding: "6px 0", fontSize: "12px", fontWeight: "600",
+                                  backgroundColor: "transparent", color: "#01754f", border: "1px solid #01754f",
+                                  borderRadius: "16px", cursor: savingCatalogSelection ? "not-allowed" : "pointer",
+                                  opacity: savingCatalogSelection ? 0.7 : 1
+                                }}
+                              >
+                                {savingCatalogSelection ? "Saving..." : "Select this catalog"}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
+                if (activeCard) {
+                  return renderCatalog(activeCard);
+                }
+
+                return null;
+              }
+
               // Filter posts based on tab
               const allPosts = userProfile?.posts || [];
               const mediaPosts = allPosts.filter(p => p.imageUrl || p.videoUrl); // "Posts" tab shows media posts (images or videos)

@@ -48,6 +48,8 @@ interface UserProfile {
     shares?: number;
     connectionCount?: number;
     posts?: UserPost[];
+    cards?: any[]; // Full cards array including catalogItems
+    activeCatalogCardId?: string; // The selected catalog ID for visitors to view
     isConnected?: boolean;
     connectionStatus?: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'NONE' | 'SELF';
     viewerId?: string;
@@ -78,7 +80,10 @@ export default function PublicProfilePage() {
     const [cards, setCards] = useState<Card[]>([]); // Likely empty for public view if not implemented in API
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [activePostTab, setActivePostTab] = useState<'posts' | 'comments'>('posts');
+    const [activePostTab, setActivePostTab] = useState<'posts' | 'comments' | 'catalog'>('posts');
+    const [selectedCatalogCardId, setSelectedCatalogCardId] = useState<string | null>(null);
+    const [showCatalogSelector, setShowCatalogSelector] = useState(false);
+    const [savingCatalogSelection, setSavingCatalogSelection] = useState(false);
 
     const [showContactPopup, setShowContactPopup] = useState(false);
     const [isConnecting, setIsConnecting] = useState(false);
@@ -159,6 +164,138 @@ export default function PublicProfilePage() {
         router.push(`/dashboard/messages?userId=${userProfile.id}`);
     };
 
+
+    const saveCatalogSelection = async (cardId: string) => {
+        if (!userProfile) return;
+        setSavingCatalogSelection(true);
+        try {
+            const res = await fetch("/api/user/active-catalog", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ activeCatalogCardId: cardId }),
+            });
+            if (res.ok) {
+                toast.success("Catalog selection saved");
+                setSelectedCatalogCardId(cardId);
+                setShowCatalogSelector(false);
+                setUserProfile(prev => prev ? { ...prev, activeCatalogCardId: cardId } : null);
+            } else {
+                toast.error("Failed to save selection");
+            }
+        } catch (e) {
+            toast.error("Error saving selection");
+        } finally {
+            setSavingCatalogSelection(false);
+        }
+    };
+
+    const renderCatalog = (card: any) => {
+        let catalogItems: any[] = [];
+        try {
+            if (card.catalogItems) {
+                catalogItems = typeof card.catalogItems === 'string'
+                    ? JSON.parse(card.catalogItems)
+                    : card.catalogItems;
+            }
+        } catch (e) {
+            console.error("Failed to parse catalog items", e);
+        }
+
+        if (catalogItems.length === 0) {
+            return (
+                <div style={{ padding: "24px", textAlign: "center", color: "#666", fontSize: "14px" }}>
+                    Catalog exists but has no items.
+                </div>
+            );
+        }
+
+        // Inherit design colors if needed, but here we just render the grid
+        const catalogCards = userProfile?.cards?.filter(c => c.cardActive && c.showCatalog) || [];
+
+        return (
+            <div style={{ padding: "16px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                    <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "600", color: "#333" }}>
+                        {card.catalogTitle || "Catalog"}
+                    </h3>
+                    {isOwnProfile && catalogCards.length > 1 && (
+                        <button
+                            onClick={() => setShowCatalogSelector(true)}
+                            style={{ background: "none", border: "1px solid #e0e0e0", borderRadius: "16px", padding: "4px 12px", fontSize: "12px", cursor: "pointer", color: "#666" }}
+                        >
+                            Change
+                        </button>
+                    )}
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    {catalogItems.map((item, index) => (
+                        <div key={index} style={{
+                            border: '1px solid #e0e0e0',
+                            borderRadius: '12px',
+                            padding: '16px',
+                            backgroundColor: '#fff'
+                        }}>
+                            <h4 style={{
+                                fontSize: '16px',
+                                fontWeight: 600,
+                                color: '#333',
+                                marginBottom: '16px',
+                                marginTop: 0,
+                            }}>
+                                {item.title || "Untitled"}
+                            </h4>
+
+                            {item.images && item.images.length > 0 ? (
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(3, 1fr)',
+                                    gap: '12px',
+                                    width: '100%'
+                                }}>
+                                    {item.images.map((imgObj: any, imgIndex: number) => {
+                                        const imgSrc = typeof imgObj === 'string' ? imgObj : (imgObj.url || imgObj.preview);
+                                        return (
+                                            <div key={imgIndex} style={{
+                                                position: 'relative',
+                                                aspectRatio: '1 / 1',
+                                                borderRadius: '8px',
+                                                overflow: 'hidden',
+                                                backgroundColor: '#f5f5f5',
+                                                border: '1px solid #e8e8e8',
+                                                width: '100%'
+                                            }}>
+                                                {imgSrc ? (
+                                                    <img
+                                                        src={imgSrc}
+                                                        alt={`${item.title} image ${imgIndex + 1}`}
+                                                        style={{
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            objectFit: 'cover',
+                                                            display: 'block'
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#aaa', fontSize: '12px' }}>
+                                                        No image
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <div style={{ padding: "24px", textAlign: "center", color: "#666", fontSize: "14px", backgroundColor: "#f9f9f9", borderRadius: "8px" }}>
+                                    No images added
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    };
 
     if (isLoading) {
         return (
@@ -447,161 +584,275 @@ export default function PublicProfilePage() {
                         </p>
                     </div>
 
-                    {/* Posts Section - Only if Connected */}
-                    {isConnected && (
-                        <div style={{ backgroundColor: "#fff", borderRadius: "8px", padding: "16px", boxShadow: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)" }}>
+                    {/* Posts Section */}
+                    <div style={{ backgroundColor: "#fff", borderRadius: "8px", padding: "16px", boxShadow: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)", marginBottom: "8px" }}>
 
-                            {/* Tabs */}
-                            <div style={{ display: "flex", gap: "12px", marginBottom: "16px", borderBottom: "1px solid #e0e0e0" }}>
-                                <button
-                                    onClick={() => setActivePostTab('posts')}
-                                    style={{
-                                        padding: "8px 16px",
-                                        fontSize: "14px",
-                                        fontWeight: "600",
-                                        color: activePostTab === 'posts' ? "#fff" : "#666",
-                                        backgroundColor: activePostTab === 'posts' ? "#01754f" : "transparent",
-                                        border: activePostTab === 'posts' ? "none" : "1px solid #666",
-                                        borderRadius: "16px",
-                                        cursor: "pointer",
-                                        marginBottom: "12px",
-                                        transition: "all 0.2s"
-                                    }}
-                                >
-                                    Posts
-                                </button>
-                                <button
-                                    onClick={() => setActivePostTab('comments')}
-                                    style={{
-                                        padding: "8px 16px",
-                                        fontSize: "14px",
-                                        fontWeight: "600",
-                                        color: activePostTab === 'comments' ? "#fff" : "#666",
-                                        backgroundColor: activePostTab === 'comments' ? "#01754f" : "transparent",
-                                        border: activePostTab === 'comments' ? "none" : "1px solid #666",
-                                        borderRadius: "16px",
-                                        cursor: "pointer",
-                                        marginBottom: "12px",
-                                        transition: "all 0.2s"
-                                    }}
-                                >
-                                    Textual Posts
-                                </button>
-                            </div>
+                        {/* Tabs */}
+                        <div style={{ display: "flex", gap: "12px", marginBottom: "16px", borderBottom: "1px solid #e0e0e0" }}>
+                            <button
+                                onClick={() => setActivePostTab('posts')}
+                                style={{
+                                    padding: "8px 16px",
+                                    fontSize: "14px",
+                                    fontWeight: "600",
+                                    color: activePostTab === 'posts' ? "#fff" : "#666",
+                                    backgroundColor: activePostTab === 'posts' ? "#01754f" : "transparent",
+                                    border: activePostTab === 'posts' ? "none" : "1px solid #666",
+                                    borderRadius: "16px",
+                                    cursor: "pointer",
+                                    marginBottom: "12px",
+                                    transition: "all 0.2s"
+                                }}
+                            >
+                                Posts
+                            </button>
+                            <button
+                                onClick={() => setActivePostTab('comments')}
+                                style={{
+                                    padding: "8px 16px",
+                                    fontSize: "14px",
+                                    fontWeight: "600",
+                                    color: activePostTab === 'comments' ? "#fff" : "#666",
+                                    backgroundColor: activePostTab === 'comments' ? "#01754f" : "transparent",
+                                    border: activePostTab === 'comments' ? "none" : "1px solid #666",
+                                    borderRadius: "16px",
+                                    cursor: "pointer",
+                                    marginBottom: "12px",
+                                    transition: "all 0.2s"
+                                }}
+                            >
+                                Textual Posts
+                            </button>
+                            <button
+                                onClick={() => setActivePostTab('catalog')}
+                                style={{
+                                    padding: "8px 16px",
+                                    fontSize: "14px",
+                                    fontWeight: "600",
+                                    color: activePostTab === 'catalog' ? "#fff" : "#666",
+                                    backgroundColor: activePostTab === 'catalog' ? "#01754f" : "transparent",
+                                    border: activePostTab === 'catalog' ? "none" : "1px solid #666",
+                                    borderRadius: "16px",
+                                    cursor: "pointer",
+                                    marginBottom: "12px",
+                                    transition: "all 0.2s"
+                                }}
+                            >
+                                Catalog
+                            </button>
+                        </div>
 
-                            {(() => {
-                                const allPosts = userProfile?.posts || [];
-                                const mediaPosts = allPosts.filter(p => p.imageUrl);
-                                const textPosts = allPosts.filter(p => !p.imageUrl);
+                        {(() => {
+                            if (activePostTab === 'catalog') {
+                                const catalogCards = userProfile?.cards || [];
+                                const hasCatalogs = catalogCards.length > 0;
 
-                                const displayedPosts = activePostTab === 'posts' ? mediaPosts : textPosts;
-
-                                if (displayedPosts.length > 0) {
+                                // Case 1: 0 Catalogs
+                                if (!hasCatalogs) {
                                     return (
-                                        <div style={{
-                                            gap: "16px",
-                                            display: "flex",
-                                            overflowX: "auto",
-                                            scrollSnapType: "x mandatory",
-                                            paddingBottom: "16px",
-                                            scrollbarWidth: "thin"
-                                        }}>
-                                            {displayedPosts.map((post) => {
-                                                const postDate = new Date(post.createdAt);
-                                                const timeAgo = Math.floor((new Date().getTime() - postDate.getTime()) / (1000 * 60 * 60 * 24));
-                                                let timeString = `${timeAgo}d`;
-                                                if (timeAgo > 30) timeString = `${Math.floor(timeAgo / 30)}mo`;
-                                                if (timeAgo > 365) timeString = `${Math.floor(timeAgo / 365)}yr`;
-                                                if (timeAgo === 0) timeString = "Today";
-
-                                                return (
-                                                    <div key={post.id} style={{
-                                                        minWidth: "350px",
-                                                        width: "calc(50% - 8px)",
-                                                        flexShrink: 0,
-                                                        scrollSnapAlign: "start",
-                                                        border: "1px solid #e0e0e0",
-                                                        borderRadius: "8px",
-                                                        overflow: "hidden",
-                                                        display: "flex",
-                                                        flexDirection: "column",
-                                                        backgroundColor: "#fff"
-                                                    }}>
-                                                        {/* Header */}
-                                                        <div style={{ padding: "12px", display: "flex", gap: "12px" }}>
-                                                            <div style={{
-                                                                width: "48px",
-                                                                height: "48px",
-                                                                borderRadius: "50%",
-                                                                overflow: "hidden",
-                                                                flexShrink: 0,
-                                                                backgroundColor: "#f0f0f0"
-                                                            }}>
-                                                                {displayUser.profileImage ? (
-                                                                    <img
-                                                                        src={displayUser.profileImage}
-                                                                        alt={displayUser.name}
-                                                                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                                                    />
-                                                                ) : (
-                                                                    <div style={{ width: "100%", height: "100%", background: "#667eea" }}></div>
-                                                                )}
-                                                            </div>
-                                                            <div style={{ flex: 1 }}>
-                                                                <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                                                                    <span style={{ fontSize: "14px", fontWeight: "600", color: "#000" }}>{displayUser.name}</span>
-                                                                </div>
-                                                                <div style={{ fontSize: "12px", color: "#666", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "200px" }}>
-                                                                    {displayUser.jobTitle}
-                                                                </div>
-                                                                <div style={{ fontSize: "12px", color: "#666", display: "flex", alignItems: "center", gap: "4px" }}>
-                                                                    <span>{timeString} • </span>
-                                                                    <Globe size={12} />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        {/* Content */}
-                                                        <div style={{ padding: "0 12px 12px 12px", flex: 1 }}>
-                                                            {post.content && (
-                                                                <p style={{ fontSize: "14px", color: "#000", lineHeight: "1.5", margin: "0 0 8px 0", maxHeight: "60px", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" }}>
-                                                                    {post.content}
-                                                                </p>
-                                                            )}
-
-                                                            {post.imageUrl && (
-                                                                <div style={{ borderRadius: "4px", overflow: "hidden", marginTop: "8px" }}>
-                                                                    {post.imageUrl.match(/\.(mp4|webm|ogg)$/i) ? (
-                                                                        <video
-                                                                            src={post.imageUrl}
-                                                                            controls
-                                                                            style={{ width: "100%", height: "200px", objectFit: "cover", display: "block" }}
-                                                                        />
-                                                                    ) : (
-                                                                        <img
-                                                                            src={post.imageUrl}
-                                                                            alt="Post"
-                                                                            style={{ width: "100%", height: "200px", objectFit: "cover", display: "block" }}
-                                                                        />
-                                                                    )}
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    );
-                                } else {
-                                    return (
-                                        <div style={{ padding: "24px", textAlign: "center", color: "#666", fontSize: "14px" }}>
-                                            No {activePostTab === 'posts' ? 'media posts' : 'textual posts'} to show.
+                                        <div style={{ padding: "24px", textAlign: "center" }}>
+                                            {isOwnProfile ? (
+                                                <>
+                                                    <p style={{ color: "#666", fontSize: "14px", marginBottom: "16px" }}>Create new or edit a card to add catalog</p>
+                                                    <button
+                                                        onClick={() => router.push('/dashboard')}
+                                                        style={{
+                                                            padding: "8px 16px", backgroundColor: "#01754f", color: "white", borderRadius: "16px", border: "none", cursor: "pointer", fontSize: "14px", fontWeight: "600"
+                                                        }}
+                                                    >
+                                                        Add Catalog
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <p style={{ color: "#666", fontSize: "14px" }}>No catalog added</p>
+                                            )}
                                         </div>
                                     );
                                 }
-                            })()}
-                        </div>
-                    )}
+
+                                // Case 2: Exactly 1 Catalog
+                                if (catalogCards.length === 1) {
+                                    return renderCatalog(catalogCards[0]);
+                                }
+
+                                // Case 3: Multiple Catalogs
+                                const activeId = selectedCatalogCardId || userProfile.activeCatalogCardId;
+                                const activeCard = catalogCards.find(c => c.id === activeId);
+
+                                if (isOwnProfile) {
+                                    if (!activeId || showCatalogSelector) {
+                                        return (
+                                            <div style={{ padding: "16px", textAlign: "center" }}>
+                                                <p style={{ color: "#666", fontSize: "14px", marginBottom: "16px" }}>
+                                                    {showCatalogSelector ? "Select a card to display its catalog:" : "You have multiple catalogs on different cards, select one card to display its catalog."}
+                                                </p>
+                                                {!showCatalogSelector && (
+                                                    <button
+                                                        onClick={() => setShowCatalogSelector(true)}
+                                                        style={{
+                                                            padding: "8px 16px", backgroundColor: "#01754f", color: "white", borderRadius: "16px", border: "none", cursor: "pointer", fontSize: "14px", fontWeight: "600", marginBottom: "16px"
+                                                        }}
+                                                    >
+                                                        Choose
+                                                    </button>
+                                                )}
+
+                                                {showCatalogSelector && (
+                                                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "16px" }}>
+                                                        {catalogCards.map(card => (
+                                                            <div
+                                                                key={card.id}
+                                                                onClick={() => saveCatalogSelection(card.id)}
+                                                                style={{
+                                                                    border: activeId === card.id ? "2px solid #01754f" : "1px solid #e0e0e0",
+                                                                    borderRadius: "8px",
+                                                                    padding: "12px",
+                                                                    cursor: "pointer",
+                                                                    position: "relative",
+                                                                    backgroundColor: activeId === card.id ? "#f0fdf4" : "white"
+                                                                }}
+                                                            >
+                                                                {activeId === card.id && (
+                                                                    <div style={{ position: "absolute", top: "8px", right: "8px", color: "#01754f" }}>
+                                                                        <Check size={18} />
+                                                                    </div>
+                                                                )}
+                                                                <h4 style={{ margin: "0 0 8px 0", fontSize: "14px", fontWeight: "600", color: "#333" }}>{card.cardName || 'Untitled Card'}</h4>
+                                                                <p style={{ margin: 0, fontSize: "12px", color: "#666" }}>{card.catalogTitle || 'Catalog'}</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    } else if (activeCard) {
+                                        return renderCatalog(activeCard);
+                                    }
+                                } else {
+                                    // Visitor View
+                                    if (activeCard) {
+                                        return renderCatalog(activeCard);
+                                    } else {
+                                        return (
+                                            <div style={{ padding: "24px", textAlign: "center", color: "#666", fontSize: "14px" }}>
+                                                No catalog added
+                                            </div>
+                                        );
+                                    }
+                                }
+                            }
+
+                            const allPosts = userProfile?.posts || [];
+                            const mediaPosts = allPosts.filter(p => p.imageUrl);
+                            const textPosts = allPosts.filter(p => !p.imageUrl);
+
+                            const displayedPosts = activePostTab === 'posts' ? mediaPosts : textPosts;
+
+                            if (displayedPosts.length > 0) {
+                                return (
+                                    <div style={{
+                                        gap: "16px",
+                                        display: "flex",
+                                        overflowX: "auto",
+                                        scrollSnapType: "x mandatory",
+                                        paddingBottom: "16px",
+                                        scrollbarWidth: "thin"
+                                    }}>
+                                        {displayedPosts.map((post) => {
+                                            const postDate = new Date(post.createdAt);
+                                            const timeAgo = Math.floor((new Date().getTime() - postDate.getTime()) / (1000 * 60 * 60 * 24));
+                                            let timeString = `${timeAgo}d`;
+                                            if (timeAgo > 30) timeString = `${Math.floor(timeAgo / 30)}mo`;
+                                            if (timeAgo > 365) timeString = `${Math.floor(timeAgo / 365)}yr`;
+                                            if (timeAgo === 0) timeString = "Today";
+
+                                            return (
+                                                <div key={post.id} style={{
+                                                    minWidth: "350px",
+                                                    width: "calc(50% - 8px)",
+                                                    flexShrink: 0,
+                                                    scrollSnapAlign: "start",
+                                                    border: "1px solid #e0e0e0",
+                                                    borderRadius: "8px",
+                                                    overflow: "hidden",
+                                                    display: "flex",
+                                                    flexDirection: "column",
+                                                    backgroundColor: "#fff"
+                                                }}>
+                                                    {/* Header */}
+                                                    <div style={{ padding: "12px", display: "flex", gap: "12px" }}>
+                                                        <div style={{
+                                                            width: "48px",
+                                                            height: "48px",
+                                                            borderRadius: "50%",
+                                                            overflow: "hidden",
+                                                            flexShrink: 0,
+                                                            backgroundColor: "#f0f0f0"
+                                                        }}>
+                                                            {displayUser.profileImage ? (
+                                                                <img
+                                                                    src={displayUser.profileImage}
+                                                                    alt={displayUser.name}
+                                                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                                                />
+                                                            ) : (
+                                                                <div style={{ width: "100%", height: "100%", background: "#667eea" }}></div>
+                                                            )}
+                                                        </div>
+                                                        <div style={{ flex: 1 }}>
+                                                            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                                                                <span style={{ fontSize: "14px", fontWeight: "600", color: "#000" }}>{displayUser.name}</span>
+                                                            </div>
+                                                            <div style={{ fontSize: "12px", color: "#666", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "200px" }}>
+                                                                {displayUser.jobTitle}
+                                                            </div>
+                                                            <div style={{ fontSize: "12px", color: "#666", display: "flex", alignItems: "center", gap: "4px" }}>
+                                                                <span>{timeString} • </span>
+                                                                <Globe size={12} />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Content */}
+                                                    <div style={{ padding: "0 12px 12px 12px", flex: 1 }}>
+                                                        {post.content && (
+                                                            <p style={{ fontSize: "14px", color: "#000", lineHeight: "1.5", margin: "0 0 8px 0", maxHeight: "60px", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" }}>
+                                                                {post.content}
+                                                            </p>
+                                                        )}
+
+                                                        {post.imageUrl && (
+                                                            <div style={{ borderRadius: "4px", overflow: "hidden", marginTop: "8px" }}>
+                                                                {post.imageUrl.match(/\.(mp4|webm|ogg)$/i) ? (
+                                                                    <video
+                                                                        src={post.imageUrl}
+                                                                        controls
+                                                                        style={{ width: "100%", height: "200px", objectFit: "cover", display: "block" }}
+                                                                    />
+                                                                ) : (
+                                                                    <img
+                                                                        src={post.imageUrl}
+                                                                        alt="Post"
+                                                                        style={{ width: "100%", height: "200px", objectFit: "cover", display: "block" }}
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                );
+                            } else {
+                                return (
+                                    <div style={{ padding: "24px", textAlign: "center", color: "#666", fontSize: "14px" }}>
+                                        No {activePostTab === 'posts' ? 'media posts' : 'textual posts'} to show.
+                                    </div>
+                                );
+                            }
+                        })()}
+                    </div>
 
 
                     {/* Suggestions - Only if NOT connected */}
