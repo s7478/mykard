@@ -101,7 +101,14 @@ const CreatePage = () => {
   const [catalogTitle, setCatalogTitle] = useState('Catalog'); // Default Title
   const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
   const [isCatalogPopupOpen, setIsCatalogPopupOpen] = useState(false);
-  const [hasClickedCatalog, setHasClickedCatalog] = useState(false);
+  const [showCatalogHelper, setShowCatalogHelper] = useState(false);
+
+  // Helper Cloud Logic
+  useEffect(() => {
+    if (showCatalog && !isCatalogPopupOpen) {
+      setShowCatalogHelper(true);
+    }
+  }, [showCatalog]);
 
   const [isCustomTitle, setIsCustomTitle] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -431,13 +438,13 @@ const CreatePage = () => {
 
       if (profileImageFile) formData.append('profileImage', profileImageFile);
       else if (profileImage) formData.append('profileImageUrl', profileImage);
-    
+
       if (resumeFile) formData.append('document', resumeFile);
 
       // Append Images & Files
-      
+
       if (bannerImageFile) formData.append('coverImage', bannerImageFile);
-      
+
 
       // Call API directly to avoid potential alias issues
       const response = await fetch('/api/card/create', {
@@ -484,6 +491,7 @@ const CreatePage = () => {
       showCatalog,
       catalogTitle,
       initialItems: catalogItems,
+      showHelper: showCatalog && showCatalogHelper,
       onSave: (newTitle: string, newItems: CatalogItem[]) => {
         setCatalogTitle(newTitle);
         setCatalogItems(newItems);
@@ -491,6 +499,9 @@ const CreatePage = () => {
       },
       onCatalogClick: () => {
         setIsCatalogPopupOpen(true);
+        if (showCatalogHelper) {
+          setShowCatalogHelper(false);
+        }
       }
     };
     switch (selectedDesign) {

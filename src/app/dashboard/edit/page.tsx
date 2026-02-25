@@ -133,25 +133,8 @@ const CreatePageContent = () => {
   const [isCatalogPopupOpen, setIsCatalogPopupOpen] = useState(false);
   const [catalogTitle, setCatalogTitle] = useState('Catalog');
   const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
-  const [showCatalogHelper, setShowCatalogHelper] = useState(false);
 
-  // Helper Cloud Logic
-  useEffect(() => {
-    const hasSeenHelper = localStorage.getItem('hasSeenCatalogHelper');
-    if (!hasSeenHelper) {
-      setShowCatalogHelper(true);
-      const timer = setTimeout(() => setShowCatalogHelper(false), 5000); // Hide after 5s
-      return () => clearTimeout(timer);
-    }
-  }, []);
 
-  const handleCatalogClick = () => {
-    setShowCatalog(!showCatalog);
-    if (showCatalogHelper) {
-      setShowCatalogHelper(false);
-      localStorage.setItem('hasSeenCatalogHelper', 'true');
-    }
-  };
 
   const platforms = [
     { name: "WhatsApp", img: "/assets/whatsapp.png" },
