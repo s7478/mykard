@@ -24,16 +24,25 @@ export default function FeedPage() {
 
   return (
     <div className="min-h-screen px-4 py-8 flex justify-center">
-      <main className="flex flex-col w-full lg:w-7/12 mx-auto">
+      <style>{`
+        @media (max-width: 640px) {
+          .feed-mobile-padding {
+            padding-left: 12px;
+            padding-right: 4px;
+          }
+        }
+      `}</style>
+      <main className="flex flex-col w-full lg:w-7/12 mx-auto feed-mobile-padding">
 
         {/* 1. Create Post Widget */}
         <CreatePostWidget currentUser={currentUser} />
 
-        {/* 🟢 2. Story Bar (Placed after Create Post as requested) */}
-        <StoryBar currentUser={currentUser} />
 
-        {/* 3. Feed Stream */}
-        <FeedStream filter="all" currentUser={currentUser} />
+        {/* StoryBar and FeedStream unified visually */}
+        <div className="flex flex-col w-full">
+          <StoryBar currentUser={currentUser} />
+          <FeedStream filter="all" currentUser={currentUser} />
+        </div>
 
         <div className="h-24 lg:h-0 w-full flex-shrink-0" />
 
