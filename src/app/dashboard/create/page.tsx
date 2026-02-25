@@ -434,6 +434,12 @@ const CreatePage = () => {
       if (bannerImageFile) formData.append('bannerImage', bannerImageFile);
       if (resumeFile) formData.append('document', resumeFile);
 
+      // Append Images & Files
+      if (profileImageFile) formData.append('profileImage', profileImageFile);
+      if (bannerImageFile) formData.append('coverImage', bannerImageFile);
+      if (resumeFile) formData.append('document', resumeFile);
+
+      // Call API directly to avoid potential alias issues
       const response = await fetch('/api/card/create', {
         method: 'POST',
         body: formData,
@@ -469,17 +475,23 @@ const CreatePage = () => {
 
     const props = {
       firstName, middleName, lastName, cardName, title, company, location: cardLocation,
-      about, skills, portfolio, experience, services, review: reviews, photo: profileImage || '', cover: bannerImage || '',
+      about, skills, portfolio, experience, services, review: reviews, photo: profileImage || '',
+      cover: bannerImage || '',
       email, phone: previewPhone, linkedin, website, themeColor1: selectedColor1, themeColor2: selectedColor2, textColor: textColor,
       fontFamily: selectedFont, cardType, customFields: extraFields,
       onDocumentClick: handleDocumentClick,
-      showCatalog, // Pass the state
+      // Catalog Props
+      showCatalog,
       catalogTitle,
+      initialItems: catalogItems,
+      onSave: (newTitle: string, newItems: CatalogItem[]) => {
+        setCatalogTitle(newTitle);
+        setCatalogItems(newItems);
+        setIsCatalogPopupOpen(false);
+      },
       onCatalogClick: () => {
         setIsCatalogPopupOpen(true);
-        setHasClickedCatalog(true);
-      },
-      showHelper: showCatalog && !hasClickedCatalog
+      }
     };
     switch (selectedDesign) {
       case 'Flat': return <FlatCardPreviewComponent {...props} />;
@@ -1201,9 +1213,8 @@ const CreatePage = () => {
                 <button
                   onClick={() => {
                     setIsPopupOpen(false);
-                    if (popupMessage === "Card created successfully!") {
-                      router.push("/dashboard");
-                    }
+                    // Use window.location for full refresh
+                    window.location.href = "/dashboard";
                   }}
                   className={styles.popupBtn}
                 >

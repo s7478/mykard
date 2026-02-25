@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { verify } from 'jsonwebtoken';
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = 'force-dynamic';
 
 const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'your-secret-key';
 
@@ -17,6 +18,8 @@ export async function GET(req: NextRequest) {
     }
 
     const decoded = verify(token, JWT_SECRET) as { userId: string };
+
+    console.log(`[API GET /api/card] Loading cards for userId: ${decoded.userId}`);
 
     // Fetch all cards for the user
     const cards = await prisma.card.findMany({
@@ -62,14 +65,10 @@ export async function GET(req: NextRequest) {
         views: true,
         createdAt: true,
         updatedAt: true,
-
-
         customFields: true,
-
         showCatalog: true,
         catalogTitle: true,
         catalogItems: true,
-
         user: {
           select: {
             id: true,
@@ -81,13 +80,7 @@ export async function GET(req: NextRequest) {
       } as any
     });
 
-    console.log('📊 Fetched cards for user:', decoded.userId);
-    console.log('📋 Number of cards:', cards.length);
-    if (cards.length > 0) {
-      console.log('🎨 First card design:', cards[0].selectedDesign);
-      console.log('🎨 First card selectedColor2:', cards[0].selectedColor2);
-      console.log('🔍 First card data:', JSON.stringify(cards[0], null, 2));
-    }
+    console.log(`[API GET /api/card] Found ${cards.length} cards for user ${decoded.userId}`);
 
     return NextResponse.json({
       success: true,

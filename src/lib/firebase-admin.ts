@@ -18,6 +18,11 @@ function initFirebaseAdmin() {
     // Allow escaped newlines in env
     if (privateKey) {
       privateKey = privateKey.replace(/\\n/g, '\n')
+      // Detect placeholder value
+      if (privateKey.includes('YOUR_NEW_PRIVATE_KEY_HERE')) {
+        console.warn('[Firebase Admin] Placeholder private key detected, treating as undefined')
+        privateKey = undefined
+      }
     }
 
     try {
@@ -47,7 +52,8 @@ function initFirebaseAdmin() {
       }
     } catch (error) {
       console.error('[Firebase Admin] Failed to initialize', error)
-      throw error
+      // Do not throw here, allow getFirebaseAdmin to return the non-initialized admin object
+      // which will result in null/errors later where it is used, instead of crashing the whole process.
     }
   }
 }

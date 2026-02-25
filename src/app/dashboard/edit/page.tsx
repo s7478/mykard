@@ -1363,9 +1363,7 @@ const CreatePageContent = () => {
                 <button
                   onClick={() => {
                     setIsPopupOpen(false);
-                    if (popupMessage === "Card created successfully!") {
-                      router.push("/dashboard");
-                    }
+                    window.location.href = "/dashboard";
                   }}
                   className={styles.popupBtn}
                 >

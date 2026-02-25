@@ -214,9 +214,6 @@ export async function PATCH(
         // Set updateData to use sanitized items by default (fallback)
         updateData.catalogItems = JSON.stringify(sanitizedItems);
 
-        const bucket = adminStorageBucket();
-        console.log('[UPDATE] Storage Bucket available:', !!bucket);
-
         if (Array.isArray(items)) {
           // 2. Try to upload new images
           for (const item of items) {
@@ -227,6 +224,9 @@ export async function PATCH(
                 try {
                   // Check for new upload attempt
                   if (imgEntry.fileKey) {
+                    const bucket = adminStorageBucket();
+                    console.log('[UPDATE] Storage Bucket available for upload:', !!bucket);
+
                     if (!bucket) {
                       throw new Error('Server Storage not configured (missing bucket). Cannot upload image.');
                     }

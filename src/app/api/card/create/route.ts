@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
     }
 
     const decoded = verify(token, JWT_SECRET) as { userId: string };
+    console.log(`[API POST /api/card/create] Attempting to create card for user: ${decoded.userId}`);
 
     // Parse form data
     const formData = await req.formData();
@@ -30,8 +31,14 @@ export async function POST(req: NextRequest) {
     const cardData: any = {
       userId: decoded.userId,
       cardName: formData.get('cardName') as string || undefined,
-      fullName: fullName, // Add the required fullName field
+      fullName: fullName,
+      firstName: firstName,
+      middleName: middleName,
+      lastName: lastName,
+      prefix: formData.get('prefix') as string || undefined,
+      suffix: formData.get('suffix') as string || undefined,
       title: formData.get('title') as string || undefined,
+      company: formData.get('company') as string || undefined,
       email: formData.get('email') as string || undefined,
       phone: formData.get('phone') as string || undefined,
       location: formData.get('location') as string || undefined,
@@ -40,10 +47,18 @@ export async function POST(req: NextRequest) {
       cardType: formData.get('cardType') as string || 'Personal',
       selectedDesign: formData.get('selectedDesign') as string || 'Classic',
       selectedColor: formData.get('selectedColor') as string || '#145dfd',
+      selectedColor2: formData.get('selectedColor2') as string || undefined,
+      textColor: formData.get('textColor') as string || '#ffffff',
       selectedFont: formData.get('selectedFont') as string || 'Arial, sans-serif',
       bio: formData.get('bio') as string || undefined,
       description: formData.get('description') as string || undefined,
+      skills: formData.get('skills') as string || undefined,
+      portfolio: formData.get('portfolio') as string || undefined,
+      experience: formData.get('experience') as string || undefined,
+      services: formData.get('services') as string || undefined,
+      review: formData.get('review') as string || undefined,
       status: formData.get('status') as string || 'draft',
+      customFields: formData.get('customFields') as string || undefined,
       // Catalog Fields
       showCatalog: formData.get('showCatalog') === 'true',
       catalogTitle: formData.get('catalogTitle') as string || undefined,
@@ -54,12 +69,6 @@ export async function POST(req: NextRequest) {
     if (cardData.catalogItems) {
       try {
         let items = JSON.parse(cardData.catalogItems);
-        const bucket = adminStorageBucket();
-
-        if (!bucket) {
-          throw new Error("DEBUG: Firebase Storage Bucket is NULL. Check environment variables.");
-        }
-
         if (Array.isArray(items)) {
           for (const item of items) {
             if (item.images && Array.isArray(item.images)) {
@@ -67,6 +76,12 @@ export async function POST(req: NextRequest) {
               for (let i = 0; i < item.images.length; i++) {
                 const imgEntry = item.images[i];
                 if (imgEntry.fileKey) {
+                  // Only get bucket if we REALLY need to upload a file
+                  const bucket = adminStorageBucket();
+                  if (!bucket) {
+                    throw new Error("Firebase Storage Bucket is not initialized. Please check your credentials.");
+                  }
+
                   // Try to upload the file to Firebase
                   const file = formData.get(imgEntry.fileKey) as File;
                   if (!file) {
@@ -118,6 +133,12 @@ export async function POST(req: NextRequest) {
 
     if (profileImageFile && profileImageFile.size > 0) {
       try {
+        const bucket = adminStorageBucket();
+        if (!bucket) {
+          console.error('Firebase Storage Bucket not initialized');
+          throw new Error('Storage bucket not available. Please check your credentials.');
+        }
+
         const arrayBuffer = await profileImageFile.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
@@ -126,11 +147,6 @@ export async function POST(req: NextRequest) {
         const timestamp = Date.now();
         const filePath = `cards/profile-images/${decoded.userId}/${timestamp}-${safeName}`;
 
-        const bucket = adminStorageBucket();
-        if (!bucket) {
-          console.error('Firebase Storage Bucket not initialized');
-          throw new Error('Storage bucket not available');
-        }
         const fileRef = bucket.file(filePath);
 
         await fileRef.save(buffer, {
@@ -161,6 +177,11 @@ export async function POST(req: NextRequest) {
     // Handle banner image upload (Firebase Storage)
     const bannerImageFile = formData.get('bannerImage') as File;
     if (bannerImageFile && bannerImageFile.size > 0) {
+      const bucket = adminStorageBucket();
+      if (!bucket) {
+        return NextResponse.json({ error: 'Firebase Storage not available. Please check credentials.' }, { status: 503 });
+      }
+
       const arrayBuffer = await bannerImageFile.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
 
@@ -169,10 +190,6 @@ export async function POST(req: NextRequest) {
       const timestamp = Date.now();
       const filePath = `cards/banner-images/${decoded.userId}/${timestamp}-${safeName}`;
 
-      const bucket = adminStorageBucket();
-      if (!bucket) {
-        return NextResponse.json({ error: 'Firebase Storage not available during build' }, { status: 503 });
-      }
       const fileRef = bucket.file(filePath);
 
       await fileRef.save(buffer, {
@@ -193,6 +210,11 @@ export async function POST(req: NextRequest) {
     // Handle cover image upload (Firebase Storage)
     const coverImageFile = formData.get('coverImage') as File;
     if (coverImageFile && coverImageFile.size > 0) {
+      const bucket = adminStorageBucket();
+      if (!bucket) {
+        return NextResponse.json({ error: 'Firebase Storage not available. Please check credentials.' }, { status: 503 });
+      }
+
       const arrayBuffer = await coverImageFile.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
 
@@ -201,10 +223,6 @@ export async function POST(req: NextRequest) {
       const timestamp = Date.now();
       const filePath = `cards/cover-images/${decoded.userId}/${timestamp}-${safeName}`;
 
-      const bucket = adminStorageBucket();
-      if (!bucket) {
-        return NextResponse.json({ error: 'Firebase Storage not available during build' }, { status: 503 });
-      }
       const fileRef = bucket.file(filePath);
 
       await fileRef.save(buffer, {
@@ -277,10 +295,13 @@ export async function POST(req: NextRequest) {
             id: true,
             fullName: true,
             username: true,
+            email: true,
           }
         }
       }
     });
+
+    console.log(`[API POST /api/card/create] Successfully created card ${card.id} for user ${decoded.userId}`);
 
     // Best-effort: sync basic contact info from card into user profile
     // so admin lists, settings, search, connections, and messages can rely
