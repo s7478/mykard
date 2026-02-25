@@ -379,7 +379,7 @@ export default function ProfilePage() {
   // Show loading only if we have no user data at all
   if ((isLoading || authLoading) && !user) {
     return (
-      <div style={{ minHeight: "100vh", backgroundColor: "#f3f2ef", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ minHeight: "100vh", backgroundColor: "#f3f2ef", /* display: "flex", */ alignItems: "center", justifyContent: "center" }}>
         <p style={{ fontSize: "16px", color: "#666" }}>Loading your profile...</p>
       </div>
     );
@@ -388,7 +388,7 @@ export default function ProfilePage() {
   // Show error only if we have no user data and there's an error
   if (error && !user) {
     return (
-      <div style={{ minHeight: "100vh", backgroundColor: "#f3f2ef", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ minHeight: "100vh", backgroundColor: "#f3f2ef", /* display: "flex", */ alignItems: "center", justifyContent: "center" }}>
         <div style={{ textAlign: "center" }}>
           <p style={{ fontSize: "16px", color: "#dc2626", marginBottom: "16px" }}>Error: {error}</p>
           <button
@@ -419,7 +419,7 @@ export default function ProfilePage() {
       {/* Main Container */}
       {/* Main Container */}
       <div style={{ maxWidth: "1128px", margin: "0 auto", padding: "0px 0px" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+        <div style={{ /* display: "flex", */ flexDirection: "column", gap: "5px" }}>
 
           {/* Main Content */}
           {/* Profile Card */}

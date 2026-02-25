@@ -26,7 +26,7 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: "center",
     gap: "16px",
     backgroundColor: "#FFFFFF",
-    padding: "16px",
+      // padding: "16px", // Disabled padding
     borderTopLeftRadius: "16px",
     borderTopRightRadius: "16px",
     border: "1px solid #E5E7EB",
