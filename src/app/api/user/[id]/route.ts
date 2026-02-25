@@ -44,54 +44,7 @@ export async function GET(
 
         const viewerId = decoded.userId
 
-        // Fetch target user data
-        const user = await prisma.user.findUnique({
-            where: { id: targetUserId },
-            select: {
-                id: true,
-                email: true,
-                fullName: true,
-                phone: true,
-                username: true,
-                profileImage: true,
-                bannerImage: true,
-                title: true,
-                company: true,
-                location: true,
-                bio: true,
-                website: true,
-                firstName: true,
-                lastName: true, // Needed for displayUser logic
-                cardName: true,
-                selectedColor: true,
-                selectedFont: true,
-                posts: {
-                    orderBy: { createdAt: 'desc' },
-                    select: {
-                        id: true,
-                        content: true,
-                        imageUrl: true,
-                        createdAt: true,
-                        visibility: true,
-                        _count: {
-                            select: {
-                                likes: true,
-                                comments: true
-                            }
-                        }
-                    }
-                }
-            },
-        })
-
-        if (!user) {
-            return NextResponse.json(
-                { error: 'User not found' },
-                { status: 404 }
-            )
-        }
-
-        // Check connection status
+        // Check connection status FIRST
         let connectionStatus = 'NONE'
         let isConnected = false
 
@@ -114,6 +67,78 @@ export async function GET(
                     isConnected = true
                 }
             }
+        }
+
+        // Fetch target user data
+        const user = await prisma.user.findUnique({
+            where: { id: targetUserId },
+            select: {
+                id: true,
+                email: true,
+                fullName: true,
+                phone: true,
+                username: true,
+                profileImage: true,
+                bannerImage: true,
+                title: true,
+                company: true,
+                location: true,
+                bio: true,
+                website: true,
+                firstName: true,
+                lastName: true, // Needed for displayUser logic
+                cardName: true,
+                selectedColor: true,
+                selectedFont: true,
+                activeCatalogCardId: true,
+                posts: {
+                    where: isConnected ? undefined : { visibility: 'public' },
+                    orderBy: { createdAt: 'desc' },
+                    select: {
+                        id: true,
+                        content: true,
+                        imageUrl: true,
+                        createdAt: true,
+                        visibility: true,
+                        _count: {
+                            select: {
+                                likes: true,
+                                comments: true
+                            }
+                        }
+                    }
+                },
+                cards: {
+                    where: {
+                        cardActive: true,
+                        showCatalog: true
+                    },
+                    select: {
+                        id: true,
+                        cardName: true,
+                        catalogTitle: true,
+                        catalogItems: true,
+                        showCatalog: true,
+                        selectedColor: true,
+                        selectedColor2: true,
+                        selectedDesign: true,
+                        selectedFont: true,
+                        company: true,
+                        title: true,
+                        description: true,
+                        fullName: true,
+                        profileImage: true,
+                        bannerImage: true
+                    }
+                }
+            },
+        })
+
+        if (!user) {
+            return NextResponse.json(
+                { error: 'User not found' },
+                { status: 404 }
+            )
         }
 
         // Count accepted connections (where user is either sender or receiver)

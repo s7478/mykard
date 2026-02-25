@@ -61,7 +61,7 @@ model User {
   stories   Story[]
   storyViews StoryView[]
 
-  
+  activeCatalogCardId String?
 
   @@index([username])
   @@map("users")

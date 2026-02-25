@@ -22,6 +22,12 @@
   margin: 0 auto;
 }
 
+.leftColumn {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 @media (min-width: 1024px) {
   .pageContainer {
     padding: 0; 
@@ -37,7 +43,9 @@
 
   
   .leftColumn {
-    flex: 0 0 auto; 
+    flex: 0 0 360px;
+    display: flex;
+    justify-content: center;
     animation: float 6s ease-in-out infinite; 
   }
 

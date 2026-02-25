@@ -123,6 +123,7 @@ const CardPreview: React.FC<{ card: Card; onDocumentClick: (url: string) => void
     documentUrl: card.documentUrl || "",
     showCatalog: card.showCatalog || false,
     catalogTitle: card.catalogTitle || 'Catalog',
+    cardType: card.cardType || "",
     onCatalogClick: () => {
       let items: any[] = [];
       try {
