@@ -36,6 +36,13 @@ interface MessageItem {
       id: string;
       imageUrl?: string;
       videoUrl?: string;
+      content?: string;
+    } | null;
+    post?: {
+      id: string;
+      content?: string;
+      imageUrl?: string;
+      author?: { fullName?: string };
     } | null;
   }>;
   replies?: {
@@ -354,6 +361,7 @@ function MessagesPageContent() {
               direction: 'in' as const,
               tag: m.tag,
               story: m.story, // 🟢 Attach Story Data
+              post: m.post,
             })),
             ...sentForParty.map((m: any) => ({
               id: m.id,
@@ -362,6 +370,7 @@ function MessagesPageContent() {
               direction: 'out' as const,
               tag: m.tag,
               story: m.story, // 🟢 Attach Story Data
+              post: m.post,
             })),
           ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
@@ -807,14 +816,14 @@ function MessagesPageContent() {
                                 <p style={{ fontSize: '11px', color: '#94a3b8', margin: '0 0 4px 0', fontWeight: 500 }}>
                                   {isIncoming ? "Replied to your story" : `Replied to ${activeMessage.name.split(' ')[0]}'s story`}
                                 </p>
-                                <div 
+                                <div
                                   onClick={() => router.push(`/story/${item.story!.id}`)}
                                   style={{ width: '48px', height: '72px', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0, backgroundColor: '#1e293b', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', cursor: 'pointer', transition: 'transform 0.2s' }}
                                   onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
                                   onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                                 >
                                   {(item.story.imageUrl?.match(/\.(mp4|webm|ogg|mov)(\?|$)/i) || item.story.videoUrl) ? (
-                                    <video src={item.story.videoUrl || item.story.imageUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    <video src={item.story.videoUrl || item.story.imageUrl} playsInline preload="metadata" muted style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                   ) : item.story.imageUrl ? (
                                     <img src={item.story.imageUrl} alt="Story" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                   ) : item.story.content ? (
@@ -822,6 +831,35 @@ function MessagesPageContent() {
                                   ) : (
                                     <span style={{ fontSize: '8px', color: '#ffffff' }}>Story</span>
                                   )}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Shared Post Rendering */}
+                            {item.post && (
+                              <div style={{ display: 'flex', flexDirection: 'column', alignItems: isIncoming ? 'flex-start' : 'flex-end', marginBottom: '6px' }}>
+                                <p style={{ fontSize: '11px', color: '#94a3b8', margin: '0 0 4px 0', fontWeight: 500 }}>
+                                  {isIncoming ? "Shared a post" : `Shared a post with ${activeMessage.name.split(' ')[0]}`}
+                                </p>
+                                <div
+                                  onClick={() => router.push(`/post/${item.post!.id}`)}
+                                  style={{ width: '160px', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0, backgroundColor: '#ffffff', cursor: 'pointer', display: 'flex', flexDirection: 'column', boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}
+                                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                >
+                                  {item.post.imageUrl ? (
+                                    item.post.imageUrl.match(/\.(mp4|webm|ogg|mov)(\?|$)/i) ? (
+                                      <video src={item.post.imageUrl} playsInline preload="metadata" muted style={{ width: '100%', height: '100px', objectFit: 'cover' }} />
+                                    ) : (
+                                      <img src={item.post.imageUrl} alt="Post" style={{ width: '100%', height: '100px', objectFit: 'cover' }} />
+                                    )
+                                  ) : null}
+                                  <div style={{ padding: '8px' }}>
+                                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: "2px" }}>{item.post.author?.fullName || "User"}</span>
+                                    {item.post.content && (
+                                      <span style={{ fontSize: '10px', color: '#64748b', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item.post.content}</span>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             )}

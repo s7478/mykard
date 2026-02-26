@@ -5,9 +5,12 @@ import { CreatePostWidget, SuggestedUsersWidget } from "@/components/feed/FeedWi
 import FeedStream from "@/components/feed/FeedStream";
 // 🟢 IMPORT STORY BAR
 import StoryBar from "@/components/feed/StoryBar";
+import { ChevronLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function FeedPage() {
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchMe = async () => {
