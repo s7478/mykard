@@ -1,7 +1,12 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState, Suspense } from "react";
-import { Search, X, Trash2, Send, ChevronLeft, Radius, AlignCenter, Underline, ChevronDown, Filter } from "lucide-react";
+import dynamic from 'next/dynamic';
+import EmojiPicker from 'emoji-picker-react';
+import {
+  Search, Video, Calendar, MoreHorizontal, Smile, Play, CreditCard, Send, Edit, MoreVertical,
+  Link2, Image as ImageIcon, MapPin, Trash2, ArrowLeft, ArrowUpRight, Copy, Check, ChevronDown, SmilePlus, X, Radius, AlignCenter, Underline, Filter, ChevronLeft
+} from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./messages.module.css";
 import { is } from "zod/v4/locales";
@@ -32,6 +37,7 @@ interface MessageItem {
     text: string;
     date: string;
     direction: 'in' | 'out';
+    reaction?: string | null;
     story?: {
       id: string;
       imageUrl?: string;
@@ -53,6 +59,9 @@ function MessagesPageContent() {
   const [replyId, setReplyId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [activeMessageMenu, setActiveMessageMenu] = useState<string | null>(null);
+  const [activeReactionMenu, setActiveReactionMenu] = useState<string | null>(null);
+  const [showFullPicker, setShowFullPicker] = useState<boolean>(false);
   const conversationRef = useRef<HTMLDivElement | null>(null);
   //const composerInputRef = useRef<HTMLInputElement | null>(null);
   const composerInputRef = useRef<HTMLTextAreaElement | null>(null);
@@ -353,6 +362,7 @@ function MessagesPageContent() {
               date: m.createdAt || m.date || new Date().toISOString(),
               direction: 'in' as const,
               tag: m.tag,
+              reaction: m.reaction || null,
               story: m.story, // 🟢 Attach Story Data
             })),
             ...sentForParty.map((m: any) => ({
@@ -361,6 +371,7 @@ function MessagesPageContent() {
               date: m.createdAt || m.date || new Date().toISOString(),
               direction: 'out' as const,
               tag: m.tag,
+              reaction: m.reaction || null,
               story: m.story, // 🟢 Attach Story Data
             })),
           ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -530,6 +541,61 @@ function MessagesPageContent() {
     };
 
     sendDeleteRequest();
+  };
+
+  const deleteSingleMessage = async (messageId: string, indexToRemove: number) => {
+    try {
+      if (!activeMessage || !activeMessage.thread) return;
+
+      const updatedThread = [...activeMessage.thread];
+      updatedThread.splice(indexToRemove, 1);
+
+      setMessages(prev => prev.map(m => m.senderId === activeMessage.senderId ? { ...m, thread: updatedThread } : m));
+
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/message/delete?id=${messageId}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (!res.ok) fetchMessages();
+    } catch {
+      fetchMessages();
+    }
+  };
+
+  const reactToMessage = async (messageId: string, emoji: string) => {
+    // Optimistic Update
+    if (!activeMessage || !activeMessage.thread) return;
+
+    // Find the message in the thread
+    const updatedThread = activeMessage.thread.map(m =>
+      m.id === messageId ? { ...m, reaction: emoji } : m
+    );
+
+    setMessages(prev => prev.map(m =>
+      m.senderId === activeMessage.senderId ? { ...m, thread: updatedThread } : m
+    ));
+
+    // Close menus mapping
+    setActiveReactionMenu(null);
+    setShowFullPicker(false);
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/message/react', {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ messageId, emoji })
+      });
+      if (!res.ok) {
+        fetchMessages();
+      }
+    } catch {
+      fetchMessages();
+    }
   };
 
   const sendReply = async () => {
@@ -817,24 +883,204 @@ function MessagesPageContent() {
                               </div>
                             )}
 
-                            <div className={isIncoming ? styles.bubbleIn : styles.bubbleOut}>
-                              {renderMessageText(item.text)}
-                              <div style={{ fontSize: "10px", marginTop: "4px", color: isIncoming ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.8)", textAlign: "right", display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "4px" }}>
-                                <span>{formatDate(item.date).split(',')[1].trim()}</span>
-                                {!isIncoming && (
+                            <div
+                              className={`group ${isIncoming ? styles.bubbleIn : styles.bubbleOut}`}
+                              style={{
+                                position: 'relative',
+                                paddingLeft: !isIncoming ? '32px' : undefined,
+                                paddingRight: isIncoming ? '32px' : undefined
+                              }}
+                            >
+                              {activeReactionMenu === (item.id || idx.toString()) && (
+                                <div style={{ position: 'absolute', bottom: 'calc(100% + 4px)', left: 0, zIndex: 60, minWidth: '350px', display: 'flex', flexDirection: 'column' }}>
+                                  <div
+                                    style={{
+                                      display: 'inline-flex',
+                                      flexDirection: 'row',
+                                      alignItems: 'center',
+                                      gap: '8px',
+                                      background: '#ffffff',
+                                      padding: '6px 12px',
+                                      borderRadius: '30px',
+                                      boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                                      whiteSpace: 'nowrap',
+                                      width: 'fit-content',
+                                      border: '1px solid rgba(0,0,0,0.05)'
+                                    }}
+                                  >
+                                    {['👍', '❤️', '😂', '😮', '😢', '🙏'].map((emoji) => (
+                                      <button
+                                        key={emoji}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          if (item.id) reactToMessage(item.id, emoji);
+                                        }}
+                                        style={{
+                                          background: 'transparent',
+                                          border: 'none',
+                                          fontSize: '20px',
+                                          cursor: 'pointer',
+                                          padding: '2px',
+                                          transition: 'transform 0.1s',
+                                        }}
+                                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                      >
+                                        {emoji}
+                                      </button>
+                                    ))}
+                                    <div style={{ width: '1px', height: '24px', background: 'rgba(0,0,0,0.1)', margin: '0 4px' }} />
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowFullPicker(!showFullPicker);
+                                      }}
+                                      style={{
+                                        background: 'rgba(0,0,0,0.05)',
+                                        border: 'none',
+                                        borderRadius: '50%',
+                                        width: '28px',
+                                        height: '28px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        color: '#64748b',
+                                        cursor: 'pointer',
+                                        fontSize: '18px',
+                                        flexShrink: 0
+                                      }}
+                                    >
+                                      +
+                                    </button>
+                                  </div>
+
+                                  {showFullPicker && (
+                                    <div style={{ position: 'relative', marginTop: '8px', zIndex: 70, width: '350px', height: '400px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', borderRadius: '12px' }} onClick={(e) => e.stopPropagation()}>
+                                      <EmojiPicker
+                                        onEmojiClick={(emojiData) => {
+                                          if (item.id) reactToMessage(item.id, emojiData.emoji);
+                                        }}
+                                        theme={"light" as any}
+                                        width="100%"
+                                        height="100%"
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              {isIncoming && (
+                                <div style={{ position: 'absolute', top: '50%', right: '-34px', transform: 'translateY(-50%)' }}>
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      if (confirm("Delete this message?")) {
-                                        alert("Message missing delete implementation");
-                                      }
+                                      setActiveReactionMenu(activeReactionMenu === item.id ? null : (item.id || idx.toString()));
+                                      setShowFullPicker(false);
                                     }}
-                                    style={{ background: "transparent", border: "none", color: "inherit", cursor: "pointer", padding: "0 2px", display: "none" }}
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                                    style={{
+                                      background: "transparent",
+                                      border: "none",
+                                      color: "#64748b",
+                                      cursor: "pointer",
+                                      padding: "4px",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center"
+                                    }}
                                   >
-                                    <Trash2 size={10} />
+                                    <SmilePlus size={20} />
                                   </button>
+                                </div>
+                              )}
+                              <div style={{ textAlign: isIncoming ? 'left' : 'right' }}>
+                                {renderMessageText(item.text)}
+                              </div>
+                              <div style={{ fontSize: "10px", marginTop: "4px", color: isIncoming ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.8)", textAlign: isIncoming ? "right" : "left", display: "flex", alignItems: "center", justifyContent: isIncoming ? "flex-end" : "flex-start", gap: "4px" }}>
+                                <span>{formatDate(item.date).split(',')[1].trim()}</span>
+                              </div>
+                              <div style={{ position: 'absolute', top: '4px', left: !isIncoming ? '4px' : undefined, right: isIncoming ? '4px' : undefined }}>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setActiveMessageMenu(activeMessageMenu === item.id ? null : (item.id || idx.toString()));
+                                  }}
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                                  style={{ background: "transparent", border: "none", color: "inherit", cursor: "pointer", padding: "4px", display: "flex", alignItems: "center", justifyContent: "center" }}
+                                >
+                                  <ChevronDown size={22} />
+                                </button>
+
+                                {activeMessageMenu === (item.id || idx.toString()) && (
+                                  <div
+                                    style={{
+                                      position: 'absolute',
+                                      left: !isIncoming ? 'auto' : '100%',
+                                      right: !isIncoming ? '100%' : 'auto',
+                                      top: 'auto',
+                                      bottom: '0',
+                                      background: 'white',
+                                      borderRadius: '8px',
+                                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                      zIndex: 50,
+                                      overflow: 'hidden',
+                                      minWidth: '100px'
+                                    }}
+                                  >
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (!isIncoming) {
+                                          deleteSingleMessage(item.id!, idx);
+                                        } else {
+                                          alert("Action pending for received messages");
+                                          setActiveMessageMenu(null);
+                                        }
+                                      }}
+                                      style={{
+                                        width: '100%',
+                                        padding: '8px 12px',
+                                        background: 'transparent',
+                                        border: 'none',
+                                        color: !isIncoming ? '#ef4444' : '#1e293b',
+                                        fontSize: '13px',
+                                        fontWeight: 500,
+                                        textAlign: 'left',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'flex-start',
+                                        gap: '8px'
+                                      }}
+                                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = !isIncoming ? '#fef2f2' : '#f1f5f9'}
+                                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                    >
+                                      {!isIncoming ? "Delete" : "More Actions"}
+                                    </button>
+                                  </div>
                                 )}
                               </div>
+
+                              {item.reaction && (
+                                <div style={{
+                                  position: 'absolute',
+                                  bottom: '-12px',
+                                  left: '8px', /* User requested bottom-left edge explicitly for both sender and receiver */
+                                  background: '#ffffff',
+                                  borderRadius: '50%',
+                                  boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+                                  border: '1px solid rgba(0,0,0,0.05)',
+                                  width: '24px',
+                                  height: '24px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: '14px',
+                                  zIndex: 10
+                                }}>
+                                  {item.reaction}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>

@@ -227,7 +227,7 @@ const Dashboard = () => {
           if (expandedCardId === card.id) setExpandedCardId(null);
           else setExpandedCardId(card.id);
         }}
-        className={`rounded-[0.5rem] p-4 border transition-all duration-200 select-none cursor-pointer ${isTopProfile ? "bg-[#eff6ff] border-blue-200 shadow-sm" : "bg-white border-gray-100 shadow-sm hover:border-blue-100"}`}
+        className={`rounded-sm p-4 border transition-all duration-200 select-none cursor-pointer ${isTopProfile ? "bg-[#eff6ff] border-blue-200 shadow-sm" : "bg-white border-gray-100 shadow-sm hover:border-blue-100"}`}
       >
         <div className="flex items-start gap-3" style={{ fontFamily: 'Poppins, sans-serif, "Plus Jakarta Sans"', fontWeight: "500", padding: "0.5rem" }}>
           <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 shrink-0 border border-gray-100 relative">
@@ -422,7 +422,7 @@ const Dashboard = () => {
             initial={{ opacity: 0.8 }}
             animate={{ opacity: 1 }}
             className="bg-[#0B6BCB] rounded-[1rem] px-6 pt-10 pb-10 text-white shadow-lg relative overflow-hidden"
-            style={{ marginBottom: "1.5rem" }}
+            style={{ marginBottom: "1rem" }}
           >
             {/* ... (Mobile header content hidden for brevity, kept identical) ... */}
             <div className="flex items-start justify-between relative z-10" style={{ paddingTop: "0.2rem", padding: "0.5rem" }}>
@@ -461,8 +461,8 @@ const Dashboard = () => {
           </div>
         )}
 
-        <div className="px-5 mt-6">
-          <div className="grid grid-cols-2 gap-3 mb-4" style={{ marginBottom: '1.5rem' }}>
+        <div className="px-5 mt-4">
+          <div className="grid grid-cols-2 gap-3 mb-4" style={{ marginBottom: '1rem' }}>
             {/* CONNECTIONS BOX */}
             <div
               onClick={() => router.push("/dashboard/connections")}
@@ -487,18 +487,18 @@ const Dashboard = () => {
               <div className="mt-2 pl-1" style={{ color: 'black', textAlign: 'center' }}><h3 className="text-2xl font-bold !text-gray-900 leading-tight">{activeCard?.views || 0}</h3></div>
             </div>
           </div>
-          <button onClick={() => activeCard && router.push(`/cards/${activeCard.id}?tab=analytics`)} className="w-full bg-[#C7DFFF] hover:bg-blue-100 text-[#0B6BCB] h-14 rounded-[0.5rem] flex items-center justify-between font-semibold text-sm transition-colors mb-6 shadow-sm border border-none px-5" style={{ marginBottom: "1.5rem" }}>
+          <button onClick={() => activeCard && router.push(`/cards/${activeCard.id}?tab=analytics`)} className="w-full bg-[#C7DFFF] hover:bg-blue-100 text-[#0B6BCB] h-14 rounded-[0.5rem] flex items-center justify-between font-semibold text-sm transition-colors mb-4 shadow-sm border border-none px-5" style={{ marginBottom: "1rem" }}>
             <div className="flex items-center gap-2"><BarChart2 size={18} /><span>Show Analytics</span></div><FiChevronRight size={18} />
           </button>
-          <div className="flex gap-4 mb-8" style={{ marginBottom: "2rem" }}>
+          <div className="flex gap-4 mb-2" style={{ marginBottom: "0.5rem" }}>
             <button onClick={() => router.push("/dashboard/create?new=true")} className="flex-1 bg-[#0B6BCB] text-white h-14 rounded-[0.5rem] font-semibold flex items-center justify-center gap-1 shadow-md shadow-blue-200 active:scale-95 hover:bg-blue-700 transition-all duration-300 px-4" style={{ fontFamily: "Poppins, sans-serif, Plus Jakarta Sans" }}><Plus size={18} /> Create New Card</button>
             <button onClick={() => activeCard && router.push(`/dashboard/edit?id=${activeCard.id}`)} className="flex-1 bg-[#dbeafe] text-[#0B6BCB] h-14 rounded-[0.5rem] font-semibold flex items-center justify-center gap-1 border border-blue-100 shadow-md shadow-blue-200 active:scale-95 transition-transform text-sm hover:bg-[#cbf3f0] hover:text-[#0B6BCB] px-4" style={{ fontFamily: "Poppins, sans-serif,Plus Jakarta Sans" }}><PenSquare size={18} /> Edit a Card</button>
           </div>
-          <div className="flex items-center justify-between mb-4 px-1">
+          <div className="flex items-center justify-between mb-2 px-1">
             <h2 className="text-lg font-bold text-gray-900">My Cards</h2>
             <button onClick={() => setShowAllCards(!showAllCards)} className="text-xs font-bold text-gray-600 hover:text-blue-600" style={{ fontFamily: 'Poppins, sans-serif, "Plus Jakarta Sans"' }}>{showAllCards ? "View Less" : "View All"}</button>
           </div>
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-2">
             {isLoadingCards ? (
               <div className="text-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div></div>
             ) : cardsToDisplay.length > 0 ? (

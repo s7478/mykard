@@ -103,6 +103,7 @@ model Message {
   tag        MessageTag    @default(PRICING)
   createdAt  DateTime      @default(now())
   topic      String        @default("Other")
+  reaction   String?
   receiver   User          @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
   sender     User          @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
 

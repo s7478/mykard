@@ -86,6 +86,8 @@ export default function ProfilePage() {
   const [showContactPopup, setShowContactPopup] = useState(false);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [isUploadingBanner, setIsUploadingBanner] = useState(false);
+  const [suggestedUsers, setSuggestedUsers] = useState<any[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -100,6 +102,7 @@ export default function ProfilePage() {
       // Then try to fetch fresh data from API
       await fetchUserProfile();
       await fetchUserCards();
+      await fetchSuggestedUsers();
     };
 
     loadProfile();
@@ -162,6 +165,26 @@ export default function ProfilePage() {
       }
     } catch (error) {
       console.error("Error fetching cards:", error);
+    }
+  };
+
+  const fetchSuggestedUsers = async () => {
+    try {
+      setIsLoadingSuggestions(true);
+      const response = await fetch('/api/user/suggestions?limit=5', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.suggestions) {
+          setSuggestedUsers(data.suggestions);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching suggested users:", error);
+    } finally {
+      setIsLoadingSuggestions(false);
     }
   };
 
@@ -562,9 +585,9 @@ export default function ProfilePage() {
 
           {/* Main Content */}
           {/* Profile Card */}
-          <div style={{ backgroundColor: "#fff", borderRadius: "8px", overflow: "hidden", boxShadow: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)", marginBottom: "8px" }}>
+          <div style={{ backgroundColor: "#fff", borderRadius: "8px", overflow: "hidden", boxShadow: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)", marginBottom: "0" }}>
             {/* Banner */}
-            <div style={{ position: "relative", height: "200px", backgroundColor: "#a0aec0" }}>
+            <div style={{ position: "relative", height: "150px", backgroundColor: "#a0aec0" }}>
               {displayUser.bannerImage ? (
                 <img
                   src={displayUser.bannerImage}
@@ -583,48 +606,50 @@ export default function ProfilePage() {
                 style={{ display: 'none' }}
                 onChange={handleBannerImageChange}
               />
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  document.getElementById('banner-upload')?.click();
-                }}
-                disabled={isUploadingBanner}
-                style={{
-                  position: "absolute",
-                  bottom: "16px",
-                  right: "16px",
-                  backgroundColor: "rgba(255, 255, 255, 0.95)",
-                  border: "none",
-                  borderRadius: "50%",
-                  width: "44px",
-                  height: "44px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: isUploadingBanner ? "not-allowed" : "pointer",
-                  boxShadow: "0 2px 12px rgba(0,0,0,0.2)",
-                  transition: "all 0.2s",
-                  opacity: isUploadingBanner ? 0.5 : 1,
-                  zIndex: 10
-                }}
-                title="Upload banner image"
-                onMouseEnter={(e) => {
-                  if (!isUploadingBanner) {
-                    e.currentTarget.style.transform = "scale(1.1)";
-                    e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 1)";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "scale(1)";
-                  e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
-                }}
-              >
-                {isUploadingBanner ? (
-                  <div style={{ width: "18px", height: "18px", border: "2px solid #666", borderTop: "2px solid transparent", borderRadius: "50%", animation: "spin 1s linear infinite" }}></div>
-                ) : (
-                  <Camera size={20} color="#666" />
-                )}
-              </button>
+              {isEditingIntro && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    document.getElementById('banner-upload')?.click();
+                  }}
+                  disabled={isUploadingBanner}
+                  style={{
+                    position: "absolute",
+                    bottom: "16px",
+                    right: "16px",
+                    backgroundColor: "rgba(255, 255, 255, 0.95)",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: "44px",
+                    height: "44px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: isUploadingBanner ? "not-allowed" : "pointer",
+                    boxShadow: "0 2px 12px rgba(0,0,0,0.2)",
+                    transition: "all 0.2s",
+                    opacity: isUploadingBanner ? 0.5 : 1,
+                    zIndex: 10
+                  }}
+                  title="Upload banner image"
+                  onMouseEnter={(e) => {
+                    if (!isUploadingBanner) {
+                      e.currentTarget.style.transform = "scale(1.1)";
+                      e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 1)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "scale(1)";
+                    e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
+                  }}
+                >
+                  {isUploadingBanner ? (
+                    <div style={{ width: "18px", height: "18px", border: "2px solid #666", borderTop: "2px solid transparent", borderRadius: "50%", animation: "spin 1s linear infinite" }}></div>
+                  ) : (
+                    <Camera size={20} color="#666" />
+                  )}
+                </button>
+              )}
               {isEditingIntro ? (
                 <div style={{ position: "absolute", top: "16px", right: "16px", display: "flex", gap: "8px" }}>
                   <button
@@ -687,14 +712,14 @@ export default function ProfilePage() {
             </div>
 
             {/* Profile Info */}
-            <div style={{ padding: "0 24px 24px 24px", position: "relative" }}>
+            <div style={{ padding: "0px 24px 0px", position: "relative" }}>
               {/* Profile Picture */}
-              <div style={{ position: "relative", marginTop: "-70px", marginBottom: "16px" }}>
+              <div style={{ position: "relative", marginTop: "-100px", marginBottom: "16px" }}>
                 <div
                   style={{
                     position: "relative",
-                    width: "152px",
-                    height: "152px",
+                    width: "140px",
+                    height: "140px",
                     borderRadius: "50%",
                     border: "4px solid #fff",
                     overflow: "hidden",
@@ -724,39 +749,41 @@ export default function ProfilePage() {
                     </div>
                   )}
                   {/* Upload Photo Button */}
-                  <div
-                    onClick={() => document.getElementById('profile-photo-input')?.click()}
-                    style={{
-                      position: "absolute",
-                      bottom: "8px",
-                      right: "8px",
-                      width: "40px",
-                      height: "40px",
-                      borderRadius: "50%",
-                      backgroundColor: "#0a66c2",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: isUploadingPhoto ? "not-allowed" : "pointer",
-                      boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                      opacity: isUploadingPhoto ? 0.6 : 1,
-                      transition: "all 0.2s ease"
-                    }}
-                    onMouseOver={(e) => {
-                      if (!isUploadingPhoto) {
-                        e.currentTarget.style.transform = "scale(1.1)";
-                      }
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.transform = "scale(1)";
-                    }}
-                  >
-                    {isUploadingPhoto ? (
-                      <div style={{ color: "#fff", fontSize: "12px" }}>...</div>
-                    ) : (
-                      <Camera size={20} color="#fff" />
-                    )}
-                  </div>
+                  {isEditingIntro && (
+                    <div
+                      onClick={() => document.getElementById('profile-photo-input')?.click()}
+                      style={{
+                        position: "absolute",
+                        bottom: "8px",
+                        right: "8px",
+                        width: "40px",
+                        height: "40px",
+                        borderRadius: "50%",
+                        backgroundColor: "#0a66c2",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: isUploadingPhoto ? "not-allowed" : "pointer",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                        opacity: isUploadingPhoto ? 0.6 : 1,
+                        transition: "all 0.2s ease"
+                      }}
+                      onMouseOver={(e) => {
+                        if (!isUploadingPhoto) {
+                          e.currentTarget.style.transform = "scale(1.1)";
+                        }
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.transform = "scale(1)";
+                      }}
+                    >
+                      {isUploadingPhoto ? (
+                        <div style={{ color: "#fff", fontSize: "12px" }}>...</div>
+                      ) : (
+                        <Camera size={20} color="#fff" />
+                      )}
+                    </div>
+                  )}
                   <input
                     type="file"
                     id="profile-photo-input"
@@ -769,7 +796,7 @@ export default function ProfilePage() {
               </div>
 
               {/* Name and Title */}
-              <div style={{ marginBottom: "16px" }}>
+              <div style={{ marginBottom: "16px", paddingRight: "72px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
                   {isEditingIntro ? (
                     <input
@@ -802,7 +829,7 @@ export default function ProfilePage() {
                       name="title"
                       value={editForm.title || ""}
                       onChange={handleInputChange}
-                      placeholder="Headline"
+                      placeholder="Designation"
                       style={{
                         fontSize: "16px",
                         color: "#000",
@@ -876,7 +903,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Document */}
-          <div style={{ backgroundColor: "#fff", borderRadius: "8px", padding: "16px", boxShadow: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)", marginBottom: "8px" }}>
+          <div style={{ backgroundColor: "#fff", borderRadius: "8px", padding: "16px", boxShadow: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)" }}>
             <div style={{ marginBottom: "8px" }}>
               <h3 style={{ fontSize: "16px", fontWeight: "600", color: "#000", margin: 0 }}>Documents</h3>
             </div>
@@ -937,7 +964,7 @@ export default function ProfilePage() {
           </div>
 
           {/* About Section */}
-          <div style={{ backgroundColor: "#fff", borderRadius: "8px", padding: "16px", boxShadow: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)", marginBottom: "8px" }}>
+          <div style={{ backgroundColor: "#fff", borderRadius: "8px", padding: "16px", boxShadow: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
               <h2 style={{ fontSize: "20px", fontWeight: "600", color: "#000", margin: 0 }}>About</h2>
               {/* <Edit size={20} color="#666" style={{ cursor: "pointer" }} /> */}
@@ -1428,30 +1455,42 @@ export default function ProfilePage() {
               <span>Private to you</span>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "8px 0", borderBottom: "1px solid #e0e0e0", cursor: "pointer" }}>
-              <div style={{
-                width: "48px",
-                height: "48px",
-                borderRadius: "50%",
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#fff",
-                fontWeight: "600",
-                fontSize: "16px",
-                flexShrink: 0
-              }}>
-                SM
+            {isLoadingSuggestions ? (
+              <div style={{ padding: "12px 0", textAlign: "center", fontSize: "14px", color: "#666" }}>
+                Loading suggestions...
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: "14px", fontWeight: "600", color: "#000", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Sahil Mulchandani</div>
-                <div style={{ fontSize: "12px", color: "#666", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Information Technology Support</div>
+            ) : suggestedUsers.length > 0 ? (
+              suggestedUsers.map((suggestedUser, idx) => (
+                <div key={suggestedUser.id || idx} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "8px 0", borderBottom: idx === suggestedUsers.length - 1 ? "none" : "1px solid #e0e0e0", cursor: "pointer" }}>
+                  <div style={{
+                    width: "48px",
+                    height: "48px",
+                    borderRadius: "50%",
+                    background: suggestedUser.profileImage ? `url(${suggestedUser.profileImage}) center/cover no-repeat` : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#fff",
+                    fontWeight: "600",
+                    fontSize: "16px",
+                    flexShrink: 0
+                  }}>
+                    {!suggestedUser.profileImage && (suggestedUser.fullName ? suggestedUser.fullName.substring(0, 2).toUpperCase() : "U")}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: "14px", fontWeight: "600", color: "#000", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{suggestedUser.fullName || "User"}</div>
+                    <div style={{ fontSize: "12px", color: "#666", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{suggestedUser.title || "No title"}</div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div style={{ padding: "12px 0", textAlign: "center", fontSize: "14px", color: "#666" }}>
+                No similar profiles found.
               </div>
-            </div>
+            )}
 
             <div style={{ textAlign: "center", marginTop: "12px" }}>
-              <Link href="#" style={{ fontSize: "14px", color: "#666", textDecoration: "none", fontWeight: "500" }}>
+              <Link href="/dashboard/search" style={{ fontSize: "14px", color: "#666", textDecoration: "none", fontWeight: "500" }}>
                 View all →
               </Link>
             </div>
