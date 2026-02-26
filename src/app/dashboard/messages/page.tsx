@@ -807,12 +807,21 @@ function MessagesPageContent() {
                                 <p style={{ fontSize: '11px', color: '#94a3b8', margin: '0 0 4px 0', fontWeight: 500 }}>
                                   {isIncoming ? "Replied to your story" : `Replied to ${activeMessage.name.split(' ')[0]}'s story`}
                                 </p>
-                                <div style={{ width: '48px', height: '72px', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0 }}>
-                                  {item.story.imageUrl ? (
+                                <div 
+                                  onClick={() => router.push(`/story/${item.story!.id}`)}
+                                  style={{ width: '48px', height: '72px', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0, backgroundColor: '#1e293b', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', cursor: 'pointer', transition: 'transform 0.2s' }}
+                                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                >
+                                  {(item.story.imageUrl?.match(/\.(mp4|webm|ogg|mov)(\?|$)/i) || item.story.videoUrl) ? (
+                                    <video src={item.story.videoUrl || item.story.imageUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                  ) : item.story.imageUrl ? (
                                     <img src={item.story.imageUrl} alt="Story" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                  ) : item.story.videoUrl ? (
-                                    <video src={item.story.videoUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                  ) : null}
+                                  ) : item.story.content ? (
+                                    <span style={{ fontSize: '8px', color: '#ffffff', textAlign: 'center', wordBreak: 'break-word', display: '-webkit-box', WebkitLineClamp: 5, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.2' }}>{item.story.content}</span>
+                                  ) : (
+                                    <span style={{ fontSize: '8px', color: '#ffffff' }}>Story</span>
+                                  )}
                                 </div>
                               </div>
                             )}

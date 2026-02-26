@@ -103,16 +103,16 @@ export default function StoryViewer({
 
   // 4. AUTO-ADVANCE TRIGGER
   useEffect(() => {
-    if (replyText.length > 0) return;
+    if (replyText.length > 0 || isExpanded) return;
     if (progress >= 100) {
       handleNext();
     }
-  }, [progress, handleNext, replyText]);
+  }, [progress, handleNext, replyText, isExpanded]);
 
   // 5. TIMER LOGIC
   useEffect(() => {
     if (!isOpen || !stories.length || !activeStory) return;
-    if (replyText.length > 0) return;
+    if (replyText.length > 0 || isExpanded) return; // 🟢 Pause if replying or reading more
 
     // Don't reset progress if it's already moving (prevents jitter on re-renders)
     // setProgress(0); // Removed this to prevent loop resets
@@ -139,7 +139,7 @@ export default function StoryViewer({
     }, 100);
 
     return () => clearInterval(interval);
-  }, [currentStoryIdx, currentUserIdx, isOpen, replyText]); // Updated dependencies
+  }, [currentStoryIdx, currentUserIdx, isOpen, replyText, isExpanded]); // Updated dependencies
 
   const handleSendReply = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -342,7 +342,7 @@ export default function StoryViewer({
                     className={`w-full bg-black/40 backdrop-blur-sm p-4 pb-2 text-center transition-all duration-300 ${isExpanded ? "max-h-[60vh] overflow-y-auto" : "max-h-[160px]"
                       }`}
                   >
-                    <p className="!text-white text-base font-medium drop-shadow-md leading-relaxed inline" style={{ color: "#ffffff" }}>
+                    <p className="!text-white text-base font-medium drop-shadow-md leading-relaxed whitespace-pre-wrap text-left inline-block" style={{ color: "#ffffff", textAlign: "left" }}>
                       {isExpanded ? activeStory.content : (
                         activeStory.content.length > 180
                           ? `${activeStory.content.slice(0, 180)}... `
@@ -366,10 +366,30 @@ export default function StoryViewer({
               )}
             </>
           ) : (
-            <div className="w-full h-full flex items-center justify-center p-8 bg-gradient-to-br from-blue-900 to-slate-900 text-center">
-              <p className=" text-2xl font-bold font-serif leading-relaxed drop-shadow-xl" style={{ color: "#ffffff" }}>
-                {activeStory.content || "..."}
-              </p>
+            <div className="relative w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-900 to-slate-900 px-6 pb-20">
+              <div 
+                className={`w-full z-30 pointer-events-none transition-all duration-300 flex flex-col justify-center max-h-full overflow-hidden`}
+              >
+                <div className={`w-full font-bold font-serif drop-shadow-xl whitespace-pre-wrap text-left transition-all duration-300 ${isExpanded ? "text-sm md:text-base leading-normal" : "text-xl md:text-2xl leading-relaxed"}`} style={{ color: "#ffffff", wordBreak: "break-word" }}>
+                  <span className="inline pointer-events-none">
+                    {isExpanded || !activeStory.content || activeStory.content.length <= 180
+                      ? activeStory.content || "..." 
+                      : `${activeStory.content.slice(0, 180)}... `}
+                  </span>
+                  
+                  {activeStory.content && activeStory.content.length > 180 && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsExpanded(!isExpanded);
+                      }}
+                      className="text-white/70 hover:text-white font-black underline ml-1 inline z-40 relative pointer-events-auto transition-colors"
+                    >
+                      {isExpanded ? "Show less" : "Read more"}
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 
