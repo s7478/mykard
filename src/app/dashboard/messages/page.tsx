@@ -848,7 +848,7 @@ function MessagesPageContent() {
                                   onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                                 >
                                   {(item.story.imageUrl?.match(/\.(mp4|webm|ogg|mov)(\?|$)/i) || item.story.videoUrl) ? (
-                                    <video src={item.story.videoUrl || item.story.imageUrl} playsInline preload="metadata" muted style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    <video src={item.story.videoUrl || item.story.imageUrl} autoPlay loop muted playsInline preload="metadata" style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
                                   ) : item.story.imageUrl ? (
                                     <img src={item.story.imageUrl} alt="Story" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                   ) : item.story.content ? (
@@ -874,7 +874,7 @@ function MessagesPageContent() {
                                 >
                                   {item.post.imageUrl ? (
                                     item.post.imageUrl.match(/\.(mp4|webm|ogg|mov)(\?|$)/i) ? (
-                                      <video src={item.post.imageUrl} playsInline preload="metadata" muted style={{ width: '100%', height: '100px', objectFit: 'cover' }} />
+                                      <video src={item.post.imageUrl} autoPlay loop muted playsInline preload="metadata" style={{ width: '100%', height: '100px', objectFit: 'cover', pointerEvents: 'none' }} />
                                     ) : (
                                       <img src={item.post.imageUrl} alt="Post" style={{ width: '100%', height: '100px', objectFit: 'cover' }} />
                                     )
