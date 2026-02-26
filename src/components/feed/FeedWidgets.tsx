@@ -862,7 +862,7 @@ const CreatePostModal = ({
                 <div style={styles.previewArea}>
                   <button onClick={removeMedia} style={styles.removeMediaBtn}><X size={16} /></button>
                   {mediaType === "video" ? (
-                    <video src={mediaPreview} controls style={{ width: "100%", maxHeight: "300px" }} />
+                    <video src={mediaPreview} controls playsInline preload="metadata" style={{ width: "100%", maxHeight: "300px", WebkitTransform: "translate3d(0, 0, 0)" }} />
                   ) : (
                     <img src={mediaPreview} alt="Preview" style={{ width: "100%", maxHeight: "300px", objectFit: "contain" }} />
                   )}
@@ -1095,7 +1095,7 @@ export const CreateStoryModal = ({
                 <div style={styles.previewArea}>
                   <button onClick={removeMedia} style={styles.removeMediaBtn}><X size={16} /></button>
                   {mediaType === "video" ? (
-                    <video src={mediaPreview} controls style={{ width: "100%", maxHeight: "300px" }} />
+                    <video src={mediaPreview} controls playsInline preload="metadata" style={{ width: "100%", maxHeight: "300px", WebkitTransform: "translate3d(0, 0, 0)" }} />
                   ) : (
                     <img src={mediaPreview} alt="Preview" style={{ width: "100%", maxHeight: "300px", objectFit: "contain" }} />
                   )}
@@ -1795,9 +1795,9 @@ export const PostCard = ({
         {postData.content && (
           <p
             style={{
-              fontSize: "13px",
-              margin: "0 0 8px 0",
-              lineHeight: "1.4",
+              fontSize: "15px",
+              margin: "0 0 10px 0",
+              lineHeight: "1.5",
               color: "#334155",
               whiteSpace: "pre-wrap",
               wordBreak: "break-word",
@@ -1812,6 +1812,7 @@ export const PostCard = ({
               className="post-media-blur"
               style={{
                 backgroundImage: `url(${postData.imageUrl})`,
+                pointerEvents: "none"
               }}
             />
 
@@ -1820,7 +1821,17 @@ export const PostCard = ({
                 src={postData.imageUrl}
                 controls
                 playsInline
+                preload="metadata"
                 className="post-media-main"
+                style={{ position: "relative", zIndex: 20, pointerEvents: "auto" }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (e.currentTarget.paused) {
+                    e.currentTarget.play().catch(console.error);
+                  } else {
+                    e.currentTarget.pause();
+                  }
+                }}
               />
             ) : (
               <img

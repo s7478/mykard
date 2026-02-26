@@ -816,7 +816,7 @@ export default function PublicProfilePage() {
                                                     {/* Content */}
                                                     <div style={{ padding: "0 12px 12px 12px", flex: 1 }}>
                                                         {post.content && (
-                                                            <p style={{ fontSize: "14px", color: "#000", lineHeight: "1.5", margin: "0 0 8px 0", maxHeight: "60px", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                                                            <p style={{ fontSize: "15px", color: "#000", lineHeight: "1.5", margin: "0 0 10px 0", maxHeight: "60px", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
                                                                 {post.content}
                                                             </p>
                                                         )}
@@ -827,7 +827,17 @@ export default function PublicProfilePage() {
                                                                     <video
                                                                         src={post.imageUrl}
                                                                         controls
-                                                                        style={{ width: "100%", height: "200px", objectFit: "cover", display: "block" }}
+                                                                        playsInline
+                                                                        preload="metadata"
+                                                                        style={{ width: "100%", height: "200px", objectFit: "cover", display: "block", position: "relative", zIndex: 10, pointerEvents: "auto" }}
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            if (e.currentTarget.paused) {
+                                                                                e.currentTarget.play().catch(console.error);
+                                                                            } else {
+                                                                                e.currentTarget.pause();
+                                                                            }
+                                                                        }}
                                                                     />
                                                                 ) : (
                                                                     <img

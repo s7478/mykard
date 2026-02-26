@@ -218,7 +218,7 @@ export default function StoryViewer({
       </button>
 
       {/* MAIN CONTAINER */}
-      <div className="relative w-full h-full md:w-[400px] md:h-[85vh] md:max-h-[850px] overflow-hidden bg-black shadow-2xl border border-white/10 flex flex-col">
+      <div className="relative w-full h-full sm:w-[440px] sm:h-[88vh] sm:rounded-[20px] sm:max-h-[850px] overflow-hidden bg-black shadow-[0_0_40px_rgba(0,0,0,0.5)] border border-white/10 flex flex-col">
 
         {/* Progress Bars */}
         <div className="absolute top-3 left-0 right-0 z-20 flex gap-1 px-2 pointer-events-none">
@@ -316,7 +316,7 @@ export default function StoryViewer({
                   src={activeStory.imageUrl || activeStory.videoUrl}
                   autoPlay
                   playsInline
-                  muted={false}
+                  muted={true}
                   onEnded={handleNext}
                   onTimeUpdate={(e) => {
                     if (replyText.length > 0) return;
@@ -342,15 +342,15 @@ export default function StoryViewer({
                     className={`w-full bg-black/40 backdrop-blur-sm p-4 pb-2 text-center transition-all duration-300 ${isExpanded ? "max-h-[60vh] overflow-y-auto" : "max-h-[160px]"
                       }`}
                   >
-                    <p className="!text-white text-base font-medium drop-shadow-md leading-relaxed whitespace-pre-wrap text-left inline-block" style={{ color: "#ffffff", textAlign: "left" }}>
+                    <p className="!text-white text-[18px] sm:text-[18px] md:text-[20px] font-semibold drop-shadow-xl leading-relaxed whitespace-pre-wrap text-left inline-block" style={{ color: "#ffffff", textAlign: "left" }}>
                       {isExpanded ? activeStory.content : (
-                        activeStory.content.length > 180
-                          ? `${activeStory.content.slice(0, 180)}... `
+                        activeStory.content.length > 150
+                          ? `${activeStory.content.slice(0, 150)}... `
                           : activeStory.content
                       )}
                     </p>
 
-                    {activeStory.content.length > 180 && (
+                    {activeStory.content.length > 150 && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -366,24 +366,24 @@ export default function StoryViewer({
               )}
             </>
           ) : (
-            <div className="relative w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-900 to-slate-900 px-6 pb-20">
-              <div 
-                className={`w-full z-30 pointer-events-none transition-all duration-300 flex flex-col justify-center max-h-full overflow-hidden`}
+            <div className="relative w-full h-full bg-gradient-to-br from-blue-900 to-slate-900">
+              <div
+                className={`absolute top-20 bottom-32 left-0 right-0 px-4 sm:px-6 w-full z-10 transition-all duration-300 flex flex-col justify-center overflow-hidden ${isExpanded ? 'pointer-events-auto' : 'pointer-events-none'}`}
               >
-                <div className={`w-full font-bold font-serif drop-shadow-xl whitespace-pre-wrap text-left transition-all duration-300 ${isExpanded ? "text-sm md:text-base leading-normal" : "text-xl md:text-2xl leading-relaxed"}`} style={{ color: "#ffffff", wordBreak: "break-word" }}>
+                <div className={`w-full font-bold font-serif drop-shadow-2xl whitespace-pre-wrap text-left transition-all duration-300 px-2 lg:px-4 ${isExpanded ? "text-[13px] sm:text-[13px] md:text-[14px] leading-tight font-medium" : "text-[24px] sm:text-[28px] md:text-[28px] leading-relaxed"}`} style={{ color: "#ffffff", wordBreak: "break-word" }}>
                   <span className="inline pointer-events-none">
-                    {isExpanded || !activeStory.content || activeStory.content.length <= 180
-                      ? activeStory.content || "..." 
-                      : `${activeStory.content.slice(0, 180)}... `}
+                    {isExpanded || !activeStory.content || activeStory.content.length <= 150
+                      ? activeStory.content || "..."
+                      : `${activeStory.content.slice(0, 150)}... `}
                   </span>
-                  
-                  {activeStory.content && activeStory.content.length > 180 && (
+
+                  {activeStory.content && activeStory.content.length > 150 && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         setIsExpanded(!isExpanded);
                       }}
-                      className="text-white/70 hover:text-white font-black underline ml-1 inline z-40 relative pointer-events-auto transition-colors"
+                      className="text-white/70 hover:text-white font-black underline ml-2 inline z-40 relative pointer-events-auto transition-colors"
                     >
                       {isExpanded ? "Show less" : "Read more"}
                     </button>
