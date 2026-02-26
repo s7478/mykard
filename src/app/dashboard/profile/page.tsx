@@ -564,7 +564,21 @@ export default function ProfilePage() {
           {/* Profile Card */}
           <div style={{ backgroundColor: "#fff", borderRadius: "8px", overflow: "hidden", boxShadow: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)", marginBottom: "8px" }}>
             {/* Banner */}
-            <div style={{ position: "relative", height: "200px", backgroundColor: "#a0aec0" }}>
+                        <div
+                          style={{
+                            position: "relative",
+                            height: "200px",
+                            backgroundColor: "#a0aec0"
+                          }}
+                          className="profile-banner-responsive"
+                        >
+                    <style>{`
+                      @media (max-width: 600px) {
+                        .profile-banner-responsive {
+                          height: 110px !important;
+                        }
+                      }
+                    `}</style>
               {displayUser.bannerImage ? (
                 <img
                   src={displayUser.bannerImage}
