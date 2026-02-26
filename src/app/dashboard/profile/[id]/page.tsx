@@ -816,7 +816,7 @@ export default function PublicProfilePage() {
                                                     {/* Content */}
                                                     <div style={{ padding: "0 12px 12px 12px", flex: 1 }}>
                                                         {post.content && (
-                                                            <p style={{ fontSize: "14px", color: "#000", lineHeight: "1.5", margin: "0 0 8px 0", maxHeight: "60px", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" }}>
+                                                            <p style={{ fontSize: "14px", color: "#000", lineHeight: "1.5", margin: "0 0 8px 0", maxHeight: "60px", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
                                                                 {post.content}
                                                             </p>
                                                         )}

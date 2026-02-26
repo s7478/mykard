@@ -1084,7 +1084,7 @@ export const CreateStoryModal = ({
           ) : (
             <>
               <textarea
-                style={{ ...styles.modalTextarea, minHeight: "80px", fontSize: "18px", textAlign: "center" }}
+                style={{ ...styles.modalTextarea, minHeight: "80px", fontSize: "18px", textAlign: "left" }}
                 placeholder="Type something..."
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
@@ -1799,6 +1799,8 @@ export const PostCard = ({
               margin: "0 0 8px 0",
               lineHeight: "1.4",
               color: "#334155",
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-word",
             }}
           >
             {postData.content}

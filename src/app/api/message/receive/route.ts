@@ -83,7 +83,7 @@ export async function GET(req: NextRequest) {
 
         const stories = await (prisma as any).story.findMany({
             where: { id: { in: Array.from(storyIds) } },
-            select: { id: true, imageUrl: true, videoUrl: true }
+            select: { id: true, imageUrl: true, videoUrl: true, content: true }
         });
 
         const storyMap = new Map(stories.map((s: any) => [s.id, s]));
