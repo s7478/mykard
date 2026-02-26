@@ -4,10 +4,7 @@ import React, { useEffect, useMemo, useRef, useState, Suspense } from "react";
 import { Search, X, Trash2, Send, ChevronLeft, Radius, AlignCenter, Underline, ChevronDown, Filter } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./messages.module.css";
-import { is } from "zod/v4/locales";
-import { Margarine } from "next/font/google";
-import BorderStyle from "pdf-lib/cjs/core/annotation/BorderStyle";
-import { px } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 // --- Types ---
 type MessageStatus = "New" | "Read" | "Replied" | "Pending" | "Archived" | "Deleted";
@@ -60,6 +57,26 @@ function MessagesPageContent() {
   const [replyId, setReplyId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  // New states for drag reply and reactions
+  const [replyingTo, setReplyingTo] = useState<{ id: string, name: string, text: string } | null>(null);
+  const [reactions, setReactions] = useState<Record<string, string>>({});
+  const [showReactFor, setShowReactFor] = useState<string | null>(null);
+  const pressTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const handlePointerDown = (id: string) => {
+    pressTimer.current = setTimeout(() => {
+      setShowReactFor(id);
+    }, 500);
+  };
+
+  const handlePointerUp = () => {
+    if (pressTimer.current) {
+      clearTimeout(pressTimer.current);
+      pressTimer.current = null;
+    }
+  };
+
   const conversationRef = useRef<HTMLDivElement | null>(null);
   //const composerInputRef = useRef<HTMLInputElement | null>(null);
   const composerInputRef = useRef<HTMLTextAreaElement | null>(null);
@@ -547,13 +564,20 @@ function MessagesPageContent() {
 
     if (!originalMessage) return;
 
+    // Wrap replied message inline if relying to a specific message
+    let finalMessageText = replyText.trim();
+    if (replyingTo) {
+      const truncated = replyingTo.text.length > 50 ? replyingTo.text.substring(0, 50) + "..." : replyingTo.text;
+      finalMessageText = `[Replying to ${replyingTo.name}]: "${truncated}"\n\n${finalMessageText}`;
+    }
+
     try {
       const token = localStorage.getItem('token');
       const response = await fetch('/api/message/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({
-          message: replyText.trim(),
+          message: finalMessageText,
           receiverId: originalMessage.senderId,
           status: 'REPLIED',
           tag: originalMessage.tag === 'STORY_REPLY' ? 'SUPPORT' : (originalMessage.tag?.toUpperCase() || 'SUPPORT'),
@@ -564,9 +588,10 @@ function MessagesPageContent() {
       if (response.ok) {
         setMessages(prev => prev.map(m => m.senderId === replyId ? {
           ...m, status: "Replied", read: true,
-          thread: [...(m.thread || []), { text: replyText, date: new Date().toISOString(), direction: 'out' }]
+          thread: [...(m.thread || []), { text: finalMessageText, date: new Date().toISOString(), direction: 'out' }]
         } : m));
         setReplyText("");
+        setReplyingTo(null);
 
         // Ensure the newly sent message is visible above the composer
         setTimeout(() => {
@@ -864,8 +889,60 @@ function MessagesPageContent() {
                               </div>
                             )}
 
-                            <div className={isIncoming ? styles.bubbleIn : styles.bubbleOut}>
+                            <motion.div
+                              className={isIncoming ? styles.bubbleIn : styles.bubbleOut}
+                              drag="x"
+                              dragConstraints={isIncoming ? { left: 0, right: 60 } : { left: -60, right: 0 }}
+                              dragElastic={0.2}
+                              onDragEnd={(e, info) => {
+                                if (isIncoming && info.offset.x > 40) {
+                                  setReplyingTo({ id: item.id || idx.toString(), name: activeMessage.name, text: item.text });
+                                  composerInputRef.current?.focus();
+                                } else if (!isIncoming && info.offset.x < -40) {
+                                  setReplyingTo({ id: item.id || idx.toString(), name: "You", text: item.text });
+                                  composerInputRef.current?.focus();
+                                }
+                              }}
+                              onPointerDown={() => handlePointerDown(item.id || idx.toString())}
+                              onPointerUp={handlePointerUp}
+                              onPointerCancel={handlePointerUp}
+                              onPointerLeave={handlePointerUp}
+                              onContextMenu={(e) => { e.preventDefault(); setShowReactFor(item.id || idx.toString()); }}
+                              style={{ position: 'relative' }}
+                            >
+                              <AnimatePresence>
+                                {showReactFor === (item.id || idx.toString()) && (
+                                  <motion.div
+                                    initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.8, y: 10 }}
+                                    style={{ position: 'absolute', top: -45, [isIncoming ? 'left' : 'right']: 0, backgroundColor: 'white', display: 'flex', gap: '8px', padding: '6px 12px', borderRadius: '24px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', zIndex: 50, border: '1px solid #e2e8f0', width: "max-content" }}
+                                  >
+                                    {['❤️', '😂', '😮', '😢', '👍'].map(emoji => (
+                                      <span
+                                        key={emoji}
+                                        style={{ cursor: 'pointer', fontSize: '20px', transition: 'transform 0.1s' }}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setReactions(prev => ({ ...prev, [item.id || idx.toString()]: prev[item.id || idx.toString()] === emoji ? '' : emoji }));
+                                          setShowReactFor(null);
+                                        }}
+                                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                      >{emoji}</span>
+                                    ))}
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+
                               {renderMessageText(item.text)}
+
+                              {reactions[item.id || idx.toString()] && (
+                                <div style={{ position: 'absolute', bottom: -12, [isIncoming ? 'left' : 'right']: 10, backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', zIndex: 10 }}>
+                                  {reactions[item.id || idx.toString()]}
+                                </div>
+                              )}
+
                               <div style={{ fontSize: "10px", marginTop: "4px", color: isIncoming ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.8)", textAlign: "right", display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "4px" }}>
                                 <span>{formatDate(item.date).split(',')[1].trim()}</span>
                                 {!isIncoming && (
@@ -882,7 +959,7 @@ function MessagesPageContent() {
                                   </button>
                                 )}
                               </div>
-                            </div>
+                            </motion.div>
                           </div>
                         </div>
                       </React.Fragment>
@@ -892,8 +969,27 @@ function MessagesPageContent() {
               </div>
 
               {/* Composer */}
-              <div className={styles.composer}>
-                <div className={styles.composerInputContainer}>
+              <div className={styles.composer} style={{ flexDirection: 'column', gap: '8px', alignItems: 'stretch' }}>
+                <AnimatePresence>
+                  {replyingTo && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      style={{ padding: '8px 12px', backgroundColor: '#f1f5f9', borderRadius: '8px', borderLeft: '4px solid #2563eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center', overflow: 'hidden' }}
+                    >
+                      <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingRight: "16px" }}>
+                        <span style={{ fontSize: '12px', fontWeight: 600, color: '#2563eb' }}>Replying to {replyingTo.name}</span>
+                        <span style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{replyingTo.text}</span>
+                      </div>
+                      <button onClick={() => setReplyingTo(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: '#64748b' }}>
+                        <X size={16} />
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <div className={styles.composerInputContainer} style={{ width: '100%' }}>
                   <textarea
                     ref={composerInputRef}
                     value={replyText}
