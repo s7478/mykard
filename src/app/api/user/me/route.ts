@@ -111,24 +111,42 @@ export async function GET() {
     })
 
     // Fetch user's recent posts with likes and comments count
-    const posts = await prisma.post.findMany({
+    // Fetch user's recent posts with likes and comments count, plus if CURRENT user liked/saved them
+    const postsResult = await prisma.post.findMany({
       where: { authorId: decoded.userId },
-      select: {
-        id: true,
-        content: true,
-        imageUrl: true,
-        createdAt: true,
-        visibility: true,
+      include: {
         _count: {
           select: {
             likes: true,
             comments: true,
+            shares: true,
+            savedBy: true
           }
+        },
+        likes: {
+          where: { userId: decoded.userId },
+          select: { id: true }
+        },
+        savedBy: {
+          where: { userId: decoded.userId },
+          select: { id: true }
         }
       },
       orderBy: { createdAt: 'desc' },
       take: 10
     })
+
+    const posts = postsResult.map(p => ({
+      ...p,
+      isLiked: p.likes.length > 0,
+      isSaved: p.savedBy.length > 0,
+      likesCount: p._count.likes,
+      commentsCount: p._count.comments,
+      sharesCount: p._count.shares,
+      savesCount: p._count.savedBy,
+      likes: undefined,
+      savedBy: undefined
+    }));
 
     return NextResponse.json({
       user: {
