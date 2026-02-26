@@ -1568,27 +1568,11 @@ export const PostCard = ({
   };
 
   const handleShareClick = async () => {
-    const postUrl = `${window.location.origin}/post/${postData.id}`;
-    const shareData = {
-      title: 'Check out this post on CredLink',
-      text: postData.content || 'Check out this post',
-      url: postUrl
-    };
-
     try {
-      // Use Web Share API if supported
-      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
-        await navigator.share(shareData);
-        trackShare(); // Track sucessful share
-      } else {
-        // Fallback or show existing share modal
-        setIsShareModalOpen(true);
-      }
+      setIsShareModalOpen(true);
       setShowMenu(false);
     } catch (e) {
-      if ((e as Error).name !== 'AbortError') {
-        toast.error("Couldn't share post");
-      }
+      toast.error("Couldn't open share modal");
     }
   };
 
