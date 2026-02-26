@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/hooks/use-auth";
-import { Mail, Phone, Linkedin, Globe, MapPin, Users, Edit, Eye, TrendingUp, Search, ChevronRight, Building, Heart, MessageCircle, Send, Bookmark, Camera } from "lucide-react";
+import { Mail, Phone, Linkedin, Globe, MapPin, Users, Pencil, Eye, TrendingUp, Search, ChevronRight, Building, Heart, MessageCircle, Send, Bookmark, Camera } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -86,6 +86,7 @@ export default function ProfilePage() {
   const [showContactPopup, setShowContactPopup] = useState(false);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [isUploadingBanner, setIsUploadingBanner] = useState(false);
+  const [showPhotoPopup, setShowPhotoPopup] = useState(false);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -564,15 +565,15 @@ export default function ProfilePage() {
           {/* Profile Card */}
           <div style={{ backgroundColor: "#fff", borderRadius: "8px", overflow: "hidden", boxShadow: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)", marginBottom: "8px" }}>
             {/* Banner */}
-                        <div
-                          style={{
-                            position: "relative",
-                            height: "200px",
-                            backgroundColor: "#a0aec0"
-                          }}
-                          className="profile-banner-responsive"
-                        >
-                    <style>{`
+            <div
+              style={{
+                position: "relative",
+                height: "200px",
+                backgroundColor: "#a0aec0"
+              }}
+              className="profile-banner-responsive"
+            >
+              <style>{`
                       @media (max-width: 600px) {
                         .profile-banner-responsive {
                           height: 110px !important;
@@ -595,115 +596,17 @@ export default function ProfilePage() {
                 id="banner-upload"
                 accept="image/jpeg,image/jpg,image/png,image/webp"
                 style={{ display: 'none' }}
-                onChange={handleBannerImageChange}
+                onChange={(e) => { setShowPhotoPopup(false); handleBannerImageChange(e); }}
               />
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  document.getElementById('banner-upload')?.click();
-                }}
-                disabled={isUploadingBanner}
-                style={{
-                  position: "absolute",
-                  bottom: "16px",
-                  right: "16px",
-                  backgroundColor: "rgba(255, 255, 255, 0.95)",
-                  border: "none",
-                  borderRadius: "50%",
-                  width: "44px",
-                  height: "44px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: isUploadingBanner ? "not-allowed" : "pointer",
-                  boxShadow: "0 2px 12px rgba(0,0,0,0.2)",
-                  transition: "all 0.2s",
-                  opacity: isUploadingBanner ? 0.5 : 1,
-                  zIndex: 10
-                }}
-                title="Upload banner image"
-                onMouseEnter={(e) => {
-                  if (!isUploadingBanner) {
-                    e.currentTarget.style.transform = "scale(1.1)";
-                    e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 1)";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "scale(1)";
-                  e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
-                }}
-              >
-                {isUploadingBanner ? (
-                  <div style={{ width: "18px", height: "18px", border: "2px solid #666", borderTop: "2px solid transparent", borderRadius: "50%", animation: "spin 1s linear infinite" }}></div>
-                ) : (
-                  <Camera size={20} color="#666" />
-                )}
-              </button>
-              {isEditingIntro ? (
-                <div style={{ position: "absolute", top: "16px", right: "16px", display: "flex", gap: "8px" }}>
-                  <button
-                    onClick={handleSaveIntro}
-                    style={{
-                      backgroundColor: "#0a66c2",
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: "16px",
-                      padding: "6px 16px",
-                      fontSize: "14px",
-                      fontWeight: "600",
-                      cursor: "pointer",
-                      boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
-                    }}
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={handleCancelIntro}
-                    style={{
-                      backgroundColor: "#fff",
-                      color: "#666",
-                      border: "1px solid #666",
-                      borderRadius: "16px",
-                      padding: "6px 16px",
-                      fontSize: "14px",
-                      fontWeight: "600",
-                      cursor: "pointer",
-                      boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              ) : (
-                <div style={{ display: "flex", gap: "8px" }}>
-                  <button
-                    onClick={handleEditIntro}
-                    style={{
-                      position: "absolute",
-                      top: "16px",
-                      right: "16px",
-                      backgroundColor: "#fff",
-                      border: "none",
-                      borderRadius: "50%",
-                      width: "40px",
-                      height: "40px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: "pointer",
-                      boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
-                    }}
-                  >
-                    <Edit size={18} color="#666" />
-                  </button>
-                </div>
-              )}
+
+
             </div>
 
             {/* Profile Info */}
             <div style={{ padding: "0 24px 24px 24px", position: "relative" }}>
-              {/* Profile Picture */}
-              <div style={{ position: "relative", marginTop: "-70px", marginBottom: "16px" }}>
+              {/* Profile Picture Row */}
+              <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginTop: "-70px", marginBottom: "16px" }}>
+                {/* Profile Picture */}
                 <div
                   style={{
                     position: "relative",
@@ -737,52 +640,224 @@ export default function ProfilePage() {
                       {displayUser.name.split(" ").map((n: string) => n[0]).join("")}
                     </div>
                   )}
-                  {/* Upload Photo Button */}
+                  {/* Clickable overlay on profile photo */}
                   <div
-                    onClick={() => document.getElementById('profile-photo-input')?.click()}
+                    onClick={() => setShowPhotoPopup(true)}
                     style={{
                       position: "absolute",
-                      bottom: "8px",
-                      right: "8px",
-                      width: "40px",
-                      height: "40px",
+                      inset: 0,
                       borderRadius: "50%",
-                      backgroundColor: "#0a66c2",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: isUploadingPhoto ? "not-allowed" : "pointer",
-                      boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                      opacity: isUploadingPhoto ? 0.6 : 1,
-                      transition: "all 0.2s ease"
+                      cursor: "pointer",
+                      backgroundColor: "transparent",
+                      transition: "background-color 0.2s"
                     }}
-                    onMouseOver={(e) => {
-                      if (!isUploadingPhoto) {
-                        e.currentTarget.style.transform = "scale(1.1)";
-                      }
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.transform = "scale(1)";
-                    }}
-                  >
-                    {isUploadingPhoto ? (
-                      <div style={{ color: "#fff", fontSize: "12px" }}>...</div>
-                    ) : (
-                      <Camera size={20} color="#fff" />
-                    )}
-                  </div>
+                    onMouseOver={(e) => { e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.15)"; }}
+                    onMouseOut={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
+                  />
                   <input
                     type="file"
                     id="profile-photo-input"
                     accept="image/jpeg,image/jpg,image/png,image/webp"
-                    onChange={handleProfilePhotoChange}
+                    onChange={(e) => { setShowPhotoPopup(false); handleProfilePhotoChange(e); }}
                     disabled={isUploadingPhoto}
                     style={{ display: "none" }}
                   />
                 </div>
+
+                {/* Edit / Save+Cancel buttons on the right */}
+                <div style={{ display: "flex", gap: "8px", paddingBottom: "4px" }}>
+                  {isEditingIntro ? (
+                    <>
+                      <button
+                        onClick={handleSaveIntro}
+                        style={{
+                          backgroundColor: "#0a66c2",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "16px",
+                          padding: "6px 16px",
+                          fontSize: "14px",
+                          fontWeight: "600",
+                          cursor: "pointer",
+                          boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                        }}
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={handleCancelIntro}
+                        style={{
+                          backgroundColor: "#fff",
+                          color: "#666",
+                          border: "1px solid #666",
+                          borderRadius: "16px",
+                          padding: "6px 16px",
+                          fontSize: "14px",
+                          fontWeight: "600",
+                          cursor: "pointer",
+                          boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={handleEditIntro}
+                      style={{
+                        backgroundColor: "#fff",
+                        border: "none",
+                        borderRadius: "50%",
+                        width: "40px",
+                        height: "40px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                      }}
+                    >
+                      <Pencil size={18} color="#666" />
+                    </button>
+                  )}
+                </div>
               </div>
 
-              {/* Name and Title */}
+              {/* Profile Photo Popup */}
+              {showPhotoPopup && (
+                <div
+                  onClick={() => setShowPhotoPopup(false)}
+                  style={{
+                    position: "fixed",
+                    inset: 0,
+                    backgroundColor: "rgba(0,0,0,0.5)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    zIndex: 1000
+                  }}
+                >
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
+                      backgroundColor: "#fff",
+                      borderRadius: "12px",
+                      padding: "24px",
+                      width: "300px",
+                      boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
+                      position: "relative"
+                    }}
+                  >
+                    <button
+                      onClick={() => setShowPhotoPopup(false)}
+                      style={{
+                        position: "absolute",
+                        top: "12px",
+                        right: "12px",
+                        background: "none",
+                        border: "none",
+                        fontSize: "22px",
+                        cursor: "pointer",
+                        color: "#666",
+                        lineHeight: 1
+                      }}
+                    >
+                      ×
+                    </button>
+                    <h3 style={{ margin: "0 0 20px 0", fontSize: "18px", fontWeight: "600", color: "#000" }}>
+                      Profile photo
+                    </h3>
+                    <div style={{
+                      width: "120px",
+                      height: "120px",
+                      borderRadius: "50%",
+                      overflow: "hidden",
+                      margin: "0 auto 20px auto",
+                      border: "3px solid #e0e0e0",
+                      backgroundColor: "#f0f0f0"
+                    }}>
+                      {displayUser.profileImage ? (
+                        <img src={displayUser.profileImage} alt={displayUser.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      ) : (
+                        <div style={{
+                          width: "100%", height: "100%",
+                          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: "36px", fontWeight: "600", color: "#fff"
+                        }}>
+                          {displayUser.name.split(" ").map((n: string) => n[0]).join("")}
+                        </div>
+                      )}
+                    </div>
+                    {/* LinkedIn-style icon action buttons */}
+                    <div style={{ display: "flex", justifyContent: "center", gap: "32px", marginTop: "8px" }}>
+                      {/* Update profile photo */}
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
+                        <button
+                          onClick={() => document.getElementById('profile-photo-input')?.click()}
+                          disabled={isUploadingPhoto}
+                          style={{
+                            width: "52px",
+                            height: "52px",
+                            borderRadius: "50%",
+                            backgroundColor: "#fff",
+                            border: "1.5px solid #d0d0d0",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            cursor: isUploadingPhoto ? "not-allowed" : "pointer",
+                            opacity: isUploadingPhoto ? 0.6 : 1,
+                            transition: "background-color 0.2s"
+                          }}
+                          onMouseOver={(e) => { if (!isUploadingPhoto) e.currentTarget.style.backgroundColor = "#f0f4ff"; }}
+                          onMouseOut={(e) => { e.currentTarget.style.backgroundColor = "#fff"; }}
+                        >
+                          {isUploadingPhoto
+                            ? <div style={{ width: "18px", height: "18px", border: "2px solid #0a66c2", borderTop: "2px solid transparent", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+                            : <Camera size={22} color="#0a66c2" />
+                          }
+                        </button>
+                        <span style={{ fontSize: "12px", color: "#000", fontWeight: "500" }}>
+                          {isUploadingPhoto ? "Uploading" : "Update"}
+                        </span>
+                      </div>
+
+                      {/* Update cover image */}
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
+                        <button
+                          onClick={() => document.getElementById('banner-upload')?.click()}
+                          disabled={isUploadingBanner}
+                          style={{
+                            width: "52px",
+                            height: "52px",
+                            borderRadius: "50%",
+                            backgroundColor: "#fff",
+                            border: "1.5px solid #d0d0d0",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            cursor: isUploadingBanner ? "not-allowed" : "pointer",
+                            opacity: isUploadingBanner ? 0.6 : 1,
+                            transition: "background-color 0.2s"
+                          }}
+                          onMouseOver={(e) => { if (!isUploadingBanner) e.currentTarget.style.backgroundColor = "#f0f4ff"; }}
+                          onMouseOut={(e) => { e.currentTarget.style.backgroundColor = "#fff"; }}
+                        >
+                          {isUploadingBanner
+                            ? <div style={{ width: "18px", height: "18px", border: "2px solid #0a66c2", borderTop: "2px solid transparent", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+                            : <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0a66c2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+                          }
+                        </button>
+                        <span style={{ fontSize: "12px", color: "#000", fontWeight: "500" }}>
+                          {isUploadingBanner ? "Uploading" : "Frames"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+
               <div style={{ marginBottom: "16px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
                   {isEditingIntro ? (
@@ -882,8 +957,10 @@ export default function ProfilePage() {
                   </button>
                 </div>
 
-                <div style={{ fontSize: "14px", color: "#0a66c2", fontWeight: "600", marginBottom: "16px" }}>
-                  {userProfile?.connectionCount || 0} connections
+                <div style={{ fontSize: "14px", fontWeight: "600", marginBottom: "16px" }}>
+                  <Link href="/dashboard/connections" style={{ color: "#0a66c2", textDecoration: "none" }}>
+                    {userProfile?.connectionCount || 0} connections
+                  </Link>
                 </div>
               </div>
             </div>
@@ -1331,7 +1408,7 @@ export default function ProfilePage() {
                       </div>
                     ) : (
                       <>
-                        <Edit size={20} color="#666" style={{ cursor: "pointer" }} onClick={handleEditContact} />
+                        <Pencil size={20} color="#666" style={{ cursor: "pointer" }} onClick={handleEditContact} />
                         <button onClick={() => setShowContactPopup(false)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "24px", lineHeight: "1", color: "#666" }}>
                           &times;
                         </button>
