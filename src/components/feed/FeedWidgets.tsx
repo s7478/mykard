@@ -1813,7 +1813,7 @@ export const PostCard = ({
               }}
             />
 
-            {postData.imageUrl.match(/\.(mp4|webm|ogg)$/i) ? (
+            {postData.imageUrl.match(/\.(mp4|webm|ogg|mov)(\?|$)/i) ? (
               <video
                 src={postData.imageUrl}
                 controls
