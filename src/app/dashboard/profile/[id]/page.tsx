@@ -823,7 +823,7 @@ export default function PublicProfilePage() {
 
                                                         {post.imageUrl && (
                                                             <div style={{ borderRadius: "4px", overflow: "hidden", marginTop: "8px" }}>
-                                                                {post.imageUrl.match(/\.(mp4|webm|ogg)$/i) ? (
+                                                                {post.imageUrl.match(/\.(mp4|webm|ogg|mov)(\?|$)/i) ? (
                                                                     <video
                                                                         src={post.imageUrl}
                                                                         controls
