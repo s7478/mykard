@@ -74,14 +74,14 @@ const styles: Record<string, CSSProperties> = {
     gap: "0",
   },
   createPostCard: {
-    backgroundColor: "#ffffff",
-    border: "1px solid #f1f5f9",
-    borderTopRightRadius: "16px",
-    borderTopLeftRadius: "16px",
-    padding: "6px 16px 10px 16px",
+    backgroundColor: "transparent",
+    border: "none",
+    borderTopRightRadius: 0,
+    borderTopLeftRadius: 0,
+    padding: "6px 0 10px 0",
     width: "100%",
     textAlign: "left",
-    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+    boxShadow: "none",
   },
   inputArea: {
     display: "flex",
@@ -127,9 +127,9 @@ const styles: Record<string, CSSProperties> = {
   },
   // 🟢 KEPT EXACTLY AS REQUESTED (8px padding, no radius change)
   postCard: {
-    backgroundColor: "#ffffff",
-    border: "1px solid #f1f5f9",
-    padding: "8px",
+    backgroundColor: "transparent",
+    border: "none",
+    padding: "8px 8px 8px 2px",
     width: "100%",
     textAlign: "left",
     position: "relative",
@@ -138,8 +138,8 @@ const styles: Record<string, CSSProperties> = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingBottom: "4px",
-    marginBottom: "4px",
+    // paddingBottom: "8px",
+    marginBottom: "6px",
   },
   headerActions: {
     display: "flex",
@@ -862,7 +862,7 @@ const CreatePostModal = ({
                 <div style={styles.previewArea}>
                   <button onClick={removeMedia} style={styles.removeMediaBtn}><X size={16} /></button>
                   {mediaType === "video" ? (
-                    <video src={mediaPreview} controls style={{ width: "100%", maxHeight: "300px" }} />
+                    <video src={mediaPreview} controls playsInline preload="metadata" style={{ width: "100%", maxHeight: "300px", WebkitTransform: "translate3d(0, 0, 0)" }} />
                   ) : (
                     <img src={mediaPreview} alt="Preview" style={{ width: "100%", maxHeight: "300px", objectFit: "contain" }} />
                   )}
@@ -1084,7 +1084,7 @@ export const CreateStoryModal = ({
           ) : (
             <>
               <textarea
-                style={{ ...styles.modalTextarea, minHeight: "80px", fontSize: "18px", textAlign: "center" }}
+                style={{ ...styles.modalTextarea, minHeight: "80px", fontSize: "18px", textAlign: "left" }}
                 placeholder="Type something..."
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
@@ -1095,7 +1095,7 @@ export const CreateStoryModal = ({
                 <div style={styles.previewArea}>
                   <button onClick={removeMedia} style={styles.removeMediaBtn}><X size={16} /></button>
                   {mediaType === "video" ? (
-                    <video src={mediaPreview} controls style={{ width: "100%", maxHeight: "300px" }} />
+                    <video src={mediaPreview} controls playsInline preload="metadata" style={{ width: "100%", maxHeight: "300px", WebkitTransform: "translate3d(0, 0, 0)" }} />
                   ) : (
                     <img src={mediaPreview} alt="Preview" style={{ width: "100%", maxHeight: "300px", objectFit: "contain" }} />
                   )}
@@ -1587,9 +1587,13 @@ export const PostCard = ({
     trackShare();
   };
 
-  const handleShareClick = () => {
-    setIsShareModalOpen(true);
-    setShowMenu(false);
+  const handleShareClick = async () => {
+    try {
+      setIsShareModalOpen(true);
+      setShowMenu(false);
+    } catch (e) {
+      toast.error("Couldn't open share modal");
+    }
   };
 
   const myAvatar = currentUser?.profileImage;
@@ -1815,10 +1819,12 @@ export const PostCard = ({
         {postData.content && (
           <p
             style={{
-              fontSize: "13px",
-              margin: "0 0 8px 0",
-              lineHeight: "1.4",
+              fontSize: "15px",
+              margin: "0 0 10px 0",
+              lineHeight: "1.5",
               color: "#334155",
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-word",
             }}
           >
             {postData.content}
@@ -1830,15 +1836,26 @@ export const PostCard = ({
               className="post-media-blur"
               style={{
                 backgroundImage: `url(${postData.imageUrl})`,
+                pointerEvents: "none"
               }}
             />
 
-            {postData.imageUrl.match(/\.(mp4|webm|ogg)$/i) ? (
+            {postData.imageUrl.match(/\.(mp4|webm|ogg|mov)(\?|$)/i) ? (
               <video
                 src={postData.imageUrl}
                 controls
                 playsInline
+                preload="metadata"
                 className="post-media-main"
+                style={{ position: "relative", zIndex: 20, pointerEvents: "auto" }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (e.currentTarget.paused) {
+                    e.currentTarget.play().catch(console.error);
+                  } else {
+                    e.currentTarget.pause();
+                  }
+                }}
               />
             ) : (
               <img

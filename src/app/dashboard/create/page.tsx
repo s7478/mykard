@@ -524,7 +524,7 @@ const CreatePage = () => {
                   <div key={design} onClick={() => setSelectedDesign(design)} className={styles.designOption} style={{ border: design === selectedDesign ? `2px solid ${selectedColor1}` : '1px solid #888888' }}>
                     <div className={styles.designVisual} style={{
                       background: design === 'Classic' ? `linear-gradient(135deg, ${selectedColor1} 0%, ${selectedColor2} 100%)` : design === 'Flat' ? 'white' : design === 'Modern' ? `linear-gradient(145deg, ${selectedColor1}15, ${selectedColor2}15)` : design === 'Sleek' ? `linear-gradient(135deg, ${selectedColor1}, ${selectedColor2})` : '#dcdcdc',
-                      border: design === 'Flat' ? `2px solid ${selectedColor1}` : '1px solid #eee'
+                      border: (design === 'Flat' || design === 'Classic') ? `2px solid ${selectedColor1}` : '1px solid #eee'
                     }}>
                       <div style={{ width: '43px', height: '47px', position: 'relative' }}></div>
                     </div>

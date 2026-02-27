@@ -1,17 +1,24 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/hooks/use-auth";
-import { Mail, Phone, Linkedin, Globe, MapPin, Users, Edit, Eye, TrendingUp, Search, ChevronRight, Building, Heart, MessageCircle, Send, Bookmark, Camera } from "lucide-react";
+import { Mail, Phone, Linkedin, Globe, MapPin, Users, Pencil, Eye, TrendingUp, Search, ChevronRight, Building, Heart, MessageCircle, Send, Bookmark, Camera } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "react-hot-toast";
 
 interface UserPost {
   id: string;
   content: string | null;
   imageUrl: string | null;
-  videoUrl?: string | null;
+  videoUrl: string | null; // Changed from optional
   createdAt: string;
   visibility: string;
+  isLiked?: boolean; // New
+  isSaved?: boolean; // New
+  likesCount: number; // New
+  commentsCount: number; // New
+  sharesCount: number; // New
+  savesCount: number; // New
   _count: {
     likes: number;
     comments: number;
@@ -88,6 +95,13 @@ export default function ProfilePage() {
   const [isUploadingBanner, setIsUploadingBanner] = useState(false);
   const [suggestedUsers, setSuggestedUsers] = useState<any[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [showPhotoPopup, setShowPhotoPopup] = useState(false);
+
+  const [selectedPostForComments, setSelectedPostForComments] = useState<UserPost | null>(null);
+  const [postComments, setPostComments] = useState<any[]>([]);
+  const [isLoadingComments, setIsLoadingComments] = useState(false);
+  const [newComment, setNewComment] = useState("");
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -250,6 +264,168 @@ export default function ProfilePage() {
     setContactForm(prev => ({ ...prev, [name]: value }));
   };
 
+
+
+  // --- Handlers for Post Actions ---
+
+  const handleLikePost = async (postId: string) => {
+    if (!userProfile) return;
+
+    // Optimistic update
+    setUserProfile(prev => {
+      if (!prev || !prev.posts) return prev;
+      return {
+        ...prev,
+        posts: prev.posts.map(p => {
+          if (p.id === postId) {
+            const currentLiked = p.isLiked || false;
+            return {
+              ...p,
+              isLiked: !currentLiked,
+              likesCount: (p.likesCount || 0) + (currentLiked ? -1 : 1)
+            };
+          }
+          return p;
+        })
+      };
+    });
+
+    try {
+      await fetch("/api/posts/like", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId })
+      });
+    } catch (e) {
+      console.error("Like failed", e);
+      // Revert if needed (omitted for brevity, typically we'd fetch fresh data or undo)
+    }
+  };
+
+  const handleSavePost = async (postId: string) => {
+    if (!userProfile) return;
+
+    setUserProfile(prev => {
+      if (!prev || !prev.posts) return prev;
+      return {
+        ...prev,
+        posts: prev.posts.map(p => {
+          if (p.id === postId) {
+            const currentSaved = p.isSaved || false;
+            return {
+              ...p,
+              isSaved: !currentSaved
+            };
+          }
+          return p;
+        })
+      };
+    });
+
+    try {
+      const res = await fetch("/api/posts/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId })
+      });
+      const data = await res.json();
+      toast.success(data.saved ? "Post saved!" : "Removed from saved");
+    } catch (e) {
+      toast.error("Action failed");
+    }
+  };
+
+  const handleSharePost = async (post: UserPost) => {
+    const postUrl = `${window.location.origin}/post/${post.id}`;
+    const shareData = {
+      title: 'Check out this post on CredLink',
+      text: post.content || 'Check out this post',
+      url: postUrl
+    };
+
+    try {
+      // Create share record in DB
+      await fetch("/api/posts/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId: post.id })
+      });
+
+      // Use Web Share API if supported
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+        toast.success("Shared successfully!");
+      } else {
+        // Fallback to clipboard
+        await navigator.clipboard.writeText(postUrl);
+        toast.success("Link copied to clipboard!");
+      }
+
+      // Update count locally
+      setUserProfile(prev => {
+        if (!prev || !prev.posts) return prev;
+        return {
+          ...prev,
+          posts: prev.posts.map(p => p.id === post.id ? { ...p, sharesCount: (p.sharesCount || 0) + 1 } : p)
+        };
+      });
+    } catch (e) {
+      if ((e as Error).name !== 'AbortError') {
+        toast.error("Couldn't share post");
+      }
+    }
+  };
+
+  const openCommentModal = async (post: UserPost) => {
+    setSelectedPostForComments(post);
+    setPostComments([]);
+    setIsLoadingComments(true);
+
+    try {
+      const res = await fetch(`/api/posts/comments?postId=${post.id}`);
+      const data = await res.json();
+      if (data.success) {
+        setPostComments(data.comments);
+      }
+    } catch (e) {
+      console.error("Failed to load comments");
+    } finally {
+      setIsLoadingComments(false);
+    }
+  };
+
+  const handleAddComment = async () => {
+    if (!newComment.trim() || !selectedPostForComments) return;
+    setIsSubmittingComment(true);
+
+    try {
+      const res = await fetch("/api/posts/comment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId: selectedPostForComments.id, content: newComment })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setPostComments(prev => [data.comment, ...prev]);
+        setNewComment("");
+        toast.success("Comment added!");
+
+        // Update count locally
+        setUserProfile(prev => {
+          if (!prev || !prev.posts) return prev;
+          return {
+            ...prev,
+            posts: prev.posts.map(p => p.id === selectedPostForComments.id ? { ...p, commentsCount: (p.commentsCount || 0) + 1 } : p)
+          };
+        });
+      }
+    } catch (e) {
+      toast.error("Failed to add comment");
+    } finally {
+      setIsSubmittingComment(false);
+    }
+  };
   const handleSaveContact = async () => {
     try {
       const response = await fetch('/api/user/me', {
@@ -410,7 +586,7 @@ export default function ProfilePage() {
   // Show loading only if we have no user data at all
   if ((isLoading || authLoading) && !user) {
     return (
-      <div style={{ minHeight: "100vh", backgroundColor: "#f3f2ef", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ minHeight: "100vh", backgroundColor: "#f3f2ef", /* display: "flex", */ alignItems: "center", justifyContent: "center" }}>
         <p style={{ fontSize: "16px", color: "#666" }}>Loading your profile...</p>
       </div>
     );
@@ -419,7 +595,7 @@ export default function ProfilePage() {
   // Show error only if we have no user data and there's an error
   if (error && !user) {
     return (
-      <div style={{ minHeight: "100vh", backgroundColor: "#f3f2ef", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ minHeight: "100vh", backgroundColor: "#f3f2ef", /* display: "flex", */ alignItems: "center", justifyContent: "center" }}>
         <div style={{ textAlign: "center" }}>
           <p style={{ fontSize: "16px", color: "#dc2626", marginBottom: "16px" }}>Error: {error}</p>
           <button
@@ -581,7 +757,7 @@ export default function ProfilePage() {
       {/* Main Container */}
       {/* Main Container */}
       <div style={{ maxWidth: "1128px", margin: "0 auto", padding: "0px 0px" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+        <div style={{ /* display: "flex", */ flexDirection: "column", gap: "5px" }}>
 
           {/* Main Content */}
           {/* Profile Card */}
@@ -604,7 +780,7 @@ export default function ProfilePage() {
                 id="banner-upload"
                 accept="image/jpeg,image/jpg,image/png,image/webp"
                 style={{ display: 'none' }}
-                onChange={handleBannerImageChange}
+                onChange={(e) => { setShowPhotoPopup(false); handleBannerImageChange(e); }}
               />
               {isEditingIntro && (
                 <button
@@ -788,15 +964,207 @@ export default function ProfilePage() {
                     type="file"
                     id="profile-photo-input"
                     accept="image/jpeg,image/jpg,image/png,image/webp"
-                    onChange={handleProfilePhotoChange}
+                    onChange={(e) => { setShowPhotoPopup(false); handleProfilePhotoChange(e); }}
                     disabled={isUploadingPhoto}
                     style={{ display: "none" }}
                   />
                 </div>
+
+                {/* Edit / Save+Cancel buttons on the right */}
+                <div style={{ display: "flex", gap: "8px", paddingBottom: "4px" }}>
+                  {isEditingIntro ? (
+                    <>
+                      <button
+                        onClick={handleSaveIntro}
+                        style={{
+                          backgroundColor: "#0a66c2",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "16px",
+                          padding: "6px 16px",
+                          fontSize: "14px",
+                          fontWeight: "600",
+                          cursor: "pointer",
+                          boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                        }}
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={handleCancelIntro}
+                        style={{
+                          backgroundColor: "#fff",
+                          color: "#666",
+                          border: "1px solid #666",
+                          borderRadius: "16px",
+                          padding: "6px 16px",
+                          fontSize: "14px",
+                          fontWeight: "600",
+                          cursor: "pointer",
+                          boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={handleEditIntro}
+                      style={{
+                        backgroundColor: "#fff",
+                        border: "none",
+                        borderRadius: "50%",
+                        width: "40px",
+                        height: "40px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                      }}
+                    >
+                      <Pencil size={18} color="#666" />
+                    </button>
+                  )}
+                </div>
               </div>
 
-              {/* Name and Title */}
-              <div style={{ marginBottom: "16px", paddingRight: "72px" }}>
+              {/* Profile Photo Popup */}
+              {showPhotoPopup && (
+                <div
+                  onClick={() => setShowPhotoPopup(false)}
+                  style={{
+                    position: "fixed",
+                    inset: 0,
+                    backgroundColor: "rgba(0,0,0,0.5)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    zIndex: 1000
+                  }}
+                >
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
+                      backgroundColor: "#fff",
+                      borderRadius: "12px",
+                      padding: "24px",
+                      width: "300px",
+                      boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
+                      position: "relative"
+                    }}
+                  >
+                    <button
+                      onClick={() => setShowPhotoPopup(false)}
+                      style={{
+                        position: "absolute",
+                        top: "12px",
+                        right: "12px",
+                        background: "none",
+                        border: "none",
+                        fontSize: "22px",
+                        cursor: "pointer",
+                        color: "#666",
+                        lineHeight: 1
+                      }}
+                    >
+                      ×
+                    </button>
+                    <h3 style={{ margin: "0 0 20px 0", fontSize: "18px", fontWeight: "600", color: "#000" }}>
+                      Profile photo
+                    </h3>
+                    <div style={{
+                      width: "120px",
+                      height: "120px",
+                      borderRadius: "50%",
+                      overflow: "hidden",
+                      margin: "0 auto 20px auto",
+                      border: "3px solid #e0e0e0",
+                      backgroundColor: "#f0f0f0"
+                    }}>
+                      {displayUser.profileImage ? (
+                        <img src={displayUser.profileImage} alt={displayUser.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      ) : (
+                        <div style={{
+                          width: "100%", height: "100%",
+                          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: "36px", fontWeight: "600", color: "#fff"
+                        }}>
+                          {displayUser.name.split(" ").map((n: string) => n[0]).join("")}
+                        </div>
+                      )}
+                    </div>
+                    {/* LinkedIn-style icon action buttons */}
+                    <div style={{ display: "flex", justifyContent: "center", gap: "32px", marginTop: "8px" }}>
+                      {/* Update profile photo */}
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
+                        <button
+                          onClick={() => document.getElementById('profile-photo-input')?.click()}
+                          disabled={isUploadingPhoto}
+                          style={{
+                            width: "52px",
+                            height: "52px",
+                            borderRadius: "50%",
+                            backgroundColor: "#fff",
+                            border: "1.5px solid #d0d0d0",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            cursor: isUploadingPhoto ? "not-allowed" : "pointer",
+                            opacity: isUploadingPhoto ? 0.6 : 1,
+                            transition: "background-color 0.2s"
+                          }}
+                          onMouseOver={(e) => { if (!isUploadingPhoto) e.currentTarget.style.backgroundColor = "#f0f4ff"; }}
+                          onMouseOut={(e) => { e.currentTarget.style.backgroundColor = "#fff"; }}
+                        >
+                          {isUploadingPhoto
+                            ? <div style={{ width: "18px", height: "18px", border: "2px solid #0a66c2", borderTop: "2px solid transparent", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+                            : <Camera size={22} color="#0a66c2" />
+                          }
+                        </button>
+                        <span style={{ fontSize: "12px", color: "#000", fontWeight: "500" }}>
+                          {isUploadingPhoto ? "Uploading" : "Update"}
+                        </span>
+                      </div>
+
+                      {/* Update cover image */}
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
+                        <button
+                          onClick={() => document.getElementById('banner-upload')?.click()}
+                          disabled={isUploadingBanner}
+                          style={{
+                            width: "52px",
+                            height: "52px",
+                            borderRadius: "50%",
+                            backgroundColor: "#fff",
+                            border: "1.5px solid #d0d0d0",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            cursor: isUploadingBanner ? "not-allowed" : "pointer",
+                            opacity: isUploadingBanner ? 0.6 : 1,
+                            transition: "background-color 0.2s"
+                          }}
+                          onMouseOver={(e) => { if (!isUploadingBanner) e.currentTarget.style.backgroundColor = "#f0f4ff"; }}
+                          onMouseOut={(e) => { e.currentTarget.style.backgroundColor = "#fff"; }}
+                        >
+                          {isUploadingBanner
+                            ? <div style={{ width: "18px", height: "18px", border: "2px solid #0a66c2", borderTop: "2px solid transparent", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+                            : <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0a66c2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+                          }
+                        </button>
+                        <span style={{ fontSize: "12px", color: "#000", fontWeight: "500" }}>
+                          {isUploadingBanner ? "Uploading" : "Frames"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+
+              <div style={{ marginBottom: "16px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
                   {isEditingIntro ? (
                     <input
@@ -895,8 +1263,10 @@ export default function ProfilePage() {
                   </button>
                 </div>
 
-                <div style={{ fontSize: "14px", color: "#0a66c2", fontWeight: "600", marginBottom: "16px" }}>
-                  {userProfile?.connectionCount || 0} connections
+                <div style={{ fontSize: "14px", fontWeight: "600", marginBottom: "16px" }}>
+                  <Link href="/dashboard/connections" style={{ color: "#0a66c2", textDecoration: "none" }}>
+                    {userProfile?.connectionCount || 0} connections
+                  </Link>
                 </div>
               </div>
             </div>
@@ -1257,25 +1627,38 @@ export default function ProfilePage() {
                             {/* Engagement Footer */}
                             <div style={{ padding: "8px 12px", borderTop: "1px solid #f0f0f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                               <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#666" }}>
-                                <span>👍 {post._count.likes}</span>
+                                <span>👍 {post.likesCount}</span>
+                                {post.sharesCount > 0 && <span style={{ marginLeft: "8px" }}>🔗 {post.sharesCount} shares</span>}
                               </div>
                               <div style={{ display: "flex", alignItems: "center", gap: "16px", fontSize: "12px", color: "#666" }}>
-                                <span>{post._count.comments} comments</span>
+                                <span>{post.commentsCount} comments</span>
                               </div>
                             </div>
                             {/* Action Buttons */}
                             <div style={{ display: "flex", borderTop: "1px solid #e0e0e0", padding: "4px 0" }}>
-                              <button style={{ flex: 1, background: "none", border: "none", padding: "8px", cursor: "pointer", display: "flex", justifyContent: "center", alignItems: "center", gap: "4px", color: "#666" }}>
-                                <Heart size={20} />
+                              <button
+                                onClick={() => handleLikePost(post.id)}
+                                style={{ flex: 1, background: "none", border: "none", padding: "8px", cursor: "pointer", display: "flex", justifyContent: "center", alignItems: "center", gap: "4px", color: post.isLiked ? "#ef4444" : "#666" }}
+                              >
+                                <Heart size={20} fill={post.isLiked ? "#ef4444" : "none"} />
                               </button>
-                              <button style={{ flex: 1, background: "none", border: "none", padding: "8px", cursor: "pointer", display: "flex", justifyContent: "center", alignItems: "center", gap: "4px", color: "#666" }}>
+                              <button
+                                onClick={() => openCommentModal(post)}
+                                style={{ flex: 1, background: "none", border: "none", padding: "8px", cursor: "pointer", display: "flex", justifyContent: "center", alignItems: "center", gap: "4px", color: "#666" }}
+                              >
                                 <MessageCircle size={20} />
                               </button>
-                              <button style={{ flex: 1, background: "none", border: "none", padding: "8px", cursor: "pointer", display: "flex", justifyContent: "center", alignItems: "center", gap: "4px", color: "#666" }}>
+                              <button
+                                onClick={() => handleSharePost(post)}
+                                style={{ flex: 1, background: "none", border: "none", padding: "8px", cursor: "pointer", display: "flex", justifyContent: "center", alignItems: "center", gap: "4px", color: "#666" }}
+                              >
                                 <Send size={20} />
                               </button>
-                              <button style={{ flex: 1, background: "none", border: "none", padding: "8px", cursor: "pointer", display: "flex", justifyContent: "center", alignItems: "center", gap: "4px", color: "#666" }}>
-                                <Bookmark size={20} />
+                              <button
+                                onClick={() => handleSavePost(post.id)}
+                                style={{ flex: 1, background: "none", border: "none", padding: "8px", cursor: "pointer", display: "flex", justifyContent: "center", alignItems: "center", gap: "4px", color: post.isSaved ? "#0a66c2" : "#666" }}
+                              >
+                                <Bookmark size={20} fill={post.isSaved ? "#0a66c2" : "none"} />
                               </button>
                             </div>
                           </div>
@@ -1344,7 +1727,7 @@ export default function ProfilePage() {
                       </div>
                     ) : (
                       <>
-                        <Edit size={20} color="#666" style={{ cursor: "pointer" }} onClick={handleEditContact} />
+                        <Pencil size={20} color="#666" style={{ cursor: "pointer" }} onClick={handleEditContact} />
                         <button onClick={() => setShowContactPopup(false)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "24px", lineHeight: "1", color: "#666" }}>
                           &times;
                         </button>
@@ -1496,6 +1879,71 @@ export default function ProfilePage() {
             </div>
           </div>
           <div className="h-24 lg:h-0 w-full flex-shrink-0" />
+          {/* Comment Modal */}
+          {selectedPostForComments && (
+            <div style={{
+              position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
+              backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1100
+            }} onClick={() => setSelectedPostForComments(null)}>
+              <div style={{
+                backgroundColor: "#fff", borderRadius: "8px", padding: "24px",
+                width: "90%", maxWidth: "600px", boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                maxHeight: "90vh", display: "flex", flexDirection: "column"
+              }} onClick={e => e.stopPropagation()}>
+
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                  <h2 style={{ fontSize: "18px", fontWeight: "600", color: "#000", margin: 0 }}>Comments</h2>
+                  <button onClick={() => setSelectedPostForComments(null)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "24px", color: "#666" }}>&times;</button>
+                </div>
+
+                <div style={{ flex: 1, overflowY: "auto", marginBottom: "16px" }}>
+                  {isLoadingComments ? (
+                    <div style={{ textAlign: "center", padding: "20px" }}>Loading comments...</div>
+                  ) : postComments.length === 0 ? (
+                    <div style={{ textAlign: "center", padding: "20px", color: "#666" }}>No comments yet.</div>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                      {postComments.map((comment) => (
+                        <div key={comment.id} style={{ display: "flex", gap: "10px" }}>
+                          <img
+                            src={comment.user?.profileImage || "/default-avatar.png"}
+                            alt={comment.user?.fullName}
+                            style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover" }}
+                          />
+                          <div style={{ backgroundColor: "#f3f6f8", padding: "8px 12px", borderRadius: "8px", flex: 1 }}>
+                            <div style={{ fontSize: "12px", fontWeight: "600", color: "#000" }}>{comment.user?.fullName}</div>
+                            <div style={{ fontSize: "13px", color: "#333", marginTop: "2px" }}>{comment.content}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ display: "flex", gap: "8px", borderTop: "1px solid #eee", paddingTop: "16px" }}>
+                  <input
+                    type="text"
+                    placeholder="Add a comment..."
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    style={{ flex: 1, padding: "8px 12px", borderRadius: "20px", border: "1px solid #ddd", fontSize: "14px" }}
+                    onKeyPress={(e) => e.key === 'Enter' && handleAddComment()}
+                  />
+                  <button
+                    onClick={handleAddComment}
+                    disabled={isSubmittingComment || !newComment.trim()}
+                    style={{
+                      backgroundColor: "#0a66c2", color: "#fff", border: "none",
+                      borderRadius: "20px", padding: "8px 16px", fontSize: "14px",
+                      fontWeight: "600", cursor: "pointer", opacity: (!newComment.trim() || isSubmittingComment) ? 0.6 : 1
+                    }}
+                  >
+                    Post
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
