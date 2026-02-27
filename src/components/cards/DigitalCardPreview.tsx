@@ -179,13 +179,13 @@ const DigitalCardPreview: React.FC<DigitalCardProps> = ({
 
   // --- DESIGN CONSTANTS ---
   const styles = {
-    gradient: "linear-gradient(109.79deg, rgba(79, 117, 230, 0.98) 16.59%, #1237A1 76.33%)",
-    avatarBg: "#1279E1",
-    avatarBorder: "2px solid #A3D4FF",
-    iconBg: "rgba(54, 183, 248, 0.45)",
+    gradient: `linear-gradient(109.79deg, ${themeColor1} 16.59%, ${themeColor2} 76.33%)`,
+    avatarBg: themeColor1,
+    avatarBorder: `2px solid ${themeColor2}40`,
+    iconBg: `${themeColor1}45`,
     buttonBg: "rgba(255, 255, 255, 0.2)",
     buttonBorder: "0.5px solid #FFFFFF",
-    font: "'Plus Jakarta Sans', sans-serif"
+    font: fontFamily || "'Plus Jakarta Sans', sans-serif"
   };
 
   const iconButtonStyle = {
