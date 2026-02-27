@@ -289,15 +289,43 @@ export default function StoryViewer({
 
 
             {showMenu && (
-              <div className="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-xl overflow-hidden min-w-[140px] p-1.5 flex flex-col gap-1">
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: '0',
+                  marginTop: '8px',
+                  background: 'white',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  zIndex: 50,
+                  overflow: 'hidden',
+                  minWidth: '100px'
+                }}
+              >
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     handleDeleteStory();
                   }}
-                  className="w-full text-left px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-md font-medium flex items-center gap-2 transition"
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#ef4444',
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fef2f2'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
-                  <Trash2 size={16} />
                   Delete
                 </button>
               </div>

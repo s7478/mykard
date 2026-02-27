@@ -95,6 +95,9 @@ export default function ProfilePage() {
   const [isUploadingBanner, setIsUploadingBanner] = useState(false);
   const [suggestedUsers, setSuggestedUsers] = useState<any[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [likesModalPostId, setLikesModalPostId] = useState<string | null>(null);
+  const [postLikesUsers, setPostLikesUsers] = useState<any[]>([]);
+  const [isLoadingLikes, setIsLoadingLikes] = useState(false);
   const [showPhotoPopup, setShowPhotoPopup] = useState(false);
 
   const [selectedPostForComments, setSelectedPostForComments] = useState<UserPost | null>(null);
@@ -121,6 +124,29 @@ export default function ProfilePage() {
 
     loadProfile();
   }, [authLoading, zustandUser]);
+
+  useEffect(() => {
+    const fetchPostLikes = async () => {
+      if (!likesModalPostId) return;
+
+      try {
+        setIsLoadingLikes(true);
+        const response = await fetch(`/api/posts/${likesModalPostId}/likes`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.users) {
+            setPostLikesUsers(data.users);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching likes:", error);
+      } finally {
+        setIsLoadingLikes(false);
+      }
+    };
+
+    fetchPostLikes();
+  }, [likesModalPostId]);
 
   const fetchUserProfile = async () => {
     try {
@@ -757,7 +783,7 @@ export default function ProfilePage() {
       {/* Main Container */}
       {/* Main Container */}
       <div style={{ maxWidth: "1128px", margin: "0 auto", padding: "0px 0px" }}>
-        <div style={{ /* display: "flex", */ flexDirection: "column", gap: "5px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
 
           {/* Main Content */}
           {/* Profile Card */}
@@ -1229,6 +1255,33 @@ export default function ProfilePage() {
           {/* Posts Section */}
           <div style={{ backgroundColor: "#fff", borderRadius: "8px", padding: "16px", boxShadow: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)" }}>
 
+            {/* Header: Activity and Create Post */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+              <div>
+                <h2 style={{ fontSize: "20px", fontWeight: "600", color: "#000", margin: "0 0 4px 0" }}>Post Activity</h2>
+                <div style={{ fontSize: "14px", color: "#666", fontWeight: "600" }}>
+                  {userProfile?.connectionCount || 0} followers
+                </div>
+              </div>
+              <Link
+                href="/dashboard/feed"
+                style={{
+                  textDecoration: "none",
+                  padding: "6px 16px",
+                  fontSize: "16px",
+                  fontWeight: "600",
+                  color: "#0a66c2",
+                  backgroundColor: "transparent",
+                  border: "2px solid #0a66c2",
+                  borderRadius: "24px",
+                  cursor: "pointer",
+                  transition: "all 0.2s"
+                }}
+              >
+                Create a post
+              </Link>
+            </div>
+
             {/* Tabs */}
             <div style={{ display: "flex", gap: "12px", marginBottom: "16px", borderBottom: "1px solid #e0e0e0" }}>
               <button
@@ -1490,11 +1543,10 @@ export default function ProfilePage() {
                             {/* Engagement Footer */}
                             <div style={{ padding: "8px 12px", borderTop: "1px solid #f0f0f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                               <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#666" }}>
-                                <span>👍 {post.likesCount}</span>
-                                {post.sharesCount > 0 && <span style={{ marginLeft: "8px" }}>🔗 {post.sharesCount} shares</span>}
+                                <span>👍 {post._count.likes}</span>
                               </div>
                               <div style={{ display: "flex", alignItems: "center", gap: "16px", fontSize: "12px", color: "#666" }}>
-                                <span>{post.commentsCount} comments</span>
+                                <span>{post._count.comments} comments</span>
                               </div>
                             </div>
                             {/* Action Buttons */}
@@ -1742,71 +1794,6 @@ export default function ProfilePage() {
             </div>
           </div>
           <div className="h-24 lg:h-0 w-full flex-shrink-0" />
-          {/* Comment Modal */}
-          {selectedPostForComments && (
-            <div style={{
-              position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
-              backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1100
-            }} onClick={() => setSelectedPostForComments(null)}>
-              <div style={{
-                backgroundColor: "#fff", borderRadius: "8px", padding: "24px",
-                width: "90%", maxWidth: "600px", boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                maxHeight: "90vh", display: "flex", flexDirection: "column"
-              }} onClick={e => e.stopPropagation()}>
-
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-                  <h2 style={{ fontSize: "18px", fontWeight: "600", color: "#000", margin: 0 }}>Comments</h2>
-                  <button onClick={() => setSelectedPostForComments(null)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "24px", color: "#666" }}>&times;</button>
-                </div>
-
-                <div style={{ flex: 1, overflowY: "auto", marginBottom: "16px" }}>
-                  {isLoadingComments ? (
-                    <div style={{ textAlign: "center", padding: "20px" }}>Loading comments...</div>
-                  ) : postComments.length === 0 ? (
-                    <div style={{ textAlign: "center", padding: "20px", color: "#666" }}>No comments yet.</div>
-                  ) : (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                      {postComments.map((comment) => (
-                        <div key={comment.id} style={{ display: "flex", gap: "10px" }}>
-                          <img
-                            src={comment.user?.profileImage || "/default-avatar.png"}
-                            alt={comment.user?.fullName}
-                            style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover" }}
-                          />
-                          <div style={{ backgroundColor: "#f3f6f8", padding: "8px 12px", borderRadius: "8px", flex: 1 }}>
-                            <div style={{ fontSize: "12px", fontWeight: "600", color: "#000" }}>{comment.user?.fullName}</div>
-                            <div style={{ fontSize: "13px", color: "#333", marginTop: "2px" }}>{comment.content}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div style={{ display: "flex", gap: "8px", borderTop: "1px solid #eee", paddingTop: "16px" }}>
-                  <input
-                    type="text"
-                    placeholder="Add a comment..."
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    style={{ flex: 1, padding: "8px 12px", borderRadius: "20px", border: "1px solid #ddd", fontSize: "14px" }}
-                    onKeyPress={(e) => e.key === 'Enter' && handleAddComment()}
-                  />
-                  <button
-                    onClick={handleAddComment}
-                    disabled={isSubmittingComment || !newComment.trim()}
-                    style={{
-                      backgroundColor: "#0a66c2", color: "#fff", border: "none",
-                      borderRadius: "20px", padding: "8px 16px", fontSize: "14px",
-                      fontWeight: "600", cursor: "pointer", opacity: (!newComment.trim() || isSubmittingComment) ? 0.6 : 1
-                    }}
-                  >
-                    Post
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
