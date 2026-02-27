@@ -9,10 +9,7 @@ import {
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./messages.module.css";
-import { is } from "zod/v4/locales";
-import { Margarine } from "next/font/google";
-import BorderStyle from "pdf-lib/cjs/core/annotation/BorderStyle";
-import { px } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 // --- Types ---
 type MessageStatus = "New" | "Read" | "Replied" | "Pending" | "Archived" | "Deleted";
@@ -42,6 +39,13 @@ interface MessageItem {
       id: string;
       imageUrl?: string;
       videoUrl?: string;
+      content?: string;
+    } | null;
+    post?: {
+      id: string;
+      content?: string;
+      imageUrl?: string;
+      author?: { fullName?: string };
     } | null;
   }>;
   replies?: {
@@ -62,6 +66,26 @@ function MessagesPageContent() {
   const [activeMessageMenu, setActiveMessageMenu] = useState<string | null>(null);
   const [activeReactionMenu, setActiveReactionMenu] = useState<string | null>(null);
   const [showFullPicker, setShowFullPicker] = useState<boolean>(false);
+
+  // New states for drag reply and reactions
+  const [replyingTo, setReplyingTo] = useState<{ id: string, name: string, text: string } | null>(null);
+  const [reactions, setReactions] = useState<Record<string, string>>({});
+  const [showReactFor, setShowReactFor] = useState<string | null>(null);
+  const pressTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const handlePointerDown = (id: string) => {
+    pressTimer.current = setTimeout(() => {
+      setShowReactFor(id);
+    }, 500);
+  };
+
+  const handlePointerUp = () => {
+    if (pressTimer.current) {
+      clearTimeout(pressTimer.current);
+      pressTimer.current = null;
+    }
+  };
+
   const conversationRef = useRef<HTMLDivElement | null>(null);
   //const composerInputRef = useRef<HTMLInputElement | null>(null);
   const composerInputRef = useRef<HTMLTextAreaElement | null>(null);
@@ -364,6 +388,7 @@ function MessagesPageContent() {
               tag: m.tag,
               reaction: m.reaction || null,
               story: m.story, // 🟢 Attach Story Data
+              post: m.post,
             })),
             ...sentForParty.map((m: any) => ({
               id: m.id,
@@ -373,6 +398,7 @@ function MessagesPageContent() {
               tag: m.tag,
               reaction: m.reaction || null,
               story: m.story, // 🟢 Attach Story Data
+              post: m.post,
             })),
           ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
@@ -604,13 +630,20 @@ function MessagesPageContent() {
 
     if (!originalMessage) return;
 
+    // Wrap replied message inline if relying to a specific message
+    let finalMessageText = replyText.trim();
+    if (replyingTo) {
+      const truncated = replyingTo.text.length > 50 ? replyingTo.text.substring(0, 50) + "..." : replyingTo.text;
+      finalMessageText = `[Replying to ${replyingTo.name}]: "${truncated}"\n\n${finalMessageText}`;
+    }
+
     try {
       const token = localStorage.getItem('token');
       const response = await fetch('/api/message/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({
-          message: replyText.trim(),
+          message: finalMessageText,
           receiverId: originalMessage.senderId,
           status: 'REPLIED',
           tag: originalMessage.tag === 'STORY_REPLY' ? 'SUPPORT' : (originalMessage.tag?.toUpperCase() || 'SUPPORT'),
@@ -621,9 +654,10 @@ function MessagesPageContent() {
       if (response.ok) {
         setMessages(prev => prev.map(m => m.senderId === replyId ? {
           ...m, status: "Replied", read: true,
-          thread: [...(m.thread || []), { text: replyText, date: new Date().toISOString(), direction: 'out' }]
+          thread: [...(m.thread || []), { text: finalMessageText, date: new Date().toISOString(), direction: 'out' }]
         } : m));
         setReplyText("");
+        setReplyingTo(null);
 
         // Ensure the newly sent message is visible above the composer
         setTimeout(() => {
@@ -873,12 +907,50 @@ function MessagesPageContent() {
                                 <p style={{ fontSize: '11px', color: '#94a3b8', margin: '0 0 4px 0', fontWeight: 500 }}>
                                   {isIncoming ? "Replied to your story" : `Replied to ${activeMessage.name.split(' ')[0]}'s story`}
                                 </p>
-                                <div style={{ width: '48px', height: '72px', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0 }}>
-                                  {item.story.imageUrl ? (
+                                <div
+                                  onClick={() => router.push(`/story/${item.story!.id}`)}
+                                  style={{ width: '48px', height: '72px', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0, backgroundColor: '#1e293b', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', cursor: 'pointer', transition: 'transform 0.2s' }}
+                                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                >
+                                  {(item.story.imageUrl?.match(/\.(mp4|webm|ogg|mov)(\?|$)/i) || item.story.videoUrl) ? (
+                                    <video src={item.story.videoUrl || item.story.imageUrl} autoPlay loop muted playsInline preload="metadata" style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
+                                  ) : item.story.imageUrl ? (
                                     <img src={item.story.imageUrl} alt="Story" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                  ) : item.story.videoUrl ? (
-                                    <video src={item.story.videoUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                  ) : item.story.content ? (
+                                    <span style={{ fontSize: '8px', color: '#ffffff', textAlign: 'center', wordBreak: 'break-word', display: '-webkit-box', WebkitLineClamp: 5, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.2' }}>{item.story.content}</span>
+                                  ) : (
+                                    <span style={{ fontSize: '8px', color: '#ffffff' }}>Story</span>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Shared Post Rendering */}
+                            {item.post && (
+                              <div style={{ display: 'flex', flexDirection: 'column', alignItems: isIncoming ? 'flex-start' : 'flex-end', marginBottom: '6px' }}>
+                                <p style={{ fontSize: '11px', color: '#94a3b8', margin: '0 0 4px 0', fontWeight: 500 }}>
+                                  {isIncoming ? "Shared a post" : `Shared a post with ${activeMessage.name.split(' ')[0]}`}
+                                </p>
+                                <div
+                                  onClick={() => router.push(`/post/${item.post!.id}`)}
+                                  style={{ width: '160px', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0, backgroundColor: '#ffffff', cursor: 'pointer', display: 'flex', flexDirection: 'column', boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}
+                                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                >
+                                  {item.post.imageUrl ? (
+                                    item.post.imageUrl.match(/\.(mp4|webm|ogg|mov)(\?|$)/i) ? (
+                                      <video src={item.post.imageUrl} autoPlay loop muted playsInline preload="metadata" style={{ width: '100%', height: '100px', objectFit: 'cover', pointerEvents: 'none' }} />
+                                    ) : (
+                                      <img src={item.post.imageUrl} alt="Post" style={{ width: '100%', height: '100px', objectFit: 'cover' }} />
+                                    )
                                   ) : null}
+                                  <div style={{ padding: '8px' }}>
+                                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: "2px" }}>{item.post.author?.fullName || "User"}</span>
+                                    {item.post.content && (
+                                      <span style={{ fontSize: '10px', color: '#64748b', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item.post.content}</span>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             )}
@@ -1091,8 +1163,27 @@ function MessagesPageContent() {
               </div>
 
               {/* Composer */}
-              <div className={styles.composer}>
-                <div className={styles.composerInputContainer}>
+              <div className={styles.composer} style={{ flexDirection: 'column', gap: '8px', alignItems: 'stretch' }}>
+                <AnimatePresence>
+                  {replyingTo && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      style={{ padding: '8px 12px', backgroundColor: '#f1f5f9', borderRadius: '8px', borderLeft: '4px solid #2563eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center', overflow: 'hidden' }}
+                    >
+                      <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingRight: "16px" }}>
+                        <span style={{ fontSize: '12px', fontWeight: 600, color: '#2563eb' }}>Replying to {replyingTo.name}</span>
+                        <span style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{replyingTo.text}</span>
+                      </div>
+                      <button onClick={() => setReplyingTo(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: '#64748b' }}>
+                        <X size={16} />
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <div className={styles.composerInputContainer} style={{ width: '100%' }}>
                   <textarea
                     ref={composerInputRef}
                     value={replyText}

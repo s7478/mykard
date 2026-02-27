@@ -75,33 +75,61 @@ export async function GET(req: NextRequest) {
             },
         });
 
-        // 🟢 MANUAL STORY FETCHING
+        // 🟢 MANUAL STORY & POST FETCHING
         const storyIds = new Set<string>();
-        [...incomingMessages, ...allSentMessages].forEach((m: any) => {
+        const postIds = new Set<string>();
+
+        const allMessages = [...incomingMessages, ...allSentMessages];
+
+        allMessages.forEach((m: any) => {
             if (m.storyId) storyIds.add(m.storyId);
+            if (m.text) {
+                const match = m.text.match(/\/post\/([a-zA-Z0-9-]+)/);
+                if (match) postIds.add(match[1]);
+            }
         });
 
-        const stories = await (prisma as any).story.findMany({
-            where: { id: { in: Array.from(storyIds) } },
-            select: { id: true, imageUrl: true, videoUrl: true }
-        });
+        const [stories, posts] = await Promise.all([
+            (prisma as any).story.findMany({
+                where: { id: { in: Array.from(storyIds) } },
+                select: { id: true, imageUrl: true, videoUrl: true, content: true }
+            }),
+            (prisma as any).post.findMany({
+                where: { id: { in: Array.from(postIds) } },
+                select: {
+                    id: true,
+                    content: true,
+                    imageUrl: true,
+                    author: { select: { fullName: true } }
+                }
+            })
+        ]);
 
         const storyMap = new Map(stories.map((s: any) => [s.id, s]));
+        const postMap = new Map(posts.map((p: any) => [p.id, p]));
 
-        // Helper to attach story
-        const attachStory = (msg: any) => ({
-            ...msg,
-            story: msg.storyId ? storyMap.get(msg.storyId) || null : null
-        });
+        // Helper to attach story and post
+        const attachExtras = (msg: any) => {
+            let postId: string | null = null;
+            if (msg.text) {
+                const match = msg.text.match(/\/post\/([a-zA-Z0-9-]+)/);
+                if (match) postId = match[1];
+            }
+            return {
+                ...msg,
+                story: msg.storyId ? storyMap.get(msg.storyId) || null : null,
+                post: postId ? postMap.get(postId) || null : null
+            };
+        };
 
         // For the frontend, we need to structure the data properly
         // Messages sent TO the user (incoming)
-        const messages = incomingMessages.map(attachStory);
+        const messages = incomingMessages.map(attachExtras);
 
         // Messages sent BY the user to these partners (outgoing)
         const sentMessages = allSentMessages
             .filter((msg: any) => allPartnerIds.has(msg.receiverId))
-            .map(attachStory);
+            .map(attachExtras);
 
         const payload = {
             ok: true,
