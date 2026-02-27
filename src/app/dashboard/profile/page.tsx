@@ -783,7 +783,7 @@ export default function ProfilePage() {
       {/* Main Container */}
       {/* Main Container */}
       <div style={{ maxWidth: "1128px", margin: "0 auto", padding: "0px 0px" }}>
-        <div style={{ /* display: "flex", */ flexDirection: "column", gap: "5px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
 
           {/* Main Content */}
           {/* Profile Card */}
