@@ -303,11 +303,10 @@
 
 /* --- Card Styling --- */
 .contactCard {
-  background-color: #f8fbff;
-  /* Minor blue / off-white */
-  border: 1px solid #f1f5f9;
-  border-radius: 16px;
-  padding: 16px;
+  background: #e7f8ff;
+  border: 1px solid #8cb4f5;
+  border-radius: 12px;
+  padding: 12px 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   /* Soft shadow */
   transition: all 0.2s ease;
@@ -353,7 +352,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   width: 100%;
 }
 
@@ -395,6 +394,14 @@
   line-height: 1.3;
 }
 
+.nameRow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  margin-bottom: 0;
+}
+
 @media (min-width: 768px) {
   .contactName {
     white-space: nowrap;
@@ -404,18 +411,17 @@
 }
 
 .contactedViaInline {
-  font-size: 12px;
+  font-size: 11px;
   color: #64748b;
-  margin-top: 2px;
+  margin-top: 0;
+  margin-bottom: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: none;
-}
-
-.contactCard.expanded .contactedViaInline {
   display: block;
 }
+
+/* Removed expanded rule */
 
 .moreButton {
   background: transparent;
@@ -509,35 +515,34 @@
 .quickActions {
   display: flex;
   gap: 10px;
-  margin-top: -12px;
-  margin-left: 50px;
+  margin-top: 0;
+  margin-left: 54px;
 }
 
 .quickIcon {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: #ffffff;
-  color: #2563eb;
+  background: #2152E5;
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  border: 1px solid #e2e8f0;
+  border: none;
   transition: all 0.2s;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .quickIcon:hover {
-  background: #eff6ff;
-  border-color: #BFDBFE;
+  background: #1e40af;
   transform: scale(1.05);
 }
 
 /* Expanded Card Actions */
 .contactCard.expanded {
-  background: #ffffff;
-  border-color: #bfdbfe;
+  background: linear-gradient(180deg, #d3f0fe 0%, #dcf0fd 100%);
+  border-color: #8cb4f5;
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.05);
 }
 
@@ -545,9 +550,9 @@
   display: none;
   flex-direction: column;
   gap: 8px;
-  margin-top: 16px;
-  border-top: 1px solid #f1f5f9;
-  padding-top: 16px;
+  margin-top: 12px;
+  border-top: 1px solid rgba(37, 99, 235, 0.1);
+  padding-top: 12px;
   animation: fadeIn 0.3s ease;
 }
 
@@ -560,7 +565,7 @@
   align-items: center;
   gap: 10px;
   width: 100%;
-  padding: 10px 12px;
+  padding: 8px 12px;
   border-radius: 10px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
@@ -575,6 +580,11 @@
   background: #f1f5f9;
   border-color: #cbd5e1;
 }
+
+.actionText {
+  color: #2152E5;
+}
+
 
 .mobileTimeStamp {
   font-size: 11px;

@@ -198,12 +198,12 @@
   padding: 0 16px 80px;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 28px;
+  gap: 12px;
 }
 
 .settings-container.mobile {
   padding: 0 8px 40px;
-  gap: 18px;
+  gap: 8px;
 }
 
 /* Card Styles */
@@ -211,7 +211,7 @@
   background: white;
   border-radius: 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  padding: 20px 14px;
+  padding: 16px 14px;
   transition: all 0.3s ease;
   border: 1px solid #e2e8f0;
   animation: fadeIn 0.5s ease;
@@ -223,6 +223,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -238,8 +239,8 @@
 .profile-card {
   display: flex;
   align-items: center;
-  gap: 24px;
-  padding: 20px 14px;
+  gap: 12px;
+  padding: 12px 14px;
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   width: 100%;
 }
@@ -254,7 +255,7 @@
 .profile-row.mobile {
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 8px;
   text-align: center;
 }
 
@@ -282,6 +283,7 @@
     transform: scale(0.9);
     opacity: 0;
   }
+
   to {
     transform: scale(1);
     opacity: 1;
@@ -374,7 +376,7 @@
 
 .profile-email {
   color: #64748b;
-  margin-top: 8px;
+  margin-top: 2px;
   font-size: 15px;
 }
 
@@ -388,10 +390,10 @@
 /* Form Styles */
 .card-title {
   font-size: 18px;
-  margin: 0 0 24px;
+  margin: 0 0 8px;
   font-weight: 700;
   color: #0f172a;
-  padding-bottom: 12px;
+  padding-bottom: 4px;
   border-bottom: 2px solid #e2e8f0;
   letter-spacing: -0.01em;
 }
@@ -407,9 +409,9 @@
 
 .form-row {
   display: flex;
-  gap: 24px;
+  gap: 12px;
   align-items: flex-start;
-  padding: 20px 0;
+  padding: 6px 0;
   border-bottom: 1px solid #f1f5f9;
   transition: all 0.3s ease;
 }
@@ -436,8 +438,8 @@
 .form-row.mobile {
   flex-direction: column;
   align-items: stretch;
-  gap: 12px;
-  padding: 16px 0;
+  gap: 4px;
+  padding: 6px 0;
 }
 
 .form-label {
@@ -603,6 +605,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -623,6 +626,7 @@
     transform: translateY(20px);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -783,9 +787,12 @@
 }
 
 @keyframes bounce {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-10px);
   }
@@ -939,7 +946,8 @@
   background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
   color: #ffffff;
   border: none;
-  border-radius: 999px; /* pill shape */
+  border-radius: 999px;
+  /* pill shape */
   padding: 10px 22px;
   font-size: 13px;
   font-weight: 700;
@@ -1059,13 +1067,13 @@
 
 /* Responsive adjustments for mobile - wider cards, less empty space */
 @media (max-width: 760px) {
-    .hero-section {
+  .hero-section {
     margin-bottom: 16px !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
   }
-  
-   .hero-inner {
+
+  .hero-inner {
     padding: 0 !important;
   }
 
@@ -1080,35 +1088,35 @@
     padding: 0 4px 40px;
     gap: 18px;
   }
-  
+
   .settings-card {
     padding: 22px 16px;
     border-radius: 14px;
     width: 100%;
   }
-  
+
   .profile-card {
     padding: 22px 16px;
     border-radius: 14px;
   }
-  
+
   .form-row:hover {
     margin-left: 0;
     margin-right: 0;
     padding-left: 0;
     padding-right: 0;
   }
-  
+
   .otp-inputs {
     gap: 8px;
   }
-  
+
   .otp-input {
     width: 45px;
     height: 45px;
     font-size: 16px;
   }
-  
+
   .otp-modal {
     padding: 32px 24px;
   }
@@ -1152,14 +1160,19 @@ textarea {
 
 /* ensure no global layout padding affects this page */
 @media (max-width: 760px) {
-  body, html {
+
+  body,
+  html {
     margin: 0 !important;
     padding: 0 !important;
     width: 100vw !important;
     overflow-x: hidden !important;
   }
 
- main, .main, .content, .page-wrapper {
+  main,
+  .main,
+  .content,
+  .page-wrapper {
     padding-left: 8px !important;
     padding-right: 8px !important;
     padding-top: 0 !important;
@@ -1167,9 +1180,10 @@ textarea {
     margin: 0 !important;
     width: 100vw !important;
     max-width: 100vw !important;
-}
+  }
 
 }
+
 /* Wrapper to control position */
 .profile-save-wrapper {
   position: absolute;
@@ -1177,9 +1191,11 @@ textarea {
   top: 50%;
   transform: translateY(-50%);
 }
+
 .profile-row {
   position: relative;
 }
+
 @media (max-width: 760px) {
   .profile-save-wrapper {
     position: static;
@@ -1191,7 +1207,8 @@ textarea {
   }
 }
 
-/* Sleek Save button */.profile-save-btn {
+/* Sleek Save button */
+.profile-save-btn {
   background: #2563eb;
   color: white;
   padding: 8px 20px;
@@ -1216,6 +1233,13 @@ textarea {
 
 
 @keyframes smoothFade {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

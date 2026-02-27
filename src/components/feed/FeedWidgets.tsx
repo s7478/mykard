@@ -1367,6 +1367,26 @@ export const PostCard = ({
     }
   };
 
+  const handleDeleteComment = async (commentId: string) => {
+    if (!confirm("Are you sure you want to delete this comment?")) return;
+    try {
+      const res = await fetch("/api/posts/comment", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ commentId }),
+      });
+      if (res.ok) {
+        toast.success("Comment deleted");
+        setComments((prev) => prev.filter((c) => c.id !== commentId));
+        setCommentsCount((prev) => Math.max(0, prev - 1));
+      } else {
+        toast.error("Failed to delete comment");
+      }
+    } catch (e) {
+      toast.error("Error deleting comment");
+    }
+  };
+
   const handleCancelRequest = async () => {
     if (!confirm("Withdraw connection request?")) return;
     setIsLoadingConnection(true);
@@ -2039,9 +2059,27 @@ export const PostCard = ({
                       </span>
                     )}
                   </div>
-                  <div style={styles.commentBubble}>
+                  <div style={{ ...styles.commentBubble, position: "relative", paddingRight: "28px" }}>
                     <div style={styles.commentUser}>{c.user?.fullName}</div>
                     <div style={styles.commentText}>{c.content}</div>
+                    {(currentUser?.id === c.userId || currentUser?.id === c.user?.id || currentUser?.id === postData?.authorId) && (
+                      <button
+                        onClick={() => handleDeleteComment(c.id)}
+                        style={{
+                          position: "absolute",
+                          top: "8px",
+                          right: "8px",
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          color: "#94a3b8",
+                          padding: "2px",
+                        }}
+                        title="Delete comment"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
