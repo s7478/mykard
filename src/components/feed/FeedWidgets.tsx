@@ -702,7 +702,7 @@ interface CreatePostModalProps {
   initialMediaType?: "image" | "video" | null;
 }
 
-const CreatePostModal = ({
+export const CreatePostModal = ({
   isOpen,
   onClose,
   currentUser,

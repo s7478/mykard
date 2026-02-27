@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/hooks/use-auth";
-import { Mail, Phone, Linkedin, Globe, MapPin, Users, Pencil, Eye, TrendingUp, Search, ChevronRight, Building, Heart, MessageCircle, Send, Bookmark, Camera, Edit, Image as ImageIcon } from "lucide-react";
+import { Mail, Phone, Linkedin, Globe, MapPin, Users, Pencil, Eye, TrendingUp, Search, ChevronRight, Building, Heart, MessageCircle, Send, Bookmark, Camera, Edit, Image as ImageIcon, Plus, FileText, Video } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
+import { CreatePostModal } from "@/components/feed/FeedWidgets";
 
 interface UserPost {
   id: string;
@@ -105,6 +106,9 @@ export default function ProfilePage() {
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
+  const [postModalInitialType, setPostModalInitialType] = useState<"image" | "video" | null>(null);
+  const [showPlusPopup, setShowPlusPopup] = useState(false);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -190,6 +194,22 @@ export default function ProfilePage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target as HTMLElement | null;
+      if (!target) return;
+      if (!target.closest("[data-plus-popup]")) {
+        setShowPlusPopup(false);
+      }
+    }
+
+    if (showPlusPopup) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showPlusPopup]);
 
   const fetchUserCards = async () => {
     try {
@@ -1335,6 +1355,125 @@ export default function ProfilePage() {
               >
                 Catalog
               </button>
+
+              <div style={{ position: "relative", marginLeft: "auto", display: "flex", alignItems: "center", marginBottom: "12px" }}>
+                <button
+                  onClick={() => setShowPlusPopup(!showPlusPopup)}
+                  style={{
+                    width: "32px",
+                    height: "32px",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: "#f3f2ef",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "#666",
+                    transition: "all 0.2s"
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#e0e0e0"}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#f3f2ef"}
+                >
+                  <Plus size={20} />
+                </button>
+
+                {showPlusPopup && (
+                  <div
+                    data-plus-popup
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      right: 0,
+                      marginTop: "8px",
+                      backgroundColor: "#fff",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                      zIndex: 100,
+                      padding: "8px",
+                      minWidth: "120px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "4px"
+                    }}>
+                    <button
+                      onClick={() => {
+                        setPostModalInitialType(null);
+                        setIsCreatePostModalOpen(true);
+                        setShowPlusPopup(false);
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        padding: "8px",
+                        background: "none",
+                        border: "none",
+                        width: "100%",
+                        textAlign: "left",
+                        cursor: "pointer",
+                        fontSize: "14px",
+                        color: "#333",
+                        borderRadius: "4px"
+                      }}
+                      onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f3f2ef"}
+                      onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                    >
+                      <FileText size={16} /> Post
+                    </button>
+                    <button
+                      onClick={() => {
+                        setPostModalInitialType("image");
+                        setIsCreatePostModalOpen(true);
+                        setShowPlusPopup(false);
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        padding: "8px",
+                        background: "none",
+                        border: "none",
+                        width: "100%",
+                        textAlign: "left",
+                        cursor: "pointer",
+                        fontSize: "14px",
+                        color: "#333",
+                        borderRadius: "4px"
+                      }}
+                      onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f3f2ef"}
+                      onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                    >
+                      <ImageIcon size={16} /> Photo
+                    </button>
+                    <button
+                      onClick={() => {
+                        setPostModalInitialType("video");
+                        setIsCreatePostModalOpen(true);
+                        setShowPlusPopup(false);
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        padding: "8px",
+                        background: "none",
+                        border: "none",
+                        width: "100%",
+                        textAlign: "left",
+                        cursor: "pointer",
+                        fontSize: "14px",
+                        color: "#333",
+                        borderRadius: "4px"
+                      }}
+                      onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f3f2ef"}
+                      onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                    >
+                      <Video size={16} color="#059669" /> Video
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {(() => {
@@ -1521,21 +1660,20 @@ export default function ProfilePage() {
 
                               {post.imageUrl && (
                                 <div style={{ borderRadius: "4px", overflow: "hidden", marginTop: "8px" }}>
-                                  <img
-                                    src={post.imageUrl}
-                                    alt="Post"
-                                    style={{ width: "100%", height: "200px", objectFit: "cover", display: "block" }}
-                                  />
-                                </div>
-                              )}
-
-                              {post.videoUrl && (
-                                <div style={{ borderRadius: "4px", overflow: "hidden", marginTop: "8px" }}>
-                                  <video
-                                    src={post.videoUrl}
-                                    controls
-                                    style={{ width: "100%", height: "200px", objectFit: "cover", display: "block" }}
-                                  />
+                                  {post.imageUrl.match(/\.(mp4|webm|ogg|mov)(\?|$)/i) || post.videoUrl ? (
+                                    <video
+                                      src={post.videoUrl || post.imageUrl}
+                                      controls
+                                      playsInline
+                                      style={{ width: "100%", height: "200px", objectFit: "cover", display: "block" }}
+                                    />
+                                  ) : (
+                                    <img
+                                      src={post.imageUrl}
+                                      alt="Post"
+                                      style={{ width: "100%", height: "200px", objectFit: "cover", display: "block" }}
+                                    />
+                                  )}
                                 </div>
                               )}
                             </div>
@@ -1602,6 +1740,14 @@ export default function ProfilePage() {
               }
             })()}
           </div>
+
+          {/* Create Post Modal */}
+          <CreatePostModal
+            isOpen={isCreatePostModalOpen}
+            onClose={() => setIsCreatePostModalOpen(false)}
+            currentUser={userProfile}
+            initialMediaType={postModalInitialType}
+          />
 
           {/* Contact Information Popup */}
           {showContactPopup && (
