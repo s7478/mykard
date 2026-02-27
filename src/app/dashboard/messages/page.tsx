@@ -1045,11 +1045,11 @@ function MessagesPageContent() {
                                         color: !isIncoming ? '#ef4444' : '#1e293b',
                                         fontSize: '13px',
                                         fontWeight: 500,
-                                        textAlign: 'left',
+                                        textAlign: 'center',
                                         cursor: 'pointer',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        justifyContent: 'flex-start',
+                                        justifyContent: 'center',
                                         gap: '8px'
                                       }}
                                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = !isIncoming ? '#fef2f2' : '#f1f5f9'}

@@ -88,6 +88,9 @@ export default function ProfilePage() {
   const [isUploadingBanner, setIsUploadingBanner] = useState(false);
   const [suggestedUsers, setSuggestedUsers] = useState<any[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [likesModalPostId, setLikesModalPostId] = useState<string | null>(null);
+  const [postLikesUsers, setPostLikesUsers] = useState<any[]>([]);
+  const [isLoadingLikes, setIsLoadingLikes] = useState(false);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -107,6 +110,29 @@ export default function ProfilePage() {
 
     loadProfile();
   }, [authLoading, zustandUser]);
+
+  useEffect(() => {
+    const fetchPostLikes = async () => {
+      if (!likesModalPostId) return;
+
+      try {
+        setIsLoadingLikes(true);
+        const response = await fetch(`/api/posts/${likesModalPostId}/likes`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.users) {
+            setPostLikesUsers(data.users);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching likes:", error);
+      } finally {
+        setIsLoadingLikes(false);
+      }
+    };
+
+    fetchPostLikes();
+  }, [likesModalPostId]);
 
   const fetchUserProfile = async () => {
     try {
@@ -996,6 +1022,33 @@ export default function ProfilePage() {
           {/* Posts Section */}
           <div style={{ backgroundColor: "#fff", borderRadius: "8px", padding: "16px", boxShadow: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)" }}>
 
+            {/* Header: Activity and Create Post */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+              <div>
+                <h2 style={{ fontSize: "20px", fontWeight: "600", color: "#000", margin: "0 0 4px 0" }}>Post Activity</h2>
+                <div style={{ fontSize: "14px", color: "#666", fontWeight: "600" }}>
+                  {userProfile?.connectionCount || 0} followers
+                </div>
+              </div>
+              <Link
+                href="/dashboard/feed"
+                style={{
+                  textDecoration: "none",
+                  padding: "6px 16px",
+                  fontSize: "16px",
+                  fontWeight: "600",
+                  color: "#0a66c2",
+                  backgroundColor: "transparent",
+                  border: "2px solid #0a66c2",
+                  borderRadius: "24px",
+                  cursor: "pointer",
+                  transition: "all 0.2s"
+                }}
+              >
+                Create a post
+              </Link>
+            </div>
+
             {/* Tabs */}
             <div style={{ display: "flex", gap: "12px", marginBottom: "16px", borderBottom: "1px solid #e0e0e0" }}>
               <button
@@ -1256,11 +1309,36 @@ export default function ProfilePage() {
 
                             {/* Engagement Footer */}
                             <div style={{ padding: "8px 12px", borderTop: "1px solid #f0f0f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                              <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#666" }}>
-                                <span>👍 {post._count.likes}</span>
+                              <div
+                                style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#666", cursor: "pointer" }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (post._count.likes > 0) setLikesModalPostId(post.id);
+                                }}
+                              >
+                                {post._count.likes > 0 && (
+                                  <div style={{ display: "flex", alignItems: "center", marginRight: "4px" }}>
+                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "16px", height: "16px", borderRadius: "50%", backgroundColor: "#fee2e2", zIndex: 3 }}>
+                                      <Heart size={10} color="#ef4444" fill="#ef4444" />
+                                    </div>
+                                  </div>
+                                )}
+                                <span style={{ transition: "color 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.color = "#0a66c2"} onMouseLeave={(e) => e.currentTarget.style.color = "#666"}>
+                                  {post._count.likes}
+                                </span>
                               </div>
                               <div style={{ display: "flex", alignItems: "center", gap: "16px", fontSize: "12px", color: "#666" }}>
-                                <span>{post._count.comments} comments</span>
+                                <span
+                                  style={{ cursor: "pointer", transition: "color 0.2s" }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    window.location.href = `/dashboard/feed?postId=${post.id}`;
+                                  }}
+                                  onMouseEnter={(e) => e.currentTarget.style.color = "#0a66c2"}
+                                  onMouseLeave={(e) => e.currentTarget.style.color = "#666"}
+                                >
+                                  {post._count.comments} comments
+                                </span>
                               </div>
                             </div>
                             {/* Action Buttons */}
@@ -1496,6 +1574,80 @@ export default function ProfilePage() {
             </div>
           </div>
           <div className="h-24 lg:h-0 w-full flex-shrink-0" />
+
+          {/* Likes Modal */}
+          {likesModalPostId && (
+            <div style={{
+              position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
+              backgroundColor: "rgba(0,0,0,0.6)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000
+            }} onClick={() => setLikesModalPostId(null)}>
+              <div style={{
+                backgroundColor: "#fff", borderRadius: "8px", width: "90%", maxWidth: "520px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.15)", maxHeight: "90vh", display: "flex", flexDirection: "column", overflow: "hidden"
+              }} onClick={e => e.stopPropagation()}>
+
+                <div style={{ padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <h2 style={{ fontSize: "20px", fontWeight: "600", color: "#000", margin: 0 }}>Reactions</h2>
+                  <button onClick={() => setLikesModalPostId(null)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "24px", lineHeight: "1", color: "#666" }}>
+                    &times;
+                  </button>
+                </div>
+
+                <div style={{ display: "flex", gap: "24px", padding: "0 24px", borderBottom: "1px solid #e0e0e0" }}>
+                  <button style={{ padding: "12px 0", background: "none", border: "none", borderBottom: "3px solid #01754f", color: "#01754f", fontWeight: "600", fontSize: "14px", cursor: "pointer" }}>
+                    All
+                  </button>
+                  <button style={{ padding: "12px 0", background: "none", border: "none", color: "#666", fontWeight: "600", fontSize: "14px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}>
+                    <Heart size={14} color="#ef4444" fill="#ef4444" /> Likes
+                  </button>
+                </div>
+
+                <div style={{ padding: "8px 24px", overflowY: "auto", flex: 1, display: "flex", flexDirection: "column", gap: "16px" }}>
+                  {isLoadingLikes ? (
+                    <div style={{ textAlign: "center", color: "#666", fontSize: "14px", padding: "24px 0" }}>
+                      Loading interactions...
+                    </div>
+                  ) : postLikesUsers && postLikesUsers.length > 0 ? (
+                    postLikesUsers.map((user, idx) => (
+                      <div key={user.id || idx} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "8px 0", borderBottom: idx === postLikesUsers.length - 1 ? "none" : "1px solid #e0e0e0", cursor: "pointer" }}>
+                        <div style={{
+                          width: "48px",
+                          height: "48px",
+                          borderRadius: "50%",
+                          background: user.profileImage ? `url(${user.profileImage}) center/cover no-repeat` : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "#fff",
+                          fontWeight: "600",
+                          fontSize: "16px",
+                          flexShrink: 0
+                        }}>
+                          {!user.profileImage && (user.fullName ? user.fullName.substring(0, 2).toUpperCase() : "U")}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                            <div style={{ fontSize: "14px", fontWeight: "600", color: "#000", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.fullName || "User"}</div>
+                            <span style={{ fontSize: "12px", color: "#666" }}>• 1st</span>
+                          </div>
+                          <div style={{ fontSize: "12px", color: "#666", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.title || "No title"}</div>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "16px", height: "16px", borderRadius: "50%", backgroundColor: "#fee2e2", zIndex: 3, flexShrink: 0 }}>
+                          <Heart size={10} color="#ef4444" fill="#ef4444" />
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div style={{ textAlign: "center", color: "#666", fontSize: "14px", padding: "24px 0" }}>
+                      No one has liked this post yet.
+                    </div>
+                  )}
+                </div>
+
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     </div>
