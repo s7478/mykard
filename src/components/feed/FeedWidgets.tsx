@@ -741,6 +741,15 @@ export const CreatePostModal = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // 🟢 File Size Check (20MB limit for posts)
+    const MAX_SIZE = 20 * 1024 * 1024; // 20MB
+    if (file.size > MAX_SIZE) {
+      toast.error("File is too large. Please select a file under 20MB.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
     setMediaFile(file);
     const isVideo = file.type.startsWith("video/");
     setMediaType(isVideo ? "video" : "image");
@@ -874,14 +883,20 @@ export const CreatePostModal = ({
         <div style={styles.modalFooter}>
           <div style={{ display: "flex", gap: "12px" }}>
             <button
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => {
+                setMediaType("image");
+                setTimeout(() => fileInputRef.current?.click(), 10);
+              }}
               style={{ ...styles.mediaBtn, padding: "8px" }}
               title="Add Media"
             >
               <ImageIcon size={20} className="text-blue-500" />
             </button>
             <button
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => {
+                setMediaType("video");
+                setTimeout(() => fileInputRef.current?.click(), 10);
+              }}
               style={{ ...styles.mediaBtn, padding: "8px" }}
               title="Add Video"
             >
@@ -897,7 +912,7 @@ export const CreatePostModal = ({
               <Camera size={20} className="text-purple-600" />
             </button>
 
-            <input type="file" ref={fileInputRef} style={{ display: "none" }} accept={mediaType === "video" ? "video/*" : "image/*,video/*"} onChange={handleFileChange} />
+            <input type="file" ref={fileInputRef} style={{ display: "none" }} accept="image/*,video/*,.heic,.heif,.webp" onChange={handleFileChange} />
           </div>
           <button
             onClick={handlePost}
@@ -1125,7 +1140,7 @@ export const CreateStoryModal = ({
             type="file"
             ref={fileInputRef}
             style={{ display: "none" }}
-            accept="image/*,video/*"
+            accept="image/*,video/*,.heic,.heif,.webp"
             onChange={handleFileChange}
           />
           <button

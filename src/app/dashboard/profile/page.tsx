@@ -108,7 +108,15 @@ export default function ProfilePage() {
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
   const [postModalInitialType, setPostModalInitialType] = useState<"image" | "video" | null>(null);
-  const [showPlusPopup, setShowPlusPopup] = useState(false);
+  const [showCreatePostPopup, setShowCreatePostPopup] = useState(false);
+  const [isMobileScreen, setIsMobileScreen] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobileScreen(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -199,17 +207,17 @@ export default function ProfilePage() {
     function handleClickOutside(event: MouseEvent) {
       const target = event.target as HTMLElement | null;
       if (!target) return;
-      if (!target.closest("[data-plus-popup]")) {
-        setShowPlusPopup(false);
+      if (!target.closest("[data-create-post-popup]")) {
+        setShowCreatePostPopup(false);
       }
     }
 
-    if (showPlusPopup) {
+    if (showCreatePostPopup) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [showPlusPopup]);
+  }, [showCreatePostPopup]);
 
   const fetchUserCards = async () => {
     try {
@@ -1283,23 +1291,128 @@ export default function ProfilePage() {
                   {userProfile?.connectionCount || 0} followers
                 </div>
               </div>
-              <Link
-                href="/dashboard/feed"
-                style={{
-                  textDecoration: "none",
-                  padding: "6px 16px",
-                  fontSize: "16px",
-                  fontWeight: "600",
-                  color: "#0a66c2",
-                  backgroundColor: "transparent",
-                  border: "2px solid #0a66c2",
-                  borderRadius: "24px",
-                  cursor: "pointer",
-                  transition: "all 0.2s"
-                }}
-              >
-                Create a post
-              </Link>
+              <div style={{ position: "relative" }}>
+                <button
+                  data-create-post-popup
+                  onClick={() => setShowCreatePostPopup(!showCreatePostPopup)}
+                  style={{
+                    textDecoration: "none",
+                    padding: isMobileScreen ? "4px 12px" : "6px 16px",
+                    fontSize: isMobileScreen ? "14px" : "16px",
+                    fontWeight: "600",
+                    color: "#0a66c2",
+                    backgroundColor: "transparent",
+                    border: "2px solid #0a66c2",
+                    borderRadius: "24px",
+                    cursor: "pointer",
+                    transition: "all 0.2s"
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.backgroundColor = "#f0f7ff";
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                  }}
+                >
+                  Create a post
+                </button>
+
+                {showCreatePostPopup && (
+                  <div
+                    data-create-post-popup
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      right: 0,
+                      marginTop: "8px",
+                      backgroundColor: "#fff",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                      zIndex: 100,
+                      padding: "8px",
+                      minWidth: "160px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "4px"
+                    }}>
+                    <button
+                      onClick={() => {
+                        setPostModalInitialType(null);
+                        setIsCreatePostModalOpen(true);
+                        setShowCreatePostPopup(false);
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        padding: "8px",
+                        background: "none",
+                        border: "none",
+                        width: "100%",
+                        textAlign: "left",
+                        cursor: "pointer",
+                        fontSize: "14px",
+                        color: "#333",
+                        borderRadius: "4px"
+                      }}
+                      onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f3f2ef"}
+                      onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                    >
+                      <FileText size={16} /> Write Post
+                    </button>
+                    <button
+                      onClick={() => {
+                        setPostModalInitialType("image");
+                        setIsCreatePostModalOpen(true);
+                        setShowCreatePostPopup(false);
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        padding: "8px",
+                        background: "none",
+                        border: "none",
+                        width: "100%",
+                        textAlign: "left",
+                        cursor: "pointer",
+                        fontSize: "14px",
+                        color: "#333",
+                        borderRadius: "4px"
+                      }}
+                      onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f3f2ef"}
+                      onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                    >
+                      <ImageIcon size={16} /> Add Photo
+                    </button>
+                    <button
+                      onClick={() => {
+                        setPostModalInitialType("video");
+                        setIsCreatePostModalOpen(true);
+                        setShowCreatePostPopup(false);
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        padding: "8px",
+                        background: "none",
+                        border: "none",
+                        width: "100%",
+                        textAlign: "left",
+                        cursor: "pointer",
+                        fontSize: "14px",
+                        color: "#333",
+                        borderRadius: "4px"
+                      }}
+                      onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f3f2ef"}
+                      onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                    >
+                      <Video size={16} color="#059669" /> Add Video
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Tabs */}
@@ -1356,124 +1469,6 @@ export default function ProfilePage() {
                 Catalog
               </button>
 
-              <div style={{ position: "relative", marginLeft: "auto", display: "flex", alignItems: "center", marginBottom: "12px" }}>
-                <button
-                  onClick={() => setShowPlusPopup(!showPlusPopup)}
-                  style={{
-                    width: "32px",
-                    height: "32px",
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: "#f3f2ef",
-                    border: "none",
-                    cursor: "pointer",
-                    color: "#666",
-                    transition: "all 0.2s"
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#e0e0e0"}
-                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#f3f2ef"}
-                >
-                  <Plus size={20} />
-                </button>
-
-                {showPlusPopup && (
-                  <div
-                    data-plus-popup
-                    style={{
-                      position: "absolute",
-                      top: "100%",
-                      right: 0,
-                      marginTop: "8px",
-                      backgroundColor: "#fff",
-                      borderRadius: "8px",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                      zIndex: 100,
-                      padding: "8px",
-                      minWidth: "120px",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "4px"
-                    }}>
-                    <button
-                      onClick={() => {
-                        setPostModalInitialType(null);
-                        setIsCreatePostModalOpen(true);
-                        setShowPlusPopup(false);
-                      }}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        padding: "8px",
-                        background: "none",
-                        border: "none",
-                        width: "100%",
-                        textAlign: "left",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                        color: "#333",
-                        borderRadius: "4px"
-                      }}
-                      onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f3f2ef"}
-                      onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
-                    >
-                      <FileText size={16} /> Post
-                    </button>
-                    <button
-                      onClick={() => {
-                        setPostModalInitialType("image");
-                        setIsCreatePostModalOpen(true);
-                        setShowPlusPopup(false);
-                      }}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        padding: "8px",
-                        background: "none",
-                        border: "none",
-                        width: "100%",
-                        textAlign: "left",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                        color: "#333",
-                        borderRadius: "4px"
-                      }}
-                      onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f3f2ef"}
-                      onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
-                    >
-                      <ImageIcon size={16} /> Photo
-                    </button>
-                    <button
-                      onClick={() => {
-                        setPostModalInitialType("video");
-                        setIsCreatePostModalOpen(true);
-                        setShowPlusPopup(false);
-                      }}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        padding: "8px",
-                        background: "none",
-                        border: "none",
-                        width: "100%",
-                        textAlign: "left",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                        color: "#333",
-                        borderRadius: "4px"
-                      }}
-                      onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#f3f2ef"}
-                      onMouseOut={(e) => e.currentTarget.style.backgroundColor = "transparent"}
-                    >
-                      <Video size={16} color="#059669" /> Video
-                    </button>
-                  </div>
-                )}
-              </div>
             </div>
 
             {(() => {
