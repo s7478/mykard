@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { X, Send, Loader2, MoreVertical, Trash2 } from "lucide-react";
+import { X, Send, Loader2, MoreVertical, Trash2, Volume2, VolumeX } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { getRelativeTime } from "@/utils/dateUtils";
 
@@ -30,7 +30,7 @@ export default function StoryViewer({
   const [sendingReply, setSendingReply] = useState(false);
   const [showMenu, setShowMenu] = useState(false); // 🟢 3-dot menu state
   const [isExpanded, setIsExpanded] = useState(false); // 🟢 Read More state
-
+  const [isMuted, setIsMuted] = useState(false); // 🟢 Explicit audio master switch
 
   // Derived Data (The current user and their stories)
   const currentUserGroup = userGroups[currentUserIdx];
@@ -333,6 +333,20 @@ export default function StoryViewer({
           </div>
         )}
 
+        {/* Mute/Unmute Toggle for Videos */}
+        {hasMedia && isVideo && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsMuted(!isMuted);
+            }}
+            className="absolute top-4 right-16 z-50 w-10 h-10 flex items-center justify-center 
+                     bg-black/40 hover:bg-black/60 rounded-full text-white transition-colors"
+          >
+            {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+          </button>
+        )}
+
 
         {/* Content Area */}
         <div className="relative flex-1 bg-zinc-900 flex flex-col items-center justify-center overflow-hidden">
@@ -344,6 +358,7 @@ export default function StoryViewer({
                   src={activeStory.imageUrl || activeStory.videoUrl}
                   autoPlay
                   playsInline
+                  muted={isMuted}
                   onEnded={handleNext}
                   onTimeUpdate={(e) => {
                     if (replyText.length > 0) return;
