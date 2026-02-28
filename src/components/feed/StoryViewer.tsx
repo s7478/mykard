@@ -344,7 +344,6 @@ export default function StoryViewer({
                   src={activeStory.imageUrl || activeStory.videoUrl}
                   autoPlay
                   playsInline
-                  muted={true}
                   onEnded={handleNext}
                   onTimeUpdate={(e) => {
                     if (replyText.length > 0) return;

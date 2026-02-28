@@ -829,15 +829,7 @@ export default function PublicProfilePage() {
                                                                         controls
                                                                         playsInline
                                                                         preload="metadata"
-                                                                        style={{ width: "100%", height: "200px", objectFit: "cover", display: "block", position: "relative", zIndex: 10, pointerEvents: "auto" }}
-                                                                        onClick={(e) => {
-                                                                            e.stopPropagation();
-                                                                            if (e.currentTarget.paused) {
-                                                                                e.currentTarget.play().catch(console.error);
-                                                                            } else {
-                                                                                e.currentTarget.pause();
-                                                                            }
-                                                                        }}
+                                                                        style={{ width: "100%", height: "200px", objectFit: "cover", display: "block", position: "relative", zIndex: 10 }}
                                                                     />
                                                                 ) : (
                                                                     <img
