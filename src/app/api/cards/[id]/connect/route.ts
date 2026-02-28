@@ -32,23 +32,32 @@ export async function POST(
     });
 
     if (!card) {
-      return NextResponse.json({ 
-        error: 'Card not found' 
+      return NextResponse.json({
+        error: 'Card not found'
       }, { status: 404 });
     }
 
-    // Check for duplicate connection request (same email for this card)
+    // Check for duplicate connection request (same email OR phone for this card)
     const existingConnection = await prisma.cardConnection.findFirst({
       where: {
         cardId: cardId,
-        email: validatedData.email
+        OR: [
+          { email: validatedData.email },
+          { phone: validatedData.phone }
+        ]
       }
     });
 
     if (existingConnection) {
-      return NextResponse.json({ 
-        error: 'You have already submitted a connection request for this card' 
-      }, { status: 409 });
+      if (existingConnection.email.toLowerCase() === validatedData.email.toLowerCase()) {
+        return NextResponse.json({
+          error: 'This email address has already been used to connect with this card.'
+        }, { status: 409 });
+      } else {
+        return NextResponse.json({
+          error: 'This phone number has already been used to connect with this card.'
+        }, { status: 409 });
+      }
     }
 
     // Create the connection request
@@ -63,7 +72,7 @@ export async function POST(
       }
     });
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       message: 'Connection request submitted successfully!',
       connectionId: connection.id
@@ -74,7 +83,7 @@ export async function POST(
 
     // Handle validation errors
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ 
+      return NextResponse.json({
         error: 'Invalid input data',
         details: error.issues.map((err: any) => ({
           field: err.path.join('.'),
@@ -84,8 +93,8 @@ export async function POST(
     }
 
     // Handle other errors
-    return NextResponse.json({ 
-      error: error.message || "Failed to submit connection request" 
+    return NextResponse.json({
+      error: error.message || "Failed to submit connection request"
     }, { status: 500 });
   }
 }
@@ -105,8 +114,8 @@ export async function GET(
     });
 
     if (!card) {
-      return NextResponse.json({ 
-        error: 'Card not found' 
+      return NextResponse.json({
+        error: 'Card not found'
       }, { status: 404 });
     }
 
@@ -123,7 +132,7 @@ export async function GET(
       }
     });
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       connections: connections,
       count: connections.length
@@ -131,8 +140,8 @@ export async function GET(
 
   } catch (error: any) {
     console.error("Error fetching connection requests:", error);
-    return NextResponse.json({ 
-      error: error.message || "Failed to fetch connection requests" 
+    return NextResponse.json({
+      error: error.message || "Failed to fetch connection requests"
     }, { status: 500 });
   }
 }
