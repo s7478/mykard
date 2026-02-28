@@ -1097,7 +1097,8 @@ export default function ProfilePage() {
                         width: "100%",
                         border: "1px solid #ccc",
                         borderRadius: "4px",
-                        padding: "4px 8px"
+                        padding: "4px 8px",
+                        fontFamily: "inherit"
                       }}
                     />
                   ) : (
@@ -1121,7 +1122,8 @@ export default function ProfilePage() {
                         width: "100%",
                         border: "1px solid #ccc",
                         borderRadius: "4px",
-                        padding: "8px"
+                        padding: "8px",
+                        fontFamily: "inherit"
                       }}
                     />
                     <input
@@ -1131,12 +1133,13 @@ export default function ProfilePage() {
                       onChange={handleInputChange}
                       placeholder="Current Company"
                       style={{
-                        fontSize: "14px",
+                        fontSize: "16px",
                         color: "#000",
                         width: "100%",
                         border: "1px solid #ccc",
                         borderRadius: "4px",
-                        padding: "8px"
+                        padding: "8px",
+                        fontFamily: "inherit"
                       }}
                     />
                   </div>
@@ -1161,7 +1164,8 @@ export default function ProfilePage() {
                         width: "50%",
                         border: "1px solid #ccc",
                         borderRadius: "4px",
-                        padding: "8px"
+                        padding: "8px",
+                        fontFamily: "inherit"
                       }}
                     />
                   ) : (
@@ -1817,7 +1821,7 @@ export default function ProfilePage() {
                         placeholder="Phone Number"
                         style={{
                           fontSize: "14px", color: "#000", width: "100%", border: "1px solid #ccc",
-                          borderRadius: "4px", padding: "4px 8px"
+                          borderRadius: "4px", padding: "4px 8px", fontFamily: "inherit"
                         }}
                       />
                     ) : (
@@ -1841,7 +1845,7 @@ export default function ProfilePage() {
                         placeholder="LinkedIn Username"
                         style={{
                           fontSize: "14px", color: "#000", width: "100%", border: "1px solid #ccc",
-                          borderRadius: "4px", padding: "4px 8px"
+                          borderRadius: "4px", padding: "4px 8px", fontFamily: "inherit"
                         }}
                       />
                     ) : (
@@ -1865,7 +1869,7 @@ export default function ProfilePage() {
                         placeholder="Website URL"
                         style={{
                           fontSize: "14px", color: "#000", width: "100%", border: "1px solid #ccc",
-                          borderRadius: "4px", padding: "4px 8px"
+                          borderRadius: "4px", padding: "4px 8px", fontFamily: "inherit"
                         }}
                       />
                     ) : (
