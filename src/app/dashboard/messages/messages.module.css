@@ -355,28 +355,109 @@
     background-color: #FFFFFF;
     border: 1px solid #E2E8F0;
     color: #1E293B;
-    padding: 12px 16px;
-    border-radius: 18px 18px 18px 4px;
+    padding: 8px 12px 18px 12px;
+    border-radius: 4px 18px 18px 18px;
+    /* WhatsApp-style tail on top-left */
     font-size: 14px;
     line-height: 1.5;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-    max-width: 80%;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    max-width: 85%;
     width: fit-content;
+    min-width: 85px;
+    /* Ensure space for short text + timestamp */
     overflow-wrap: anywhere;
+    position: relative;
 }
 
 .bubbleOut {
     background-image: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
     color: #FFFFFF;
-    padding: 12px 16px;
-    border-radius: 18px 18px 4px 18px;
+    padding: 8px 12px 18px 12px;
+    border-radius: 18px 4px 18px 18px;
+    /* WhatsApp-style tail on top-right */
     font-size: 14px;
     line-height: 1.5;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-    max-width: 80%;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+    max-width: 85%;
     width: fit-content;
+    min-width: 95px;
+    /* Slightly wider for status icons */
     overflow-wrap: anywhere;
     margin-left: auto;
+    position: relative;
+}
+
+.messageMeta {
+    position: absolute;
+    bottom: 4px;
+    right: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+}
+
+.timestampIn {
+    color: #94A3B8;
+}
+
+.timestampOut {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.statusIcon {
+    display: flex;
+    align-items: center;
+}
+
+.replyContext {
+    background: rgba(0, 0, 0, 0.05);
+    border-left: 3px solid #3b82f6;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.replyContextIn {
+    background: #f1f5f9;
+    border-left-color: #2563eb;
+}
+
+.replyContextOut {
+    background: rgba(255, 255, 255, 0.1);
+    border-left-color: #ffffff;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.reactionMenu {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    background: #ffffff;
+    padding: 6px 12px;
+    border-radius: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 100;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    animation: fadeIn 0.15s ease-out;
+}
+
+.emojiPickerContainer {
+    position: absolute;
+    bottom: calc(100% + 50px);
+    left: 0;
+    z-index: 110;
+    width: 350px;
+    height: 400px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    overflow: hidden;
+    animation: fadeIn 0.2s ease-out;
 }
 
 .composer {
