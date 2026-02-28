@@ -1862,15 +1862,7 @@ export const PostCard = ({
                 playsInline
                 preload="metadata"
                 className="post-media-main"
-                style={{ position: "relative", zIndex: 20, pointerEvents: "auto" }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (e.currentTarget.paused) {
-                    e.currentTarget.play().catch(console.error);
-                  } else {
-                    e.currentTarget.pause();
-                  }
-                }}
+                style={{ position: "relative", zIndex: 20 }}
               />
             ) : (
               <img

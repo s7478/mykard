@@ -414,8 +414,8 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background lg:ml-64 transition-all duration-300">
-      <div className="block md:hidden pb-40">
-        {/* Mobile View - Kept exactly as requested */}
+      <div className="block md:hidden pb-40" style={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
+        {/* Mobile View - Aligned and padded to prevent clipping (2rem) */}
         {activeCard ? (
           <motion.div
             key={activeCard.id}
