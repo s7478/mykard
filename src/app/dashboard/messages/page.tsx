@@ -47,6 +47,11 @@ interface MessageItem {
       imageUrl?: string;
       author?: { fullName?: string };
     } | null;
+    replyTo?: {
+      id: string;
+      name: string;
+      text: string;
+    } | null;
   }>;
   replies?: {
     text: string;
