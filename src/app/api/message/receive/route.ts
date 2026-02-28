@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-const CACHE_TTL_MS = 10_000; // 10 seconds
+const CACHE_TTL_MS = 2_000; // 2 seconds
 
 type MessagesCacheEntry = {
     timestamp: number;

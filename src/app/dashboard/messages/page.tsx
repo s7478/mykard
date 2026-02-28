@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import EmojiPicker from 'emoji-picker-react';
 import {
   Search, Video, Calendar, MoreHorizontal, Smile, Play, CreditCard, Send, Edit, MoreVertical,
-  Link2, Image as ImageIcon, MapPin, Trash2, ArrowLeft, ArrowUpRight, Copy, Check, ChevronDown, SmilePlus, X, Radius, AlignCenter, Underline, Filter, ChevronLeft
+  Link2, Image as ImageIcon, MapPin, Trash2, ArrowLeft, ArrowUpRight, Copy, Check, CheckCheck, ChevronDown, SmilePlus, X, Radius, AlignCenter, Underline, Filter, ChevronLeft
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./messages.module.css";
@@ -957,130 +957,123 @@ function MessagesPageContent() {
 
                             <div
                               className={`group ${isIncoming ? styles.bubbleIn : styles.bubbleOut}`}
-                              style={{
-                                position: 'relative',
-                                paddingLeft: !isIncoming ? '32px' : undefined,
-                                paddingRight: isIncoming ? '32px' : undefined
-                              }}
+                              style={{ position: 'relative' }}
                             >
-                              {activeReactionMenu === (item.id || idx.toString()) && (
-                                <div style={{ position: 'absolute', bottom: 'calc(100% + 4px)', left: 0, zIndex: 60, minWidth: '350px', display: 'flex', flexDirection: 'column' }}>
-                                  <div
-                                    style={{
-                                      display: 'inline-flex',
-                                      flexDirection: 'row',
-                                      alignItems: 'center',
-                                      gap: '8px',
-                                      background: '#ffffff',
-                                      padding: '6px 12px',
-                                      borderRadius: '30px',
-                                      boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-                                      whiteSpace: 'nowrap',
-                                      width: 'fit-content',
-                                      border: '1px solid rgba(0,0,0,0.05)'
-                                    }}
-                                  >
-                                    {['👍', '❤️', '😂', '😮', '😢', '🙏'].map((emoji) => (
-                                      <button
-                                        key={emoji}
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          if (item.id) reactToMessage(item.id, emoji);
-                                        }}
-                                        style={{
-                                          background: 'transparent',
-                                          border: 'none',
-                                          fontSize: '20px',
-                                          cursor: 'pointer',
-                                          padding: '2px',
-                                          transition: 'transform 0.1s',
-                                        }}
-                                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
-                                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                                      >
-                                        {emoji}
-                                      </button>
-                                    ))}
-                                    <div style={{ width: '1px', height: '24px', background: 'rgba(0,0,0,0.1)', margin: '0 4px' }} />
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setShowFullPicker(!showFullPicker);
-                                      }}
-                                      style={{
-                                        background: 'rgba(0,0,0,0.05)',
-                                        border: 'none',
-                                        borderRadius: '50%',
-                                        width: '28px',
-                                        height: '28px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        color: '#64748b',
-                                        cursor: 'pointer',
-                                        fontSize: '18px',
-                                        flexShrink: 0
-                                      }}
-                                    >
-                                      +
-                                    </button>
+                              {/* Reply Context */}
+                              {item.replyTo && (
+                                <div
+                                  className={`${styles.replyContext} ${isIncoming ? styles.replyContextIn : styles.replyContextOut}`}
+                                  onClick={() => {
+                                    // Scroll to original message
+                                  }}
+                                >
+                                  <div style={{ fontWeight: 600, fontSize: '11px', marginBottom: '2px' }}>
+                                    {item.replyTo.name === activeMessage.name ? activeMessage.name : "You"}
                                   </div>
-
-                                  {showFullPicker && (
-                                    <div style={{ position: 'relative', marginTop: '8px', zIndex: 70, width: '350px', height: '400px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', borderRadius: '12px' }} onClick={(e) => e.stopPropagation()}>
-                                      <EmojiPicker
-                                        onEmojiClick={(emojiData) => {
-                                          if (item.id) reactToMessage(item.id, emojiData.emoji);
-                                        }}
-                                        theme={"light" as any}
-                                        width="100%"
-                                        height="100%"
-                                      />
-                                    </div>
-                                  )}
+                                  <div style={{ opacity: 0.8, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    {item.replyTo.text}
+                                  </div>
                                 </div>
                               )}
-
-                              {isIncoming && (
-                                <div style={{ position: 'absolute', top: '50%', right: '-34px', transform: 'translateY(-50%)' }}>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setActiveReactionMenu(activeReactionMenu === item.id ? null : (item.id || idx.toString()));
-                                      setShowFullPicker(false);
-                                    }}
-                                    className="opacity-0 group-hover:opacity-100 transition-opacity"
-                                    style={{
-                                      background: "transparent",
-                                      border: "none",
-                                      color: "#64748b",
-                                      cursor: "pointer",
-                                      padding: "4px",
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center"
-                                    }}
-                                  >
-                                    <SmilePlus size={20} />
-                                  </button>
-                                </div>
-                              )}
-                              <div style={{ textAlign: isIncoming ? 'left' : 'right' }}>
+                              <div style={{ paddingBottom: '4px', position: 'relative' }}>
                                 {renderMessageText(item.text)}
+                                {/* Invisible spacer to ensure bubble width accommodates timestamp */}
+                                <span style={{ visibility: 'hidden', fontSize: '10px', marginLeft: '12px' }}>
+                                  {formatDate(item.date).split(',')[1].trim()}
+                                  {!isIncoming && " WW"}
+                                </span>
                               </div>
-                              <div style={{ fontSize: "10px", marginTop: "4px", color: isIncoming ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.8)", textAlign: isIncoming ? "right" : "left", display: "flex", alignItems: "center", justifyContent: isIncoming ? "flex-end" : "flex-start", gap: "4px" }}>
-                                <span>{formatDate(item.date).split(',')[1].trim()}</span>
+
+                              <div className={styles.messageMeta}>
+                                <span className={isIncoming ? styles.timestampIn : styles.timestampOut}>
+                                  {formatDate(item.date).split(',')[1].trim()}
+                                </span>
+
+                                {!isIncoming && (
+                                  <span className={styles.statusIcon}>
+                                    {activeMessage.status === "Read" || activeMessage.status === "Replied" ? (
+                                      <CheckCheck size={14} color="#4ade80" />
+                                    ) : (
+                                      <Check size={14} color="rgba(255,255,255,0.7)" />
+                                    )}
+                                  </span>
+                                )}
                               </div>
-                              <div style={{ position: 'absolute', top: '4px', left: !isIncoming ? '4px' : undefined, right: isIncoming ? '4px' : undefined }}>
+
+                              {/* Reaction Trigger (Smile Icon) */}
+                              <div style={{ position: 'absolute', top: '50%', right: isIncoming ? '-34px' : undefined, left: !isIncoming ? '-34px' : undefined, transform: 'translateY(-50%)' }}>
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    setActiveMessageMenu(activeMessageMenu === item.id ? null : (item.id || idx.toString()));
+                                    setActiveReactionMenu(activeReactionMenu === (item.id || idx.toString()) ? null : (item.id || idx.toString()));
+                                    setShowFullPicker(false);
                                   }}
                                   className="opacity-0 group-hover:opacity-100 transition-opacity"
-                                  style={{ background: "transparent", border: "none", color: "inherit", cursor: "pointer", padding: "4px", display: "flex", alignItems: "center", justifyContent: "center" }}
+                                  style={{ background: "transparent", border: "none", color: "#64748b", cursor: "pointer", padding: "4px", display: "flex", alignItems: "center", justifyContent: "center" }}
                                 >
-                                  <ChevronDown size={22} />
+                                  <SmilePlus size={18} />
+                                </button>
+                              </div>
+
+                              {/* Quick Reaction Menu */}
+                              {activeReactionMenu === (item.id || idx.toString()) && (
+                                <div className={styles.reactionMenu}>
+                                  {['👍', '❤️', '😂', '😮', '😢', '🙏'].map((emoji) => (
+                                    <button
+                                      key={emoji}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (item.id) reactToMessage(item.id, emoji);
+                                        setActiveReactionMenu(null);
+                                      }}
+                                      style={{ background: 'transparent', border: 'none', fontSize: '18px', cursor: 'pointer', padding: '2px', transition: 'transform 0.1s' }}
+                                      onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
+                                      onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                    >
+                                      {emoji}
+                                    </button>
+                                  ))}
+                                  <div style={{ width: '1px', height: '18px', background: 'rgba(0,0,0,0.1)', margin: '0 2px' }} />
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setShowFullPicker(!showFullPicker);
+                                    }}
+                                    style={{ background: 'rgba(0,0,0,0.05)', border: 'none', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', cursor: 'pointer', fontSize: '16px' }}
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                              )}
+
+                              {/* Full Emoji Picker */}
+                              {activeReactionMenu === (item.id || idx.toString()) && showFullPicker && (
+                                <div className={styles.emojiPickerContainer} onClick={(e) => e.stopPropagation()}>
+                                  <EmojiPicker
+                                    onEmojiClick={(emojiData) => {
+                                      if (item.id) reactToMessage(item.id, emojiData.emoji);
+                                      setActiveReactionMenu(null);
+                                      setShowFullPicker(false);
+                                    }}
+                                    theme={"light" as any}
+                                    width="100%"
+                                    height="100%"
+                                  />
+                                </div>
+                              )}
+
+                              {/* Message Action Menu Trigger (Chevron) */}
+                              <div style={{ position: 'absolute', top: '4px', right: isIncoming ? '4px' : undefined, left: !isIncoming ? '4px' : undefined }}>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setActiveMessageMenu(activeMessageMenu === (item.id || idx.toString()) ? null : (item.id || idx.toString()));
+                                  }}
+                                  style={{ background: "transparent", border: "none", color: "inherit", cursor: "pointer", padding: "4px", display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.1 }}
+                                  onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                                  onMouseLeave={(e) => e.currentTarget.style.opacity = '0.1'}
+                                >
+                                  <ChevronDown size={14} />
                                 </button>
 
                                 {activeMessageMenu === (item.id || idx.toString()) && (
@@ -1089,12 +1082,11 @@ function MessagesPageContent() {
                                       position: 'absolute',
                                       left: !isIncoming ? 'auto' : '100%',
                                       right: !isIncoming ? '100%' : 'auto',
-                                      top: 'auto',
-                                      bottom: '0',
+                                      top: '0',
                                       background: 'white',
                                       borderRadius: '8px',
                                       boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                                      zIndex: 50,
+                                      zIndex: 100,
                                       overflow: 'hidden',
                                       minWidth: '100px'
                                     }}
@@ -1102,32 +1094,34 @@ function MessagesPageContent() {
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
+                                        setReplyingTo({
+                                          id: item.id || idx.toString(),
+                                          text: item.text,
+                                          name: isIncoming ? activeMessage.name : "You"
+                                        });
+                                        setActiveMessageMenu(null);
+                                        if (composerInputRef.current) composerInputRef.current.focus();
+                                      }}
+                                      style={{ width: '100%', padding: '8px 12px', background: 'transparent', border: 'none', color: '#1e293b', fontSize: '12px', fontWeight: 500, textAlign: 'left', cursor: 'pointer' }}
+                                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'}
+                                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                    >
+                                      Reply
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
                                         if (!isIncoming) {
                                           deleteSingleMessage(item.id!, idx);
                                         } else {
-                                          alert("Action pending for received messages");
                                           setActiveMessageMenu(null);
                                         }
                                       }}
-                                      style={{
-                                        width: '100%',
-                                        padding: '8px 12px',
-                                        background: 'transparent',
-                                        border: 'none',
-                                        color: !isIncoming ? '#ef4444' : '#1e293b',
-                                        fontSize: '13px',
-                                        fontWeight: 500,
-                                        textAlign: 'center',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        gap: '8px'
-                                      }}
-                                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = !isIncoming ? '#fef2f2' : '#f1f5f9'}
+                                      style={{ width: '100%', padding: '8px 12px', background: 'transparent', border: 'none', color: '#ef4444', fontSize: '12px', fontWeight: 500, textAlign: 'left', cursor: 'pointer' }}
+                                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fef2f2'}
                                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                                     >
-                                      {!isIncoming ? "Delete" : "More Actions"}
+                                      Delete
                                     </button>
                                   </div>
                                 )}
@@ -1136,18 +1130,18 @@ function MessagesPageContent() {
                               {item.reaction && (
                                 <div style={{
                                   position: 'absolute',
-                                  bottom: '-12px',
-                                  left: '8px', /* User requested bottom-left edge explicitly for both sender and receiver */
+                                  bottom: '-10px',
+                                  left: '8px',
                                   background: '#ffffff',
                                   borderRadius: '50%',
-                                  boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+                                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                                   border: '1px solid rgba(0,0,0,0.05)',
-                                  width: '24px',
-                                  height: '24px',
+                                  width: '20px',
+                                  height: '20px',
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
-                                  fontSize: '14px',
+                                  fontSize: '12px',
                                   zIndex: 10
                                 }}>
                                   {item.reaction}
