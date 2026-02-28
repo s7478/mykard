@@ -74,14 +74,13 @@ const styles: Record<string, CSSProperties> = {
     gap: "0",
   },
   createPostCard: {
-    backgroundColor: "transparent",
-    border: "none",
-    borderTopRightRadius: 0,
-    borderTopLeftRadius: 0,
-    padding: "6px 0 10px 0",
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "12px",
+    padding: "16px",
     width: "100%",
     textAlign: "left",
-    boxShadow: "none",
+    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
   },
   inputArea: {
     display: "flex",
@@ -125,14 +124,16 @@ const styles: Record<string, CSSProperties> = {
     transition: "background-color 0.2s",
     whiteSpace: "nowrap",
   },
-  // 🟢 KEPT EXACTLY AS REQUESTED (8px padding, no radius change)
+  // 🟢 KEPT EXACTLY AS REQUESTED (8px padding, no radius change) - OVERRIDDEN TO WHITE CONTAINERS
   postCard: {
-    backgroundColor: "transparent",
-    border: "none",
-    padding: "8px 8px 8px 2px",
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "12px",
+    padding: "16px",
     width: "100%",
     textAlign: "left",
     position: "relative",
+    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
   },
   postHeader: {
     display: "flex",
@@ -229,9 +230,12 @@ const styles: Record<string, CSSProperties> = {
   commentText: { fontSize: "12px", color: "#475569", lineHeight: "1.4" },
   widgetCard: {
     backgroundColor: "#ffffff",
-    border: "1px solid #f1f5f9",
+    border: "1px solid #e5e7eb",
+    borderRadius: "12px",
     padding: "16px",
     textAlign: "left",
+    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
+    marginBottom: "16px",
   },
   widgetHeader: {
     margin: "0 0 12px 0",
