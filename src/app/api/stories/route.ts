@@ -42,8 +42,12 @@ export async function GET(req: NextRequest) {
           select: { id: true, fullName: true, profileImage: true, username: true },
         },
         views: {
-          where: { viewerId: userId },
-          select: { id: true },
+          include: {
+            viewer: {
+              select: { id: true, fullName: true, profileImage: true, username: true }
+            }
+          },
+          orderBy: { viewedAt: "desc" }
         },
       },
       orderBy: { createdAt: "desc" }, // Newest first
@@ -61,9 +65,10 @@ export async function GET(req: NextRequest) {
         };
       }
       storiesByUser[story.authorId].stories.push(story);
-      
-      // If views array is empty, user hasn't seen this story yet
-      if (story.views.length === 0) {
+
+      // Check if current user has an entry in this story's views
+      const hasViewed = story.views.some((v: any) => v.viewerId === userId);
+      if (!hasViewed) {
         storiesByUser[story.authorId].hasUnseen = true;
       }
     });
@@ -92,13 +97,13 @@ export async function POST(req: NextRequest) {
     const userId = decoded.userId;
 
     const body = await req.json();
-    
+
     // 🟢 EXTRACT CONTENT ALONG WITH MEDIA
     const { imageUrl, videoUrl, content, visibility } = body;
 
     // Validate: Must have at least one (Media OR Text)
     if (!imageUrl && !videoUrl && !content) {
-       return NextResponse.json({ error: "Story must have content or media" }, { status: 400 });
+      return NextResponse.json({ error: "Story must have content or media" }, { status: 400 });
     }
 
     const story = await prisma.story.create({
@@ -106,11 +111,11 @@ export async function POST(req: NextRequest) {
         authorId: userId,
         imageUrl: imageUrl || null,
         videoUrl: videoUrl || null,
-        
+
         // 🟢 CRITICAL: Save the text content to the DB
-        content: content || null,  
-        visibility: visibility || "connections", 
-        
+        content: content || null,
+        visibility: visibility || "connections",
+
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
       },
     });

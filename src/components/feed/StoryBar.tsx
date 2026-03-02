@@ -221,6 +221,7 @@ export default function StoryBar({ currentUser }: { currentUser: any }) {
         }}
         userGroups={viewerGroups}
         initialUserIndex={initialViewerIndex}
+        currentUser={currentUser}
       />
 
       <CreateStoryModal isOpen={isStoryModalOpen} onClose={() => setIsStoryModalOpen(false)} currentUser={currentUser} />

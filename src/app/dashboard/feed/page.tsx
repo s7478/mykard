@@ -30,8 +30,8 @@ export default function FeedPage() {
       <style>{`
         @media (max-width: 640px) {
           .feed-mobile-padding {
-            padding-left: 12px;
-            padding-right: 4px;
+            padding-left: 0px;
+            padding-right: 0px;
           }
         }
       `}</style>

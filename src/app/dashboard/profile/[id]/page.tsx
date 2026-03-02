@@ -378,7 +378,7 @@ export default function PublicProfilePage() {
                         {/* Profile Info */}
                         <div style={{ padding: "0 24px 24px 24px", position: "relative" }}>
                             {/* Profile Picture */}
-                            <div style={{ position: "relative", marginTop: "-70px", marginBottom: "16px" }}>
+                            <div style={{ position: "relative", marginTop: "-70px", marginBottom: "10px" }}>
                                 <div
                                     style={{
                                         width: "152px",
@@ -768,7 +768,7 @@ export default function PublicProfilePage() {
 
                                             return (
                                                 <div key={post.id} style={{
-                                                    minWidth: "350px",
+                                                    minWidth: "min(350px, 85%)",
                                                     width: "calc(50% - 8px)",
                                                     flexShrink: 0,
                                                     scrollSnapAlign: "start",

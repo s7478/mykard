@@ -841,7 +841,7 @@ export default function ProfilePage() {
             {/* Profile Info */}
             <div style={{ padding: "0px 24px 0px", position: "relative" }}>
               {/* Profile Picture */}
-              <div style={{ position: "relative", marginTop: "-100px", marginBottom: "16px" }}>
+              <div style={{ position: "relative", marginTop: "-100px", marginBottom: "10px" }}>
                 <div
                   onClick={() => setShowPhotoPopup(true)}
                   style={{
@@ -888,7 +888,7 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Edit / Save+Cancel buttons on the right */}
-                <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", paddingBottom: "4px" }}>
+                <div style={{ position: "absolute", bottom: "16px", right: "0px", display: "flex", gap: "8px" }}>
                   {isEditingIntro ? (
                     <>
                       <button
@@ -1602,7 +1602,7 @@ export default function ProfilePage() {
 
                         return (
                           <div key={post.id} style={{
-                            minWidth: "350px", // Fixed width for scroll items
+                            minWidth: "min(350px, 85%)", // Fixed width for scroll items
                             width: "calc(50% - 8px)", // Try to fit 2 roughly
                             flexShrink: 0,
                             scrollSnapAlign: "start",

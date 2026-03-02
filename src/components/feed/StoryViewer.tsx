@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { X, Send, Loader2, MoreVertical, Trash2, Volume2, VolumeX } from "lucide-react";
+import { X, Send, Loader2, MoreVertical, Trash2, Volume2, VolumeX, Eye } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { getRelativeTime } from "@/utils/dateUtils";
 
@@ -13,6 +13,7 @@ interface StoryViewerProps {
   onClose: () => void;
   userGroups: any[]; // 🟢 Changed: Accepts the full list of users
   initialUserIndex: number; // 🟢 Changed: Knows where to start in that list
+  currentUser?: any; // To identify if looking at own story
 }
 
 export default function StoryViewer({
@@ -20,6 +21,7 @@ export default function StoryViewer({
   onClose,
   userGroups,
   initialUserIndex,
+  currentUser,
 }: StoryViewerProps) {
   // Navigation State
   const [currentUserIdx, setCurrentUserIdx] = useState(initialUserIndex);
@@ -31,12 +33,15 @@ export default function StoryViewer({
   const [showMenu, setShowMenu] = useState(false); // 🟢 3-dot menu state
   const [isExpanded, setIsExpanded] = useState(false); // 🟢 Read More state
   const [isMuted, setIsMuted] = useState(false); // 🟢 Explicit audio master switch
+  const [showViewersList, setShowViewersList] = useState(false); // 🟢 Views modal state
 
   // Derived Data (The current user and their stories)
   const currentUserGroup = userGroups[currentUserIdx];
   const user = currentUserGroup?.user;
   const stories = currentUserGroup?.stories || [];
   const activeStory = stories[currentStoryIdx];
+
+  const isMyStory = currentUser && activeStory && currentUser.id === activeStory.authorId;
 
   // 1. RESET LOGIC
   useEffect(() => {
@@ -47,12 +52,14 @@ export default function StoryViewer({
       setReplyText("");
       setShowMenu(false);
       setIsExpanded(false);
+      setShowViewersList(false);
     }
   }, [isOpen, initialUserIndex]);
 
   // 1.5 Reset expanded state when changing stories
   useEffect(() => {
     setIsExpanded(false);
+    setShowViewersList(false);
   }, [currentStoryIdx, currentUserIdx]);
 
 
@@ -103,19 +110,16 @@ export default function StoryViewer({
 
   // 4. AUTO-ADVANCE TRIGGER
   useEffect(() => {
-    if (replyText.length > 0 || isExpanded) return;
+    if (replyText.length > 0 || isExpanded || showViewersList) return;
     if (progress >= 100) {
       handleNext();
     }
-  }, [progress, handleNext, replyText, isExpanded]);
+  }, [progress, handleNext, replyText, isExpanded, showViewersList]);
 
   // 5. TIMER LOGIC
   useEffect(() => {
     if (!isOpen || !stories.length || !activeStory) return;
-    if (replyText.length > 0 || isExpanded) return; // 🟢 Pause if replying or reading more
-
-    // Don't reset progress if it's already moving (prevents jitter on re-renders)
-    // setProgress(0); // Removed this to prevent loop resets
+    if (replyText.length > 0 || isExpanded || showViewersList) return; // 🟢 Pause if replying, reading more, or viewing list
 
     // Mark as viewed
     fetch("/api/stories/view", { // Ensure route matches your folder name 
@@ -139,7 +143,7 @@ export default function StoryViewer({
     }, 100);
 
     return () => clearInterval(interval);
-  }, [currentStoryIdx, currentUserIdx, isOpen, replyText, isExpanded]); // Updated dependencies
+  }, [currentStoryIdx, currentUserIdx, isOpen, replyText, isExpanded, showViewersList, activeStory, stories.length]);
 
   const handleSendReply = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -351,6 +355,12 @@ export default function StoryViewer({
         {/* Content Area */}
         <div className="relative flex-1 bg-zinc-900 flex flex-col items-center justify-center overflow-hidden">
 
+          <style dangerouslySetInnerHTML={{
+            __html: `
+            .hide-scrollbar::-webkit-scrollbar { display: none; }
+            .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+          `}} />
+
           {hasMedia ? (
             <>
               {isVideo ? (
@@ -379,29 +389,42 @@ export default function StoryViewer({
               )}
 
               {hasText && (
-                <div className="absolute bottom-24 left-0 right-0 z-10 flex flex-col items-center">
+                <div className={`absolute left-0 right-0 z-30 flex flex-col pointer-events-none transition-all duration-300 ${isExpanded ? "top-20 bottom-24" : "bottom-[70px]"}`}>
                   <div
-                    className={`w-full bg-black/40 backdrop-blur-sm p-4 pb-2 text-center transition-all duration-300 ${isExpanded ? "max-h-[60vh] overflow-y-auto" : "max-h-[160px]"
-                      }`}
+                    className={`w-full bg-black/60 backdrop-blur-md p-4 flex flex-col pointer-events-auto transition-all duration-300 ${isExpanded ? "h-full" : ""}`}
                   >
-                    <p className="!text-white text-[18px] sm:text-[18px] md:text-[20px] font-semibold drop-shadow-xl leading-relaxed whitespace-pre-wrap text-left inline-block" style={{ color: "#ffffff", textAlign: "left" }}>
-                      {isExpanded ? activeStory.content : (
-                        activeStory.content.length > 150
-                          ? `${activeStory.content.slice(0, 150)}... `
-                          : activeStory.content
-                      )}
-                    </p>
+                    <div className={`w-full text-left hide-scrollbar ${isExpanded ? "flex-1 overflow-y-auto mb-2" : "max-h-[100px] overflow-hidden"}`}>
+                      <p className={`!text-white whitespace-pre-wrap transition-all duration-300 ${isExpanded ? "text-[13px] sm:text-[14px] leading-relaxed font-medium pt-2" : "text-[15px] sm:text-[16px] leading-relaxed font-semibold drop-shadow-md"}`} style={{ color: "#ffffff", textAlign: "left" }}>
+                        {!isExpanded && activeStory.content.length > 100 ? `${activeStory.content.slice(0, 100)}... ` : activeStory.content}
+                      </p>
+                    </div>
 
-                    {activeStory.content.length > 150 && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setIsExpanded(!isExpanded);
-                        }}
-                        className="text-blue-400 font-bold ml-1 hover:underline text-sm inline-block"
-                      >
-                        {isExpanded ? "Show less" : "Read more"}
-                      </button>
+                    {!isExpanded && activeStory.content.length > 100 && (
+                      <div className="w-full text-left mt-1 shrink-0">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsExpanded(true);
+                          }}
+                          className="text-blue-400 font-bold hover:text-blue-300 text-[14px] cursor-pointer transition-colors"
+                        >
+                          Read more
+                        </button>
+                      </div>
+                    )}
+
+                    {isExpanded && activeStory.content.length > 100 && (
+                      <div className="w-full text-center pt-3 pb-1 border-t border-white/20 shrink-0">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsExpanded(false);
+                          }}
+                          className="text-white hover:text-gray-200 font-bold text-[14px] cursor-pointer transition-colors"
+                        >
+                          Show less
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -410,25 +433,43 @@ export default function StoryViewer({
           ) : (
             <div className="relative w-full h-full bg-gradient-to-br from-blue-900 to-slate-900">
               <div
-                className={`absolute top-20 bottom-32 left-0 right-0 px-4 sm:px-6 w-full z-10 transition-all duration-300 flex flex-col justify-center overflow-hidden ${isExpanded ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                className={`absolute top-20 bottom-24 left-0 right-0 px-4 sm:px-6 w-full z-30 transition-all duration-300 flex flex-col ${isExpanded ? 'pointer-events-auto' : 'justify-center pointer-events-none'}`}
               >
-                <div className={`w-full font-bold font-serif drop-shadow-2xl whitespace-pre-wrap text-left transition-all duration-300 px-2 lg:px-4 ${isExpanded ? "text-[13px] sm:text-[13px] md:text-[14px] leading-tight font-medium" : "text-[24px] sm:text-[28px] md:text-[28px] leading-relaxed"}`} style={{ color: "#ffffff", wordBreak: "break-word" }}>
-                  <span className="inline pointer-events-none">
-                    {isExpanded || !activeStory.content || activeStory.content.length <= 150
-                      ? activeStory.content || "..."
-                      : `${activeStory.content.slice(0, 150)}... `}
-                  </span>
+                <div
+                  className={`w-full flex flex-col transition-all duration-300 ${isExpanded ? "h-full" : ""}`}
+                >
+                  <div className={`w-full text-left hide-scrollbar ${isExpanded ? "flex-1 overflow-y-auto mb-4" : "max-h-[50vh] overflow-hidden"}`}>
+                    <p className={`!text-white font-serif drop-shadow-2xl whitespace-pre-wrap transition-all duration-300 ${isExpanded ? "text-[13px] sm:text-[14px] leading-relaxed font-medium" : "text-[22px] sm:text-[26px] leading-relaxed font-bold"}`} style={{ color: "#ffffff", wordBreak: "break-word" }}>
+                      {!isExpanded && activeStory.content.length > 150 ? `${activeStory.content.slice(0, 150)}... ` : activeStory.content}
+                    </p>
+                  </div>
 
-                  {activeStory.content && activeStory.content.length > 150 && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setIsExpanded(!isExpanded);
-                      }}
-                      className="text-white/70 hover:text-white font-black underline ml-2 inline z-40 relative pointer-events-auto transition-colors"
-                    >
-                      {isExpanded ? "Show less" : "Read more"}
-                    </button>
+                  {!isExpanded && activeStory.content && activeStory.content.length > 150 && (
+                    <div className="text-left mt-2 shrink-0 relative z-40 pointer-events-auto">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsExpanded(true);
+                        }}
+                        className="text-white/90 hover:text-white font-black underline transition-colors cursor-pointer text-[15px]"
+                      >
+                        Read more
+                      </button>
+                    </div>
+                  )}
+
+                  {isExpanded && activeStory.content && activeStory.content.length > 150 && (
+                    <div className="text-center mt-2 mb-4 shrink-0 relative z-40 pointer-events-auto">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsExpanded(false);
+                        }}
+                        className="text-white hover:text-gray-200 font-bold transition-colors cursor-pointer text-[14px] px-6 py-2 border border-white/40 rounded-full bg-black/40"
+                      >
+                        Show less
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -436,14 +477,18 @@ export default function StoryViewer({
           )}
 
           {/* Navigation Click Zones */}
-          <div
-            className="absolute inset-y-0 left-0 w-1/3 z-20 cursor-pointer"
-            onClick={handlePrev}
-          />
-          <div
-            className="absolute inset-y-0 right-0 w-1/3 z-20 cursor-pointer"
-            onClick={(e) => { e.stopPropagation(); handleNext(); }}
-          />
+          {!isExpanded && (
+            <>
+              <div
+                className="absolute inset-y-0 left-0 w-1/3 z-20 cursor-pointer"
+                onClick={handlePrev}
+              />
+              <div
+                className="absolute inset-y-0 right-0 w-1/3 z-20 cursor-pointer"
+                onClick={(e) => { e.stopPropagation(); handleNext(); }}
+              />
+            </>
+          )}
 
           <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none z-0" />
         </div>
@@ -453,31 +498,104 @@ export default function StoryViewer({
           className="absolute bottom-6 left-4 right-4 z-30 flex items-center gap-3"
           onClick={(e) => e.stopPropagation()}
         >
-          <form onSubmit={handleSendReply} className="flex-1 relative group">
-            <input
-              type="text"
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              placeholder="Send a message..."
-              style={{ paddingLeft: "24px" }}
-              className="w-full h-12 bg-transparent border border-white/40 rounded-full pr-14 text-white placeholder-white/70 focus:outline-none focus:border-white focus:bg-black/40 transition-all text-base backdrop-blur-sm shadow-lg"
-            />
-            <button
-              type="submit"
-              disabled={!replyText.trim() || sendingReply}
-              className={`absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full transition-all duration-200 ${replyText.trim()
-                ? "text-white hover:bg-white/20 active:scale-95"
-                : "text-white/30 cursor-not-allowed"
-                }`}
-            >
-              {sendingReply ? (
-                <Loader2 size={18} className="animate-spin" />
-              ) : (
-                <Send size={18} />
-              )}
-            </button>
-          </form>
+          {isMyStory ? (
+            <div className="flex-1 flex justify-start pl-1">
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowViewersList(true); }}
+                className="flex items-center gap-2 bg-black/50 hover:bg-black/70 px-4 py-2 rounded-full backdrop-blur-md transition-colors text-white"
+              >
+                <Eye size={20} />
+                <span className="font-semibold text-sm">{activeStory.views?.length || 0}</span>
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSendReply} className="flex-1 relative group">
+              <input
+                type="text"
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                placeholder="Send a message..."
+                style={{ paddingLeft: "24px" }}
+                className="w-full h-12 bg-transparent border border-white/40 rounded-full pr-14 text-white placeholder-white/70 focus:outline-none focus:border-white focus:bg-black/40 transition-all text-base backdrop-blur-sm shadow-lg"
+              />
+              <button
+                type="submit"
+                disabled={!replyText.trim() || sendingReply}
+                className={`absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full transition-all duration-200 ${replyText.trim()
+                  ? "text-white hover:bg-white/20 active:scale-95"
+                  : "text-white/30 cursor-not-allowed"
+                  }`}
+              >
+                {sendingReply ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  <Send size={18} />
+                )}
+              </button>
+            </form>
+          )}
         </div>
+
+        {/* 🟢 VIEWERS MODAL */}
+        {showViewersList && (
+          <div
+            onClick={() => setShowViewersList(false)}
+            className="absolute inset-0 z-[100] bg-black/60 flex flex-col justify-end overflow-hidden"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white w-full rounded-t-3xl max-h-[60vh] flex flex-col shadow-2xl animate-in slide-in-from-bottom flex-shrink-0"
+              style={{ animationDuration: '300ms' }}
+            >
+              <div className="p-4 flex items-center justify-between border-b border-gray-100">
+                <div className="flex items-center gap-2">
+                  <Eye size={20} className="text-gray-700" />
+                  <h3 className="font-bold text-gray-900 text-lg">
+                    {activeStory.views?.length || 0} Viewer{activeStory.views?.length !== 1 ? 's' : ''}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setShowViewersList(false)}
+                  className="p-2 bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {activeStory.views && activeStory.views.length > 0 ? (
+                  activeStory.views.map((view: any) => (
+                    <div key={view.id} className="flex items-center gap-3">
+                      <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                        {view.viewer?.profileImage ? (
+                          <Image
+                            src={view.viewer.profileImage}
+                            alt={view.viewer.fullName}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-sm font-bold text-gray-500">
+                            {view.viewer?.fullName?.[0] || "U"}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-gray-900">{view.viewer?.fullName || "A User"}</span>
+                        {view.viewer?.username && <span className="text-sm text-gray-500">@{view.viewer.username}</span>}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center text-gray-500 py-6">
+                    No views yet
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

@@ -411,23 +411,27 @@
 }
 
 .replyContext {
-    background: rgba(0, 0, 0, 0.05);
-    border-left: 3px solid #3b82f6;
-    padding: 4px 8px;
-    border-radius: 4px;
-    margin-bottom: 8px;
-    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    margin-top: -2px;
+    font-size: 13px;
     cursor: pointer;
+    overflow: hidden;
+    position: relative;
+    border-left: 4px solid #00E676;
 }
 
 .replyContextIn {
-    background: #f1f5f9;
+    background: rgba(0, 0, 0, 0.05);
     border-left-color: #2563eb;
 }
 
 .replyContextOut {
-    background: rgba(255, 255, 255, 0.1);
-    border-left-color: #ffffff;
+    background: rgba(0, 0, 0, 0.15);
+    /* Slightly darker for contrast against blue bubble */
+    border-left-color: #00E676;
+    /* WhatsApp style bright green for sent reply borders */
     color: rgba(255, 255, 255, 0.9);
 }
 
