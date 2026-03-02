@@ -6,7 +6,24 @@ import { X, Send, Loader2, MoreVertical, Trash2, Volume2, VolumeX, Eye } from "l
 import { toast } from "react-hot-toast";
 import { getRelativeTime } from "@/utils/dateUtils";
 
+const formatViewerTime = (dateString: string) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const now = new Date();
 
+  const isToday = date.getDate() === now.getDate() && date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  const isYesterday = date.getDate() === yesterday.getDate() && date.getMonth() === yesterday.getMonth() && date.getFullYear() === yesterday.getFullYear();
+
+  const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
+  let timeString = date.toLocaleTimeString('en-US', timeOptions).toLowerCase(); // Ensure "am/pm" instead of "AM/PM" if locale does it uppercase
+
+  if (isToday) return `Today, ${timeString}`;
+  if (isYesterday) return `Yesterday, ${timeString}`;
+  return `${date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}, ${timeString}`;
+};
 
 interface StoryViewerProps {
   isOpen: boolean;
@@ -547,11 +564,11 @@ export default function StoryViewer({
               className="bg-white w-full rounded-t-3xl max-h-[60vh] flex flex-col shadow-2xl animate-in slide-in-from-bottom flex-shrink-0"
               style={{ animationDuration: '300ms' }}
             >
-              <div className="p-4 flex items-center justify-between border-b border-gray-100">
-                <div className="flex items-center gap-2">
-                  <Eye size={20} className="text-gray-700" />
-                  <h3 className="font-bold text-gray-900 text-lg">
-                    {activeStory.views?.length || 0} Viewer{activeStory.views?.length !== 1 ? 's' : ''}
+              <div className="px-7 py-4 flex items-center justify-between border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <Eye size={22} className="text-gray-700" />
+                  <h3 className="font-bold text-gray-900 text-[17px]">
+                    Viewed by {activeStory.views?.length || 0}
                   </h3>
                 </div>
                 <button
@@ -562,11 +579,11 @@ export default function StoryViewer({
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <div className="flex-1 overflow-y-auto pl-[30px] pr-6 py-4 space-y-[22px]">
                 {activeStory.views && activeStory.views.length > 0 ? (
                   activeStory.views.map((view: any) => (
-                    <div key={view.id} className="flex items-center gap-3">
-                      <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                    <div key={view.id} className="flex items-center gap-4">
+                      <div className="relative w-14 h-14 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 shadow-sm border border-gray-100">
                         {view.viewer?.profileImage ? (
                           <Image
                             src={view.viewer.profileImage}
@@ -580,9 +597,15 @@ export default function StoryViewer({
                           </div>
                         )}
                       </div>
-                      <div className="flex flex-col">
-                        <span className="font-semibold text-gray-900">{view.viewer?.fullName || "A User"}</span>
-                        {view.viewer?.username && <span className="text-sm text-gray-500">@{view.viewer.username}</span>}
+                      <div className="flex flex-col flex-1 overflow-hidden">
+                        <span className="font-semibold text-gray-900 text-[16px] truncate">
+                          {view.viewer?.fullName || "A User"}
+                        </span>
+                        {view.viewedAt && (
+                          <span className="text-[14px] text-gray-500 truncate mt-[1px]">
+                            {formatViewerTime(view.viewedAt)}
+                          </span>
+                        )}
                       </div>
                     </div>
                   ))
