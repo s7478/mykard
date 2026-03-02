@@ -243,6 +243,10 @@ export function Header() {
                       <img
                         src={user.profileImage}
                         alt="Profile"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.parentElement!.innerHTML = `<span style="font-size: 14px; font-weight: 600; color: #ffffff;">${getInitials(user?.fullName || user?.email || "")}</span>`;
+                        }}
                         style={{
                           width: "100%",
                           height: "100%",
@@ -288,6 +292,10 @@ export function Header() {
                       <img
                         src={user.profileImage}
                         alt="Profile"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.parentElement!.innerHTML = `<span style="font-size: 16px; font-weight: 600; color: #ffffff;">${getInitials(user?.fullName || user?.email || "")}</span>`;
+                        }}
                         style={{
                           width: "100%",
                           height: "100%",
