@@ -1067,6 +1067,10 @@ export const CreateStoryModal = ({
                   alt="Me"
                   fill
                   unoptimized
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.parentElement!.innerHTML = `<span style="font-size: 14px; font-weight: 600; color: #ffffff;">${getInitials(currentUser?.fullName || "Me")}</span>`;
+                  }}
                   style={{ objectFit: "cover" }}
                 />
               ) : (
@@ -1659,6 +1663,10 @@ export const PostCard = ({
                 alt={authorName}
                 fill
                 unoptimized
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.parentElement!.innerHTML = `<div style="display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #64748b;">${authorInitials}</div>`;
+                }}
                 style={{ objectFit: "cover" }}
               />
             ) : (
@@ -1872,6 +1880,9 @@ export const PostCard = ({
               <img
                 src={postData.imageUrl}
                 alt="Post media"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
                 className="post-media-main"
               />
             )}
@@ -1988,6 +1999,10 @@ export const PostCard = ({
                     alt="Me"
                     fill
                     unoptimized
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.parentElement!.innerHTML = `<span style="font-size: 10px; font-weight: 700; color: #64748b;">${myInitials}</span>`;
+                    }}
                     style={{ objectFit: "cover" }}
                   />
                 ) : (
@@ -2056,6 +2071,10 @@ export const PostCard = ({
                         alt={c.user.fullName}
                         fill
                         unoptimized
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.parentElement!.innerHTML = `<span style="font-size: 9px; font-weight: 700; color: #64748b;">${getInitials(c.user?.fullName || "User")}</span>`;
+                        }}
                         style={{ objectFit: "cover" }}
                       />
                     ) : (
@@ -2236,6 +2255,10 @@ export const SuggestedUsersWidget = ({
                     alt={p.name}
                     fill
                     unoptimized
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.parentElement!.innerHTML = `<div style="width: 100%; height: 100%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700;">${getInitials(p.name)}</div>`;
+                    }}
                     style={{ objectFit: "cover" }}
                   />
                 ) : (

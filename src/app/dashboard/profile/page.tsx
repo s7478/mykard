@@ -822,6 +822,10 @@ export default function ProfilePage() {
                 <img
                   src={displayUser.bannerImage}
                   alt="Banner"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.parentElement!.innerHTML = `<div style="width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>`;
+                  }}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
               ) : (
@@ -860,6 +864,10 @@ export default function ProfilePage() {
                     <img
                       src={displayUser.profileImage}
                       alt={displayUser.name}
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.parentElement!.innerHTML = `<div style="width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: 600; color: #fff;">${displayUser.name.split(" ").map((n: string) => n[0]).join("")}</div>`;
+                      }}
                       style={{ width: "100%", height: "100%", objectFit: "cover" }}
                     />
                   ) : (
@@ -1000,7 +1008,10 @@ export default function ProfilePage() {
                       backgroundColor: "#f0f0f0"
                     }}>
                       {displayUser.profileImage ? (
-                        <img src={displayUser.profileImage} alt={displayUser.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        <img src={displayUser.profileImage} alt={displayUser.name} onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.parentElement!.innerHTML = `<div style="width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 600; color: #fff;">${displayUser.name.split(" ").map((n: string) => n[0]).join("")}</div>`;
+                        }} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                       ) : (
                         <div style={{
                           width: "100%", height: "100%",
