@@ -1588,16 +1588,14 @@ export default function ProfilePage() {
                 return (
                   <div>
                     {/* Horizontal Scroll Container */}
-                    <div style={{
+                    <div className="no-scrollbar" style={{
                       gap: "16px",
                       // For true horizontal scroll on mobile if desired, or 2 col on desktop:
                       // But user requested horizontal scroll showing 2 posts.
                       // Let's use flex for horizontal scroll
                       display: "flex",
                       overflowX: "auto",
-                      scrollSnapType: "x mandatory",
-                      paddingBottom: "16px", // Space for scrollbar
-                      scrollbarWidth: "thin"
+                      scrollSnapType: "x mandatory"
                     }}>
                       {displayedPosts.map((post) => {
                         const postDate = new Date(post.createdAt);

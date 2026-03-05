@@ -882,11 +882,16 @@ function SearchPageContent() {
                     onClick={() => handleCardClick(p)}  // YE LINE ADD KARO
                   >
                     <div className="card-info">
-                      <div className="avatar">
-                        {p.profileImage ? (
-                          <img src={p.profileImage} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
-                        ) : (getInitials(p.name || "User"))
-                        }
+                      <div className="avatar" style={{ position: 'relative' }}>
+                        {getInitials(p.name || "User")}
+                        {p.profileImage && (
+                          <img
+                            src={p.profileImage}
+                            alt={p.name}
+                            style={{ position: 'absolute', top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }}
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          />
+                        )}
                       </div>
                       <div className="text-block">
                         <div className="name truncate-1">{p.name}</div>
@@ -949,15 +954,15 @@ function SearchPageContent() {
                     onClick={() => handleCardClick(p)}  // YE LINE ADD KARO
                   >
                     <div className="card-info">
-                      <div className="avatar">
-                        {p.profileImage ? (
+                      <div className="avatar" style={{ position: 'relative' }}>
+                        {getInitials(p.name || "User")}
+                        {p.profileImage && (
                           <img
                             src={p.profileImage}
                             alt={p.name}
-                            style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }}
+                            style={{ position: 'absolute', top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }}
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
                           />
-                        ) : (
-                          getInitials(p.name || "User")
                         )}
                       </div>
 

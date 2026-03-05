@@ -826,8 +826,16 @@ function MessagesPageContent() {
                       className={`${styles.messageRow} ${m.read ? styles.messageRowRead : ''} ${hoveredId === m.id ? styles.messageRowHover : ''}`}
                     >
                       {/* Avatar */}
-                      <div className={styles.avatar} style={{ backgroundImage: m.profileImage ? `url(${m.profileImage})` : undefined }}>
-                        {!m.profileImage && getInitials(m.name, m.email)}
+                      <div className={styles.avatar} style={{ position: 'relative', overflow: 'hidden' }}>
+                        {getInitials(m.name, m.email)}
+                        {m.profileImage && (
+                          <img
+                            src={m.profileImage}
+                            alt={m.name}
+                            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          />
+                        )}
                       </div>
 
                       {/* Content */}
@@ -900,8 +908,16 @@ function MessagesPageContent() {
                       <ChevronLeft style={{ color: "#64748B" }} />
                     </button>
                   )}
-                  <div className={styles.avatar} style={{ width: "40px", height: "40px", fontSize: "12px", backgroundImage: activeMessage.profileImage ? `url(${activeMessage.profileImage})` : undefined }}>
-                    {!activeMessage.profileImage && getInitials(activeMessage.name, activeMessage.email)}
+                  <div className={styles.avatar} style={{ width: "40px", height: "40px", fontSize: "12px", position: 'relative', overflow: 'hidden' }}>
+                    {getInitials(activeMessage.name, activeMessage.email)}
+                    {activeMessage.profileImage && (
+                      <img
+                        src={activeMessage.profileImage}
+                        alt={activeMessage.name}
+                        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      />
+                    )}
                   </div>
                   <div>
                     <h2 style={{ fontSize: "16px", fontWeight: 700, margin: 0, color: "#1E293B", marginBottom: '4px' }}>{activeMessage.name}</h2>
