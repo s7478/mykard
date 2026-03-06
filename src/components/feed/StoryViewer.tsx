@@ -51,6 +51,7 @@ export default function StoryViewer({
   const [isExpanded, setIsExpanded] = useState(false); // 🟢 Read More state
   const [isMuted, setIsMuted] = useState(false); // 🟢 Explicit audio master switch
   const [showViewersList, setShowViewersList] = useState(false); // 🟢 Views modal state
+  const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set());
 
   // Derived Data (The current user and their stories)
   const currentUserGroup = userGroups[currentUserIdx];
@@ -266,16 +267,17 @@ export default function StoryViewer({
         {/* User Info */}
         <div className="absolute top-6 left-4 z-20 flex items-center gap-3 pointer-events-none">
           <div className="relative w-9 h-9 rounded-full overflow-hidden border border-white/30 bg-gray-800">
-            {user?.profileImage ? (
+            {user?.profileImage && !brokenImages.has(user?.id || '') ? (
               <Image
                 src={user.profileImage}
                 alt={user.fullName}
                 fill
                 className="object-cover"
+                onError={() => setBrokenImages(prev => new Set(prev).add(user?.id || ''))}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-xs font-bold text-white">
-                {user?.fullName?.[0]}
+                {user?.fullName?.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2) || 'U'}
               </div>
             )}
           </div>
@@ -476,17 +478,15 @@ export default function StoryViewer({
                   )}
 
                   {isExpanded && activeStory.content && activeStory.content.length > 150 && (
-                    <div className="text-center mt-2 mb-4 shrink-0 relative z-40 pointer-events-auto">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setIsExpanded(false);
-                        }}
-                        className="text-white hover:text-gray-200 font-bold transition-colors cursor-pointer text-[14px] px-6 py-2 border border-white/40 rounded-full bg-black/40"
-                      >
-                        Show less
-                      </button>
-                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsExpanded(false);
+                      }}
+                      className="text-white hover:text-gray-200 font-bold transition-colors cursor-pointer text-[14px] mt-2 mb-4 shrink-0 relative z-40 pointer-events-auto"
+                    >
+                      Show less
+                    </button>
                   )}
                 </div>
               </div>
@@ -583,17 +583,18 @@ export default function StoryViewer({
                 {activeStory.views && activeStory.views.length > 0 ? (
                   activeStory.views.map((view: any) => (
                     <div key={view.id} className="flex items-center gap-4">
-                      <div className="relative w-14 h-14 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 shadow-sm border border-gray-100">
-                        {view.viewer?.profileImage ? (
+                      <div className="relative w-9 h-9 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 shadow-sm border border-gray-100">
+                        {view.viewer?.profileImage && !brokenImages.has(view.viewer?.id || '') ? (
                           <Image
                             src={view.viewer.profileImage}
                             alt={view.viewer.fullName}
                             fill
                             className="object-cover"
+                            onError={() => setBrokenImages(prev => new Set(prev).add(view.viewer?.id || ''))}
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-sm font-bold text-gray-500">
-                            {view.viewer?.fullName?.[0] || "U"}
+                            {view.viewer?.fullName?.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2) || 'U'}
                           </div>
                         )}
                       </div>

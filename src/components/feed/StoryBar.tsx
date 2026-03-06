@@ -82,6 +82,7 @@ export default function StoryBar({ currentUser }: { currentUser: any }) {
   // 🟢 Ref and Pos state for menu
   const myStoryRef = useRef<HTMLDivElement>(null);
   const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
+  const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set());
 
   const fetchStories = async () => {
     try {
@@ -195,7 +196,15 @@ export default function StoryBar({ currentUser }: { currentUser: any }) {
             <div style={{ ...styles.avatarWrapper, background: group.hasUnseen ? "linear-gradient(45deg, #181FFF, #1279E1)" : "#cbd5f5" }}>
               <div style={styles.avatarWhiteRing}>
                 <div style={styles.avatar}>
-                  {group.user.profileImage ? (<Image src={group.user.profileImage} alt={group.user.fullName} fill className="object-cover" />) : (getInitials(group.user.fullName))}
+                  {group.user.profileImage && !brokenImages.has(group.user.id) ? (
+                    <Image
+                      src={group.user.profileImage}
+                      alt={group.user.fullName}
+                      fill
+                      className="object-cover"
+                      onError={() => setBrokenImages(prev => new Set(prev).add(group.user.id))}
+                    />
+                  ) : (getInitials(group.user.fullName))}
                 </div>
               </div>
             </div>
