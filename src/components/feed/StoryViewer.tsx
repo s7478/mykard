@@ -478,17 +478,15 @@ export default function StoryViewer({
                   )}
 
                   {isExpanded && activeStory.content && activeStory.content.length > 150 && (
-                    <div className="text-center mt-2 mb-4 shrink-0 relative z-40 pointer-events-auto">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setIsExpanded(false);
-                        }}
-                        className="text-white hover:text-gray-200 font-bold transition-colors cursor-pointer text-[14px] px-6 py-2 border border-white/40 rounded-full bg-black/40"
-                      >
-                        Show less
-                      </button>
-                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsExpanded(false);
+                      }}
+                      className="text-white hover:text-gray-200 font-bold transition-colors cursor-pointer text-[14px] mt-2 mb-4 shrink-0 relative z-40 pointer-events-auto"
+                    >
+                      Show less
+                    </button>
                   )}
                 </div>
               </div>
