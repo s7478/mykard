@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
           orderBy: { viewedAt: "desc" }
         },
       },
-      orderBy: { createdAt: "desc" }, // Newest first
+      orderBy: { createdAt: "asc" }, // Oldest first
     });
 
     // 3. Group stories by User
