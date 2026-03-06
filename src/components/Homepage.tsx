@@ -67,6 +67,32 @@ export default function Homepage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [slideDirection, setSlideDirection] = useState(1);
+  const carouselRef = useRef<HTMLDivElement>(null);
+
+  // Native non-passive wheel listener for trackpad horizontal scroll
+  useEffect(() => {
+    const el = carouselRef.current;
+    if (!el) return;
+    let lastWheelTime = 0;
+    const handleWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        e.preventDefault();
+        const now = Date.now();
+        if (now - lastWheelTime < 600) return; // debounce
+        lastWheelTime = now;
+        if (e.deltaX > 5) {
+          setSlideDirection(1);
+          setCurrentIndex(prev => Math.min(prev + 1, credibilityData.length - 1));
+        } else if (e.deltaX < -5) {
+          setSlideDirection(-1);
+          setCurrentIndex(prev => Math.max(prev - 1, 0));
+        }
+      }
+    };
+    el.addEventListener("wheel", handleWheel, { passive: false });
+    return () => el.removeEventListener("wheel", handleWheel);
+  }, []);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Profile[]>([]);
@@ -77,7 +103,7 @@ export default function Homepage() {
   const [sentRequests, setSentRequests] = useState<Set<string>>(new Set());
   const [acceptedConnections, setAcceptedConnections] = useState<Set<string>>(new Set());
   const [isHovered, setIsHovered] = useState(false);
-    // ✅ Desktop check for gradients
+  // ✅ Desktop check for gradients
   const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
@@ -404,7 +430,7 @@ export default function Homepage() {
       title: "Verified Badges",
       description: "Add a verified badge to your profile, giving your contact confidence and showcasing your authenticity.",
       image: "/assets/VerifiedBadges.png",
-     cardColor: "#FFFFFF",
+      cardColor: "#FFFFFF",
       border: "4px solid #00E5FF",
       textColor: "#000000",
       boxColor: "#E2E8F0"
@@ -569,108 +595,108 @@ export default function Homepage() {
       {/* New Search Bar Section --> Vaijayanti */}
 
 
-    <div className="w-full bg-[#030b25]">
-      {/* SECTION 1: Search */}
-      <section
-        className="relative px-4 md:px-6 flex flex-col w-full items-center justify-center min-h-fit md:min-h-[600px] overflow-hidden"
-        style={{
-          background: "radial-gradient( 110% 110% at 50% 120%, #FFFFFF 0%, #B1E4FF 25%, #1070FF 50%, #071337 90%)",
-          paddingTop: "4rem",
-          paddingBottom: "4rem"
-        }}
-      >
-        <div className="container mx-auto flex flex-col items-center relative w-full">
-
-          {/* 1. Floating Search Card (The Curtain) */}
-          <motion.div
-            initial={{ opacity: 1, y: 180, scale: 1 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{
-              type: "spring",
-              stiffness: 120,
-              damping: 20,
-              delay: 0.1
-            }}
-            whileHover={{ 
-              scale: 1.02, 
-              boxShadow: "0 25px 50px rgba(0,0,0,0.6)",
-              transition: { duration: 0.3 }
-            }}
-            whileTap={{ scale: 0.98 }}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          className="transition-all duration-300 ease-in-out cursor-default w-full max-w-[800px] z-20"
+      <div className="w-full bg-[#030b25]">
+        {/* SECTION 1: Search */}
+        <section
+          className="relative px-4 md:px-6 flex flex-col w-full items-center justify-center min-h-fit md:min-h-[600px] overflow-hidden"
           style={{
-            padding: "clamp(1.2rem, 4vw, 2.6rem) clamp(1rem, 4vw, 3.8rem)",
-            borderRadius: "26px",
-            background: "linear-gradient(105deg, #6c8ef2 0%, #8ca6f8 50%, #ffffff 100%)",
-            boxShadow: isHovered ? "0 25px 50px rgba(0,0,0,0.6)" : "0 20px 40px rgba(0,0,0,0.35)",
-            marginBottom: "-45px", transform: isHovered ? "scale(1.02)" : "scale(1)"
+            background: "radial-gradient( 110% 110% at 50% 120%, #FFFFFF 0%, #B1E4FF 25%, #1070FF 50%, #071337 90%)",
+            paddingTop: "4rem",
+            paddingBottom: "4rem"
           }}
-          >
-            {/* Search Input Container */}
-            <div className="relative flex items-center w-full max-w-[650px] mx-auto shadow-lg rounded-full bg-[#fff5f2]">
-              <div className="absolute left-4 md:left-5 flex items-center pointer-events-none">
-                <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-              </div>
-              <input
-                type="text"
-                placeholder="Search by name, skills..."
-                className="w-full rounded-full border-0 focus:outline-none text-sm md:text-lg bg-transparent"
-                style={{ padding: "1rem 5rem", color: "#666", paddingLeft: "clamp(3rem, 10vw, 4rem)" }}
-              />
-              <button
-                className="absolute right-2 md:right-4 bg-white px-3 md:px-6 py-2 md:py-3 rounded-full text-blue-600 font-bold text-xs md:text-base shadow-sm border border-gray-100 hover:bg-gray-50 transition-colors"
-                style={{ cursor: "pointer", padding: "10px 12px" }}
-              >
-                Search
-              </button>
-            </div>
-          </motion.div>
+        >
+          <div className="container mx-auto flex flex-col items-center relative w-full">
 
-          {/* 2. Info Card (Message Box) */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true, amount: 0.1 }}
-            transition={{ duration: 0.8 }}
-            className="relative text-center w-[90%] max-w-[1000px] bg-[#c1dcff] shadow-xl mx-auto md:pt-[150px] md:pb-[75px]"
-            style={{
-              zIndex: 10,
-              borderRadius: "42px",
-              paddingTop: "80px",
-              paddingBottom: "45px",
-            }}
-          >
-            <p
-              className="mx-auto px-2 sm:px-3 md:px-10"
+            {/* 1. Floating Search Card (The Curtain) */}
+            <motion.div
+              initial={{ opacity: 1, y: 180, scale: 1 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{
+                type: "spring",
+                stiffness: 120,
+                damping: 20,
+                delay: 0.1
+              }}
+              whileHover={{
+                scale: 1.02,
+                boxShadow: "0 25px 50px rgba(0,0,0,0.6)",
+                transition: { duration: 0.3 }
+              }}
+              whileTap={{ scale: 0.98 }}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+              className="transition-all duration-300 ease-in-out cursor-default w-full max-w-[800px] z-20"
               style={{
-                fontFamily: "Caveat Brush, cursive",
-                color: "#000",
-                fontSize: "clamp(1.10rem, 2.6vw, 1.6rem)",
-                fontWeight: 400,
-                lineHeight: 1.38,
-                maxWidth: "780px",
-                margin: "0 auto",
-                textAlign: "center",
+                padding: "clamp(1.2rem, 4vw, 2.6rem) clamp(1rem, 4vw, 3.8rem)",
+                borderRadius: "26px",
+                background: "linear-gradient(105deg, #6c8ef2 0%, #8ca6f8 50%, #ffffff 100%)",
+                boxShadow: isHovered ? "0 25px 50px rgba(0,0,0,0.6)" : "0 20px 40px rgba(0,0,0,0.35)",
+                marginBottom: "-45px", transform: isHovered ? "scale(1.02)" : "scale(1)"
               }}
             >
-              Access verified professional profiles, view portfolios <br className="hidden md:block" />
-              and connect instantly with industry leaders <br className="hidden md:block" />
-              potential clients and business partners in your <br className="hidden md:block" /> 
-              network.
-            </p>
-          </motion.div>
+              {/* Search Input Container */}
+              <div className="relative flex items-center w-full max-w-[650px] mx-auto shadow-lg rounded-full bg-[#fff5f2]">
+                <div className="absolute left-4 md:left-5 flex items-center pointer-events-none">
+                  <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search by name, skills..."
+                  className="w-full rounded-full border-0 focus:outline-none text-sm md:text-lg bg-transparent"
+                  style={{ padding: "1rem 5rem", color: "#666", paddingLeft: "clamp(3rem, 10vw, 4rem)" }}
+                />
+                <button
+                  className="absolute right-2 md:right-4 bg-white px-3 md:px-6 py-2 md:py-3 rounded-full text-blue-600 font-bold text-xs md:text-base shadow-sm border border-gray-100 hover:bg-gray-50 transition-colors"
+                  style={{ cursor: "pointer", padding: "10px 12px" }}
+                >
+                  Search
+                </button>
+              </div>
+            </motion.div>
+
+            {/* 2. Info Card (Message Box) */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true, amount: 0.1 }}
+              transition={{ duration: 0.8 }}
+              className="relative text-center w-[90%] max-w-[1000px] bg-[#c1dcff] shadow-xl mx-auto md:pt-[150px] md:pb-[75px]"
+              style={{
+                zIndex: 10,
+                borderRadius: "42px",
+                paddingTop: "80px",
+                paddingBottom: "45px",
+              }}
+            >
+              <p
+                className="mx-auto px-2 sm:px-3 md:px-10"
+                style={{
+                  fontFamily: "Caveat Brush, cursive",
+                  color: "#000",
+                  fontSize: "clamp(1.10rem, 2.6vw, 1.6rem)",
+                  fontWeight: 400,
+                  lineHeight: 1.38,
+                  maxWidth: "780px",
+                  margin: "0 auto",
+                  textAlign: "center",
+                }}
+              >
+                Access verified professional profiles, view portfolios <br className="hidden md:block" />
+                and connect instantly with industry leaders <br className="hidden md:block" />
+                potential clients and business partners in your <br className="hidden md:block" />
+                network.
+              </p>
+            </motion.div>
 
             <div className="absolute bottom-0 w-[90%] max-w-[1000px] h-full pointer-events-none z-30 ">
               {/* 3. Animated Arrow pointing to message */}
-            {/* <div className="absolute right-[12%] top-[31%]  w-[90px] h-[90px] md:w-[120px] md:h-[100px] ">   */}
+              {/* <div className="absolute right-[12%] top-[31%]  w-[90px] h-[90px] md:w-[120px] md:h-[100px] ">   */}
 
-            <div className="absolute 
+              <div className="absolute 
             /* 1. SMALL MOBILE (Gradual scaling starts here) */
               right-[0%] top-[26%] w-[50px] h-[50px] 
               
@@ -685,32 +711,32 @@ export default function Homepage() {
               
               /* 5. EXTRA LARGE SCREENS */
               xl:right-[12%] xl:top-[28%] xl:w-[100px] xl:h-[100px]"
-            >
+              >
 
-              <svg viewBox="0 0 100 100" fill="none" className="w-full h-full">
+                <svg viewBox="0 0 100 100" fill="none" className="w-full h-full">
 
-                <motion.path
-                  //d="M75 20C78 35 65 45 55 45C45 45 42 35 50 30C60 25 68 38 62 55C55 75 35 85 15 92"
-                  d="M80 15C85 35 70 45 60 45C50 45 47 35 55 30C65 25 73 38 67 55C60 75 40 85 20 92"
-                  stroke="#4b5563"
-                  strokeWidth="8"
-                  strokeLinecap="round"
-                  initial={{ pathLength: 0, opacity: 0 }}
-                  whileInView={{ pathLength: 1, opacity: 0.7 }}
-                  transition={{ delay: 0.8, duration: 0.8, ease: "easeInOut" }}
-                />
-                {/* Arrow Head */}
-                <motion.path
-                  d="M28 82L15 92L25 98"
-                  stroke="#4b5563"
-                  strokeWidth="8"
-                  strokeLinecap="round"
-                  initial={{ opacity: 0, x: 10, y: -10 }}
-                  whileInView={{ opacity: 0.7, x: 0, y: 0 }}
-                  transition={{ delay: 1.5, duration: 0.3 }}
-                />
-              </svg>
-            </div>
+                  <motion.path
+                    //d="M75 20C78 35 65 45 55 45C45 45 42 35 50 30C60 25 68 38 62 55C55 75 35 85 15 92"
+                    d="M80 15C85 35 70 45 60 45C50 45 47 35 55 30C65 25 73 38 67 55C60 75 40 85 20 92"
+                    stroke="#4b5563"
+                    strokeWidth="8"
+                    strokeLinecap="round"
+                    initial={{ pathLength: 0, opacity: 0 }}
+                    whileInView={{ pathLength: 1, opacity: 0.7 }}
+                    transition={{ delay: 0.8, duration: 0.8, ease: "easeInOut" }}
+                  />
+                  {/* Arrow Head */}
+                  <motion.path
+                    d="M28 82L15 92L25 98"
+                    stroke="#4b5563"
+                    strokeWidth="8"
+                    strokeLinecap="round"
+                    initial={{ opacity: 0, x: 10, y: -10 }}
+                    whileInView={{ opacity: 0.7, x: 0, y: 0 }}
+                    transition={{ delay: 1.5, duration: 0.3 }}
+                  />
+                </svg>
+              </div>
 
               {/* The Arrow - Hidden on Mobile */}
               {/* <div className="absolute right-[10%] bottom-[68%] hidden lg:block w-[70px] h-[70px] opacity-50">
@@ -719,7 +745,7 @@ export default function Homepage() {
                   <path d="M28 82L15 92L25 98" stroke="#4b5563" strokeWidth="6" strokeLinecap="round" />
                 </svg>
               </div> */}
-          </div>
+            </div>
           </div>
         </section>
       </div>
@@ -736,18 +762,18 @@ export default function Homepage() {
 
       {/* Build Credibility That Converts */}
       <section
-  id="build-credibility"
-  className="section px-6 lg:px-12"
-  style={{
-    background: isDesktop
-      ? "linear-gradient(180.96deg, #FFFFFF 8.61%, #B1E4FF 38.39%, #B1E4FF 64.58%, #678DFF 90.1%)"
-      : "#ffffff",
-    paddingTop: "8rem",
-    paddingBottom: "5rem",
-    position: "relative",
-    overflow: "hidden",
-  }}
->
+        id="build-credibility"
+        className="section px-6 lg:px-12"
+        style={{
+          background: isDesktop
+            ? "linear-gradient(180.96deg, #FFFFFF 8.61%, #B1E4FF 38.39%, #B1E4FF 64.58%, #678DFF 90.1%)"
+            : "#ffffff",
+          paddingTop: "8rem",
+          paddingBottom: "5rem",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
 
         {/* --- BACKGROUND ORBS --- */}
         {/* Added 'hidden md:block' to BOTH to ensure mobile is pure white */}
@@ -794,10 +820,43 @@ export default function Homepage() {
             ))}
           </div>
 
+
           {/* --- MOBILE VIEW: Carousel --- */}
           <div className="md:hidden flex flex-col items-center">
-            <div className="w-full max-w-[320px]">
-              <CardItem feature={credibilityData[currentIndex]} isMobile={true} />
+            <div
+              ref={carouselRef}
+              className="w-full max-w-[320px] overflow-hidden"
+              style={{ touchAction: "pan-y", position: "relative" }}
+              onTouchStart={(e) => {
+                (e.currentTarget as any)._touchStartX = e.touches[0].clientX;
+              }}
+              onTouchEnd={(e) => {
+                const startX = (e.currentTarget as any)._touchStartX;
+                const endX = e.changedTouches[0].clientX;
+                const diff = startX - endX;
+                if (Math.abs(diff) > 50) {
+                  if (diff > 0) {
+                    setSlideDirection(1);
+                    setCurrentIndex(prev => Math.min(prev + 1, credibilityData.length - 1));
+                  } else {
+                    setSlideDirection(-1);
+                    setCurrentIndex(prev => Math.max(prev - 1, 0));
+                  }
+                }
+              }}
+            >
+              <AnimatePresence mode="wait" custom={slideDirection}>
+                <motion.div
+                  key={currentIndex}
+                  custom={slideDirection}
+                  initial={{ x: slideDirection * 300, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: slideDirection * -300, opacity: 0 }}
+                  transition={{ duration: 0.35, ease: "easeInOut" }}
+                >
+                  <CardItem feature={credibilityData[currentIndex]} isMobile={true} />
+                </motion.div>
+              </AnimatePresence>
             </div>
 
             {/* Pagination Dots */}
@@ -805,10 +864,13 @@ export default function Homepage() {
               {credibilityData.map((_, i) => (
                 <button
                   key={i}
-                  onClick={() => setCurrentIndex(i)}
+                  onClick={() => {
+                    setSlideDirection(i > currentIndex ? 1 : -1);
+                    setCurrentIndex(i);
+                  }}
                   className={`rounded-full transition-all duration-300 ${currentIndex === i ? "w-8 bg-gray-800" : "w-3 bg-gray-400"
                     }`}
-                   style={{ height: "12px" }}
+                  style={{ height: "12px" }}
                 />
               ))}
             </div>
@@ -823,16 +885,16 @@ export default function Homepage() {
 
       {/* Why Every Professional Needs */}
       <section
-  className="py-16 md:py-24 relative"
-  style={{
-    background: isDesktop
-      ? "linear-gradient(356.74deg, #FFFFFF 14.68%, #B1E4FF 44.12%, #B1E4FF 66.95%, #678DFF 89.18%)"
-      : "#ffffff",
-    minHeight: "100vh",
-    display: "flex",
-    alignItems: "center",
-  }}
->
+        className="py-16 md:py-24 relative"
+        style={{
+          background: isDesktop
+            ? "linear-gradient(356.74deg, #FFFFFF 14.68%, #B1E4FF 44.12%, #B1E4FF 66.95%, #678DFF 89.18%)"
+            : "#ffffff",
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
 
         <style>{`
     /* Your existing desktop flip-card CSS */
@@ -863,7 +925,7 @@ export default function Homepage() {
     .hover-text { position: absolute; bottom: 12px; font-size: 10px; color: #4b5563; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
   `}</style>
 
-        <div className="container mx-auto px-4 sm:px-6 relative z-10" style={{ padding: '0' }}>
+        <div className="container mx-auto px-4 sm:px-6 relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-2xl md:text-4xl lg:text-5xl text-black-900 mb-4" style={{ color: "#000000", marginBottom: "0.5rem", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               Why Every Professional Needs MyKard
@@ -930,39 +992,52 @@ export default function Homepage() {
             ))}
           </div>
 
-          {/* --- MOBILE VIEW: Vertical Accordion (KEPT EXACTLY AS IS) --- */}
-          <div className="md:hidden flex flex-col gap-4 px-2" >
+          {/* --- MOBILE VIEW: Vertical Accordion (Updated to match Figma) --- */}
+          <div className="md:hidden flex flex-col gap-[14px] px-6">
             {features.map((feature, idx) => {
               const isOpen = openIndex === idx;
               return (
                 <div
                   key={idx}
-                  className={`overflow-hidden rounded-lg border-2 transition-all duration-300 ${isOpen
-                    ? 'border-blue-400 bg-blue-50/50 shadow-lg'
-                    : 'border-blue-300 bg-blue-100/30'
+                  className={`overflow-hidden transition-all duration-300 ${isOpen
+                    ? "bg-[#E3F2FD] shadow-[0_4px_12px_rgba(0,0,0,0.1)]"
+                    : "bg-white"
                     }`}
+                  style={{ borderRadius: "6px", border: "1px solid #64B5F6" }}
                 >
                   <button
                     onClick={() => setOpenIndex(isOpen ? null : idx)}
-                    className="w-full flex items-center justify-between p-5 text-left"
+                    className="w-full flex items-center justify-between py-[14px] px-[16px] text-left"
+                    style={{ minHeight: "56px" }}
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 flex items-center justify-center bg-white rounded-md shadow-sm">
+                      <div className="flex items-center justify-center min-w-[32px]">
                         {React.cloneElement(feature.icon, {
                           ...feature.icon.props,
-                          width: 24,
-                          height: 24,
-                          className: 'w-6 h-6'
+                          width: 26,
+                          height: 26,
+                          className: "w-[26px] h-[26px]",
+                          stroke: "#111827",
+                          strokeWidth: 1.5
                         })}
                       </div>
-                      <span className="text-lg font-bold text-gray-800">{feature.title}</span>
+                      <span className="text-[14px] font-[600] text-[#111827] leading-[1.2] mt-0.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                        {feature.title}
+                      </span>
                     </div>
-                    <svg
-                      className={`w-6 h-6 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
-                      fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                    </svg>
+
+                    {/* SVG Arrow icon */}
+                    <div className="flex-shrink-0 ml-2">
+                      {isOpen ? (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="18 15 12 9 6 15" />
+                        </svg>
+                      ) : (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                      )}
+                    </div>
                   </button>
 
                   <AnimatePresence>
@@ -971,10 +1046,10 @@ export default function Homepage() {
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
+                        transition={{ duration: 0.25 }}
                       >
-                        <div className="px-5 pb-6 pt-0 ml-14" >
-                          <p className="text-gray-700 text-sm leading-relaxed border-t border-blue-200 pt-3" style={{ paddingLeft: '6px' }}>
+                        <div style={{ paddingLeft: "16px", paddingRight: "12px", paddingBottom: "16px" }}>
+                          <p style={{ color: "#374151", fontSize: "11px", fontWeight: 400, lineHeight: 1.5, letterSpacing: "0.02em" }}>
                             {feature.desc}
                           </p>
                         </div>
@@ -1056,6 +1131,7 @@ export default function Homepage() {
                 background: "linear-gradient(90deg,  #225af5ff 100%)",
                 color: "white",
                 minWidth: "220px",
+                marginTop: "23px",
                 fontFamily: "'Plus Jakarta Sans', sans-serif"
               }}
             >
@@ -1320,12 +1396,12 @@ export default function Homepage() {
                   {/* Answer Box */}
                   <div
                     style={{
-                      maxHeight: isOpen ? "500px" : "0px", opacity: isOpen ? 1 : 0, overflow: "hidden", transition: "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)", background: "#F8FAFC",
+                      maxHeight: isOpen ? "800px" : "0px", opacity: isOpen ? 1 : 0, overflow: "hidden", transition: "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)", background: "#F8FAFC",
                       border: isOpen ? "1.5px solid #1E2B58" : "1.5px solid transparent", borderRadius: "0 0 20px 20px",
-                      marginTop: "-25px", padding: isOpen ? "28px 4px 6px 4px" : "0px 25px", zIndex: 1, color: "#334155",
+                      marginTop: "-25px", padding: isOpen ? "40px 25px 20px 25px" : "0px 25px", zIndex: 1, color: "#334155",
                     }}
                   >
-                    <div style={{ fontSize: "15px", lineHeight: "1" }}> {item.a} </div>
+                    <div style={{ fontSize: "15px", lineHeight: "1.6" }}> {item.a} </div>
                   </div>
                 </motion.div>
               );
@@ -1333,6 +1409,6 @@ export default function Homepage() {
           </div>
         </div>
       </section>
-    </div>
+    </div >
   );
 }
