@@ -564,22 +564,16 @@ export default function StoryViewer({
               className="bg-white w-full rounded-t-3xl max-h-[60vh] flex flex-col shadow-2xl animate-in slide-in-from-bottom flex-shrink-0"
               style={{ animationDuration: '300ms' }}
             >
-              <div className="px-7 py-4 flex items-center justify-between border-b border-gray-100">
+              <div className="flex items-center border-b border-gray-100" style={{ paddingLeft: '20px', paddingRight: '28px', paddingTop: '18px', paddingBottom: '16px' }}>
                 <div className="flex items-center gap-3">
                   <Eye size={22} className="text-gray-700" />
                   <h3 className="font-bold text-gray-900 text-[17px]">
                     Viewed by {activeStory.views?.length || 0}
                   </h3>
                 </div>
-                <button
-                  onClick={() => setShowViewersList(false)}
-                  className="p-2 bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors"
-                >
-                  <X size={20} />
-                </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto pl-[30px] pr-6 py-4 space-y-[22px]">
+              <div className="flex-1 overflow-y-auto pr-6 py-4 space-y-[22px]" style={{ paddingLeft: '10px' }}>
                 {activeStory.views && activeStory.views.length > 0 ? (
                   activeStory.views.map((view: any) => (
                     <div key={view.id} className="flex items-center gap-4">
