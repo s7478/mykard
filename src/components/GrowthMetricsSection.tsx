@@ -53,8 +53,25 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({ text, delayStart = 0 })
 const GrowthMetricsSection = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isMobile, setIsMobile] = useState(false);
-    const [slideDirection, setSlideDirection] = useState(1);
-    const carouselRef = useRef<HTMLDivElement>(null);
+    const [swipeDirection, setSwipeDirection] = useState(0); // -1 = left, 1 = right
+
+    const handleDragEnd = (_e: any, info: { offset: { x: number }; velocity: { x: number } }) => {
+        const swipeThreshold = 50;
+        const velocityThreshold = 300;
+        if (info.offset.x < -swipeThreshold || info.velocity.x < -velocityThreshold) {
+            // Swiped left → next card
+            if (currentIndex < metrics.length - 1) {
+                setSwipeDirection(1);
+                setCurrentIndex(prev => prev + 1);
+            }
+        } else if (info.offset.x > swipeThreshold || info.velocity.x > velocityThreshold) {
+            // Swiped right → previous card
+            if (currentIndex > 0) {
+                setSwipeDirection(-1);
+                setCurrentIndex(prev => prev - 1);
+            }
+        }
+    };
 
     const metrics = [
         {
@@ -192,7 +209,10 @@ const GrowthMetricsSection = () => {
                     ? "#FFFFFF"
                     : "linear-gradient(10.2deg, #FFFFFF 33.27%, #BAE7FF 58.83%, #B1E4FF 78.18%, #4BBDFB 93.13%)",
                 minHeight: isMobile ? "auto" : "100vh",
-                padding: isMobile ? "0" : "0",
+                paddingTop: isMobile ? "60px" : "80px",
+                paddingBottom: isMobile ? "60px" : "0",
+                paddingLeft: "0",
+                paddingRight: "0",
             }}
         >
             <div className="w-full flex justify-center items-center py-4 md:py-0">
@@ -280,26 +300,32 @@ const GrowthMetricsSection = () => {
                             }
                         }}
                     >
-                        <AnimatePresence mode="wait" custom={slideDirection}>
+                        <AnimatePresence mode="wait" initial={false}>
                             <motion.div
                                 key={currentIndex}
-                                custom={slideDirection}
-                                initial={{ x: slideDirection * 300, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                exit={{ x: slideDirection * -300, opacity: 0 }}
-                                transition={{ duration: 0.35, ease: "easeInOut" }}
-                                className="w-[85%] max-w-[320px] rounded-[35px] p-6 flex items-center justify-between shadow-lg relative overflow-hidden"
+                                initial={{ opacity: 0, x: swipeDirection * 200 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: swipeDirection * -200 }}
+                                transition={{ duration: 0.3, ease: "easeInOut" }}
+                                drag="x"
+                                dragConstraints={{ left: 0, right: 0 }}
+                                dragElastic={0.3}
+                                onDragEnd={handleDragEnd}
+                                className="w-[92%] max-w-[380px] rounded-[24px] flex items-center justify-between shadow-lg relative overflow-hidden cursor-grab active:cursor-grabbing"
                                 style={{
                                     background: metrics[currentIndex].mobileBg,
-                                    border: "2px solid #000000",
+                                    border: "1.5px solid #a3c4f3",
                                     boxSizing: "border-box",
+                                    minHeight: "200px",
+                                    padding: "32px 28px",
+                                    touchAction: "pan-y",
                                 }}
                             >
-                                <div className="text-left z-10 " style={{ padding: "10px" }}>
-                                    <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                                <div className="text-left z-10 flex-1" style={{ paddingRight: "20px" }}>
+                                    <h3 className="text-[22px] font-bold text-gray-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", marginBottom: "14px" }}>
                                         {metrics[currentIndex].title}
                                     </h3>
-                                    <p className="text-gray-700 text-sm font-medium">
+                                    <p className="text-gray-600 text-[13px] font-medium" style={{ lineHeight: "1.6" }}>
                                         {metrics[currentIndex].description}
                                     </p>
                                 </div>
