@@ -1,4 +1,4 @@
-import { NextRequest,NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(req: NextRequest) {
@@ -33,7 +33,10 @@ export async function GET(req: NextRequest) {
                 profileImage: true,
                 views: true,
                 createdAt: true,
-                updatedAt: true
+                updatedAt: true,
+                cards: {
+                    select: { skills: true }
+                }
             }
         });
 
