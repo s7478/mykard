@@ -66,6 +66,32 @@ export default function Homepage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [slideDirection, setSlideDirection] = useState(1);
+  const carouselRef = useRef<HTMLDivElement>(null);
+
+  // Native non-passive wheel listener for trackpad horizontal scroll
+  useEffect(() => {
+    const el = carouselRef.current;
+    if (!el) return;
+    let lastWheelTime = 0;
+    const handleWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        e.preventDefault();
+        const now = Date.now();
+        if (now - lastWheelTime < 600) return; // debounce
+        lastWheelTime = now;
+        if (e.deltaX > 5) {
+          setSlideDirection(1);
+          setCurrentIndex(prev => Math.min(prev + 1, credibilityData.length - 1));
+        } else if (e.deltaX < -5) {
+          setSlideDirection(-1);
+          setCurrentIndex(prev => Math.max(prev - 1, 0));
+        }
+      }
+    };
+    el.addEventListener("wheel", handleWheel, { passive: false });
+    return () => el.removeEventListener("wheel", handleWheel);
+  }, []);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Profile[]>([]);
@@ -575,7 +601,7 @@ export default function Homepage() {
         <section
           className="relative px-4 md:px-6 flex flex-col w-full items-center justify-center min-h-fit md:min-h-[600px] overflow-hidden"
           style={{
-            background: "linear-gradient(180deg, #071337 0%, #1070FF 50%, #6ab2ff 100%)",
+            background: "radial-gradient( 110% 110% at 50% 120%, #FFFFFF 0%, #B1E4FF 25%, #1070FF 50%, #071337 90%)",
             paddingTop: "4rem",
             paddingBottom: "4rem"
           }}
@@ -1003,7 +1029,7 @@ export default function Homepage() {
     .hover-text { position: absolute; bottom: 12px; font-size: 10px; color: #4b5563; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
   `}</style>
 
-        <div className="container mx-auto px-4 sm:px-6 relative z-10" style={{ padding: '0' }}>
+        <div className="container mx-auto px-4 sm:px-6 relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-2xl md:text-4xl lg:text-5xl text-black-900 mb-4" style={{ color: "#000000", marginBottom: "0.5rem", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               Why Every Professional Needs MyKard
@@ -1070,39 +1096,52 @@ export default function Homepage() {
             ))}
           </div>
 
-          {/* --- MOBILE VIEW: Vertical Accordion (KEPT EXACTLY AS IS) --- */}
-          <div className="md:hidden flex flex-col gap-4 px-2" >
+          {/* --- MOBILE VIEW: Vertical Accordion (Updated to match Figma) --- */}
+          <div className="md:hidden flex flex-col gap-[14px] px-6">
             {features.map((feature, idx) => {
               const isOpen = openIndex === idx;
               return (
                 <div
                   key={idx}
-                  className={`overflow-hidden rounded-lg border-2 transition-all duration-300 ${isOpen
-                    ? 'border-blue-400 bg-blue-50/50 shadow-lg'
-                    : 'border-blue-300 bg-blue-100/30'
+                  className={`overflow-hidden transition-all duration-300 ${isOpen
+                    ? "bg-[#E3F2FD] shadow-[0_4px_12px_rgba(0,0,0,0.1)]"
+                    : "bg-white"
                     }`}
+                  style={{ borderRadius: "6px", border: "1px solid #64B5F6" }}
                 >
                   <button
                     onClick={() => setOpenIndex(isOpen ? null : idx)}
-                    className="w-full flex items-center justify-between p-5 text-left"
+                    className="w-full flex items-center justify-between py-[14px] px-[16px] text-left"
+                    style={{ minHeight: "56px" }}
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 flex items-center justify-center bg-white rounded-md shadow-sm">
+                      <div className="flex items-center justify-center min-w-[32px]">
                         {React.cloneElement(feature.icon, {
                           ...feature.icon.props,
-                          width: 24,
-                          height: 24,
-                          className: 'w-6 h-6'
+                          width: 26,
+                          height: 26,
+                          className: "w-[26px] h-[26px]",
+                          stroke: "#111827",
+                          strokeWidth: 1.5
                         })}
                       </div>
-                      <span className="text-lg font-bold text-gray-800">{feature.title}</span>
+                      <span className="text-[14px] font-[600] text-[#111827] leading-[1.2] mt-0.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                        {feature.title}
+                      </span>
                     </div>
-                    <svg
-                      className={`w-6 h-6 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
-                      fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                    </svg>
+
+                    {/* SVG Arrow icon */}
+                    <div className="flex-shrink-0 ml-2">
+                      {isOpen ? (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="18 15 12 9 6 15" />
+                        </svg>
+                      ) : (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                      )}
+                    </div>
                   </button>
 
                   <AnimatePresence>
@@ -1111,10 +1150,10 @@ export default function Homepage() {
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
+                        transition={{ duration: 0.25 }}
                       >
-                        <div className="px-5 pb-6 pt-0 ml-14" >
-                          <p className="text-gray-700 text-sm leading-relaxed border-t border-blue-200 pt-3" style={{ paddingLeft: '6px' }}>
+                        <div style={{ paddingLeft: "16px", paddingRight: "12px", paddingBottom: "16px" }}>
+                          <p style={{ color: "#374151", fontSize: "11px", fontWeight: 400, lineHeight: 1.5, letterSpacing: "0.02em" }}>
                             {feature.desc}
                           </p>
                         </div>
@@ -1196,6 +1235,7 @@ export default function Homepage() {
                 background: "linear-gradient(90deg,  #225af5ff 100%)",
                 color: "white",
                 minWidth: "220px",
+                marginTop: "23px",
                 fontFamily: "'Plus Jakarta Sans', sans-serif"
               }}
             >
@@ -1460,12 +1500,12 @@ export default function Homepage() {
                   {/* Answer Box */}
                   <div
                     style={{
-                      maxHeight: isOpen ? "500px" : "0px", opacity: isOpen ? 1 : 0, overflow: "hidden", transition: "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)", background: "#F8FAFC",
+                      maxHeight: isOpen ? "800px" : "0px", opacity: isOpen ? 1 : 0, overflow: "hidden", transition: "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)", background: "#F8FAFC",
                       border: isOpen ? "1.5px solid #1E2B58" : "1.5px solid transparent", borderRadius: "0 0 20px 20px",
-                      marginTop: "-25px", padding: isOpen ? "28px 4px 6px 4px" : "0px 25px", zIndex: 1, color: "#334155",
+                      marginTop: "-25px", padding: isOpen ? "40px 25px 20px 25px" : "0px 25px", zIndex: 1, color: "#334155",
                     }}
                   >
-                    <div style={{ fontSize: "15px", lineHeight: "1" }}> {item.a} </div>
+                    <div style={{ fontSize: "15px", lineHeight: "1.6" }}> {item.a} </div>
                   </div>
                 </motion.div>
               );
@@ -1473,6 +1513,6 @@ export default function Homepage() {
           </div>
         </div>
       </section>
-    </div>
+    </div >
   );
 }

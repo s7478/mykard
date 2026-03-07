@@ -790,9 +790,17 @@ function DashboardContactPage() {
                                         <div key={contact.id} className={styles.connectionCard}>
                                             {/* Left: Avatar with Glow Effect */}
                                             <div className={styles.avatarContainer}>
-                                                <div className={styles.avatarGlow}>{contact.avatar ? (
-                                                    <img src={contact.avatar} alt={contact.name} className={styles.cardAvatarImage} />
-                                                ) : (<span className={styles.avatarText}> {getInitials(contact.name)} </span>)}
+                                                <div className={styles.avatarGlow} style={{ position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                    <span className={styles.avatarText}>{getInitials(contact.name)}</span>
+                                                    {contact.avatar && (
+                                                        <img
+                                                            src={contact.avatar}
+                                                            alt={contact.name}
+                                                            className={styles.cardAvatarImage}
+                                                            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                                                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                                        />
+                                                    )}
                                                 </div>
                                             </div>
 
@@ -844,11 +852,16 @@ function DashboardContactPage() {
                                             <div className={`${styles.cardBanner} ${styles[`bannerColor${(index % 4) + 1}`]}`}>
                                                 {/* Avatar with Glow - Positioned to overlap the banner and body */}
                                                 <div className={styles.avatarGlowContainer}>
-                                                    <div className={styles.avatarGlow}>
-                                                        {contact.avatar ? (
-                                                            <img src={contact.avatar} alt={contact.name} className={styles.cardAvatarImage} />
-                                                        ) : (
-                                                            <span className={styles.avatarText}>{getInitials(contact.name)}</span>
+                                                    <div className={styles.avatarGlow} style={{ position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                        <span className={styles.avatarText}>{getInitials(contact.name)}</span>
+                                                        {contact.avatar && (
+                                                            <img
+                                                                src={contact.avatar}
+                                                                alt={contact.name}
+                                                                className={styles.cardAvatarImage}
+                                                                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                                                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                                            />
                                                         )}
                                                     </div>
                                                 </div>
@@ -898,9 +911,17 @@ function DashboardContactPage() {
                                         <div key={request.id} className={`${styles.requestCard} flex items-center justify-between  sm:p-4 lg:p-5  bg-white`}>
                                             {/* Left user info */}
                                             <div className="flex items-center gap-3 sm:gap-4">
-                                                <div className={styles.requestAvatar}> {request.avatar ? (
-                                                    <img src={request.avatar} alt={request.name} className={styles.avatarImage} />
-                                                ) : (<span className={styles.avatarText}>{getInitials(request.name)} </span>)}
+                                                <div className={styles.requestAvatar} style={{ position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                    <span className={styles.avatarText}>{getInitials(request.name)}</span>
+                                                    {request.avatar && (
+                                                        <img
+                                                            src={request.avatar}
+                                                            alt={request.name}
+                                                            className={styles.avatarImage}
+                                                            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                                                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                                        />
+                                                    )}
                                                 </div>
 
                                                 <div className="flex flex-col">

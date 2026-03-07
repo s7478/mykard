@@ -5,7 +5,7 @@
   left: 0;
   height: 100vh;
   /* Default width for transition start */
-  width: 18rem; 
+  width: 18rem;
   background: linear-gradient(to bottom right, #1e3a8a, #2563eb, #1d4ed8);
   color: white;
   display: flex;
@@ -29,7 +29,8 @@
 .sidebarHeader {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Space between logo and toggle */
+  justify-content: space-between;
+  /* Space between logo and toggle */
   height: 5rem;
   padding: 0 1rem;
   background: linear-gradient(to right, #1e40af, #2563eb);
@@ -50,7 +51,8 @@
   justify-content: flex-start;
   text-decoration: none;
   flex: 1;
-  overflow: hidden; /* Prevent logo overflow during transition */
+  overflow: hidden;
+  /* Prevent logo overflow during transition */
 }
 
 /* Logo Sizing */
@@ -94,19 +96,21 @@
 /* Specific styling for the toggle button when sidebar is collapsed */
 .sidebar.desktop-collapsed .collapseToggleBtn {
   position: absolute;
-  right: -12px; /* Hangs off the edge */
+  right: -12px;
+  /* Hangs off the edge */
   top: 50%;
   transform: translateY(-50%);
-  background: #2563eb; /* Solid color to pop against page content */
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  border-color: rgba(255,255,255,0.4);
+  background: #2563eb;
+  /* Solid color to pop against page content */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 /* ----------- NAVIGATION ----------- */
 .navMenu {
   flex: 1;
   padding: 1.2rem 0.8rem 1rem;
-  overflow-y: auto; 
+  overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
@@ -114,13 +118,14 @@
 
 /* When collapsed, allow visible overflow so tooltips don't get clipped */
 .sidebar.desktop-collapsed .navMenu {
-  overflow: visible; 
+  overflow: visible;
   padding: 1.2rem 0.5rem;
 }
 
 .navMenu::-webkit-scrollbar {
   width: 6px;
 }
+
 .navMenu::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.2);
   border-radius: 4px;
@@ -137,7 +142,8 @@
   margin-bottom: 0.6rem;
   transition: all 0.3s ease;
   position: relative;
-  height: 3.2rem; /* Fixed height for consistency */
+  height: 3.2rem;
+  /* Fixed height for consistency */
 }
 
 /* Wrapper inside navItem to handle alignment */
@@ -203,13 +209,14 @@
   left: 100%;
   top: 50%;
   transform: translateY(-50%);
-  background-color: rgba(0, 0, 0, 0.85); /* Light black box */
+  background-color: rgba(0, 0, 0, 0.85);
+  /* Light black box */
   color: white;
   padding: 0.4rem 0.8rem;
   border-radius: 6px;
   font-size: 0.85rem;
-  white-space: nowrap; 
-  width: auto; 
+  white-space: nowrap;
+  width: auto;
   min-width: max-content;
   opacity: 0;
   pointer-events: none;
@@ -217,7 +224,7 @@
   transition: opacity 0.2s ease;
   z-index: 100;
   margin-left: 12px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
 }
 
 /* Arrow for tooltip */
@@ -255,11 +262,13 @@
 .navBadge {
   position: absolute;
   top: 6px;
-  right: 10px; /* Default position expanded */
+  right: 10px;
+  /* Default position expanded */
   min-width: 18px;
   height: 18px;
   padding: 0 4px;
-  background: #ef4444; /* red-500 */
+  background: #ef4444;
+  /* red-500 */
   color: #ffffff;
   border-radius: 9999px;
   font-size: 11px;
@@ -269,7 +278,7 @@
   align-items: center;
   justify-content: center;
   border: 2px solid #ffffff22;
-  box-shadow: 0 0 0 2px rgba(255,255,255,0.15);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
 }
 
 /* Adjust badge position when collapsed (dot style overlay) */
@@ -318,7 +327,7 @@
 /* ----------- MOBILE STYLES ----------- */
 .mobileToggle {
   position: fixed;
-  top: 0.75rem; 
+  top: 0.75rem;
   left: 1rem;
   transform: translateY(2px);
   z-index: 50;
@@ -332,9 +341,17 @@
   transition: all 0.3s ease;
 }
 
-.mobileToggleClosed { left: 1rem; }
-.mobileToggleOpen { right: 120px; }
-.mobileToggle:hover { transform: scale(1.05); }
+.mobileToggleClosed {
+  left: 1rem;
+}
+
+.mobileToggleOpen {
+  right: 120px;
+}
+
+.mobileToggle:hover {
+  transform: scale(1.05);
+}
 
 .mobileOverlay {
   position: fixed;
@@ -344,8 +361,13 @@
   z-index: 40;
 }
 
-.sidebar.open { transform: translateX(0); }
-.sidebar.closed { transform: translateX(-100%); }
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.sidebar.closed {
+  transform: translateX(-100%);
+}
 
 /* ----------- MOBILE BOTTOM NAV (INSTAGRAM-STYLE) ----------- */
 .bottomNav {
@@ -355,13 +377,15 @@
   transform: translateX(-50%);
   height: 48px;
   width: 100%;
-  background: #2563eb; 
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: space-around;
   padding: 0 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  /* Added subtle top shadow for white background */
   z-index: 50;
+  border-top: 1px solid #e2e8f0;
 }
 
 .bottomNavItem {
@@ -372,11 +396,13 @@
   justify-content: center;
   gap: 2px;
   text-decoration: none;
-  color: #e5e7eb; 
+  color: #64748b;
   font-size: 11px;
 }
 
-.bottomNavItemActive { color: #ffffff; }
+.bottomNavItemActive {
+  color: #2563eb;
+}
 
 .bottomNavIcon {
   position: relative;
@@ -392,7 +418,7 @@
 .bottomNavIcon svg {
   width: 22px;
   height: 22px;
-  color: currentColor; 
+  color: currentColor;
 }
 
 /* PNG connection icon for mobile bottom nav */
@@ -414,9 +440,20 @@
   height: 44px;
 }
 
-.bottomNavItem:not(.bottomNavItemActive) .connectionSvg { color: #ffffff; }
-.bottomNavIcon .connectionIcon { filter: invert(1); }
-.bottomNavIcon .connectionIconActive { filter: invert(0); }
+.bottomNavItem:not(.bottomNavItemActive) .connectionSvg {
+  color: #64748b;
+}
+
+.bottomNavIcon .connectionIcon {
+  filter: grayscale(1);
+  opacity: 0.6;
+}
+
+/* Adjusted for white bg */
+.bottomNavIcon .connectionIconActive {
+  filter: none;
+  opacity: 1;
+}
 
 .bottomNavBadge {
   position: absolute;
@@ -425,7 +462,7 @@
   min-width: 16px;
   height: 16px;
   padding: 0 4px;
-  background: #ef4444; 
+  background: #ef4444;
   color: #ffffff;
   border-radius: 9999px;
   font-size: 10px;
@@ -438,49 +475,76 @@
 
 .bottomNavItemActive .bottomNavIcon,
 .bottomNavItem:hover .bottomNavIcon {
-  background-color: #ffffff; 
-  color: #0b1f4d;          
+  background-color: #2563eb;
+  color: #ffffff;
 }
 
 .bottomNavItem:not(.bottomNavItemActive) .bottomNavIcon {
   background-color: transparent !important;
-  color: #e5e7eb !important;
+  color: #64748b !important;
 }
 
 /* ----------- MOBILE RESPONSIVENESS (MEDIA QUERIES) ----------- */
 
 @media (max-width: 1023px) {
+
   /* On mobile, sidebar acts as drawer. 
      IMPORTANT: Override any desktop-collapsed styling to ensure full drawer width */
   .sidebar {
     display: none;
-    width: 18rem !important; /* Force full width on mobile */
+    width: 18rem !important;
+    /* Force full width on mobile */
   }
-  
+
   .sidebar.open {
     display: flex;
     transform: translateX(0);
   }
-  
+
   .sidebar.closed {
     display: flex;
     transform: translateX(-100%);
   }
 
   /* Force expanded elements on mobile even if React state says collapsed */
-  .navLabel { display: inline-block !important; opacity: 1 !important; width: auto !important; }
-  .collapsedLogo { display: none !important; }
-  .expandedLogo { display: block !important; }
-  .collapseToggleBtn { display: none !important; }
-  .navTooltip { display: none !important; }
-  .navItemContent { padding: 0 1rem !important; justify-content: flex-start !important; }
-  .sidebarHeader { justify-content: space-between !important; padding: 0 1rem !important; }
-  
-  html, body {
+  .navLabel {
+    display: inline-block !important;
+    opacity: 1 !important;
+    width: auto !important;
+  }
+
+  .collapsedLogo {
+    display: none !important;
+  }
+
+  .expandedLogo {
+    display: block !important;
+  }
+
+  .collapseToggleBtn {
+    display: none !important;
+  }
+
+  .navTooltip {
+    display: none !important;
+  }
+
+  .navItemContent {
+    padding: 0 1rem !important;
+    justify-content: flex-start !important;
+  }
+
+  .sidebarHeader {
+    justify-content: space-between !important;
+    padding: 0 1rem !important;
+  }
+
+  html,
+  body {
     scroll-behavior: smooth;
     scroll-padding-top: 0;
   }
-  
+
   @page {
     size: auto;
     margin: 0;
@@ -488,6 +552,7 @@
 }
 
 @media (min-width: 1024px) {
+
   /* Hide mobile bottom nav on desktop */
   .bottomNav {
     display: none;

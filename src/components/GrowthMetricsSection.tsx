@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 
 // 1. Define Props Interface
@@ -109,6 +109,30 @@ const GrowthMetricsSection = () => {
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
+
+    // Native non-passive wheel listener for trackpad horizontal scroll
+    useEffect(() => {
+        const el = carouselRef.current;
+        if (!el) return;
+        let lastWheelTime = 0;
+        const handleWheel = (e: WheelEvent) => {
+            if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+                e.preventDefault();
+                const now = Date.now();
+                if (now - lastWheelTime < 600) return;
+                lastWheelTime = now;
+                if (e.deltaX > 5) {
+                    setSlideDirection(1);
+                    setCurrentIndex(prev => Math.min(prev + 1, metrics.length - 1));
+                } else if (e.deltaX < -5) {
+                    setSlideDirection(-1);
+                    setCurrentIndex(prev => Math.max(prev - 1, 0));
+                }
+            }
+        };
+        el.addEventListener("wheel", handleWheel, { passive: false });
+        return () => el.removeEventListener("wheel", handleWheel);
+    }, [isMobile]);
 
     // --- Animation Variants ---
 
@@ -255,8 +279,26 @@ const GrowthMetricsSection = () => {
                 ) : (
                     // MOBILE VIEW
                     <div
-                        className="flex flex-col items-center w-full px-8"
-                        style={{ gap: "1.5rem" }}
+                        ref={carouselRef}
+                        className="flex flex-col items-center w-full px-8 overflow-hidden"
+                        style={{ gap: "1.5rem", touchAction: "pan-y" }}
+                        onTouchStart={(e) => {
+                            (e.currentTarget as any)._touchStartX = e.touches[0].clientX;
+                        }}
+                        onTouchEnd={(e) => {
+                            const startX = (e.currentTarget as any)._touchStartX;
+                            const endX = e.changedTouches[0].clientX;
+                            const diff = startX - endX;
+                            if (Math.abs(diff) > 50) {
+                                if (diff > 0) {
+                                    setSlideDirection(1);
+                                    setCurrentIndex(prev => Math.min(prev + 1, metrics.length - 1));
+                                } else {
+                                    setSlideDirection(-1);
+                                    setCurrentIndex(prev => Math.max(prev - 1, 0));
+                                }
+                            }
+                        }}
                     >
                         <AnimatePresence mode="wait" initial={false}>
                             <motion.div
@@ -297,7 +339,10 @@ const GrowthMetricsSection = () => {
                             {metrics.map((_, i) => (
                                 <button
                                     key={i}
-                                    onClick={() => setCurrentIndex(i)}
+                                    onClick={() => {
+                                        setSlideDirection(i > currentIndex ? 1 : -1);
+                                        setCurrentIndex(i);
+                                    }}
                                     className={`h-2.5 rounded-full transition-all duration-300 ${currentIndex === i ? "w-8 bg-gray-600" : "w-2.5 bg-gray-300"
                                         }`}
                                 />
