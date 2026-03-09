@@ -6,28 +6,28 @@ import { useRouter } from "next/navigation"; // Changed from react-router-dom
 
 
 const TopFooter = () => {
-  
+
   const router = useRouter(); // Changed from useNavigate()
   const canvasRef = useRef(null);
-  
+
 
   useEffect(() => {
     const canvas = canvasRef.current;
     // Check if canvas exists before accessing context to prevent errors
     if (!canvas) return;
-    
+
     const context = canvas.getContext("2d");
 
     const TWO_PI = Math.PI * 2;
     // You can change these emojis to whatever you like!
-    const emojiList = [ "💳", // card
-  "📱", // mobile
-  "👤", // profile
-  "📇", // contact card
-  "📎", // attachment
-  "🔐", // security
-  "📊", // analytics
-  ];
+    const emojiList = ["💳", // card
+      "📱", // mobile
+      "👤", // profile
+      "📇", // contact card
+      "📎", // attachment
+      "🔐", // security
+      "📊", // analytics
+    ];
 
     function getRandomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -262,25 +262,25 @@ const TopFooter = () => {
     };
   }, []);
 
-  const letters = ["C","R","E","T","E"," ","Y","O","U","R"," ","C","A","R","D"];
+  const letters = ["C", "R", "E", "T", "E", " ", "Y", "O", "U", "R", " ", "C", "A", "R", "D"];
 
-  return  (
+  return (
     <div className="relative w-full overflow-hidden">
-  
-  {/* 🔹 FULL WIDTH BACKGROUND (gap yahin fill hoga) */}
-  <div
-    aria-hidden
-    className="
+
+      {/* 🔹 FULL WIDTH BACKGROUND (gap yahin fill hoga) */}
+      <div
+        aria-hidden
+        className="
       absolute
       top-0 left-1/2 -translate-x-1/2
-      w-screen h-full
+      w-full h-full
       bg-gradient-to-b from-[#01071E] via-[#165dc9] to-[#2152E5]
     "
-  />
+      />
 
-  {/* 🔹 ACTUAL ROUNDED SECTION */}
-  <div
-    className="
+      {/* 🔹 ACTUAL ROUNDED SECTION */}
+      <div
+        className="
       relative z-10
       flex flex-col items-center justify-center
       rounded-t-[50px] md:rounded-t-[80px]
@@ -288,44 +288,44 @@ const TopFooter = () => {
       pb-20 min-h-[400px]
       overflow-hidden
     "
-  >
-
- {/* Canvas Layer */}
-      <canvas 
-        className="absolute inset-0 w-full h-full md:block hidden pointer-events-none" 
-        ref={canvasRef}
-      ></canvas>
-
-      {/* Button Layer */}
-      <motion.div
-        className="relative z-10 flex items-center justify-center w-[90%] max-w-[800px] md:h-[300px] h-auto bg-transparent border-4 border-white rounded-2xl shadow-xl overflow-hidden p-4 group mt-10 md:mt-16 cursor-pointer"
-        initial="scatter"
-        whileHover="align"
-        variants={containerVariants}
-        onClick={() => {
-          router.push('/contact'); // Changed from navigate
-        }}
       >
-        <div className="absolute inset-0 z-[-1] animate-pulse group-hover:bg-white blur-3xl opacity-80"></div>
-        <div className="hidden md:flex flex-wrap justify-center items-center">
-          {letters.map((letter, index) => (
-            <motion.span
-              key={index}
-              className={`text-[clamp(2rem,6vw,5rem)] font-serif font-bold text-white transition-all duration-300 group-hover:text-black mr-[8px] md:mr-[12px] ${letter === " " ? "w-[20px] md:w-[30px]" : ""}`}
-              custom={index}
-              variants={letterVariants}
-            >
-              {letter === " " ? "\u00A0" : letter}
-            </motion.span>
-          ))}
-        </div>
-        <div className="text-4xl md:hidden block cursor-pointer">
-          <span className="text-white">CREATE YOUR CARD</span>
-        </div>
-      </motion.div>
+
+        {/* Canvas Layer */}
+        <canvas
+          className="absolute inset-0 w-full h-full md:block hidden pointer-events-none"
+          ref={canvasRef}
+        ></canvas>
+
+        {/* Button Layer */}
+        <motion.div
+          className="relative z-10 flex items-center justify-center w-[90%] max-w-[800px] md:h-[300px] h-auto bg-transparent border-4 border-white rounded-2xl shadow-xl overflow-hidden p-4 group mt-10 md:mt-16 cursor-pointer"
+          initial="scatter"
+          whileHover="align"
+          variants={containerVariants}
+          onClick={() => {
+            router.push('/contact'); // Changed from navigate
+          }}
+        >
+          <div className="absolute inset-0 z-[-1] animate-pulse group-hover:bg-white blur-3xl opacity-80"></div>
+          <div className="hidden md:flex flex-wrap justify-center items-center">
+            {letters.map((letter, index) => (
+              <motion.span
+                key={index}
+                className={`text-[clamp(2rem,6vw,5rem)] font-serif font-bold text-white transition-all duration-300 group-hover:text-black mr-[8px] md:mr-[12px] ${letter === " " ? "w-[20px] md:w-[30px]" : ""}`}
+                custom={index}
+                variants={letterVariants}
+              >
+                {letter === " " ? "\u00A0" : letter}
+              </motion.span>
+            ))}
+          </div>
+          <div className="text-4xl md:hidden block cursor-pointer">
+            <span className="text-white">CREATE YOUR CARD</span>
+          </div>
+        </motion.div>
+      </div>
     </div>
-    </div>
-    
+
   );
 };
 

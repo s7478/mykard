@@ -473,6 +473,7 @@ export default function Homepage() {
           "linear-gradient(135deg, var(--background-light-blue) 0%, var(--background-purple-light) 50%, var(--background) 100%)",
         maxWidth: "100vw",
         width: "100%",
+        overflowX: "hidden", // Fixes horizontal scrolling on mobile
       }}
     >
       {/* Header removed: page.tsx renders the global header */}
@@ -501,12 +502,14 @@ export default function Homepage() {
             <div style={{ maxWidth: '800px', zIndex: 20, width: '100%' }}>
               <h1
                 style={{
-                  fontSize: 'clamp(30px, 7vw, 60px)',
+                  fontSize: 'clamp(28px, 7vw, 60px)',
                   fontWeight: 700,
-                  lineHeight: '1.1',
+                  lineHeight: '1.2',
                   color: '#FFFFFF',
                   marginBottom: '15px',
                   textAlign: 'left', // Extra safety for left align
+                  overflowWrap: 'break-word',
+                  wordBreak: 'break-word',
                 }}
                 // Mobile par whitespace-normal kiya gaya hai
                 className="whitespace-normal lg:whitespace-normal mb-4 lg:mb-0"
@@ -516,8 +519,10 @@ export default function Homepage() {
 
               <p
                 style={{
-                  fontSize: 'clamp(16px, 4vw, 28px)', fontWeight: 500, lineHeight: '1.4',
+                  fontSize: 'clamp(15px, 4vw, 24px)', fontWeight: 500, lineHeight: '1.4',
                   color: '#FFFFFF', maxWidth: '650px', opacity: 0.9, marginBottom: '2rem', textAlign: 'left',
+                  overflowWrap: 'break-word',
+                  wordBreak: 'break-word',
                 }}
               >
                 A universal digital identity that introduces you perfectly—instantly and professionally.
@@ -596,12 +601,13 @@ export default function Homepage() {
       {/* New Search Bar Section --> Vaijayanti */}
 
 
-      <div className="w-full bg-[#030b25]">
+      <div style={{ background: "linear-gradient(180deg, #071337 0%, #1070FF 20%, #6ab2ff 40%, #BAE7FF 65%, #FFFFFF 100%)" }}>
         {/* SECTION 1: Search */}
         <section
+          id="search"
           className="relative px-4 md:px-6 flex flex-col w-full items-center justify-center min-h-fit md:min-h-[600px] overflow-hidden"
           style={{
-            background: "radial-gradient( 110% 110% at 50% 120%, #FFFFFF 0%, #B1E4FF 25%, #1070FF 50%, #071337 90%)",
+            background: "transparent",
             paddingTop: "4rem",
             paddingBottom: "4rem"
           }}
@@ -826,9 +832,11 @@ export default function Homepage() {
             </div>
           </div>
         </section>
+        <div id="about">
+          <Design />
+        </div>
+        <GrowthMetricsSection />
       </div>
-      <Design />
-      <GrowthMetricsSection />
 
       {/* --------------------------------------kanchan 3 page start --------------------- 
       -----------------kanchan 3 page---------------*/}
@@ -838,9 +846,7 @@ export default function Homepage() {
         id="build-credibility"
         className="section px-6 lg:px-12"
         style={{
-          background: isDesktop
-            ? "linear-gradient(180.96deg, #FFFFFF 8.61%, #B1E4FF 38.39%, #B1E4FF 64.58%, #678DFF 90.1%)"
-            : "#ffffff",
+          background: "#ffffff",
           paddingTop: isDesktop ? "8rem" : "3rem",
           paddingBottom: isDesktop ? "5rem" : "3rem",
           position: "relative",
@@ -990,9 +996,7 @@ export default function Homepage() {
       <section
         className="py-12 md:py-24 relative"
         style={{
-          background: isDesktop
-            ? "linear-gradient(356.74deg, #FFFFFF 14.68%, #B1E4FF 44.12%, #B1E4FF 66.95%, #678DFF 89.18%)"
-            : "#ffffff",
+          background: "#ffffff",
           minHeight: isDesktop ? "100vh" : "auto",
           display: "flex",
           alignItems: "center",

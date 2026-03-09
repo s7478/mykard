@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Linkedin, Mail, MapPin } from "lucide-react";
+import { Mail, MapPin } from "lucide-react";
 
 const scrollToSection = (id: string) => {
   const el = document.getElementById(id);
@@ -14,87 +14,9 @@ export default function Footer() {
       background: '#01071E',
       color: '#ffffff',
       position: 'relative',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      padding: '3rem 2rem 1.5rem',
     }}>
-
-      {/* ---------- RESPONSIVE CSS ----------- */}
-      <style>
-        {`
-          /* Grid responsive */
-          div[role="footer-grid"] {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 2.2rem;
-            margin-bottom: 4rem;
-          }
-
-          @media (min-width: 640px) {
-            div[role="footer-grid"] {
-              grid-template-columns: 1.4fr 1fr;
-            }
-          }
-
-          @media (min-width: 1024px) {
-            div[role="footer-grid"] {
-              grid-template-columns: 1.5fr 1fr 1fr 1fr;
-            }
-          }
-
-          .footer-desc {
-            text-align: left;
-          }
-
-          @media (max-width: 640px) {
-            .footer-desc {
-              text-align: center;
-              margin-inline: auto;
-              font-size: 1rem;
-            }
-          }
-
-          @media (max-width: 640px) {
-            .footer-social {
-              justify-content: center;
-            }
-          }
-
-          @media (max-width: 640px) {
-            .footer-column {
-              text-align: center;
-            }
-            .footer-column ul {
-              align-items: center;
-            }
-          }
-
-          @media (max-width: 1024px) {
-            .contact-row {
-              margin-left: 30px;
-            }
-          }
-
-          @media (max-width: 640px) {
-            .contact-row {
-              margin-left: 0px;
-              justify-content: center;
-              text-align: center;
-            }
-          }
-
-          /* Hover Effect */
-          .footer-link {
-            transition: color .25s ease;
-            color: #fff;
-          }
-
-          .footer-link:hover {
-            color: #fff;
-          }
-
-        `}
-      </style>
-
-      {/* ------------------------------------ */}
 
       {/* Background Watermark */}
       <div style={{
@@ -120,155 +42,107 @@ export default function Footer() {
         MyKard
       </div>
 
-      <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        display: 'grid',
-        /* MOBILE VIEW: 2 Columns */
-        gridTemplateColumns: '1fr 1fr',
-        /* Reduced gap significantly to bring columns closer on mobile */
-        gap: '2rem 0.5rem',
-        position: 'relative',
-        zIndex: 1
-      }} className="footer-grid">
+      {/* Main Content */}
+      <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
-        {/* Column 1: Brand */}
+        {/* Desktop: 4-column grid using Tailwind */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[1.6fr_1fr_1fr_1.2fr] gap-8 md:gap-10">
+
+          {/* Column 1: Brand */}
+          <div className="text-center md:text-left sm:col-span-2 md:col-span-1">
+            <div className="flex justify-center md:justify-start">
+              <Image src="/assets/mykard.png" alt="Logo" width={120} height={36} />
+            </div>
+            <p style={{
+              marginTop: '1rem',
+              fontSize: '0.8rem',
+              fontWeight: 500,
+              maxWidth: '300px',
+              lineHeight: '1.5',
+              color: '#ffffffcc',
+            }} className="mx-auto md:mx-0">
+              &quot;MyKard enables users to turn static contact details into dynamic professional identites - making connections easier to share, save, and sustain.&quot;
+            </p>
+
+            {/* Social Icons */}
+            <div className="flex gap-4 mt-5 items-center justify-center md:justify-start">
+              {/* Instagram */}
+              <a href="#" aria-label="Instagram" className="text-white hover:opacity-70 transition-opacity">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                </svg>
+              </a>
+              {/* LinkedIn */}
+              <a href="#" aria-label="LinkedIn" className="text-white hover:opacity-70 transition-opacity">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                  <rect x="2" y="9" width="4" height="12" />
+                  <circle cx="4" cy="4" r="2" />
+                </svg>
+              </a>
+              {/* X (Twitter) */}
+              <a href="#" aria-label="X" className="text-white hover:opacity-70 transition-opacity">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+              </a>
+              {/* Facebook */}
+              <a href="#" aria-label="Facebook" className="text-white hover:opacity-70 transition-opacity">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          {/* Column 2: Quick Links */}
+          <div className="text-center md:text-left">
+            <h4 style={{ fontWeight: 800, marginBottom: '0.9rem', fontSize: '0.95rem', letterSpacing: '0.05em' }}>Quick Links</h4>
+            <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.8rem', fontWeight: 500, color: '#ffffffcc' }}>
+              <li><button onClick={() => scrollToSection('hero')} className="hover:text-white transition-colors" style={{ background: 'none', border: 'none', color: '#ffffffcc', font: 'inherit', cursor: 'pointer', padding: 0 }}>Home</button></li>
+              <li><button onClick={() => scrollToSection('about')} className="hover:text-white transition-colors" style={{ background: 'none', border: 'none', color: '#ffffffcc', font: 'inherit', cursor: 'pointer', padding: 0 }}>About us</button></li>
+              <li><button onClick={() => scrollToSection('build-credibility')} className="hover:text-white transition-colors" style={{ background: 'none', border: 'none', color: '#ffffffcc', font: 'inherit', cursor: 'pointer', padding: 0 }}>Features</button></li>
+              <li><button onClick={() => scrollToSection('search')} className="hover:text-white transition-colors" style={{ background: 'none', border: 'none', color: '#ffffffcc', font: 'inherit', cursor: 'pointer', padding: 0 }}>Search</button></li>
+            </ul>
+          </div>
+
+          {/* Column 3: Support */}
+          <div className="text-center md:text-left">
+            <h4 style={{ fontWeight: 800, marginBottom: '0.9rem', fontSize: '0.95rem', letterSpacing: '0.05em' }}>Support</h4>
+            <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.8rem', fontWeight: 500, color: '#ffffffcc' }}>
+              <li className="hover:text-white transition-colors cursor-pointer">FAQ</li>
+              <li className="hover:text-white transition-colors cursor-pointer">Terms of Services</li>
+              <li className="hover:text-white transition-colors cursor-pointer">Privacy Policy</li>
+            </ul>
+          </div>
+
+          {/* Column 4: Contact Us */}
+          <div className="text-center md:text-left">
+            <h4 style={{ fontWeight: 800, marginBottom: '0.9rem', fontSize: '0.95rem', letterSpacing: '0.05em' }}>Contact Us</h4>
+            <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.8rem', fontWeight: 500, color: '#ffffffcc' }}>
+              <li className="flex items-center gap-2 justify-center md:justify-start">
+                <Mail size={14} /> support@mykard.in
+              </li>
+              <li className="flex items-center gap-2 justify-center md:justify-start">
+                <MapPin size={14} /> India
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Divider + Copyright */}
         <div style={{
-          gridColumn: '1 / -1',
+          marginTop: '2.5rem',
+          borderTop: '1px solid rgba(255,255,255,0.15)',
+          paddingTop: '1.2rem',
           textAlign: 'center',
-        }} className="desktop-col-1">
-          <div style={{ display: 'flex', justifyContent: 'center' }} className="desktop-justify-start">
-            <Image src="/assets/mykard.png" alt="Logo" width={140} height={40} />
-          </div>
-          <p style={{
-            marginTop: '1rem',
-            fontSize: '0.75rem',
-            fontWeight: 500,
-            maxWidth: '350px',
-            marginInline: 'auto',
-            lineHeight: '1.2',
-            color: '#ffffff',
-          }} className="desktop-mx-0">
-            "MyKard enables users to turn static contact details into dynamic professional identities - making connections easier to share, save, and sustain."
-          </p>
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1.2rem' }} className="desktop-justify-start">
-            <Linkedin size={22} style={{ cursor: 'pointer' }} />
-          </div>
-        </div>
-
-        {/* Column 2: Quick Links */}
-        <div style={{ textAlign: 'center' }} className="desktop-text-left">
-          <h4 className="footer-header" style={{ color: '#ffffff' }}>Quick Links</h4>
-          <ul className="footer-links">
-            <li><Link href="/">Home</Link></li>
-            <li><button onClick={() => scrollToSection('about')} style={{ background: 'none', border: 'none', color: 'inherit', font: 'inherit', cursor: 'pointer' }}>About us</button></li>
-            <li><button onClick={() => scrollToSection('features')} style={{ background: 'none', border: 'none', color: 'inherit', font: 'inherit', cursor: 'pointer' }}>Features</button></li>
-            <li><button onClick={() => scrollToSection('search')} style={{ background: 'none', border: 'none', color: 'inherit', font: 'inherit', cursor: 'pointer' }}>Search</button></li>
-          </ul>
-        </div>
-
-        {/* Column 3: Support */}
-        <div style={{ textAlign: 'center' }} className="desktop-text-left">
-          <h4 className="footer-header" style={{ color: '#ffffff' }}>Support</h4>
-          <ul className="footer-links">
-            <li>FAQ</li>
-            <li>Terms of Services</li>
-            <li>Privacy Policy</li>
-          </ul>
-        </div>
-
-        {/* Column 4: Contact Us */}
-        <div style={{
-          gridColumn: '1 / -1',
-          textAlign: 'center'
-        }} className="desktop-col-4-center">
-          <h4 className="footer-header" style={{ color: '#ffffff' }}>Contact Us</h4>
-          {/* Added 'contact-item' class to handle responsive centering */}
-          <ul className="footer-links" style={{ alignItems: 'center', display: 'flex', flexDirection: 'column' }}>
-            <li className="contact-item" style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
-              <Mail size={12} /> support@mykard.in
-            </li>
-            <li className="contact-item" style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
-              <MapPin size={12} /> India
-            </li>
-          </ul>
+        }}>
+          <p style={{ fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.3rem' }}>Powered by BoostNow</p>
+          <p style={{ fontWeight: 500, fontSize: '0.7rem', color: '#ffffffaa' }}>© 2025 BoostNow Solution LLP. All Rights Reserved.</p>
         </div>
       </div>
-
-      {/* Bottom Copyright Section */}
-      <div style={{
-        marginTop: '1rem',
-        paddingTop: '1rem',
-        borderTop: '2px solid #000',
-        textAlign: 'center',
-        position: 'relative',
-        zIndex: 1
-      }}>
-        <p style={{ fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.1rem' }}>Powered by BoostNow</p>
-        <p style={{ fontWeight: 600, fontSize: '0.65rem' }}>© 2025 BoostNow Solution LLP. All Rights Reserved.</p>
-      </div>
-
-      <style jsx>{`
-        .footer-header { font-weight: 800; margin-bottom: 0.9rem; font-size: 1rem; color: #ffffff; }
-        .footer-links { list-style: none; padding: 0; display: grid; gap: 0.4rem; font-size: 0.75rem; font-weight: 500; color: #ffffff;}
-        
-        /* HOVER EFFECT ADDED HERE */
-        .footer-links li {
-          transition: color 0.2s ease;
-          cursor: pointer;
-        }
-        .footer-links li:hover {
-          color: #ffffff;
-        }
-
-        /* Mobile: Center the contact items */
-        .contact-item { justify-content: center; }
-
-        .desktop-watermark { display: none; }
-
-        /* DESKTOP VIEW OVERRIDES */
-        @media (min-width: 768px) {
-          .footer-grid { 
-            grid-template-columns: 1fr 0.8fr 1fr 1.2fr !important;
-            gap: 2.5rem !important; /* Restore larger gap for desktop */
-            align-items: start;
-          }
-          .desktop-col-1 { 
-            grid-column: auto !important; 
-            text-align: left !important; 
-          }
-           /* Force Center for Contact Us on Desktop too if requested, or keep it consistent. 
-              User said "contact us ka center me karo". 
-              I'll style desktop-col-4-center to be centered or auto-column but centered text.
-           */
-          .desktop-col-4-center {
-             grid-column: auto !important;
-             text-align: center !important;
-          }
-
-          .desktop-text-left { text-align: left !important; }
-          .desktop-justify-start { justify-content: flex-start !important; }
-          .desktop-items-start { align-items: flex-start !important; }
-          .desktop-mx-0 { margin-left: 0 !important; margin-right: 0 !important; }
-          
-          /* Contact item centered always as per user request */
-          .contact-item { justify-content: center !important; }
-
-          .desktop-watermark {
-            display: block;
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 10rem;
-            font-weight: 900;
-            color: rgba(0, 0, 0, 0.04);
-            white-space: nowrap;
-            z-index: 0;
-            pointer-events: none;
-          }
-        }
-      `}</style>
     </footer>
   );
 }
