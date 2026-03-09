@@ -1,5 +1,24 @@
 @import "tailwindcss";
 
+/* Hide scrollbar globally */
+html, body {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+html::-webkit-scrollbar, body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Mobile hero world map background */
+@media (max-width: 1023px) {
+  .hero-mobile-map {
+    background-image: url('/assets/worldmap.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+  }
+}
+
 /* applied change */
 .post-media-wrapper {
   position: relative;

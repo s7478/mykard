@@ -483,7 +483,7 @@ export default function Homepage() {
 
       <section
         // Yahan "items-start" add kiya gaya hai
-        className="flex flex-col justify-end items-start lg:items-center lg:justify-center"
+        className="hero-mobile-map flex flex-col justify-end items-start lg:items-center lg:justify-center"
         style={{
           position: 'relative', width: '100%', minHeight: '100vh', backgroundColor: '#071337',
           overflow: 'hidden', fontFamily: "'Plus Jakarta Sans', sans-serif", padding: '2rem 0 4rem',
