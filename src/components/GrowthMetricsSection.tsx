@@ -54,6 +54,7 @@ const GrowthMetricsSection = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isMobile, setIsMobile] = useState(false);
     const [swipeDirection, setSwipeDirection] = useState(0); // -1 = left, 1 = right
+    const carouselRef = useRef<HTMLDivElement>(null);
 
     const handleDragEnd = (_e: any, info: { offset: { x: number }; velocity: { x: number } }) => {
         const swipeThreshold = 50;
@@ -62,13 +63,13 @@ const GrowthMetricsSection = () => {
             // Swiped left → next card
             if (currentIndex < metrics.length - 1) {
                 setSwipeDirection(1);
-                setCurrentIndex(prev => prev + 1);
+                setCurrentIndex(prev => Math.min(prev + 1, metrics.length - 1));
             }
         } else if (info.offset.x > swipeThreshold || info.velocity.x > velocityThreshold) {
             // Swiped right → previous card
             if (currentIndex > 0) {
                 setSwipeDirection(-1);
-                setCurrentIndex(prev => prev - 1);
+                setCurrentIndex(prev => Math.max(prev - 1, 0));
             }
         }
     };
@@ -122,10 +123,10 @@ const GrowthMetricsSection = () => {
                 if (now - lastWheelTime < 600) return;
                 lastWheelTime = now;
                 if (e.deltaX > 5) {
-                    setSlideDirection(1);
+                    setSwipeDirection(1);
                     setCurrentIndex(prev => Math.min(prev + 1, metrics.length - 1));
                 } else if (e.deltaX < -5) {
-                    setSlideDirection(-1);
+                    setSwipeDirection(-1);
                     setCurrentIndex(prev => Math.max(prev - 1, 0));
                 }
             }
@@ -205,9 +206,7 @@ const GrowthMetricsSection = () => {
         <section
             className="w-full flex flex-col items-center justify-center overflow-hidden"
             style={{
-                background: isMobile
-                    ? "#FFFFFF"
-                    : "linear-gradient(10.2deg, #FFFFFF 33.27%, #BAE7FF 58.83%, #B1E4FF 78.18%, #4BBDFB 93.13%)",
+                background: "transparent",
                 minHeight: isMobile ? "auto" : "100vh",
                 paddingTop: isMobile ? "60px" : "80px",
                 paddingBottom: isMobile ? "60px" : "0",
@@ -282,23 +281,6 @@ const GrowthMetricsSection = () => {
                         ref={carouselRef}
                         className="flex flex-col items-center w-full px-8 overflow-hidden"
                         style={{ gap: "1.5rem", touchAction: "pan-y" }}
-                        onTouchStart={(e) => {
-                            (e.currentTarget as any)._touchStartX = e.touches[0].clientX;
-                        }}
-                        onTouchEnd={(e) => {
-                            const startX = (e.currentTarget as any)._touchStartX;
-                            const endX = e.changedTouches[0].clientX;
-                            const diff = startX - endX;
-                            if (Math.abs(diff) > 50) {
-                                if (diff > 0) {
-                                    setSlideDirection(1);
-                                    setCurrentIndex(prev => Math.min(prev + 1, metrics.length - 1));
-                                } else {
-                                    setSlideDirection(-1);
-                                    setCurrentIndex(prev => Math.max(prev - 1, 0));
-                                }
-                            }
-                        }}
                     >
                         <AnimatePresence mode="wait" initial={false}>
                             <motion.div
@@ -340,7 +322,7 @@ const GrowthMetricsSection = () => {
                                 <button
                                     key={i}
                                     onClick={() => {
-                                        setSlideDirection(i > currentIndex ? 1 : -1);
+                                        setSwipeDirection(i > currentIndex ? 1 : -1);
                                         setCurrentIndex(i);
                                     }}
                                     className={`h-2.5 rounded-full transition-all duration-300 ${currentIndex === i ? "w-8 bg-gray-600" : "w-2.5 bg-gray-300"
