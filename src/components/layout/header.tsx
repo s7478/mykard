@@ -17,6 +17,7 @@ export function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLgUp, setIsLgUp] = useState(false);
   const [notificationsCount, setNotificationsCount] = useState(0);
+  const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
 
   const [activeCardName, setActiveCardName] = useState<string>("");
 
@@ -88,6 +89,11 @@ export function Header() {
       window.removeEventListener("notifications-updated", onUpdated);
     };
   }, []);
+
+  useEffect(() => {
+    // Reset avatar error state when user or profile image changes.
+    setAvatarLoadFailed(false);
+  }, [user?.id, user?.profileImage]);
 
 
   useEffect(() => {
@@ -239,14 +245,11 @@ export function Header() {
                       overflow: "hidden",
                     }}
                   >
-                    {user?.profileImage ? (
+                    {user?.profileImage && !avatarLoadFailed ? (
                       <img
                         src={user.profileImage}
                         alt="Profile"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          e.currentTarget.parentElement!.innerHTML = `<span style="font-size: 14px; font-weight: 600; color: #ffffff;">${getInitials(user?.fullName || user?.email || "")}</span>`;
-                        }}
+                        onError={() => setAvatarLoadFailed(true)}
                         style={{
                           width: "100%",
                           height: "100%",
@@ -288,14 +291,11 @@ export function Header() {
                     }}
                     aria-label="Open profile menu"
                   >
-                    {user?.profileImage ? (
+                    {user?.profileImage && !avatarLoadFailed ? (
                       <img
                         src={user.profileImage}
                         alt="Profile"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          e.currentTarget.parentElement!.innerHTML = `<span style="font-size: 16px; font-weight: 600; color: #ffffff;">${getInitials(user?.fullName || user?.email || "")}</span>`;
-                        }}
+                        onError={() => setAvatarLoadFailed(true)}
                         style={{
                           width: "100%",
                           height: "100%",

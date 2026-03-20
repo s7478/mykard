@@ -1062,7 +1062,21 @@ export const CreateStoryModal = ({
                 backgroundColor: "#e2e8f0",
               }}
             >
-              {currentUser?.profileImage ? (
+              <div
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#ffffff",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                }}
+              >
+                {getInitials(currentUser?.fullName || "Me")}
+              </div>
+              {currentUser?.profileImage && (
                 <Image
                   src={currentUser.profileImage}
                   alt="Me"
@@ -1070,22 +1084,9 @@ export const CreateStoryModal = ({
                   unoptimized
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
-                    e.currentTarget.parentElement!.innerHTML = `<span style="font-size: 14px; font-weight: 600; color: #ffffff;">${getInitials(currentUser?.fullName || "Me")}</span>`;
                   }}
                   style={{ objectFit: "cover" }}
                 />
-              ) : (
-                <div
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  {getInitials(currentUser?.fullName || "Me")}
-                </div>
               )}
             </div>
             <div
@@ -1659,7 +1660,21 @@ export const PostCard = ({
               cursor: "default",
             }}
           >
-            {authorImage ? (
+            <div
+              style={{
+                display: "flex",
+                width: "100%",
+                height: "100%",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "14px",
+                fontWeight: "700",
+                color: "#64748b",
+              }}
+            >
+              {authorInitials}
+            </div>
+            {authorImage && (
               <Image
                 src={authorImage}
                 alt={authorName}
@@ -1667,25 +1682,9 @@ export const PostCard = ({
                 unoptimized
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
-                  e.currentTarget.parentElement!.innerHTML = `<div style="display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #64748b;">${authorInitials}</div>`;
                 }}
                 style={{ objectFit: "cover" }}
               />
-            ) : (
-              <div
-                style={{
-                  display: "flex",
-                  width: "100%",
-                  height: "100%",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "14px",
-                  fontWeight: "700",
-                  color: "#64748b",
-                }}
-              >
-                {authorInitials}
-              </div>
             )}
           </div>
           <div style={styles.postMeta}>
@@ -1995,7 +1994,16 @@ export const PostCard = ({
                   justifyContent: "center",
                 }}
               >
-                {myAvatar ? (
+                <span
+                  style={{
+                    fontSize: "10px",
+                    fontWeight: "700",
+                    color: "#64748b",
+                  }}
+                >
+                  {myInitials}
+                </span>
+                {myAvatar && (
                   <Image
                     src={myAvatar}
                     alt="Me"
@@ -2003,20 +2011,9 @@ export const PostCard = ({
                     unoptimized
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
-                      e.currentTarget.parentElement!.innerHTML = `<span style="font-size: 10px; font-weight: 700; color: #64748b;">${myInitials}</span>`;
                     }}
                     style={{ objectFit: "cover" }}
                   />
-                ) : (
-                  <span
-                    style={{
-                      fontSize: "10px",
-                      fontWeight: "700",
-                      color: "#64748b",
-                    }}
-                  >
-                    {myInitials}
-                  </span>
                 )}
               </div>
               <input
@@ -2067,7 +2064,16 @@ export const PostCard = ({
                       justifyContent: "center",
                     }}
                   >
-                    {c.user?.profileImage ? (
+                    <span
+                      style={{
+                        fontSize: "9px",
+                        fontWeight: "700",
+                        color: "#64748b",
+                      }}
+                    >
+                      {getInitials(c.user?.fullName || "User")}
+                    </span>
+                    {c.user?.profileImage && (
                       <Image
                         src={c.user.profileImage}
                         alt={c.user.fullName}
@@ -2075,20 +2081,9 @@ export const PostCard = ({
                         unoptimized
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
-                          e.currentTarget.parentElement!.innerHTML = `<span style="font-size: 9px; font-weight: 700; color: #64748b;">${getInitials(c.user?.fullName || "User")}</span>`;
                         }}
                         style={{ objectFit: "cover" }}
                       />
-                    ) : (
-                      <span
-                        style={{
-                          fontSize: "9px",
-                          fontWeight: "700",
-                          color: "#64748b",
-                        }}
-                      >
-                        {getInitials(c.user?.fullName || "User")}
-                      </span>
                     )}
                   </div>
                   <div style={{ ...styles.commentBubble, position: "relative", paddingRight: "28px" }}>
@@ -2251,7 +2246,21 @@ export const SuggestedUsersWidget = ({
                   flexShrink: 0,
                 }}
               >
-                {p.profileImage ? (
+                <div
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    background: "#e2e8f0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "12px",
+                    fontWeight: "700",
+                  }}
+                >
+                  {getInitials(p.name)}
+                </div>
+                {p.profileImage && (
                   <Image
                     src={p.profileImage}
                     alt={p.name}
@@ -2259,26 +2268,9 @@ export const SuggestedUsersWidget = ({
                     unoptimized
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
-                      e.currentTarget.parentElement!.innerHTML = `<div style="width: 100%; height: 100%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700;">${getInitials(p.name)}</div>`;
                     }}
                     style={{ objectFit: "cover" }}
                   />
-                ) : (
-                  <div
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      background: "#e2e8f0",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "12px",
-                      fontWeight: "700",
-                    }}
-                  >
-                    {" "}
-                    {getInitials(p.name)}{" "}
-                  </div>
                 )}
               </div>
               <div

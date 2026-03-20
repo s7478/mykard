@@ -206,6 +206,7 @@ export default function ShareModal({ isOpen, onClose, postId, currentUserId, onS
   const [sending, setSending] = useState(false);
   const [search, setSearch] = useState("");
   const [copied, setCopied] = useState(false);
+  const [brokenAvatarIds, setBrokenAvatarIds] = useState<Set<string>>(new Set());
 
   // 🟢 1. Construct the URL exactly like your snippet
   const postUrl = typeof window !== "undefined" 
@@ -215,6 +216,7 @@ export default function ShareModal({ isOpen, onClose, postId, currentUserId, onS
   useEffect(() => {
     if (isOpen) {
       setLoading(true);
+      setBrokenAvatarIds(new Set());
       fetch("/api/users/connections?type=accepted")
         .then((res) => res.json())
         .then((data) => {
@@ -348,8 +350,14 @@ export default function ShareModal({ isOpen, onClose, postId, currentUserId, onS
                   <div key={user.id} style={styles.userItem} onClick={() => toggleSelection(user.id)}>
                     <div style={{ ...styles.avatarWrapper, borderColor: isSelected ? "#2563eb" : "transparent" }}>
                       <div style={styles.avatar}>
-                        {user.profileImage ? (
-                          <Image src={user.profileImage} alt={user.fullName} fill className="object-cover" />
+                        {user.profileImage && !brokenAvatarIds.has(user.id) ? (
+                          <Image
+                            src={user.profileImage}
+                            alt={user.fullName}
+                            fill
+                            className="object-cover"
+                            onError={() => setBrokenAvatarIds((prev) => new Set(prev).add(user.id))}
+                          />
                         ) : (
                           user.fullName?.slice(0, 2).toUpperCase()
                         )}

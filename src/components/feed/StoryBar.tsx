@@ -83,6 +83,11 @@ export default function StoryBar({ currentUser }: { currentUser: any }) {
   const myStoryRef = useRef<HTMLDivElement>(null);
   const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
   const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set());
+  const [myAvatarBroken, setMyAvatarBroken] = useState(false);
+
+  useEffect(() => {
+    setMyAvatarBroken(false);
+  }, [currentUser?.id, currentUser?.profileImage]);
 
   const fetchStories = async () => {
     try {
@@ -149,7 +154,17 @@ export default function StoryBar({ currentUser }: { currentUser: any }) {
           }}>
             <div style={styles.avatarWhiteRing}>
               <div style={styles.avatar}>
-                {currentUser?.profileImage ? (<Image src={currentUser.profileImage} alt="Me" fill className="object-cover" />) : (getInitials(currentUser?.fullName || "Me"))}
+                {currentUser?.profileImage && !myAvatarBroken ? (
+                  <Image
+                    src={currentUser.profileImage}
+                    alt="Me"
+                    fill
+                    className="object-cover"
+                    onError={() => setMyAvatarBroken(true)}
+                  />
+                ) : (
+                  getInitials(currentUser?.fullName || "Me")
+                )}
               </div>
             </div>
             {!myStoryGroup && <div style={styles.plusBadge}><Plus size={14} strokeWidth={3} /></div>}
