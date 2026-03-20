@@ -84,6 +84,8 @@ export default function PublicProfilePage() {
     const [selectedCatalogCardId, setSelectedCatalogCardId] = useState<string | null>(null);
     const [showCatalogSelector, setShowCatalogSelector] = useState(false);
     const [savingCatalogSelection, setSavingCatalogSelection] = useState(false);
+    const [catalogHelpHovered, setCatalogHelpHovered] = useState(false);
+    const [catalogHelpPinned, setCatalogHelpPinned] = useState(false);
 
     const [showContactPopup, setShowContactPopup] = useState(false);
     const [isConnecting, setIsConnecting] = useState(false);
@@ -351,6 +353,13 @@ export default function PublicProfilePage() {
         documentUrl: userProfile.documentUrl
     };
 
+    const getInitials = (name?: string | null) => {
+        if (!name) return "U";
+        const parts = name.trim().split(/\s+/).filter(Boolean);
+        if (parts.length === 0) return "U";
+        return parts.map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+    };
+
     const cardsWithDocuments = cards.filter(card => card.documentUrl);
 
     return (
@@ -364,14 +373,16 @@ export default function PublicProfilePage() {
                     <div style={{ backgroundColor: "#fff", borderRadius: "8px", overflow: "hidden", boxShadow: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)", marginBottom: "8px" }}>
                         {/* Banner */}
                         <div style={{ position: "relative", height: "200px", backgroundColor: "#a0aec0" }}>
-                            {displayUser.bannerImage ? (
+                            <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}></div>
+                            {displayUser.bannerImage && (
                                 <img
                                     src={displayUser.bannerImage}
                                     alt="Banner"
-                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                    onError={(e) => {
+                                        e.currentTarget.style.display = "none";
+                                    }}
+                                    style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0 }}
                                 />
-                            ) : (
-                                <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}></div>
                             )}
                         </div>
 
@@ -386,30 +397,33 @@ export default function PublicProfilePage() {
                                         borderRadius: "50%",
                                         border: "4px solid #fff",
                                         overflow: "hidden",
+                                        position: "relative",
                                         backgroundColor: "#f0f0f0",
                                         boxShadow: "0 4px 8px rgba(0,0,0,0.1)"
                                     }}
                                 >
-                                    {displayUser.profileImage ? (
+                                    <div style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        fontSize: "48px",
+                                        fontWeight: "600",
+                                        color: "#fff"
+                                    }}>
+                                        {getInitials(displayUser.name)}
+                                    </div>
+                                    {displayUser.profileImage && (
                                         <img
                                             src={displayUser.profileImage}
                                             alt={displayUser.name}
-                                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                            onError={(e) => {
+                                                e.currentTarget.style.display = "none";
+                                            }}
+                                            style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0 }}
                                         />
-                                    ) : (
-                                        <div style={{
-                                            width: "100%",
-                                            height: "100%",
-                                            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            fontSize: "48px",
-                                            fontWeight: "600",
-                                            color: "#fff"
-                                        }}>
-                                            {displayUser.name.split(" ").map((n: string) => n[0]).join("")}
-                                        </div>
                                     )}
                                 </div>
                             </div>
@@ -649,18 +663,75 @@ export default function PublicProfilePage() {
 
                                 // Case 1: 0 Catalogs
                                 if (!hasCatalogs) {
+                                    const showCatalogHelp = catalogHelpHovered || catalogHelpPinned;
+
                                     return (
                                         <div style={{ padding: "24px", textAlign: "center" }}>
                                             {isOwnProfile ? (
                                                 <>
-                                                    <p style={{ color: "#666", fontSize: "14px", marginBottom: "16px" }}>Create new or edit a card to add catalog</p>
+                                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px" }}>
+                                                        <p style={{ color: "#666", fontSize: "14px", margin: 0, textAlign: "center" }}>
+                                                            Activate your catalog from Edit Card to show it <span style={{ whiteSpace: "nowrap" }}>
+                                                                here
+                                                                <button
+                                                                    type="button"
+                                                                    aria-label="Catalog help"
+                                                                    title="Hover or click to view steps"
+                                                                    onMouseEnter={() => setCatalogHelpHovered(true)}
+                                                                    onMouseLeave={() => setCatalogHelpHovered(false)}
+                                                                    onClick={() => setCatalogHelpPinned((prev) => !prev)}
+                                                                    style={{
+                                                                        width: "22px",
+                                                                        height: "22px",
+                                                                        borderRadius: "50%",
+                                                                        border: "1px solid #94a3b8",
+                                                                        background: "#f8fafc",
+                                                                        color: "#334155",
+                                                                        fontSize: "12px",
+                                                                        fontWeight: "700",
+                                                                        cursor: "help",
+                                                                        lineHeight: "20px",
+                                                                        marginLeft: "6px",
+                                                                        verticalAlign: "middle"
+                                                                    }}
+                                                                >
+                                                                    i
+                                                                </button>
+                                                            </span>
+                                                        </p>
+                                                    </div>
+
+                                                    {showCatalogHelp && (
+                                                        <div
+                                                            style={{
+                                                                maxWidth: "640px",
+                                                                margin: "0 auto 16px",
+                                                                textAlign: "left",
+                                                                backgroundColor: "#f8fafc",
+                                                                border: "1px solid #cbd5e1",
+                                                                borderRadius: "10px",
+                                                                padding: "12px 14px",
+                                                                color: "#334155",
+                                                                fontSize: "13px",
+                                                                lineHeight: 1.5
+                                                            }}
+                                                        >
+                                                            <div style={{ fontWeight: 700, marginBottom: "6px" }}>How to activate catalog</div>
+                                                            <div>1. Click <b>Activate Catalog</b> below.</div>
+                                                            <div>2. Open any card and go to <b>Edit Card</b>.</div>
+                                                            <div>3. Open <b>Information</b> tab.</div>
+                                                            <div>4. Enable the <b>Catalog</b> button.</div>
+                                                            <div>5. Edit your catalog as needed and click <b>Save</b>.</div>
+                                                        </div>
+                                                    )}
+
                                                     <button
                                                         onClick={() => router.push('/dashboard')}
                                                         style={{
                                                             padding: "8px 16px", backgroundColor: "#01754f", color: "white", borderRadius: "16px", border: "none", cursor: "pointer", fontSize: "14px", fontWeight: "600"
                                                         }}
                                                     >
-                                                        Add Catalog
+                                                        Activate Catalog
                                                     </button>
                                                 </>
                                             ) : (
@@ -786,17 +857,22 @@ export default function PublicProfilePage() {
                                                             height: "48px",
                                                             borderRadius: "50%",
                                                             overflow: "hidden",
+                                                            position: "relative",
                                                             flexShrink: 0,
                                                             backgroundColor: "#f0f0f0"
                                                         }}>
-                                                            {displayUser.profileImage ? (
+                                                            <div style={{ width: "100%", height: "100%", background: "#667eea", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "14px", fontWeight: 700 }}>
+                                                                {getInitials(displayUser.name)}
+                                                            </div>
+                                                            {displayUser.profileImage && (
                                                                 <img
                                                                     src={displayUser.profileImage}
                                                                     alt={displayUser.name}
-                                                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                                                    onError={(e) => {
+                                                                        e.currentTarget.style.display = "none";
+                                                                    }}
+                                                                    style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0 }}
                                                                 />
-                                                            ) : (
-                                                                <div style={{ width: "100%", height: "100%", background: "#667eea" }}></div>
                                                             )}
                                                         </div>
                                                         <div style={{ flex: 1 }}>
@@ -871,29 +947,32 @@ export default function PublicProfilePage() {
                                                     height: "48px",
                                                     borderRadius: "50%",
                                                     overflow: "hidden",
+                                                    position: "relative",
                                                     flexShrink: 0,
                                                     backgroundColor: "#f0f0f0"
                                                 }}>
-                                                    {suggestion.profileImage ? (
+                                                    <div style={{
+                                                        width: "100%",
+                                                        height: "100%",
+                                                        background: "#667eea",
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        justifyContent: "center",
+                                                        fontSize: "16px",
+                                                        fontWeight: "600",
+                                                        color: "#fff"
+                                                    }}>
+                                                        {getInitials(suggestion.fullName)}
+                                                    </div>
+                                                    {suggestion.profileImage && (
                                                         <img
                                                             src={suggestion.profileImage}
                                                             alt={suggestion.fullName}
-                                                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                                            onError={(e) => {
+                                                                e.currentTarget.style.display = "none";
+                                                            }}
+                                                            style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0 }}
                                                         />
-                                                    ) : (
-                                                        <div style={{
-                                                            width: "100%",
-                                                            height: "100%",
-                                                            background: "#667eea",
-                                                            display: "flex",
-                                                            alignItems: "center",
-                                                            justifyContent: "center",
-                                                            fontSize: "16px",
-                                                            fontWeight: "600",
-                                                            color: "#fff"
-                                                        }}>
-                                                            {suggestion.fullName.charAt(0)}
-                                                        </div>
                                                     )}
                                                 </div>
                                                 <div style={{ flex: 1, minWidth: 0 }}>
