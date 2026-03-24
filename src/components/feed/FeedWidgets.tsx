@@ -1945,7 +1945,7 @@ export const PostCard = ({
               color: "#64748b",
             }}
           >
-            <Send size={18} color="#94a3b8" />
+            <Send size={18} color="#64748b" />
             {sharesCount.toLocaleString()}
           </button>
         </div>
@@ -1960,7 +1960,7 @@ export const PostCard = ({
             border: "none",
             cursor: "pointer",
             padding: 0,
-            color: isSaved ? "#2563eb" : "#94a3b8",
+            color: isSaved ? "#2563eb" : "#64748b",
           }}
         >
           <Bookmark size={20} fill={isSaved ? "currentColor" : "none"} />
