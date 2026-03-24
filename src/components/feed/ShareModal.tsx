@@ -4,6 +4,7 @@ import React, { useEffect, useState, CSSProperties } from "react";
 import Image from "next/image";
 import { X, Check, Search, Copy, Loader2, Send } from "lucide-react";
 import { toast } from "react-hot-toast";
+import { FaWhatsapp, FaInstagram, FaTelegramPlane, FaFacebookF, FaTwitter } from "react-icons/fa";
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -178,9 +179,18 @@ const styles: Record<string, CSSProperties> = {
     padding: "16px 20px",
     borderTop: "1px solid #f3f4f6",
     display: "flex",
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
     alignItems: "center",
+    gap: "10px",
     backgroundColor: "#fff",
+  },
+  footerLeftActions: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    overflowX: "auto",
+    paddingBottom: "2px",
+    flex: 1,
   },
   sendBtn: {
     backgroundColor: "#2563eb",
@@ -196,7 +206,25 @@ const styles: Record<string, CSSProperties> = {
     gap: "8px",
     opacity: 1,
     transition: "opacity 0.2s",
-  }
+  },
+  footerIconBtn: {
+    border: "1px solid #e5e7eb",
+    backgroundColor: "#ffffff",
+    borderRadius: "9999px",
+    width: "36px",
+    height: "36px",
+    minWidth: "36px",
+    padding: 0,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "#334155",
+    transition: "all 0.2s",
+  },
+  sendBtnWrap: {
+    flexShrink: 0,
+  },
 };
 
 export default function ShareModal({ isOpen, onClose, postId, currentUserId, onShareSuccess }: ShareModalProps) {
@@ -208,10 +236,19 @@ export default function ShareModal({ isOpen, onClose, postId, currentUserId, onS
   const [copied, setCopied] = useState(false);
   const [brokenAvatarIds, setBrokenAvatarIds] = useState<Set<string>>(new Set());
 
-  // 🟢 1. Construct the URL exactly like your snippet
-  const postUrl = typeof window !== "undefined" 
-    ? `${window.location.origin}/post/${postId}`
-    : "";
+  // Use public app URL for external share previews when configured.
+  const postUrl = (() => {
+    const envBase = process.env.NEXT_PUBLIC_APP_URL?.trim();
+    if (envBase) {
+      return `${envBase.replace(/\/$/, "")}/post/${postId}`;
+    }
+
+    if (typeof window !== "undefined") {
+      return `${window.location.origin}/post/${postId}`;
+    }
+
+    return "";
+  })();
 
   useEffect(() => {
     if (isOpen) {
@@ -235,6 +272,59 @@ export default function ShareModal({ isOpen, onClose, postId, currentUserId, onS
     if (newSet.has(id)) newSet.delete(id);
     else newSet.add(id);
     setSelectedIds(newSet);
+  };
+
+  const openShareUrl = (url: string) => {
+    window.open(url, "_blank", "noopener,noreferrer");
+    if (onShareSuccess) onShareSuccess();
+  };
+
+  const handleExternalShare = async (channel: "whatsapp" | "instagram" | "telegram" | "twitter" | "facebook" | "more") => {
+    const text = "Check out this post";
+    const encodedUrl = encodeURIComponent(postUrl);
+
+    if (channel === "whatsapp") {
+      // URL-only format improves WhatsApp preview rendering.
+      openShareUrl(`https://wa.me/?text=${encodedUrl}`);
+      return;
+    }
+
+    if (channel === "telegram") {
+      openShareUrl(`https://t.me/share/url?url=${encodedUrl}&text=${encodeURIComponent(text)}`);
+      return;
+    }
+
+    if (channel === "twitter") {
+      openShareUrl(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodedUrl}`);
+      return;
+    }
+
+    if (channel === "facebook") {
+      openShareUrl(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`);
+      return;
+    }
+
+    if (channel === "instagram") {
+      await copyToClipboard();
+      // Instagram web does not support prefilled link share; we copy then open app/site.
+      openShareUrl("https://www.instagram.com/");
+      toast("Link copied. Paste it in Instagram.");
+      return;
+    }
+
+    if (channel === "more") {
+      try {
+        if (navigator.share) {
+          await navigator.share({ title: "Post", text, url: postUrl });
+          if (onShareSuccess) onShareSuccess();
+        } else {
+          await copyToClipboard();
+          toast("System share not available. Link copied.");
+        }
+      } catch {
+        // user cancel or share error; avoid noisy toast
+      }
+    }
   };
 
   // 🟢 2. Send Message via API
@@ -384,20 +474,85 @@ export default function ShareModal({ isOpen, onClose, postId, currentUserId, onS
 
         {/* Footer */}
         <div style={styles.footer}>
-          <button 
-            onClick={handleSend} 
-            disabled={selectedIds.size === 0 || sending}
-            style={{
-              ...styles.sendBtn,
-              opacity: selectedIds.size === 0 ? 0.5 : 1,
-              cursor: selectedIds.size === 0 ? "not-allowed" : "pointer",
-              backgroundColor: selectedIds.size > 0 ? "#2563eb" : "#e5e7eb",
-              color: selectedIds.size > 0 ? "#fff" : "#9ca3af"
-            }}
-          >
-            {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-            Send {selectedIds.size > 0 && `(${selectedIds.size})`}
-          </button>
+          <div style={styles.footerLeftActions}>
+            <button
+              type="button"
+              title="WhatsApp"
+              style={{ ...styles.footerIconBtn, color: "#16a34a" }}
+              onClick={() => handleExternalShare("whatsapp")}
+              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f8fafc")}
+              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ffffff")}
+            >
+              <FaWhatsapp size={16} />
+            </button>
+            <button
+              type="button"
+              title="Instagram"
+              style={{ ...styles.footerIconBtn, color: "#db2777" }}
+              onClick={() => handleExternalShare("instagram")}
+              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f8fafc")}
+              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ffffff")}
+            >
+              <FaInstagram size={16} />
+            </button>
+            <button
+              type="button"
+              title="Telegram"
+              style={{ ...styles.footerIconBtn, color: "#2563eb" }}
+              onClick={() => handleExternalShare("telegram")}
+              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f8fafc")}
+              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ffffff")}
+            >
+              <FaTelegramPlane size={16} />
+            </button>
+            <button
+              type="button"
+              title="X"
+              style={{ ...styles.footerIconBtn, color: "#0f172a" }}
+              onClick={() => handleExternalShare("twitter")}
+              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f8fafc")}
+              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ffffff")}
+            >
+              <FaTwitter size={16} />
+            </button>
+            <button
+              type="button"
+              title="Facebook"
+              style={{ ...styles.footerIconBtn, color: "#1d4ed8" }}
+              onClick={() => handleExternalShare("facebook")}
+              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f8fafc")}
+              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ffffff")}
+            >
+              <FaFacebookF size={16} />
+            </button>
+            <button
+              type="button"
+              title="More"
+              style={{ ...styles.footerIconBtn, color: "#334155" }}
+              onClick={() => handleExternalShare("more")}
+              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f8fafc")}
+              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ffffff")}
+            >
+              <Send size={14} />
+            </button>
+          </div>
+
+          <div style={styles.sendBtnWrap}>
+            <button 
+              onClick={handleSend} 
+              disabled={selectedIds.size === 0 || sending}
+              style={{
+                ...styles.sendBtn,
+                opacity: selectedIds.size === 0 ? 0.5 : 1,
+                cursor: selectedIds.size === 0 ? "not-allowed" : "pointer",
+                backgroundColor: selectedIds.size > 0 ? "#2563eb" : "#e5e7eb",
+                color: selectedIds.size > 0 ? "#fff" : "#9ca3af"
+              }}
+            >
+              {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+              Send {selectedIds.size > 0 && `(${selectedIds.size})`}
+            </button>
+          </div>
         </div>
       </div>
     </div>
