@@ -11,24 +11,29 @@ export async function POST(req: NextRequest) {
 
     const decoded = verify(token, process.env.JWT_SECRET!) as { userId: string };
     
-    // Get list of receivers and the post ID
-    const { receiverIds, postId } = await req.json();
+    // Get list of receivers and the content ID
+    const { receiverIds, postId, cardId, type } = await req.json();
 
     if (!receiverIds || !Array.isArray(receiverIds) || receiverIds.length === 0) {
       return NextResponse.json({ error: "No receivers selected" }, { status: 400 });
     }
 
     // 🟢 Construct the link dynamically
-    // In production, use your actual domain. In dev, localhost.
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const postLink = `${baseUrl}/post/${postId}`;
+    
+    let shareLink = "";
+    if (cardId || type === "card") {
+      shareLink = `${baseUrl}/cards/public/${cardId || postId}`;
+    } else {
+      shareLink = `${baseUrl}/post/${postId}`;
+    }
 
     // 🟢 Send Message to all selected users
     await prisma.$transaction(
       receiverIds.map((receiverId: string) => 
         prisma.message.create({
           data: {
-            text: postLink, // Sending the link as the message content
+            text: shareLink, // Sending the link as the message content
             senderId: decoded.userId,
             receiverId: receiverId,
           }

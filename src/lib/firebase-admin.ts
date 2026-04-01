@@ -1,32 +1,49 @@
 import * as admin from 'firebase-admin'
 
+// Helper to sanitize environment variables (handles surrounding quotes and escaped newlines)
+function sanitizeEnvVar(value: string | undefined, isPrivateKey = false): string | undefined {
+  if (!value) return undefined;
+  
+  // Remove surrounding quotes if present (common issue in some .env loaders)
+  let sanitized = value.trim();
+  if ((sanitized.startsWith('"') && sanitized.endsWith('"')) || 
+      (sanitized.startsWith("'") && sanitized.endsWith("'"))) {
+    sanitized = sanitized.substring(1, sanitized.length - 1);
+  }
+
+  // Handle escaped newlines for private keys
+  if (isPrivateKey) {
+    sanitized = sanitized.replace(/\\n/g, '\n');
+  }
+  
+  return sanitized;
+}
+
 // Initialize Firebase Admin SDK once per runtime
 function initFirebaseAdmin() {
   if (!admin.apps.length) {
-    const projectId = process.env.FIREBASE_PROJECT_ID
-    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL
-    let privateKey = process.env.FIREBASE_PRIVATE_KEY
+    const projectId = sanitizeEnvVar(process.env.FIREBASE_PROJECT_ID)
+    const clientEmail = sanitizeEnvVar(process.env.FIREBASE_CLIENT_EMAIL)
+    let privateKey = sanitizeEnvVar(process.env.FIREBASE_PRIVATE_KEY, true)
     const storageBucket = process.env.FIREBASE_STORAGE_BUCKET || process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
 
     console.log('[Firebase Admin] Init start', {
       hasProjectId: !!projectId,
       hasClientEmail: !!clientEmail,
       hasPrivateKey: !!privateKey,
-      storageBucket,
+      projectIdLength: projectId?.length || 0,
+      clientEmailLength: clientEmail?.length || 0,
+      privateKeyLength: privateKey?.length || 0,
     })
-
-    // Allow escaped newlines in env
-    if (privateKey) {
-      privateKey = privateKey.replace(/\\n/g, '\n')
-      // Detect placeholder value
-      if (privateKey.includes('YOUR_NEW_PRIVATE_KEY_HERE')) {
-        console.warn('[Firebase Admin] Placeholder private key detected, treating as undefined')
-        privateKey = undefined
-      }
-    }
 
     try {
       if (projectId && clientEmail && privateKey) {
+        // Detect placeholder value
+        if (privateKey.includes('YOUR_NEW_PRIVATE_KEY_HERE')) {
+          console.warn('[Firebase Admin] Placeholder private key detected, falling back to applicationDefault')
+          throw new Error('Placeholder private key');
+        }
+
         console.log('[Firebase Admin] Using service account credentials')
         admin.initializeApp({
           credential: admin.credential.cert({
@@ -39,21 +56,14 @@ function initFirebaseAdmin() {
       } else {
         console.warn('[Firebase Admin] Missing service account env vars, falling back to applicationDefault credentials')
         // Fallback to applicationDefault if service account not explicitly set
-        if (storageBucket) {
-          admin.initializeApp({
-            credential: admin.credential.applicationDefault(),
-            storageBucket,
-          })
-        } else {
-          admin.initializeApp({
-            credential: admin.credential.applicationDefault(),
-          })
-        }
+        admin.initializeApp({
+          credential: admin.credential.applicationDefault(),
+          storageBucket,
+        })
       }
     } catch (error) {
       console.error('[Firebase Admin] Failed to initialize', error)
       // Do not throw here, allow getFirebaseAdmin to return the non-initialized admin object
-      // which will result in null/errors later where it is used, instead of crashing the whole process.
     }
   }
 }

@@ -463,6 +463,14 @@ function MessagesPageContent() {
               .filter(item => item.direction === 'out')
               .map(item => ({ text: item.text, date: item.date }));
 
+            // 🟢 Determine friendly display message for Sidebar
+            let displayMessage = latest.text;
+            if (latest.post) {
+              displayMessage = latest.direction === 'out' ? "You shared a post" : "sent you a post";
+            } else if (latest.text.includes("/cards/public/")) {
+              displayMessage = latest.direction === 'out' ? "You shared a card" : "sent you a card";
+            }
+
             groupedBySender.set(partyId, {
               id: latest.id,
               name: sender.fullName || 'Unknown User',
@@ -470,7 +478,7 @@ function MessagesPageContent() {
               title: sender.title,
               company: sender.company,
               profileImage: sender.profileImage,
-              message: latest.text,
+              message: displayMessage,
               date: latest.date,
               status: conversationStatus,
               read: conversationRead,
@@ -851,6 +859,17 @@ function MessagesPageContent() {
                             {!m.read && m.incomingCount > 0 && (
                               <div className={styles.incomingBadge}>{m.incomingCount}</div>
                             )}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteMessage(m.senderId);
+                              }}
+                              style={{ background: "transparent", border: "none", color: "#94A3B8", cursor: "pointer", padding: "4px", display: "flex", alignItems: "center", opacity: 0.7, transition: "opacity 0.2s" }}
+                              onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                              onMouseLeave={(e) => e.currentTarget.style.opacity = '0.7'}
+                            >
+                              <Trash2 style={{ width: "16px", height: "16px" }} />
+                            </button>
                           </div>
                         </div>
 
@@ -865,18 +884,6 @@ function MessagesPageContent() {
                         <p className="message-text-left" style={{ margin: 0, fontSize: "12px", color: m.read ? "#64748B" : "#1E293B", fontWeight: m.read ? 400 : 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                           {m.message}
                         </p>
-
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: "20px" }}>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteMessage(m.senderId);
-                            }}
-                            style={{ background: "transparent", border: "none", color: "#94A3B8", cursor: "pointer", padding: "4px", marginLeft: "auto", opacity: 1, transition: "opacity 0.2s" }}
-                          >
-                            <Trash2 style={{ width: "16px", height: "16px" }} />
-                          </button>
-                        </div>
                       </div>
                     </div>
                   ))}
