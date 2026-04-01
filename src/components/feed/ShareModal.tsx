@@ -4,6 +4,7 @@ import React, { useEffect, useState, CSSProperties } from "react";
 import Image from "next/image";
 import { X, Check, Search, Copy, Loader2, Send } from "lucide-react";
 import { toast } from "react-hot-toast";
+import { FaWhatsapp, FaInstagram, FaTelegramPlane, FaFacebookF, FaTwitter } from "react-icons/fa";
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -180,9 +181,18 @@ const styles: Record<string, CSSProperties> = {
     padding: "16px 20px",
     borderTop: "1px solid #f3f4f6",
     display: "flex",
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
     alignItems: "center",
+    gap: "10px",
     backgroundColor: "#fff",
+  },
+  footerLeftActions: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    overflowX: "auto",
+    paddingBottom: "2px",
+    flex: 1,
   },
   sendBtn: {
     backgroundColor: "#2563eb",
@@ -263,6 +273,59 @@ export default function ShareModal({ isOpen, onClose, postId, cardId, type = "po
     if (newSet.has(id)) newSet.delete(id);
     else newSet.add(id);
     setSelectedIds(newSet);
+  };
+
+  const openShareUrl = (url: string) => {
+    window.open(url, "_blank", "noopener,noreferrer");
+    if (onShareSuccess) onShareSuccess();
+  };
+
+  const handleExternalShare = async (channel: "whatsapp" | "instagram" | "telegram" | "twitter" | "facebook" | "more") => {
+    const text = "Check out this post";
+    const encodedUrl = encodeURIComponent(postUrl);
+
+    if (channel === "whatsapp") {
+      // URL-only format improves WhatsApp preview rendering.
+      openShareUrl(`https://wa.me/?text=${encodedUrl}`);
+      return;
+    }
+
+    if (channel === "telegram") {
+      openShareUrl(`https://t.me/share/url?url=${encodedUrl}&text=${encodeURIComponent(text)}`);
+      return;
+    }
+
+    if (channel === "twitter") {
+      openShareUrl(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodedUrl}`);
+      return;
+    }
+
+    if (channel === "facebook") {
+      openShareUrl(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`);
+      return;
+    }
+
+    if (channel === "instagram") {
+      await copyToClipboard();
+      // Instagram web does not support prefilled link share; we copy then open app/site.
+      openShareUrl("https://www.instagram.com/");
+      toast("Link copied. Paste it in Instagram.");
+      return;
+    }
+
+    if (channel === "more") {
+      try {
+        if (navigator.share) {
+          await navigator.share({ title: "Post", text, url: postUrl });
+          if (onShareSuccess) onShareSuccess();
+        } else {
+          await copyToClipboard();
+          toast("System share not available. Link copied.");
+        }
+      } catch {
+        // user cancel or share error; avoid noisy toast
+      }
+    }
   };
 
   // 🟢 2. Send Message via API
