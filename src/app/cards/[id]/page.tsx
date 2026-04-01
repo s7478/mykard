@@ -32,6 +32,7 @@ import Link from "next/link";
 import QRCode from "react-qr-code";
 import { capitalizeFirstLetter } from '@/lib/utils';
 import CatalogViewer from "@/components/cards/CatalogViewer";
+import ShareModal from "@/components/feed/ShareModal";
 
 /* -------------------------------------------------
    DESIGN SYSTEM 
@@ -174,6 +175,21 @@ const CardDetailsContent = () => {
   const [contactsCount, setContactsCount] = useState(0);
   const [showDelete, setShowDelete] = useState(false);
   const [catalogViewerData, setCatalogViewerData] = useState<{ isOpen: boolean; title: string; items: any[] }>({ isOpen: false, title: '', items: [] });
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string>("");
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("/api/profile/getuser");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.user) setCurrentUserId(data.user.id);
+        }
+      } catch (e) { console.error(e); }
+    };
+    fetchUser();
+  }, []);
 
   // Growth Analytics State
   const [analytics, setAnalytics] = useState({
@@ -404,94 +420,7 @@ const CardDetailsContent = () => {
   };
 
   const shareProfile = async () => {
-    const shareMessage = `Here is my MyKard digital profile. You can view my details and connect with me here.\n\nThis profile contains my contact information, social links, and business card.\n\nClick the link below to view the card:\n${mockUserData.cardUrl}`;
-    const mobile = isMobile();
-
-    if (shareMethod === "link") {
-      if (navigator.share && mobile) {
-        try {
-          await navigator.share({
-            title: "MyKard Profile",
-            text: shareMessage,
-            url: mockUserData.cardUrl,
-          });
-          await incrementShareCount();
-          toast.success("Shared successfully!");
-        } catch (error) {
-          console.log("Share cancelled or failed", error);
-        }
-      } else {
-        const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareMessage)}`;
-        window.open(whatsappUrl, "_blank");
-        await incrementShareCount();
-      }
-      return;
-    }
-
-    if (shareMethod === "qr") {
-      if (navigator.share && mobile) {
-        try {
-          const qrWrapper = document.querySelector(`.${styles.qrWrapper}`) || hiddenQrRef.current;
-          const svg = qrWrapper?.querySelector("svg");
-
-          if (svg) {
-            const svgData = new XMLSerializer().serializeToString(svg);
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-            const img = new Image();
-
-            await new Promise((resolve, reject) => {
-              img.onload = () => {
-                canvas.width = img.width;
-                canvas.height = img.height;
-                if (ctx) {
-                  ctx.fillStyle = "#FFFFFF";
-                  ctx.fillRect(0, 0, canvas.width, canvas.height);
-                  ctx.drawImage(img, 0, 0);
-                }
-
-                canvas.toBlob(async (blob) => {
-                  if (blob) {
-                    const file = new File([blob], `MyKard_QR_${cardId}.png`, { type: "image/png" });
-                    try {
-                      await navigator.share({ files: [file], title: "MyKard QR Code" });
-                      setTimeout(async () => {
-                        try {
-                          await navigator.share({ title: "MyKard Profile", text: shareMessage, url: mockUserData.cardUrl });
-                          await incrementShareCount();
-                        } catch (error) { console.log("Could not share message after QR:", error); }
-                      }, 500);
-                    } catch (error) {
-                      console.log("QR share failed, fallback to message only");
-                      try {
-                        await navigator.share({ title: "MyKard Profile", text: shareMessage, url: mockUserData.cardUrl });
-                        await incrementShareCount();
-                      } catch (e) { console.log(e); }
-                    }
-                  }
-                  resolve(null);
-                }, "image/png");
-              };
-              img.onerror = reject;
-              img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
-            });
-          } else {
-            await navigator.share({ title: "MyKard Profile", text: shareMessage, url: mockUserData.cardUrl });
-            await incrementShareCount();
-          }
-        } catch (error) {
-          console.log("QR share failed, fallback to message only:", error);
-          try {
-            await navigator.share({ title: "MyKard Profile", text: shareMessage, url: mockUserData.cardUrl });
-            await incrementShareCount();
-          } catch (e) { console.log(e); }
-        }
-      } else {
-        const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareMessage)}`;
-        window.open(whatsappUrl, "_blank");
-        await incrementShareCount();
-      }
-    }
+    setIsShareModalOpen(true);
   };
 
   const renderPercentageBadge = (value: number) => {
@@ -619,6 +548,15 @@ const CardDetailsContent = () => {
         onClose={() => setCatalogViewerData(prev => ({ ...prev, isOpen: false }))}
         title={catalogViewerData.title}
         items={catalogViewerData.items}
+      />
+
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        cardId={cardId}
+        type="card"
+        currentUserId={currentUserId}
+        onShareSuccess={incrementShareCount}
       />
     </>
   );

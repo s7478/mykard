@@ -89,6 +89,8 @@ export default function PublicProfilePage() {
 
     const [showContactPopup, setShowContactPopup] = useState(false);
     const [isConnecting, setIsConnecting] = useState(false);
+    const [isEditingBio, setIsEditingBio] = useState(false);
+    const [tempBio, setTempBio] = useState("");
 
     useEffect(() => {
         if (userId) {
@@ -157,13 +159,28 @@ export default function PublicProfilePage() {
 
     const handleMessage = () => {
         if (!userProfile) return;
-        // Redirect to messages page with this user selected
-        // Standard pattern: /dashboard/messages?chatId=... or ?userId=...
-        // Assuming creates a new chat or opens existing one. 
-        // We'll pass userId as query param for the messages page to handle.
-        // Or if we need a chatId, we might need to create it first.
-        // simpler to pass userId and let messages page find the chat.
         router.push(`/dashboard/messages?userId=${userProfile.id}`);
+    };
+
+    const handleSaveBio = async () => {
+        try {
+            const response = await fetch('/api/user/me', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ bio: tempBio }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setUserProfile(prev => prev ? { ...prev, bio: data.user.bio } : null);
+                setIsEditingBio(false);
+                toast.success("Bio updated!");
+            } else {
+                toast.error("Failed to update bio");
+            }
+        } catch (err) {
+            toast.error("Error updating bio");
+        }
     };
 
 
@@ -348,7 +365,7 @@ export default function PublicProfilePage() {
         website: userProfile.website || "",
         profileImage: userProfile.profileImage || null,
         bannerImage: userProfile.bannerImage || null,
-        description: userProfile.bio || "No description provided.",
+        description: userProfile.bio || "",
         connectionCount: userProfile.connectionCount || 0,
         documentUrl: userProfile.documentUrl
     };
@@ -524,79 +541,173 @@ export default function PublicProfilePage() {
                     </div>
 
                     {/* Conditional Sections */}
-                    {/* Documents - Only if connected */}
-                    {isConnected && (
-                        <div style={{ backgroundColor: "#fff", borderRadius: "8px", padding: "16px", boxShadow: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)", marginBottom: "8px" }}>
-                            <div style={{ marginBottom: "8px" }}>
-                                <h3 style={{ fontSize: "16px", fontWeight: "600", color: "#000", margin: 0 }}>Documents</h3>
-                            </div>
+                    {/* Documents - Only if connected and has documents or is owner */}
+                    {(() => {
+                        const hasDocuments = cardsWithDocuments.length > 0 || !!displayUser.documentUrl;
+                        if (!isConnected || (!hasDocuments && !isOwnProfile)) return null;
 
-                            {cardsWithDocuments.length > 0 ? (
-                                /* ... (Card logic similar to main profile) ... */
-                                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                                    {cardsWithDocuments.map(card => (
-                                        <div key={card.id} style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                                            <div style={{ fontSize: "12px", color: "#666", fontWeight: "500" }}>
-                                                From card: {card.cardName}
-                                            </div>
-                                            <a
-                                                href={card.documentUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                style={{
-                                                    fontSize: "14px",
-                                                    color: "#0a66c2",
-                                                    textDecoration: "none",
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    gap: "8px"
-                                                }}
-                                            >
-                                                <span>📄</span>
-                                                <span style={{ textDecoration: "underline" }}>View Document</span>
-                                            </a>
-                                        </div>
-                                    ))}
+                        return (
+                            <div style={{ backgroundColor: "#fff", borderRadius: "8px", padding: "16px", boxShadow: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)", marginBottom: "8px" }}>
+                                <div style={{ marginBottom: "8px" }}>
+                                    <h3 style={{ fontSize: "16px", fontWeight: "600", color: "#000", margin: 0 }}>Documents</h3>
                                 </div>
-                            ) : (
-                                displayUser.documentUrl ? (
-                                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                                        <div style={{ fontSize: "12px", color: "#666", fontWeight: "500" }}>
-                                            Primary Document
-                                        </div>
-                                        <a
-                                            href={displayUser.documentUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            style={{
-                                                fontSize: "14px",
-                                                color: "#0a66c2",
-                                                textDecoration: "none",
-                                                display: "flex",
-                                                alignItems: "center",
-                                                gap: "8px"
-                                            }}
-                                        >
-                                            <span>📄</span>
-                                            <span style={{ textDecoration: "underline" }}>View Document</span>
-                                        </a>
+
+                                {hasDocuments ? (
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                                        {cardsWithDocuments.length > 0 ? (
+                                            cardsWithDocuments.map(card => (
+                                                <div key={card.id} style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                                                    <div style={{ fontSize: "12px", color: "#666", fontWeight: "500" }}>
+                                                        From card: {card.cardName}
+                                                    </div>
+                                                    <a
+                                                        href={card.documentUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        style={{
+                                                            fontSize: "14px",
+                                                            color: "#0a66c2",
+                                                            textDecoration: "none",
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            gap: "8px"
+                                                        }}
+                                                    >
+                                                        <span>📄</span>
+                                                        <span style={{ textDecoration: "underline" }}>View Document</span>
+                                                    </a>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            displayUser.documentUrl && (
+                                                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                                                    <div style={{ fontSize: "12px", color: "#666", fontWeight: "500" }}>
+                                                        Primary Document
+                                                    </div>
+                                                    <a
+                                                        href={displayUser.documentUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        style={{
+                                                            fontSize: "14px",
+                                                            color: "#0a66c2",
+                                                            textDecoration: "none",
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            gap: "8px"
+                                                        }}
+                                                    >
+                                                        <span>📄</span>
+                                                        <span style={{ textDecoration: "underline" }}>View Document</span>
+                                                    </a>
+                                                </div>
+                                            )
+                                        )}
                                     </div>
                                 ) : (
-                                    <p style={{ fontSize: "14px", color: "#666", margin: 0 }}>No documents uploaded</p>
-                                )
+                                    <div style={{ textAlign: "center", padding: "12px 0" }}>
+                                        <p style={{ fontSize: "14px", color: "#666", marginBottom: "12px" }}>No documents uploaded. Add documents to your cards to display them here.</p>
+                                        <button
+                                            onClick={() => router.push('/dashboard')}
+                                            style={{
+                                                padding: "6px 20px",
+                                                borderRadius: "24px",
+                                                border: "1px solid #0a66c2",
+                                                color: "#0a66c2",
+                                                background: "none",
+                                                fontSize: "14px",
+                                                fontWeight: "600",
+                                                cursor: "pointer"
+                                            }}
+                                        >
+                                            Add
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })()}
+
+                    {/* About Section - Conditionally Visible */}
+                    {(displayUser.description || isOwnProfile) && (
+                        <div style={{ backgroundColor: "#fff", borderRadius: "8px", padding: "16px", boxShadow: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)", marginBottom: "8px" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                                <h2 style={{ fontSize: "20px", fontWeight: "600", color: "#000", margin: 0 }}>About</h2>
+                                {isOwnProfile && !isEditingBio && displayUser.description && (
+                                    <button
+                                        onClick={() => {
+                                            setTempBio(displayUser.description);
+                                            setIsEditingBio(true);
+                                        }}
+                                        style={{ background: "none", border: "none", cursor: "pointer", color: "#666" }}
+                                    >
+                                        <Edit size={18} />
+                                    </button>
+                                )}
+                            </div>
+
+                            {isEditingBio ? (
+                                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                                    <textarea
+                                        value={tempBio}
+                                        onChange={(e) => setTempBio(e.target.value)}
+                                        placeholder="Add a summary about yourself..."
+                                        style={{
+                                            width: "100%",
+                                            minHeight: "120px",
+                                            padding: "12px",
+                                            borderRadius: "8px",
+                                            border: "1px solid #e0e0e0",
+                                            fontSize: "14px",
+                                            outline: "none",
+                                            resize: "vertical",
+                                            fontFamily: "inherit"
+                                        }}
+                                    />
+                                    <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+                                        <button
+                                            onClick={() => setIsEditingBio(false)}
+                                            style={{ padding: "6px 16px", borderRadius: "16px", border: "1px solid #666", background: "none", fontSize: "14px", fontWeight: "600", cursor: "pointer" }}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            onClick={handleSaveBio}
+                                            style={{ padding: "6px 16px", borderRadius: "16px", background: "#0a66c2", color: "#fff", border: "none", fontSize: "14px", fontWeight: "600", cursor: "pointer" }}
+                                        >
+                                            Save
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : displayUser.description ? (
+                                <p style={{ fontSize: "14px", color: "#000", lineHeight: "1.6", margin: 0, whiteSpace: "pre-wrap" }}>
+                                    {displayUser.description}
+                                </p>
+                            ) : (
+                                <div style={{ textAlign: "center", padding: "12px 0" }}>
+                                    <p style={{ fontSize: "14px", color: "#666", marginBottom: "12px" }}>Add a description to tell others about yourself.</p>
+                                    <button
+                                        onClick={() => {
+                                            setTempBio("");
+                                            setIsEditingBio(true);
+                                        }}
+                                        style={{
+                                            padding: "6px 20px",
+                                            borderRadius: "24px",
+                                            border: "1px solid #0a66c2",
+                                            color: "#0a66c2",
+                                            background: "none",
+                                            fontSize: "14px",
+                                            fontWeight: "600",
+                                            cursor: "pointer"
+                                        }}
+                                    >
+                                        Add
+                                    </button>
+                                </div>
                             )}
                         </div>
                     )}
-
-                    {/* About Section - Always Visible */}
-                    <div style={{ backgroundColor: "#fff", borderRadius: "8px", padding: "16px", boxShadow: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)", marginBottom: "8px" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-                            <h2 style={{ fontSize: "20px", fontWeight: "600", color: "#000", margin: 0 }}>About</h2>
-                        </div>
-                        <p style={{ fontSize: "14px", color: "#000", lineHeight: "1.6", margin: 0, whiteSpace: "pre-wrap" }}>
-                            {displayUser.description}
-                        </p>
-                    </div>
 
                     {/* Posts Section */}
                     <div style={{ backgroundColor: "#fff", borderRadius: "8px", padding: "16px", boxShadow: "0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)", marginBottom: "8px" }}>

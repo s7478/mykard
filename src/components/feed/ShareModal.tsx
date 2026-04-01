@@ -8,7 +8,9 @@ import { toast } from "react-hot-toast";
 interface ShareModalProps {
   isOpen: boolean;
   onClose: () => void;
-  postId: string;
+  postId?: string;
+  cardId?: string;
+  type?: "post" | "card";
   currentUserId: string;
   onShareSuccess?: () => void;
 }
@@ -196,10 +198,31 @@ const styles: Record<string, CSSProperties> = {
     gap: "8px",
     opacity: 1,
     transition: "opacity 0.2s",
+  },
+  // Social Icons
+  socialRow: {
+    display: "flex",
+    gap: "12px",
+    alignItems: "center",
+    flex: 1,
+  },
+  socialIcon: {
+    width: "36px",
+    height: "36px",
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "#fff",
+    cursor: "pointer",
+    transition: "transform 0.2s, opacity 0.2s",
+    border: "none",
   }
 };
 
-export default function ShareModal({ isOpen, onClose, postId, currentUserId, onShareSuccess }: ShareModalProps) {
+import { FaWhatsapp, FaInstagram, FaTelegramPlane, FaTwitter, FaFacebookF } from "react-icons/fa";
+
+export default function ShareModal({ isOpen, onClose, postId, cardId, type = "post", currentUserId, onShareSuccess }: ShareModalProps) {
   const [connections, setConnections] = useState<any[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -208,10 +231,15 @@ export default function ShareModal({ isOpen, onClose, postId, currentUserId, onS
   const [copied, setCopied] = useState(false);
   const [brokenAvatarIds, setBrokenAvatarIds] = useState<Set<string>>(new Set());
 
-  // 🟢 1. Construct the URL exactly like your snippet
-  const postUrl = typeof window !== "undefined" 
-    ? `${window.location.origin}/post/${postId}`
-    : "";
+  // Determine active ID and type
+  const activeType = cardId ? "card" : type;
+  const activeId = cardId || postId || "";
+
+  // 🟢 1. Construct the URL based on type
+  const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
+  const shareUrl = activeType === "card" 
+    ? `${baseUrl}/cards/public/${activeId}`
+    : `${baseUrl}/post/${activeId}`;
 
   useEffect(() => {
     if (isOpen) {
@@ -248,7 +276,9 @@ export default function ShareModal({ isOpen, onClose, postId, currentUserId, onS
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           receiverIds: Array.from(selectedIds), 
-          postId: postId // Backend will construct the link or use this ID
+          postId: activeType === "post" ? activeId : undefined,
+          cardId: activeType === "card" ? activeId : undefined,
+          type: activeType
         }),
       });
 
@@ -267,15 +297,15 @@ export default function ShareModal({ isOpen, onClose, postId, currentUserId, onS
     }
   };
 
-  // 🟢 3. Robust Copy Logic (Taken from your file)
+  // 🟢 3. Robust Copy Logic
   const copyToClipboard = async () => {
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(postUrl);
+        await navigator.clipboard.writeText(shareUrl);
       } else {
         // Mobile fallback for older browsers
         const input = document.createElement("input");
-        input.value = postUrl;
+        input.value = shareUrl;
         document.body.appendChild(input);
         input.select();
         input.setSelectionRange(0, 99999);
@@ -303,7 +333,7 @@ export default function ShareModal({ isOpen, onClose, postId, currentUserId, onS
         
         {/* Header */}
         <div style={styles.header}>
-          <h3 style={styles.title}>Share Post</h3>
+          <h3 style={styles.title}>{activeType === "card" ? "Share Profile" : "Share Post"}</h3>
           <button onClick={onClose} style={styles.closeBtn}>
             <X size={24} />
           </button>
@@ -384,6 +414,27 @@ export default function ShareModal({ isOpen, onClose, postId, currentUserId, onS
 
         {/* Footer */}
         <div style={styles.footer}>
+          <div style={styles.socialRow}>
+            {[
+              { icon: <FaWhatsapp size={20} />, color: "#25D366", name: "WhatsApp", url: `https://api.whatsapp.com/send?text=${encodeURIComponent(shareUrl)}` },
+              { icon: <FaInstagram size={20} />, color: "#E4405F", name: "Instagram", url: `https://www.instagram.com/` },
+              { icon: <FaTelegramPlane size={20} />, color: "#0088cc", name: "Telegram", url: `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}` },
+              { icon: <FaTwitter size={20} />, color: "#000000", name: "Twitter", url: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}` },
+              { icon: <FaFacebookF size={20} />, color: "#1877F2", name: "Facebook", url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}` },
+            ].map((social, idx) => (
+              <button 
+                key={idx} 
+                style={{ ...styles.socialIcon, backgroundColor: social.color }}
+                onClick={() => window.open(social.url, "_blank")}
+                onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.1)"}
+                onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
+                title={`Share on ${social.name}`}
+              >
+                {social.icon}
+              </button>
+            ))}
+          </div>
+
           <button 
             onClick={handleSend} 
             disabled={selectedIds.size === 0 || sending}
