@@ -378,20 +378,25 @@ const Dashboard = () => {
     if (!card) return;
     const origin = typeof window !== 'undefined' && window.location.origin ? window.location.origin : '';
     const cardUrl = `${origin}/cards/public/${card.id}`;
-    const shareMessage = `Here is my MyKard digital profile. You can view my details and connect with me here.\n\nThis profile contains my contact information, social links, and business card.\n\nClick the link below to view the card:\n${cardUrl}`;
+    
+    // Message body without the URL (to avoid duplicates in navigator.share)
+    const baseMessage = `Here is my MyKard digital profile. You can view my details and connect with me here.\n\nThis profile contains my contact information, social links, and business card.\n\nClick the link below to view the card:`;
+    
+    // Full message with URL (for fallback sharing methods like WhatsApp API)
+    const fullMessage = `${baseMessage}\n${cardUrl}`;
 
     if (navigator.share && isMobile) {
       try {
         await navigator.share({
           title: "MyKard Profile",
-          text: shareMessage,
+          text: baseMessage, // Systems like Android/iOS will append 'url' to this text
           url: cardUrl,
         });
       } catch (err) {
         console.error("Share failed/cancelled", err);
       }
     } else {
-      const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareMessage)}`;
+      const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(fullMessage)}`;
       window.open(whatsappUrl, "_blank");
     }
   };
@@ -466,29 +471,51 @@ const Dashboard = () => {
             {/* CONNECTIONS BOX */}
             <div
               onClick={() => router.push("/dashboard/connections")}
-              className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:border-blue-400 hover:shadow-md hover:bg-blue-50/30 transition-all duration-200 cursor-pointer flex flex-col justify-center"
+              className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col items-start"
+              style={{ padding: '14px 14px 18px 18px', border: '1.5px solid #4A90E2', gap: '8px' }}
             >
-
-              {/* Header: Icon + Label */}
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-blue-50 rounded-sm flex items-center justify-center text-[#0B6BCB] shrink-0"><Users size={18} /></div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide leading-none">Connections</p>
+              <div className="w-9 h-9 bg-[#eff6ff] rounded-full flex items-center justify-center text-[#0B6BCB]">
+                <Users size={18} />
               </div>
-              <div className="mt-2 pl-1" style={{ color: 'black', textAlign: 'center' }}><h3 className="text-2xl font-bold !text-gray-900 leading-tight">{activeCardContacts}</h3></div>
+              <div className="flex flex-col min-w-0 w-full" style={{ gap: '2px' }}>
+                <h3 className="font-bold text-gray-900" style={{ fontSize: '22px', lineHeight: '1.1' }}>
+                  {activeCardContacts}
+                </h3>
+                <p style={{ fontSize: '13px', fontWeight: '600', color: '#718096' }}>
+                  Connections
+                </p>
+              </div>
             </div>
+
+            {/* PROFILE VIEWS BOX */}
             <div
               onClick={() => activeCard && router.push(`/cards/${activeCard.id}?tab=analytics`)}
-              className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:border-blue-400 hover:shadow-md hover:bg-blue-50/30 transition-all duration-200 cursor-pointer flex flex-col justify-center"
+              className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col items-start"
+              style={{ padding: '14px 14px 18px 18px', border: '1.5px solid #4A90E2', gap: '8px' }}
             >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-blue-50 rounded-sm flex items-center justify-center text-[#0B6BCB] shrink-0"><Eye size={18} /></div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide leading-none">Profile Views</p>
+              <div className="w-9 h-9 bg-[#eff6ff] rounded-full flex items-center justify-center text-[#0B6BCB]">
+                <Eye size={18} />
               </div>
-              <div className="mt-2 pl-1" style={{ color: 'black', textAlign: 'center' }}><h3 className="text-2xl font-bold !text-gray-900 leading-tight">{activeCard?.views || 0}</h3></div>
+              <div className="flex flex-col min-w-0 w-full" style={{ gap: '2px' }}>
+                <h3 className="font-bold text-gray-900" style={{ fontSize: '22px', lineHeight: '1.1' }}>
+                  {activeCard?.views || 0}
+                </h3>
+                <p style={{ fontSize: '13px', fontWeight: '600', color: '#718096' }}>
+                  Profile Views
+                </p>
+              </div>
             </div>
           </div>
-          <button onClick={() => activeCard && router.push(`/cards/${activeCard.id}?tab=analytics`)} className="w-full bg-[#C7DFFF] hover:bg-blue-100 text-[#0B6BCB] h-14 rounded-[0.5rem] flex items-center justify-between font-semibold text-sm transition-colors mb-4 shadow-sm border border-none px-5" style={{ marginBottom: "1rem" }}>
-            <div className="flex items-center gap-2"><BarChart2 size={18} /><span>Show Analytics</span></div><FiChevronRight size={18} />
+          <button 
+            onClick={() => activeCard && router.push(`/cards/${activeCard.id}?tab=analytics`)} 
+            className="w-full bg-[#dbeafe] hover:bg-[#c7dfff] text-[#1f2937] h-14 rounded-xl flex items-center justify-between px-6 transition-all duration-200 mb-4 shadow-sm border border-transparent"
+            style={{ marginBottom: "1rem" }}
+          >
+            <div className="flex items-center gap-4">
+              <BarChart2 size={24} className="text-[#0B6BCB]" />
+              <span className="font-bold text-[14px]">Show Analytics</span>
+            </div>
+            <FiChevronRight size={24} className="text-[#0B6BCB]" />
           </button>
           <div className="flex gap-4 mb-2" style={{ marginBottom: "0.5rem" }}>
             <button onClick={() => router.push("/dashboard/create?new=true")} className="flex-1 bg-[#0B6BCB] text-white h-14 rounded-[0.5rem] font-semibold flex items-center justify-center gap-1 shadow-md shadow-blue-200 active:scale-95 hover:bg-blue-700 transition-all duration-300 px-4" style={{ fontFamily: "Poppins, sans-serif, Plus Jakarta Sans" }}><Plus size={18} /> Create New Card</button>
