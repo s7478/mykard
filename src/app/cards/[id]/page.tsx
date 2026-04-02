@@ -420,7 +420,26 @@ const CardDetailsContent = () => {
   };
 
   const shareProfile = async () => {
-    setIsShareModalOpen(true);
+    const origin = typeof window !== 'undefined' && window.location.origin ? window.location.origin : '';
+    const cardUrl = `${origin}/cards/public/${cardId}`;
+    
+    // Message body without the URL (to avoid duplicates in navigator.share)
+    const baseMessage = `Here is my MyKard digital profile. You can view my details and connect with me here.\n\nThis profile contains my contact information, social links, and business card.\n\nClick the link below to view the card:`;
+
+    if (navigator.share && isMobile()) {
+      try {
+        await navigator.share({
+          title: "MyKard Profile",
+          text: baseMessage, // Systems like Android/iOS will append 'url' to this text
+          url: cardUrl,
+        });
+        await incrementShareCount();
+      } catch (err) {
+        console.error("Share failed/cancelled", err);
+      }
+    } else {
+      setIsShareModalOpen(true);
+    }
   };
 
   const renderPercentageBadge = (value: number) => {
