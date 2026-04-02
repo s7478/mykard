@@ -230,7 +230,7 @@ const styles: Record<string, CSSProperties> = {
   }
 };
 
-import { FaWhatsapp, FaInstagram, FaTelegramPlane, FaTwitter, FaFacebookF } from "react-icons/fa";
+
 
 export default function ShareModal({ isOpen, onClose, postId, cardId, type = "post", currentUserId, onShareSuccess }: ShareModalProps) {
   const [connections, setConnections] = useState<any[]>([]);
