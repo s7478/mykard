@@ -282,7 +282,7 @@ export default function ShareModal({ isOpen, onClose, postId, cardId, type = "po
 
   const handleExternalShare = async (channel: "whatsapp" | "instagram" | "telegram" | "twitter" | "facebook" | "more") => {
     const text = "Check out this post";
-    const encodedUrl = encodeURIComponent(postUrl);
+    const encodedUrl = encodeURIComponent(shareUrl);
 
     if (channel === "whatsapp") {
       // URL-only format improves WhatsApp preview rendering.
@@ -316,7 +316,7 @@ export default function ShareModal({ isOpen, onClose, postId, cardId, type = "po
     if (channel === "more") {
       try {
         if (navigator.share) {
-          await navigator.share({ title: "Post", text, url: postUrl });
+          await navigator.share({ title: "Post", text, url: shareUrl });
           if (onShareSuccess) onShareSuccess();
         } else {
           await copyToClipboard();
