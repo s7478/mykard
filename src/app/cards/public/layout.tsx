@@ -9,7 +9,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Digital Business Card - CredLink",
+  title: "Digital Business Card - MyKard",
   description: "View and connect with this professional's digital business card.",
 };
 

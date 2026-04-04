@@ -11,7 +11,7 @@ export function HomeHeader() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center h-16 px-4">
           <Link href="/" className="text-2xl font-bold text-gray-800">
-            CredLink
+            MyKard
           </Link>
           <div>
             {isAuthenticated ? (
