@@ -394,7 +394,7 @@ export default function ProfilePage() {
   const handleSharePost = async (post: UserPost) => {
     const postUrl = `${window.location.origin}/post/${post.id}`;
     const shareData = {
-      title: 'Check out this post on CredLink',
+      title: 'Check out this post on MyKard',
       text: post.content || 'Check out this post',
       url: postUrl
     };
