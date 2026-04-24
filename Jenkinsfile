@@ -4,7 +4,7 @@ pipeline {
     environment {
         // Variables for Docker Image
         DOCKER_IMAGE = "mykard-app"
-        DOCKER_REGISTRY = "docker.io/YOUR_DOCKERHUB_USERNAME" // Please change this to your Docker Hub username
+        DOCKER_REGISTRY = "docker.io/sharda657" // Please change this to your Docker Hub username
         DOCKER_TAG = "${env.BUILD_ID}"
     }
 
@@ -25,7 +25,7 @@ pipeline {
                 // Connects to the SonarQube server running on port 9000
                 script {
                     def scannerHome = tool 'SonarQubeScanner'
-                    withSonarQubeEnv('sonar-server') {
+                    withSonarQubeEnv() {
                         sh "${scannerHome}/bin/sonar-scanner \
                             -Dsonar.projectKey=mykard-app \
                             -Dsonar.projectName=MyKard \
