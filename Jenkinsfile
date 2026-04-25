@@ -61,12 +61,24 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Deploy to EC2') {
             steps {
-                // Here we will call Ansible or run kubectl commands
-                echo "Deploying to K8s cluster..."
-                // sh "kubectl apply -f k8s/"
+                echo "Deploying live to EC2 instance..."
+                script {
+                    // Stop and remove the old running container (if any)
+                    sh "docker rm -f mykard-live || true"
+                    
+                    // Run the new container on port 3000
+                    sh "docker run -d --name mykard-live -p 3000:3000 ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+                }
             }
+        }
+    }
+
+    post {
+        always {
+            // Clean up the Jenkins workspace to save disk space
+            cleanWs()
         }
     }
 }
