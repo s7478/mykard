@@ -4,7 +4,7 @@ pipeline {
     environment {
         // Variables for Docker Image
         DOCKER_IMAGE = "mykard-app"
-        DOCKER_REGISTRY = "docker.io/sharda657" // Please change this to your Docker Hub username
+        DOCKER_REGISTRY = "shantanu078" //shantanu// Changed to your actual Docker Hub username
         DOCKER_TAG = "${env.BUILD_ID}"
     }
 
