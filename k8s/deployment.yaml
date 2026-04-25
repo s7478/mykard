@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mykard-app
+  labels:
+    app: mykard-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mykard-app
+  template:
+    metadata:
+      labels:
+        app: mykard-app
+    spec:
+      containers:
+      - name: mykard-app
+        image: shantanu078/mykard-app:latest
+        ports:
+        - containerPort: 3000

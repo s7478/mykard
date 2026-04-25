@@ -61,15 +61,16 @@ pipeline {
             }
         }
 
-        stage('Deploy to EC2') {
+        stage('Deploy to Kubernetes') {
             steps {
-                echo "Deploying live to EC2 instance..."
+                echo "Deploying to Kubernetes cluster..."
                 script {
-                    // Stop and remove the old running container (if any)
-                    sh "docker rm -f mykard-live || true"
+                    // Apply Kubernetes manifests
+                    sh "kubectl apply -f k8s/deployment.yaml"
+                    sh "kubectl apply -f k8s/service.yaml"
                     
-                    // Run the new container on port 3000
-                    sh "docker run -d --name mykard-live -p 3000:3000 ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    // Update the deployment with the new image tag
+                    sh "kubectl set image deployment/mykard-app mykard-app=${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}"
                 }
             }
         }
